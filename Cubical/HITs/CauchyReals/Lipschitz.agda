@@ -14,10 +14,10 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Empty
 open import Cubical.HITs.PropositionalTruncation as PT
 
-open import Cubical.Data.Rationals.Fast as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Fast.Order as ℚ using
+open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
+open import Cubical.Data.Rationals.Order as ℚ using
   ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
-open import Cubical.Data.Rationals.Fast.Order.Properties as ℚ
+open import Cubical.Data.Rationals.Order.Properties as ℚ
  using (invℚ₊;/2₊;/3₊;/4₊ ; /4₊+/4₊≡/2₊ ; ε/2+ε/2≡ε;/4)
 
 open import Cubical.Data.NatPlusOne
@@ -27,8 +27,7 @@ open import Cubical.HITs.CauchyReals.Base
 open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.LiftingExpr
 
-open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
-open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
+open import Cubical.Tactics.CommRingSolver.Specialised.Rationals
 
 opaque
  sΣℚ< : ∀ {u v ε ε'} → fst ε ≡ ε' → (u ∼[ ε ] v) →
@@ -50,7 +49,7 @@ opaque
  where
  w : Elimℝ-Prop _
  w .Elimℝ-Prop.ratA x y ε δ p x₁ =
-   rat-lim x y (ε ℚ₊+ δ) δ p (subst {x = ε .fst } {y = (fst (ε ℚ₊+ δ) ℚ.- fst δ)} 0<_ ℚ!! (snd ε))
+   rat-lim x y (ε ℚ₊+ δ) δ p (subst 0<_ ℚ!! (snd ε))
     (subst∼ ℚ!! x₁)
  w .Elimℝ-Prop.limA x p R y ε δ p₁ = PT.rec (isProp∼ _ _ _)
      (uncurry λ θ → PT.rec (isProp∼ _ _ _) (uncurry $ λ vv →
@@ -97,7 +96,7 @@ lim-surj = PT.map (map-snd (eqℝ _ _)) ∘ (Elimℝ-Prop.go w)
  w .Elimℝ-Prop.ratA x = ∣ ((λ _ → rat x) , (λ _ _ → refl∼ _ _)) ,
    (λ ε → rat-lim x (λ v → rat x) ε
     (/2₊ ε) (λ v v₁ → refl∼ (rat x) (v ℚ₊+ v₁))
-      (subst  {x = fst (/2₊ ε)} {y = (fst ε ℚ.- fst (/2₊ ε))} 0<_  ℚ!! (snd (/2₊ ε)))
+      (subst  0<_  ℚ!! (snd (/2₊ ε)))
 
 
 
@@ -155,9 +154,7 @@ Lipschitz-ℚ→ℚ-extend Δ L f δ δ<Δ x q r ε v =
      z u = ℚ.absFrom<×< (fst Δ)
               (ℚ.clamp (ℚ.- (fst Δ ℚ.- fst δ)) (fst Δ ℚ.- fst δ) u)
                (ℚ.isTrans<≤ (ℚ.- (fst Δ)) (ℚ.- (fst Δ ℚ.- fst δ)) _
-                 (subst2 (ℚ._<_)
-                     (ℚ.+IdR _) (ℚ.+Comm (ℚ.- fst Δ) (fst δ)
-                      ∙ (sym $ ℚ.-[x-y]≡y-x (fst Δ) (fst δ)))
+                 (subst2 (ℚ._<_) ℚ!! ℚ!!
                      ((ℚ.<-o+ 0 (fst δ) (ℚ.- (fst Δ)) (ℚ.0<ℚ₊ δ))))
                  ((ℚ.≤clamp (ℚ.- (fst Δ ℚ.- fst δ)) (fst Δ ℚ.- fst δ) u
                     (( ℚ.pos[-x≤x] (ℚ.<→ℚ₊ (fst δ) (fst Δ) δ<Δ))))) )
@@ -216,9 +213,7 @@ fromLipschitzGo L (f , fL) = f' ,
           (λ δ₁ ε₁ →
           subst (λ q₁ → v' (invℚ₊ L ℚ₊· δ₁) ∼[ q₁ ] v' (invℚ₊ L ℚ₊· ε₁)) _
           (u' (invℚ₊ L ℚ₊· δ₁) (invℚ₊ L ℚ₊· ε₁)))
-          (subst {x = fst L ℚ.· (fst ε ℚ.+ (ℚ.- fst δ))}
-                 {fst L ℚ.· fst ε ℚ.+ (ℚ.- fst (L ℚ₊· δ))}
-                0<_ ( ℚ!! )
+          (subst 0<_ ( ℚ!! )
             (ℚ.·0< (fst L) (fst ε ℚ.- fst δ) (snd L) v) )
               (subst2 (f q ∼[_]_) (ℚ₊≡ ℚ!!)
                  (cong v' (ℚ₊≡ ℚ!)) z)
@@ -330,7 +325,7 @@ congLim x y x' y' p =
            (funExt p))
 
 
-open ℚ.HLP
+-- open ℚ.HLP
 
 congLim' : ∀ x y x' → (p : ∀ q → x q ≡ x' q) →
  lim x y ≡ lim x' (subst (λ x' → (δ ε : ℚ₊) → x' δ ∼[ δ ℚ₊+ ε ] x' ε)
@@ -458,7 +453,7 @@ record NonExpanding₂ (g : ℚ → ℚ → ℚ ) : Type where
                           y'
  β-rat-lim r x y y' = congLim _ _ _ _
    λ q → cong (go (rat r) ∘ x)
-     (ℚ₊≡ (ℚ.·IdL (fst q)))
+     (ℚ₊≡ ℚ!!)
 
 
  β-rat-lim' : ∀ r x y → Σ _
@@ -466,7 +461,7 @@ record NonExpanding₂ (g : ℚ → ℚ → ℚ ) : Type where
                          lim (λ q → go (rat r) (x q)) y')
  β-rat-lim' r x y = _ , congLim' _ _ _
    λ q → cong (go (rat r) ∘ x)
-     (ℚ₊≡ (ℚ.·IdL (fst q)))
+     (ℚ₊≡ ℚ!!)
 
 
  β-lim-lim/2 : ∀ x y x' y' → Σ _ (λ yy' → go (lim x y) (lim x' y') ≡
@@ -495,8 +490,7 @@ record NonExpanding₂ (g : ℚ → ℚ → ℚ ) : Type where
 
                in (lim-lim _ (λ q' → go (x (/2₊ q')) (x' (/2₊ q'))) ε
                         (/2₊ ε/4) ε/4 (λ δ ε₁ → Elimℝ.go∼ w (y δ ε₁) (lim x' y'))
-                          _) (subst {x = (fst ε) ℚ.· [ pos 5 / 1+ 7 ]}
-                         {y = fst ε ℚ.- (fst (/2₊ ε/4) ℚ.+ (fst (/4₊ ε)))} (ℚ.0<_) ℚ!!
+                          _) (subst (ℚ.0<_) ℚ!!
                           ((snd (ε ℚ₊· (ℚ.[ 5 / 8 ] , ℚ.inj (pos<pos tt))))))
                         ((go∼R ( x (/2₊ ε/4)) (lim x' y')
                           (x' (/2₊ ε/4)) _
@@ -554,7 +548,7 @@ opaque
   w .Elimℝ-Prop2.rat-limA r x y x₁ =
     congLim _ _ _ _
       λ q → congS (NonExpanding₂.go flip-ne (rat r) ∘S x)
-        ((ℚ₊≡ $ (ℚ.·IdL (fst q)) )) ∙ x₁ q
+        ((ℚ₊≡ $ ℚ!! )) ∙ x₁ q
 
   w .Elimℝ-Prop2.lim-ratA x y r x₁ =
      congLim _ _ _ _

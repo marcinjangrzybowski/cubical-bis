@@ -24,7 +24,7 @@ private
   variable
     m n o s : ℤ
     k l : ℕ
-    
+
 infix 4 _≤_ _<_ _≥_ _>_
 
 data _≤_ : ℤ → ℤ → Type where
@@ -687,10 +687,8 @@ pos-≤-pos→ℕ≤ m n (pos≤pos x) = ℕ.≤ᵗ→≤ x
 pos-≤-pos≃ℕ≤ : ∀ m n → (pos m ≤ pos n) ≃ (m ℕ.≤ n)
 pos-≤-pos≃ℕ≤ m n = propBiimpl→Equiv isProp≤ ℕ.isProp≤
                 (pos-≤-pos→ℕ≤ _ _) (ℕ≤→pos-≤-pos _ _)
+  
 
--- pos-<-pos≃ℕ< : ∀ m n → (pos m < pos n) ≃ (m ℕ.< n)
--- pos-<-pos≃ℕ< m n = propBiimpl→Equiv (isProp< {pos m} {pos n}) ℕ.isProp≤
---                 (pos-≤-pos→ℕ≤ _ _) (ℕ≤→pos-≤-pos (suc m) n)
 
 
 0≤x² : ∀ n → 0 ≤ n ℤ.· n

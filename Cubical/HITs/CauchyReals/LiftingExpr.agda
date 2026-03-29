@@ -5,7 +5,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Empty
 open import Cubical.Data.Unit
 
-open import Cubical.Data.Rationals.Fast as ℚ using (ℚ ; [_/_])
+open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
 open import Cubical.HITs.CauchyReals.Base
 open import Cubical.HITs.CauchyReals.Closeness
 
@@ -290,7 +290,7 @@ private
 
 
      wait-for-type goal
-     just lhs ← get-boundaryLHS goal
+     just (lhs , _) ← get-boundaryLHS goal
        where
          nothing
            → typeError(strErr "The ℚℝ↘ failed to parse the goal "

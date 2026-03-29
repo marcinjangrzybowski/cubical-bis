@@ -19,10 +19,10 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _//_)
 
 
-open import Cubical.Data.Rationals.Fast as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Fast.Order as ℚ using
+open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
+open import Cubical.Data.Rationals.Order as ℚ using
   ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
-open import Cubical.Data.Rationals.Fast.Order.Properties as ℚ
+open import Cubical.Data.Rationals.Order.Properties as ℚ
  using (invℚ₊;/2₊;/3₊;/4₊)
 
 open import Cubical.Data.NatPlusOne
@@ -33,8 +33,7 @@ open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
 
-open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
-open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
+open import Cubical.Tactics.CommRingSolver.Specialised.Rationals
 
 open import Cubical.HITs.CauchyReals.LiftingExpr
 

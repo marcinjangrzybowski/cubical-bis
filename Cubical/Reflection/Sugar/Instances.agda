@@ -31,11 +31,14 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Reflection.Sugar.Base
 open import Cubical.Data.List as L
+open import Cubical.Data.List.Dependent as DL
+
 import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Maybe as Mb
 open import Cubical.Data.Bool
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
+
 
 
 module _ {M : Functorω} {{_ : RawApplicative M}} {{_ : RawMonad M}} where
@@ -131,6 +134,13 @@ instance
  RawMonad._>>=_ MonadMaybe = flip (Mb.rec nothing)
  RawMonad._>>_ MonadMaybe = flip (Mb.rec nothing ∘ const)
 
+
+ RawMonadFailMaybe : RawMonadFail Maybe Unit
+ RawMonadFailMaybe .RawMonadFail.fail _ = nothing
+ (RawMonadFailMaybe RawMonadFail.<|> nothing) x₁ = x₁
+ (RawMonadFailMaybe RawMonadFail.<|> just x) x₁ = just x
+
+
  ApplicativeList : RawApplicative List
  RawApplicative._<$>_ ApplicativeList = L.map
  RawApplicative.pure ApplicativeList = [_]
@@ -154,8 +164,30 @@ infixl 4 _<⊎>_
 private
  variable
   ℓ : Level
-  A B E : Type ℓ
+  A B C E : Type ℓ
 
 _<⊎>_ : {M : Functorω} {{_ : RawApplicative M}} {{_ : RawMonad M}} {{_ : RawMonadFail M E}} →
   (M A) → (M B) → M (A ⊎.⊎ B)
 a <⊎> b = (⊎.inl <$> a) <|> (⊎.inr <$> b)
+
+msum :  {M : Functorω} {{_ : RawApplicative M}} {{_ : RawMonad M}} {{_ : RawMonadFail M E}}
+         → E → List (M A) → M A
+msum e [] = fail e
+msum e (x ∷ xs) = x <|> msum e xs
+
+sequenceP : {M : Functorω} {{_ : RawApplicative M}} →
+ ∀ {ℓ ℓ'} {A} {B} {xs}
+  → ListP {ℓ} {ℓ'} {A} (M ∘ B) xs
+  → M (ListP B xs)
+sequenceP {M} {{RA}} [] = RawApplicative.pure RA []
+sequenceP {M} {{RA}} (y ∷ xs) = ((λ x₁ → x₁ ∷_) <$> y) <*> (sequenceP xs)
+
+
+traverseList : {M : Functorω} {{_ : RawApplicative M}} →
+   ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → M B) → List A -> M (List B)
+traverseList f [] = ⦇ [] ⦈
+traverseList f (x ∷ xs) = ⦇ (f x) ∷ (traverseList f xs) ⦈
+
+sucesfullM? :  {M : Functorω} {{_ : RawApplicative M}} {{_ : RawMonad M}} {{_ : RawMonadFail M E}} →
+                M A → M Bool
+sucesfullM? m = (m >> pure true) <|> pure false

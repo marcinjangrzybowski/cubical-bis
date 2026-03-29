@@ -20,10 +20,10 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _//_)
 
 
-open import Cubical.Data.Rationals.Fast as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Fast.Order as ℚ using
+open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
+open import Cubical.Data.Rationals.Order as ℚ using
   ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡  ; [_/_]₊)
-open import Cubical.Data.Rationals.Fast.Order.Properties as ℚ
+open import Cubical.Data.Rationals.Order.Properties as ℚ
  using (invℚ₊;/2₊;/3₊;/4₊)
 
 open import Cubical.Data.NatPlusOne
@@ -42,8 +42,7 @@ open import Cubical.HITs.CauchyReals.LiftingExpr
 open import Cubical.Relation.Binary.Order.Poset
 open import Cubical.Relation.Binary.Order.Proset
 
-open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
-open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
+open import Cubical.Tactics.CommRingSolver.Specialised.Rationals
 open import Cubical.Data.Unit
 
 infix  8 -ᵣ_
@@ -307,8 +306,6 @@ opaque
 
 infix 4 _≤ᵣ_ _<ᵣ_
 
-open ℚ.HLP
-
 opaque
  unfolding maxᵣ minᵣ
  _≤ᵣ_ : ℝ → ℝ → Type
@@ -532,7 +529,7 @@ opaque
   w .Elimℝ-Prop.ratA x = invEq (∼≃≡ _ _) (cong rat (ℚ.+InvR x)) --
   w .Elimℝ-Prop.limA x p x₁ ε =
 
-     lim-rat _ _ _ (/4₊ ε) _ (distℚ0<! ε (ge1 +ge (neg-ge ge[ ℚ.[ 1 / 4 ] ])))
+     lim-rat _ _ _ (/4₊ ε) _ {!!} --(distℚ0<! ε (ge1 +ge (neg-ge ge[ ℚ.[ 1 / 4 ] ])))
        (subst∼ ℚ!! (triangle∼
          (NonExpanding₂.go∼R sumR (x (/4₊ ε)) (-ᵣ lim x p)
           (-ᵣ x (/4₊ ε)) (/2₊ ε) (subst∼ (ℚ.·IdL (fst (/2₊ ε)) ) $

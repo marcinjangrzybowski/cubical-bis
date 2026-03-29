@@ -2,6 +2,8 @@ module Cubical.Data.Fast.Int.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat as ℕ hiding (_+_ ; _·_)
+
+open import Cubical.Data.NatPlusOne
 open import Cubical.Data.Int.Base hiding (_ℕ-_ ; _+_ ; _-_ ; _·_ ; sumFinℤ ; sumFinℤId) public
 open import Cubical.Data.Fin.Base
 
@@ -42,3 +44,6 @@ sumFinℤ {n = n} f = sumFinGen {n = n} _+_ 0 f
 sumFinℤId : (n : ℕ) {f g : Fin n → ℤ}
   → ((x : _) → f x ≡ g x) → sumFinℤ {n = n} f ≡ sumFinℤ {n = n} g
 sumFinℤId n t i = sumFinℤ {n = n} λ x → t x i
+
+ℕ₊₁→ℤ· : ∀ n m → ℕ₊₁→ℤ ((1+ n) ·₊₁ ((1+ m))) ≡ ℕ₊₁→ℤ (1+ n) · ℕ₊₁→ℤ (1+ m)
+ℕ₊₁→ℤ· n m = refl

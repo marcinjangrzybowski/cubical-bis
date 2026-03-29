@@ -838,31 +838,31 @@ record ElimProp6 {A : Type ℓ} {R : A → A → Type ℓ'}
 
 module _ {A : Type ℓ} {B : Type ℓ'} (R : A → A → Type ℓ'')
          (isom : Iso A B) where
- module 𝓘 = Iso isom
+ module � = Iso isom
  private
   R' : B → B → Type ℓ''
-  R' = λ b b' → R (𝓘.inv b) (𝓘.inv b')
+  R' = λ b b' → R (�.inv b) (�.inv b')
 
  fR : Rec {R = R} (B / R')
  fR .Rec.isSetB = squash/
- fR .Rec.f a = [ 𝓘.fun a ]
+ fR .Rec.f a = [ �.fun a ]
  fR .Rec.f∼ a a' r = eq/ _ _
-  (subst2 R (sym (𝓘.ret a)) (sym (𝓘.ret a')) r)
+  (subst2 R (sym (�.ret a)) (sym (�.ret a')) r)
 
  iR : Rec {R = R'} (A / R)
  iR .Rec.isSetB = squash/
- iR .Rec.f b = [ 𝓘.inv b ]
+ iR .Rec.f b = [ �.inv b ]
  iR .Rec.f∼ b b' r' = eq/ _ _ r'
 
  sR : ElimProp {R = R'} λ b → Rec.go fR (Rec.go iR b) ≡ b
  sR .ElimProp.isPropB _ = squash/ _ _
- sR .ElimProp.f = congS [_] ∘ 𝓘.sec
+ sR .ElimProp.f = congS [_] ∘ �.sec
 
  rR : ElimProp {R = R} λ a → Rec.go iR (Rec.go fR a) ≡ a
  rR .ElimProp.isPropB _ = squash/ _ _
- rR .ElimProp.f = cong [_] ∘ 𝓘.ret
+ rR .ElimProp.f = cong [_] ∘ �.ret
 
- liftIso/ : Iso (A / R) (B / λ b b' → R (𝓘.inv b) (𝓘.inv b'))
+ liftIso/ : Iso (A / R) (B / λ b b' → R (�.inv b) (�.inv b'))
  liftIso/ .Iso.fun = Rec.go fR
  liftIso/ .Iso.inv = Rec.go iR
  liftIso/ .Iso.sec = ElimProp.go sR

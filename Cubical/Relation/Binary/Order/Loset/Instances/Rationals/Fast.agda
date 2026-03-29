@@ -7,8 +7,8 @@ open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Data.Empty as ⊥
 
-open import Cubical.Data.Rationals.Fast
-open import Cubical.Data.Rationals.Fast.Order renaming (_<_ to _<ℚ_)
+open import Cubical.Data.Rationals
+open import Cubical.Data.Rationals.Order renaming (_<_ to _<ℚ_)
 
 open import Cubical.Relation.Binary.Order.Loset
 

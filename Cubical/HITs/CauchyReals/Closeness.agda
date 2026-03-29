@@ -10,16 +10,16 @@ open import Cubical.Functions.FunExtEquiv
 import Cubical.Functions.Logic as L
 
 open import Cubical.Data.Sigma hiding (Path)
-open import Cubical.Data.Rationals.Fast as ℚ
-open import Cubical.Data.Rationals.Fast.Order as ℚ
-open import Cubical.Data.Rationals.Fast.Order.Properties as ℚ
+open import Cubical.Data.Rationals as ℚ
+open import Cubical.Data.Rationals.Order as ℚ
+open import Cubical.Data.Rationals.Order.Properties as ℚ
 open import Cubical.Relation.Binary.Properties
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.HITs.CauchyReals.Base
-open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
-open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
+
+open import Cubical.Tactics.CommRingSolver.Specialised.Rationals
 
 -- HoTT Lemma (11.3.8)
 refl∼ : ∀ r ε → r ∼[ ε ] r

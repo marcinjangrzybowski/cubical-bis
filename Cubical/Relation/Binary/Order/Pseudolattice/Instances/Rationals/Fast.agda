@@ -2,8 +2,8 @@ module Cubical.Relation.Binary.Order.Pseudolattice.Instances.Rationals.Fast wher
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Data.Rationals.Fast
-open import Cubical.Data.Rationals.Fast.Order renaming (_≤_ to _≤ℚ_)
+open import Cubical.Data.Rationals
+open import Cubical.Data.Rationals.Order renaming (_≤_ to _≤ℚ_)
 
 open import Cubical.Relation.Binary.Order.Poset.Instances.Rationals.Fast
 open import Cubical.Relation.Binary.Order.Pseudolattice

@@ -6,6 +6,7 @@ module Cubical.Algebra.OrderedCommRing.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP
+open import Cubical.Data.Sigma
 
 import Cubical.Functions.Logic as L
 
@@ -134,3 +135,8 @@ OrderedCommRing→CommRing : OrderedCommRing ℓ ℓ' → CommRing ℓ
 OrderedCommRing→CommRing R .fst = R .fst
 OrderedCommRing→CommRing R .snd = commringstr _ _ _ _ _ isCommRing where
   open OrderedCommRingStr (str R)
+
+RingOrdering : ∀ ℓ' → CommRing ℓ → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+RingOrdering ℓ' commRing = Σ[ (_<_ , _≤_) ∈ _ × _ ]  (IsOrderedCommRing {ℓ' = ℓ'} 0r 1r _+_ _·_ -_ _<_ _≤_)  
+ where
+  open CommRingStr (snd (commRing))

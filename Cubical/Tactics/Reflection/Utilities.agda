@@ -64,7 +64,7 @@ module Cubical.Tactics.Reflection.Utilities where
 open import Cubical.Foundations.Prelude hiding (Type)
 open import Cubical.Foundations.Function
 
-open import Agda.Builtin.Reflection hiding (Type)
+open import Agda.Builtin.Reflection renaming (Type to TypeTm)
 open import Agda.Builtin.String
 open import Agda.Builtin.Nat using () renaming (_==_ to _=ℕ_ ; _<_ to _<ℕ_)
 
@@ -82,6 +82,10 @@ open import Cubical.Data.Nat using (ℕ; suc; _+_; zero; _∸_; discreteℕ; pre
 open import Cubical.Tactics.Reflection
 open import Cubical.Tactics.Reflection.Variables
 
+
+ℕAsTerm : ℕ → Term
+ℕAsTerm (ℕ.zero) = con (quote ℕ.zero) []
+ℕAsTerm (ℕ.suc n) = con (quote ℕ.suc) (ℕAsTerm n v∷ [])
 
 finiteNumberAsTerm : Maybe ℕ → Term
 finiteNumberAsTerm (just ℕ.zero) = con (quote fzero) []
@@ -417,9 +421,85 @@ liftedTele (x ∷ xs) = L.map (map-snd (mapArg liftVars)) (x ∷ liftedTele xs)
 macro
  q[_] : Term → Term → TC Unit
  q[_] tm h =
-   quoteTC tm >>= quoteTC >=> unify h
+   quoteTC tm >>= unify h
+
+infixr 5 _ω∷_
+
+data HetListω : Typeω where
+ ω[] : HetListω
+ _ω∷_ : ∀ {ℓ} {A : Type ℓ} → A → HetListω → HetListω
+
+HetListω→[Term] : HetListω → TC (List Term)
+HetListω→[Term] ω[] = pure []
+HetListω→[Term] (x ω∷ xs) = ⦇ quoteTC x ∷ (HetListω→[Term] xs) ⦈
+
+module _ hlω where
+ macro
+  quoteDefsfNames : Term → TC Unit
+  quoteDefsfNames hole = do
+    xx ← HetListω→[Term] hlω >>=
+           mapM λ { (def nm []) → pure nm
+                  ; tm → typeError
+                    (strErr "only unaplied definitions can be quoted in `quoteDefNames` \n\n"
+                       ∷ [ termErr tm ]) }
+    (quoteTC xx) >>= unify hole
 
 atTargetLam : Term → (Term → TC Term) → TC Term
 atTargetLam (pi a@(arg (arg-info v _) _) (abs s b)) m =
   lam v ∘ abs s <$> extendContext s a (atTargetLam b m)
 atTargetLam ty m = m ty
+
+newHole : TC (Term × TypeTm)
+newHole = do
+ newHole ← checkType unknown unknown
+ newHoleType ← inferType newHole
+ pure (newHole , newHoleType)
+
+unquoteSigma : Term → TC (Term × Term)
+unquoteSigma tm = do
+  (x , _) ← newHole
+  (y , _) ← newHole
+  unify (con (quote _,_) (x v∷ v[ y ])) tm
+  pure (x , y)
+
+unquoteSum : Term → TC (Term ⊎.⊎ Term)
+unquoteSum tm = (do
+  (x , _) ← newHole
+  unify (con (quote ⊎.inl) (v[ x ])) tm
+  pure (⊎.inl x)
+  ) <|> (do
+  (x , _) ← newHole
+  unify (con (quote ⊎.inr) (v[ x ])) tm
+  pure (⊎.inr x)
+  )
+
+unquoteJust : Term → TC Term
+unquoteJust tm = do
+ (x , _) ← newHole
+ unify (con (quote just) (v[ x ])) tm
+ pure x
+
+matchList : Term → TC (List Term)
+matchList (con (quote []) _) = pure []
+matchList (con (quote _∷_) (_ h∷ _ h∷ x v∷ v[ xs ])) = (x ∷_) <$> matchList xs
+matchList (con (quote _∷_) (_ h∷ x v∷ v[ xs ])) = (x ∷_) <$> matchList xs
+matchList (con (quote _∷_) (x v∷ v[ xs ])) = (x ∷_) <$> matchList xs
+matchList _ = typeError [ strErr "failed to match list" ]
+
+data Q[_]≡_ {ℓ} {A : Type ℓ} : A → Term → Type ℓ where
+ q[_]≡_ : ∀ a t → Q[ a ]≡ t
+
+
+
+macro
+ showQuoted : Term → Term → TC Unit
+ showQuoted tm hole = do
+   qtm ← quoteTC tm
+   unify hole (con (quote q[_]≡_) (tm v∷ v[ qtm ]))
+
+module _ (doNotReduce : _) where
+ macro
+  showQuotedN : Term → Term → TC Unit
+  showQuotedN tm hole = withReduceDefs (false , doNotReduce) do
+    qtm ← normalise tm >>= quoteTC
+    unify hole (con (quote q[_]≡_) (tm v∷ v[ qtm ]))

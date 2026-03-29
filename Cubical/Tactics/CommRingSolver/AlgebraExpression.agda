@@ -28,12 +28,15 @@ infixl 7 -'_
 infixl 8 _·'_
 
 -- Expression in an R-Algebra A with n variables
-data Expr {ℓ} (R : RawRing ℓ) (A : Type ℓ') (n : ℕ) : Type ℓ where
-  K : ⟨ R ⟩ → Expr R A n
-  ∣ : Fin n → Expr R A n
-  _+'_ : Expr R A n → Expr R A n → Expr R A n
-  _·'_ : Expr R A n → Expr R A n → Expr R A n
-  -'_ : Expr R A n → Expr R A n
+data Expr' {ℓ} (R : Type ℓ) (A : Type ℓ') (n : ℕ) : Type ℓ where
+  K : R → Expr' R A n
+  ∣ : Fin n → Expr' R A n
+  _+'_ : Expr' R A n → Expr' R A n → Expr' R A n
+  _·'_ : Expr' R A n → Expr' R A n → Expr' R A n
+  -'_ : Expr' R A n → Expr' R A n
+
+Expr : ∀ {ℓ} (R : RawRing ℓ) (A : Type ℓ') (n : ℕ) → Type ℓ
+Expr R = Expr' ⟨ R ⟩
 
 module PrettyExpr {ℓ} (R : RawRing ℓ) (A : Type ℓ') (showScalar : ⟨ R ⟩ → TC String) where
 

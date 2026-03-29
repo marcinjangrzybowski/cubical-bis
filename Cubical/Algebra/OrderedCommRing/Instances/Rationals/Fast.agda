@@ -11,13 +11,13 @@ import Cubical.Data.Fast.Int.Order as ℤ
 
 open import Cubical.HITs.PropositionalTruncation
 
-open import Cubical.Data.Rationals.Fast as ℚ
+open import Cubical.Data.Rationals as ℚ
   renaming (_+_ to _+ℚ_ ; _-_ to _-ℚ_; -_ to -ℚ_ ; _·_ to _·ℚ_)
-open import Cubical.Data.Rationals.Fast.Order
+open import Cubical.Data.Rationals.Order
   renaming (_<_ to _<ℚ_ ; _≤_ to _≤ℚ_)
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Rationals.Fast
+open import Cubical.Algebra.CommRing.Instances.Rationals
 
 open import Cubical.Algebra.OrderedCommRing
 
