@@ -147,15 +147,11 @@ private
             (ℤ.isProp< {a ℤ.· ℕ₊₁→ℤ f} {e ℤ.· ℕ₊₁→ℤ b})
             (ℤ.isProp< {c ℤ.· ℕ₊₁→ℤ f} {e ℤ.· ℕ₊₁→ℤ d})
                 (ℤ.<-·o-cancel {c ℤ.· ℕ₊₁→ℤ f} {k = -1+ b} ∘
-                  subst2 ℤ._<_ (·CommR a (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ d) ∙
-                                cong (ℤ._· ℕ₊₁→ℤ f) ad≡cb ∙
-                                ·CommR c (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f))
-                               (·CommR e (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ d)) ∘
+                  subst2 ℤ._<_ (ℤ! ∙
+                                cong (ℤ._· ℕ₊₁→ℤ f) ad≡cb ∙ ℤ!) ℤ! ∘
                  ℤ.<-·o {a ℤ.· ℕ₊₁→ℤ f} {k = -1+ d})
                 (ℤ.<-·o-cancel {a ℤ.· ℕ₊₁→ℤ f} {k = -1+ d} ∘
-                  subst2 ℤ._<_ (·CommR c (ℕ₊₁→ℤ f) (ℕ₊₁→ℤ b) ∙
-                                cong (ℤ._· ℕ₊₁→ℤ f) (sym ad≡cb) ∙
-                                ·CommR a (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f))
+                  subst2 ℤ._<_ (ℤ! ∙ cong (ℤ._· ℕ₊₁→ℤ f) (sym ad≡cb) ∙ ℤ!)
                                (·CommR e (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b)) ∘
                  ℤ.<-·o {c ℤ.· ℕ₊₁→ℤ f} {k = -1+ b})))
 

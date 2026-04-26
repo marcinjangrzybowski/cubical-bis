@@ -58,10 +58,6 @@ import Cubical.Algebra.AbGroup.Base as AbGroup
 
 open import Cubical.Tactics.CommRingSolver.Config
 
-private
- variable
-  ℓ' ℓ : Level
-
 module CommRingSolver (crs : CommRingSolverConfig) where
 
  open CommRingSolverConfig crs
@@ -71,10 +67,20 @@ module CommRingSolver (crs : CommRingSolverConfig) where
  fuelBudget : Fuel
  fuelBudget = 10000000
 
+ prettyExpr : ℕ → Term → TC String
+ prettyExpr n tm = withReduceDefs (false , []) do
+   
+   tm' ← unquoteTC {A = SansReflection.RExpr crs n} tm
+   PrettyExpr.prettyExpr (SansReflection.RRng crs) ⟨ R` ⟩
+     (quoteTC >=> renderTerm) tm'
+ 
+ -- prettyExpr : {n : ℕ} → RExpr n → {!TC String!}
+ -- prettyExpr = PrettyExpr.prettyExpr {!!} {!!} {!!}
+
 
  module CommRingReflection  where
 
-  open RingReflectionMatcher ringReflectionMatcher
+  open RingReflectionMatcher ringReflectionMatcher public
 
   module _ (basering cring : Term) where
    module _ (matchTerm : (Term → TC (Template × Vars)) → Term → TC (Maybe (Template × Vars))) where
@@ -105,20 +111,19 @@ module CommRingSolver (crs : CommRingSolverConfig) where
          in (fst r1 ass , fst r2 ass , vars ))
 
    toAlgebraExpression'2 : (Vars → Vars) → Term × Term → Term × Term → TC
-      ((Term × Term) × (Term × Term) × Vars)
+      (((Term × Term) × (Term × Term)) × Vars)
    toAlgebraExpression'2 f (lhs , rhs) (lhs' , rhs') = do
 
        matchTerm ← mkMatchTermTC basering cring
-       r1 ← buildExpression matchTerm fuelBudget lhs
-       r2 ← buildExpression matchTerm fuelBudget rhs
-       r1' ← buildExpression matchTerm fuelBudget lhs'
-       r2' ← buildExpression matchTerm fuelBudget rhs'
-       vars ← returnTC (f (appendWithoutRepetition (appendWithoutRepetition (snd r1) (snd r2))
-            (appendWithoutRepetition (snd r1') (snd r2'))))
-       returnTC (
-         let ass : VarAss
-             ass n = indexOf n vars
-         in ((fst r1 ass , fst r2 ass) , (fst r1' ass , fst r2' ass) , vars ))
+       
+       (assignFst ∘ map-snd f) <$>
+               (amapM₂ _,_
+                 ((amapM₂ _,_
+                  (buildExpression matchTerm fuelBudget lhs)
+                  (buildExpression matchTerm fuelBudget rhs)))
+                 ((amapM₂ _,_
+                  (buildExpression matchTerm fuelBudget lhs')
+                  (buildExpression matchTerm fuelBudget rhs'))))
 
 
    toAlgebraExpression : Term × Term → TC (Term × Term × Vars)
@@ -139,6 +144,26 @@ module CommRingSolver (crs : CommRingSolverConfig) where
 --      (quote ETNF≟.HF-Maybe-prf
 
  module _ where
+
+  toAlgebraExpr : (Term × Term) → TC (Term × Term × Vars)
+  toAlgebraExpr (lhs , rhs) = do
+      commRing ← quoteTC R`
+      baseCommRing ← quoteTC R
+      CommRingReflection.toAlgebraExpression baseCommRing commRing (lhs , rhs)
+
+
+  mkBuildExpr : TC (Term → TC (Abstr Term))
+  mkBuildExpr = do
+      commRing ← quoteTC R`
+      baseCommRing ← quoteTC R
+      matchTerm ← CommRingReflection.mkMatchTermTC baseCommRing commRing
+      pure (CommRingReflection.buildExpression baseCommRing commRing matchTerm fuelBudget)
+
+  -- toAlgebraExprTest : (Term × Term) → TC (Term × Term × Vars)
+  -- toAlgebraExprTest (lhs , rhs) = do
+  --     commRing ← quoteTC R` >>= normalise
+  --     baseCommRing ← quoteTC R >>= normalise 
+  --     typeError (baseCommRing ∷ₑ [ commRing ]ₑ)
 
 
   refineRingGoal : Term → Term → TC Unit
@@ -219,8 +244,6 @@ module CommRingSolver (crs : CommRingSolverConfig) where
   solve!-macro hole = withReduceDefs
       (false , doNotUnfold)
     do
-      commRing ← quoteTC R`
-      baseCommRing ← quoteTC R
       crsTerm ← quoteωTC crs
       goal ← inferType hole >>= normalise
 
@@ -232,7 +255,7 @@ module CommRingSolver (crs : CommRingSolverConfig) where
             → typeError(strErr "The CommRingSolver failed to parse the goal "
                                ∷ termErr goal ∷ [])
 
-      (lhs' , rhs' , vars) ← CommRingReflection.toAlgebraExpression baseCommRing commRing (lhs , rhs)
+      (lhs' , rhs' , vars) ← toAlgebraExpr (lhs , rhs)
 
 
       let solution = solverCallWithVars (length vars) vars crsTerm lhs' rhs'
@@ -348,7 +371,7 @@ module CommRingSolver (crs : CommRingSolverConfig) where
              → typeError(strErr "The sovleFor!-macro (ring solver) failed to parse the goal "
                                 ∷ termErr providedPathTy' ∷ [])
 
-       ((lhs* , rhs*) , (lhs'* , rhs'*) , vars) ←
+       (((lhs* , rhs*) , (lhs'* , rhs'*)) , vars) ←
            CommRingReflection.toAlgebraExpression'2 baseCommRing commRing
               (prependWithoutRepetition unknVar) (lhs , rhs) (lhs' , rhs')
 
@@ -376,8 +399,6 @@ module CommRingSolver (crs : CommRingSolverConfig) where
   solve!-lemma-macro lemmas hole = withReduceDefs
       (false , doNotUnfold)
     do
-      commRing ← quoteTC R`
-      baseCommRing ← quoteTC R
       crsTerm ← quoteωTC crs
       goal ← inferType hole >>= normalise
 
@@ -389,7 +410,7 @@ module CommRingSolver (crs : CommRingSolverConfig) where
             → typeError(strErr "The CommRingSolver failed to parse the goal "
                                ∷ termErr goal ∷ [])
 
-      (lhs' , rhs' , vars) ← CommRingReflection.toAlgebraExpression baseCommRing commRing (lhs , rhs)
+      (lhs' , rhs' , vars) ← toAlgebraExpr (lhs , rhs)
       (missingEqs , _) ← newHole
       let solution = solverCallWithVars (length vars) vars crsTerm lhs' rhs'
                       (just (con (quote just) v[ missingEqs ]))

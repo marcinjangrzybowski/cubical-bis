@@ -44,9 +44,9 @@ open import Cubical.Tactics.CommRingSolver.Specialised.Rationals
 open import Cubical.Foundations.Powerset
 
 
-
 x+x≡2x : ∀ x → x + x ≡ 2 · x
 x+x≡2x x = ℚ!!
+
 
 
 <- : ∀ q r  → 0 < r - q → q < r
@@ -1239,6 +1239,15 @@ y·x<z→x<z·invℚ₊y x z r p =
    subst (_< z · fst (invℚ₊ r))
     ℚ!
     (<-·o _ _ (fst (invℚ₊ r)) (0<ℚ₊ (invℚ₊ r) ) p)
+
+y·x≤z→x≤z·invℚ₊y : ∀ x z r
+               → (fst r) · x ≤ z
+               → x ≤ z · fst (invℚ₊ r)
+y·x≤z→x≤z·invℚ₊y x z r p =
+   subst (_≤ z · fst (invℚ₊ r))
+    ℚ!
+    (≤-·o _ _ (fst (invℚ₊ r)) (0≤ℚ₊ (invℚ₊ r) ) p)
+
 
 x≤y·z→x·invℚ₊y≤z : ∀ x q r
                → x ≤ (fst r) · q

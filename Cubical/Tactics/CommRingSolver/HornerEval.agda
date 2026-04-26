@@ -4,6 +4,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Sigma
 open import Cubical.Data.Vec
 open import Cubical.Data.Bool as 𝟚
 
@@ -51,11 +52,25 @@ module HornerEval (R@(⟨R⟩ , _) : CommRing ℓ)
           Q' = eval Q xs
       in ((P' ·‵ x) +‵ Q')
 
+ evalScalar : {n : ℕ} (P : IteratedHornerForms n) → (xs : Vec ⟨R⟩ n) →
+   Σ[ r ∈ ⟨R⟩ ] fst hom r ≡ eval P (map (fst hom) xs)  
+ evalScalar (const x) [] = x , refl
+ evalScalar 0H _ = 0r , pres0
+ evalScalar (P ·X+ Q) (x ∷ xs) =
+      let
+          P' , P'= = (evalScalar P (x ∷ xs))
+          Q' , Q'= = evalScalar Q xs
+      in ((P' · x) + Q') , pres+ _ _ ∙ cong₂ _+‵_ (pres· _ _ ∙ cong (_·‵ (fst hom x)) P'=) Q'=
 
- record EvalInVecR {ℓ} (A : ℕ → Type ℓ) : Type (ℓ-max ℓ ℓ') where
+ 
+
+ record EvalInVecR {ℓ''} (A : ℕ → Type ℓ'') : Type (ℓ-max (ℓ-max ℓ' ℓ) ℓ'') where
   no-eta-equality
   field
    evalInVecR : {n : ℕ} → A n → Vec ⟨R'⟩ n → ⟨R'⟩
+   -- evalInVecRₛ : {n : ℕ} → (P : A n) → (xs : Vec ⟨R⟩ n) →
+   --  Σ[ r ∈ ⟨R⟩ ] fst hom r ≡ evalInVecR P (map (fst hom) xs)  
+   
 
   _≑_ : ∀ {n} → A n → A n → Type ℓ'
   P ≑ Q = ∀ xs → evalInVecR P xs ≡ evalInVecR Q xs
@@ -77,6 +92,41 @@ module HornerEval (R@(⟨R⟩ , _) : CommRing ℓ)
 
  open EvalInVecR ⦃...⦄ public
 
+
+ _≑'_ : ∀ {n} {ℓa} {ℓa'} {A : ℕ → Type ℓa} {{_ : EvalInVecR A}} {A' : ℕ → Type ℓa'}  {{_ : EvalInVecR A'}}
+        → A n → A' n → Type ℓ'
+ P ≑' Q = ∀ xs → evalInVecR P xs ≡ evalInVecR Q xs
+
  instance
   EvalInVecRIteratedHornerForms : EvalInVecR IteratedHornerForms
   EvalInVecRIteratedHornerForms .EvalInVecR.evalInVecR = eval
+  -- EvalInVecRIteratedHornerForms .EvalInVecR.evalInVecRₛ = evalScalar
+
+  EvalInVecR× : ∀ {ℓa} {ℓa'} {A : ℕ → Type ℓa} {{ev :  EvalInVecR A}}
+                        {A' : ℕ → Type ℓa'} {{ev' : EvalInVecR A'}}
+                        → EvalInVecR λ n → Σ[ (a , a') ∈ (A n × A' n) ] (a ≑' a')
+  EvalInVecR× .EvalInVecR.evalInVecR ((_ , a) , _) = evalInVecR a 
+  -- EvalInVecR× .EvalInVecR.evalInVecRₛ ((_ , a) , _) = evalInVecRₛ a
+
+
+ record _≑>_ {ℓa} {ℓa'} (A : ℕ → Type ℓa) {{ev :  EvalInVecR A}}
+                        (A' : ℕ → Type ℓa') {{ev' : EvalInVecR A'}} :
+   Type (ℓ-max (ℓ-max ℓa ℓ') ℓa') where
+  constructor ≑>-c 
+  field
+   to : ∀ {n} → A n → A' n 
+   to≑ : ∀ {n} p → p ≑' (to {n} p) 
+
+ _∘≑>_ : ∀ {ℓa ℓa' ℓa''} {A : ℕ → Type ℓa} {{_ : EvalInVecR A}}
+           {A' : ℕ → Type ℓa'} {{_ : EvalInVecR A'}}
+           {A'' : ℕ → Type ℓa''} {{_ : EvalInVecR A''}}  →
+        A ≑> A' → A' ≑> A'' → A ≑> A''
+ (x ∘≑> x₁) ._≑>_.to z = x₁ ._≑>_.to (x ._≑>_.to z)
+ (x ∘≑> x₁) ._≑>_.to≑ p xs = x ._≑>_.to≑ p xs ∙ x₁ ._≑>_.to≑ (x ._≑>_.to p) xs
+ 
+ record _<≑>_ {ℓa} {ℓa'} (A : ℕ → Type ℓa) {{_ : EvalInVecR A}}
+                         (A' : ℕ → Type ℓa') {{_ : EvalInVecR A'}} 
+                          : Type (ℓ-max (ℓ-max ℓa ℓ') ℓa') where 
+  field
+   fwd : A ≑> A'
+   bck : A' ≑> A

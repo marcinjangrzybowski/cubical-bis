@@ -383,3 +383,15 @@ sec (Lift⊎Iso ℓD) (lift (inl x)) = refl
 sec (Lift⊎Iso ℓD) (lift (inr x)) = refl
 ret (Lift⊎Iso ℓD) (inl x) = refl
 ret (Lift⊎Iso ℓD) (inr x) = refl
+
+⨄ℓ : A ⊎ B → Level → Level → Level 
+⨄ℓ (inl x) ℓ _ = ℓ
+⨄ℓ (inr x) _ ℓ = ℓ
+
+⨄ : {A : Type ℓa} → {B : Type ℓb} → (a⊎b : A ⊎ B) → Type (⨄ℓ a⊎b ℓa ℓb)
+⨄ {A = A} (inl _) = A
+⨄ {B = B} (inr _) = B
+
+from⨄ : (a⊎b : A ⊎ B) → ⨄ a⊎b
+from⨄ (inl x) = x
+from⨄ (inr x) = x

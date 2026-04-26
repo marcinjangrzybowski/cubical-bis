@@ -226,3 +226,7 @@ Dec× (no ¬p) _ = no (¬p ∘ fst)
 
 decToMaybe : {A : Type ℓ} → Dec A → Maybe A
 decToMaybe = decRec just λ _ → nothing
+
+Dec¬ : {A : Type ℓ} → Dec A → Dec (¬ A)
+Dec¬ (yes p) = no λ z → z p
+Dec¬ (no ¬p) = yes ¬p

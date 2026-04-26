@@ -12,7 +12,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.Data.Sum hiding (map)
+open import Cubical.Data.Sum renaming (map to map⊎)
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData.Base as Fin
 open import Cubical.Data.Nat renaming (zero to ℕzero ; suc to ℕsuc
@@ -390,3 +390,10 @@ module FinProdChar where
     helper (inl p) (inl q) = inl λ { zero j → p j ; (suc i) j → q i j }
     helper (inl _) (inr q) = inr (suc (q .fst) , q .snd .fst , q .snd .snd)
     helper (inr p) _ = inr (zero , p)
+
+punchOut : ∀ {n} → (k : Fin (ℕ.suc n)) → (k' : Fin (ℕ.suc n)) → (k ≡ k') ⊎ ((¬ k ≡ k') × Fin n)
+punchOut zero zero = inl refl
+punchOut zero (suc k') = inr (znots , k')
+punchOut {ℕsuc n} (suc k) zero = inr (snotz , zero)
+punchOut {ℕsuc n} (suc k) (suc k') =
+  map⊎ (cong suc) (map-× (_∘ injSucFin) suc) (punchOut k k')

@@ -85,7 +85,7 @@ mbConcreteℚ : Term → TC (Maybe Term)
 mbConcreteℚ tm =
  withNormalisation true
   (withReconstructed true
-   (withReduceDefs (false , []) (checkType tm q[ ℚ ]  >>= mbConcreteℚ')))
+   (withReduceDefs (false , []) (checkType tm q[ ℚ ] >>= normalise  >>= mbConcreteℚ')))
 
 
 

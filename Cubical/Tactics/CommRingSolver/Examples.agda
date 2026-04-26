@@ -85,8 +85,11 @@ module Test0intDom (R : CommRing ℓ) (isIntDom : _) where
   relTrans : BinaryRelation.isTrans {A = ((fst R) × (Σ[ b ∈ (fst R) ] (b ≡ 0r → ⊥)))}
                λ  (a , (b , _)) (c , (d , _)) → a · d ≡ c · b
   relTrans (a , (b , _)) (a' , (b' , b'≢0)) (a'' , (b'' , _)) p q =
-    sym (equalByDifference _ _ (solve! ∙ eliminate! a' p q P[ b'≢0 ]))
-
+    sym (equalByDifference _ _ (solve! ∙ w))
+   where
+    w : - (a · b'') + b · a'' ≡ 0r
+    w = eliminate! a' p q P[ b'≢0 ]
+    
 module Test (R : CommRing ℓ) (x y z w v : fst R) where
   open CommRingStr (snd R)
   open RingTheory (CommRing→Ring R) using () renaming (fromℤ to scalar ; fromℕ to ⟨_⟩ₙ)

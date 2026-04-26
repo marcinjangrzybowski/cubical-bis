@@ -18,7 +18,6 @@ open import Cubical.Induction.WellFounded
 open import Cubical.Functions.Embedding
 
 open import Cubical.Data.Sigma
-open import Cubical.Data.Empty
 
 open import Cubical.Relation.Binary.Order.Woset.Base
 open import Cubical.Relation.Binary.Order.Poset

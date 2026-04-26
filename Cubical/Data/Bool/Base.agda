@@ -69,6 +69,10 @@ False Q = Bool→Type (not (Dec→Bool Q))
 toWitness : {Q : Dec A} → True Q → A
 toWitness {Q = yes p} _ = p
 
+fromWitness : {Q : Dec A} → A → True Q
+fromWitness {Q = yes p} _ = tt
+fromWitness {Q = no ¬p} a = ¬p a
+
 toWitnessFalse : {Q : Dec A} → False Q → ¬ A
 toWitnessFalse {Q = no ¬p} _ = ¬p
 

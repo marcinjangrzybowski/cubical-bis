@@ -434,6 +434,12 @@ findBy : (A → Bool) → List A → Maybe A
 findBy t [] = nothing
 findBy t (x ∷ xs) = if t x then just x else findBy t xs
 
+findP : {B : A → Type ℓ'} → (∀ a → Maybe (B a)) → (xs : List A) →
+          Maybe (Σ[ k ∈ ℕ ] Σ[ isj ∈ IsJust (lookupMb xs k) ] B (fromIsJust isj))
+findP mbB [] = nothing
+findP mbB (x ∷ xs) with (mbB x)
+... | nothing = (map-Maybe (λ (k , isj , ba) → suc k , _ , ba) (findP mbB xs))
+... | just ba = just (zero , _ , ba)
 
 catMaybes : List (Maybe A) → List A
 catMaybes [] = []

@@ -187,6 +187,10 @@ infixl 20 _⁇→_
 _⁇→_ : ∀ {ℓ'} → Type ℓ → Type ℓ' → Type (ℓ-max ℓ ℓ')
 A ⁇→ B = (mbA : Maybe A) → caseMaybe Unit* B mbA
 
+_⁇Π_ : ∀ {ℓ'} {A : Type ℓ} (B : A → Type ℓ') → (Maybe A) → Type ℓ'
+B ⁇Π nothing = Unit*
+B ⁇Π just x = B x
+
 ⁇λ_ : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → A ⁇→ B
 ⁇λ_ f nothing = tt*
 ⁇λ_ f (just a) = f a
@@ -216,3 +220,4 @@ IsJust (just _) = Unit
 
 fromIsJust : ∀ {ℓ} {A : Type ℓ} → {mbA : Maybe A} → (IsJust mbA) → A
 fromIsJust {mbA = just a} _ = a
+

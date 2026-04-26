@@ -17,11 +17,9 @@ open import Cubical.Algebra.Ring
 open import Cubical.Tactics.CommRingSolver.GenericCommRing
 open import Agda.Builtin.Reflection hiding (Type)
 
-open import Cubical.Algebra.OrderedCommRing
-
 record CommRingSolverConfig : Typeω where
  field
-  {ℓ ℓ` ℓ`` ℓ```} : Level
+  {ℓ ℓ`} : Level
   R : CommRing ℓ
   commAlg : CommAlgebra {ℓ} R ℓ`
   mbDiscreteScalars : Maybe (Discrete ⟨ R ⟩)
@@ -65,7 +63,6 @@ record CommRingSolverConfig : Typeω where
   polyVarGuard : Term → TC Bool
 
   scalarSolver : Term → Term → TC Bool
-  mbOrdered : Maybe ( Σ[ (ro , ro`) ∈ (RingOrdering ℓ`` R) × (RingOrdering ℓ``` R` ) ] {!!})
 
  module R` where
     open CommRingStr (snd R`) public

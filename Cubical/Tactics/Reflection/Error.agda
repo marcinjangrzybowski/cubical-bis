@@ -82,7 +82,7 @@ instance
  toErrorPart ToErrorPartℕ = R.strErr ∘ primShowNat
 
  ToErrorPartBool : ToErrorPart Bool
- toErrorPart ToErrorPartBool = R.strErr ∘ (if_then "�" else "�")
+ toErrorPart ToErrorPartBool = R.strErr ∘ (if_then "□" else "◼")
 
 
  ToErrorPartTerm : ToErrorPart R.Term

@@ -2,9 +2,10 @@ module Cubical.Tactics.CommRingSolver.HornerForms where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Data.Nat using (ℕ)
-open import Cubical.Data.FinData
+open import Cubical.Data.Nat using (ℕ;predℕ)
+open import Cubical.Data.FinData hiding (punchOut)
 open import Cubical.Data.Vec
+open import Cubical.Data.Sigma
 open import Cubical.Data.Bool as 𝟚
 
 open import Cubical.Relation.Nullary
@@ -67,6 +68,57 @@ module HornerForms (R@(⟨R⟩ , _) : CommRing ℓ)
 
 
  open Eval RRng RAlg public
+
+
+ substE : ∀ {n} k (e δ : Expr RRng  ⟨R'⟩ n) 
+    →  Σ[ e' ∈ Expr RRng ⟨R'⟩ n ]
+          (∀ xs → ⟦ e ⟧ (update k (λ _ → (⟦ δ ⟧ xs)) xs) ≡ ⟦ e' ⟧ xs)   
+ substE k (K x₁) δ = (K x₁) , (λ _ → refl)
+ substE k (∣ k') δ = decRec (λ k≡k' → δ , λ xs →
+         let xs' = (update k (λ x → ((⟦ δ ⟧ xs))) xs)
+         in cong (λ k → lookup k' (update k (λ x → ⟦ δ ⟧ xs) xs)) (k≡k')
+             ∙ updateHere k' _ xs  )
+   (λ k≠k' → ∣ k' , λ xs → updateThere _ _ _ xs k≠k')
+    (discreteFin k k')
+ substE k (e +' e₁) δ =
+  let (e' , p) = substE k e δ
+      (e₁' , p₁) = substE k e₁ δ
+  in e' +' e₁' , λ xs → cong₂ _+‵_ (p xs) (p₁ xs) 
+ substE k (e ·' e₁) δ =
+  let (e' , p) = substE k e δ
+      (e₁' , p₁) = substE k e₁ δ
+  in e' ·' e₁' , λ xs → cong₂ _·‵_ (p xs) (p₁ xs)
+ substE k (-' e) δ =
+  let (e' , p) = substE k e δ
+  in -' e' , λ xs → cong -‵_ (p xs)
+
+
+ substE' : ∀ {n} k (e : Expr RRng  ⟨R'⟩ n) (δ : Expr RRng  ⟨R'⟩ (predℕ n))
+   
+    →  Σ[ e' ∈ Expr RRng ⟨R'⟩ (predℕ n) ]
+          (∀ xs → ⟦ δ ⟧ (drop' k xs) ≡ lookup k xs → ⟦ e' ⟧ (drop' k xs) ≡ ⟦ e ⟧ xs)   
+ substE' k (K x₁) δ = (K x₁) , λ _ _ → refl
+ substE' {ℕ.suc n} k (∣ k') δ = 
+   decRec (λ k≡k' → δ , λ xs u →
+             u ∙ ((cong lookup k≡k') ≡$ xs))
+         (λ k≠k' →
+          let k* , v = punchOut k k' (𝟚.fromWitness k≠k')
+          in ∣ k* , λ xs _ → v xs )
+
+    (discreteFin k k')
+
+
+ substE' k (e +' e₁) δ  =
+  let (e' , p) = substE' k e δ
+      (e₁' , p₁) = substE' k e₁ δ
+  in e' +' e₁' , λ xs u → cong₂ _+‵_ (p xs u) (p₁ xs u) 
+ substE' k (e ·' e₁) δ =
+  let (e' , p) = substE' k e δ
+      (e₁' , p₁) = substE' k e₁ δ
+  in e' ·' e₁' , λ xs u → cong₂ _·‵_ (p xs u) (p₁ xs u)
+ substE' k (-' e) δ =
+  let (e' , p) = substE' k e δ
+  in -' e' , λ xs u → cong -‵_ (p xs u)
 
 
  data IteratedHornerForms : ℕ → Type ℓ where

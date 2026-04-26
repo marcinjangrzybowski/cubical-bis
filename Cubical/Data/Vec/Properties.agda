@@ -9,11 +9,13 @@ open import Cubical.Foundations.Univalence
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.Nat
+open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Vec.Base
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
+import Cubical.Data.List as L
 
 open Iso
 
@@ -138,3 +140,45 @@ module VecPath {A : Type ℓ}
   ... | yes p | yes q = ⊥.rec (¬r (cong₂ _∷_ p q))
   ... | yes p | no ¬q = inr ¬q
   ... | no ¬p | y = inl ¬p
+
+
+updateHere : ∀ {n} k f xs → lookup {n = n} {A = A} k (update k f xs) ≡ f (lookup k xs)
+updateHere zero f (x ∷ xs) = refl
+updateHere (suc k) f (x ∷ xs) = updateHere k f xs
+
+updateThere : ∀ {n} k k' f xs → ((k ≡ k') → ⊥.⊥) →  lookup {n = n} {A = A} k' (update k f xs) ≡ lookup k' xs
+updateThere zero zero f xs u = ⊥.rec (u refl)
+updateThere zero (suc k') f (x ∷ xs) _ = refl
+updateThere (suc k) zero f (x ∷ xs) _ = refl
+updateThere (suc k) (suc k') f (x ∷ xs) u = updateThere k k' f xs λ p → u (cong suc p)
+
+drop-update : ∀ {n} k f xs → drop {n = n} {A} k xs ≡ drop k (update k f xs)
+drop-update zero f (x ∷ xs) = refl
+drop-update {n = suc n} (suc k) f (x ∷ xs) = cong (x ∷_) (drop-update k f xs)
+
+findP : ∀ {ℓ'} {B : A → Type ℓ'} → (∀ a → Maybe (B a)) → ∀ {n} (xs : Vec A n) →
+          Maybe (Σ[ k ∈ Fin n ] (B (lookup k xs)))
+findP mbB [] = nothing
+findP mbB (x ∷ xs) with (mbB x)
+... | nothing = (map-Maybe (λ (k , ba) → suc k , ba) (findP mbB xs))
+... | just ba = just (zero , ba)
+
+-- find+ : ∀ {ℓ' ℓ''} {B : A → Type ℓ'} {C : A → Type ℓ''} → (∀ a → B a ⊎ C a) → ∀ {n} (xs : Vec A n) →
+--           Maybe (Σ[ k ∈ Fin n ] (B (lookup k xs)))
+-- find+ mbB [] = nothing
+-- find+ mbB (x ∷ xs) with (mbB x)
+-- ... | nothing = (map-Maybe (λ (k , ba) → suc k , ba) (findP mbB xs))
+-- ... | just ba = just (zero , ba)
+
+
+dec→∀⊎¬∃ : ∀ {ℓ'} {B : A → Type ℓ'} → (∀ a → Dec (B a)) → ∀ {n} (xs : Vec A n) →
+             (Vec (Σ A B) n) ⊎ (Σ[ k ∈ Fin n ] (¬ (B (lookup k xs))))
+
+dec→∀⊎¬∃ _ [] = inl []
+dec→∀⊎¬∃ b? (x ∷ xs) with b? x
+... | yes p = ⊎.map (_∷_ (x , p)) (λ (k , ¬B[xs[k]]) → suc k , ¬B[xs[k]]) (dec→∀⊎¬∃ b? xs)
+... | no ¬p = inr (zero , ¬p)
+
+fromList : (l : L.List A) → Vec A (L.length l)
+fromList L.[] = []
+fromList (x L.∷ l) = x ∷ fromList l

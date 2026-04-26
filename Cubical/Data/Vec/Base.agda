@@ -68,6 +68,13 @@ drop : ∀ {n} {A : Type ℓ} → Fin (suc n) → Vec A (suc n) → Vec A n
 drop zero (x ∷ xs) = xs
 drop {n = suc n} (suc k) (x ∷ xs) = x ∷ drop k xs
 
+drop' : ∀ {n} {A : Type ℓ} → Fin n → Vec A n → Vec A (predℕ n)
+drop' {n = suc n} = drop
+
 tabulate : ∀ {n} {A : Type ℓ} → (Fin n → A) → Vec A n
 tabulate {n = zero} _ = []
 tabulate {n = suc n} f = f zero ∷ tabulate (λ k → f (suc k))
+
+update : ∀ {n} → Fin n → (A → A) → Vec A n → Vec A n
+update zero f (x ∷ xs) = f x ∷ xs
+update (suc k) f (x ∷ xs) = x ∷ update k f xs

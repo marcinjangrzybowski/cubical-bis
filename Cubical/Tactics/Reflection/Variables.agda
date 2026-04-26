@@ -21,20 +21,28 @@ open import Agda.Builtin.Nat using () renaming (_==_ to _=ℕ_ ; _<_ to _<ℕ_ ;
 open import Cubical.Reflection.Base
 open import Cubical.Data.Bool
 open import Cubical.Data.List
-open import Cubical.Data.Maybe
+open import Cubical.Data.Maybe as Mb
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.FinData as FD
+open import Cubical.Reflection.Sugar
 
 open import Cubical.Tactics.Reflection
 
 private
   variable
     ℓ : Level
-
+    A B C : Type ℓ
 
 Vars = List Term
 VarAss = Term → Maybe ℕ
-Template = VarAss → Term
+
+Temp : Type ℓ → Type ℓ
+Temp X = VarAss → X
+
+Template = Temp Term
+
+
 
 private
   _=N_ = primQNameEquality
@@ -52,13 +60,13 @@ private
 
   compareVargs : List (Arg Term) → List (Arg Term) → Bool
 
-  _=T_ : Term → Term → Bool  -- this should be a TC, since it should error out sometimes
-  var index args =T var index' args' = (index =ℕ index') and compareVargs args args'
-  con c args =T con c' args'   = (c =N c') and compareVargs args args'
-  def f args =T def f' args'   = (f =N f') and compareVargs args args'
-  lit l =T lit l'              = l =L l'
-  meta x args =T meta x' args' = (x =M x') and compareVargs args args'
-  _ =T _                       = false  -- this should be fixed
+_=T_ : Term → Term → Bool  -- this should be a TC, since it should error out sometimes
+var index args =T var index' args' = (index =ℕ index') and compareVargs args args'
+con c args =T con c' args'   = (c =N c') and compareVargs args args'
+def f args =T def f' args'   = (f =N f') and compareVargs args args'
+lit l =T lit l'              = l =L l'
+meta x args =T meta x' args' = (x =M x') and compareVargs args args'
+_ =T _                       = false  -- this should be fixed
 
 compareVargs [] [] = true
 compareVargs (x v∷ l) (x' v∷ l') = (x =T x') and compareVargs l l'
@@ -82,6 +90,14 @@ indexOf t (t' ∷ l) =
   else map-Maybe (λ k → ℕ.suc k) (indexOf t l)
 indexOf t [] = nothing
 
+indexOfFin : Term → (v : Vars) → Maybe (Fin (length v)) 
+indexOfFin t (t' ∷ l) =
+  if (t =T t')
+  then just Fin.zero
+  else map-Maybe (λ k → Fin.suc k) (indexOfFin t l)
+indexOfFin t [] = nothing
+
+
 elemVars : Term → Vars → Bool
 elemVars t (t' ∷ l) =
   (t =T t') or (elemVars t l)
@@ -90,6 +106,40 @@ elemVars t [] = false
 prependWithoutRepetition : Term → Vars → Vars
 prependWithoutRepetition t vs =
   t ∷ catMaybes (map (λ t' →  if t =T t' then nothing else just t') vs)
+
+
+Abstr : Type ℓ → Type ℓ
+Abstr X = (Temp X × Vars)
+
+ℕ→FinDataTerm : ℕ → Term 
+ℕ→FinDataTerm ℕ.zero = con (quote FD.zero) []
+ℕ→FinDataTerm (ℕ.suc x) = con (quote FD.suc) v[ ℕ→FinDataTerm x ]
+-- produces term with id of var (Fin)
+abstrVarId : Term → Abstr Term
+abstrVarId tm = (λ x → Mb.rec
+ (lit (string "imposible!"))
+ (λ m → con (quote just) v[ ℕ→FinDataTerm m ])
+ (x tm)) , [ tm ]
+
+amap : (A → B) → Abstr A → Abstr B
+amap f (a , vA) = (λ vs → f (a vs)) , vA
+
+
+amap₂ : (A → B → C) → Abstr A → Abstr B → Abstr C
+amap₂ f (a , vA) (b , vB) = (λ vs → f (a vs) (b vs)) , appendWithoutRepetition vA vB
+
+amapM₂ : {M : Functorω} {{_ : RawApplicative M}} → (A → B → C) → M (Abstr A) → M (Abstr B) → M (Abstr C)
+amapM₂ ⦃ _ ⦄ f ma mb = amap₂ f <$> ma <*> mb
+
+aForM : {M : Functorω} {{_ : RawApplicative M}} → List A → (A → M (Abstr B)) → M (Abstr (List B))
+aForM [] _ = pure ((λ z → []) , [])
+aForM (x ∷ xs) f = amapM₂ _∷_ (f x) (aForM xs f)
+
+assign : Abstr A → A
+assign (a , vars) = a (flip indexOf vars)
+
+assignFst : Abstr A → (A × Vars)
+assignFst (a , vars) = a (flip indexOf vars) , vars
 
 infixr 40 _<>_
 
@@ -128,4 +178,4 @@ mkNiceVar' v k = v <>
 
 
 mkNiceVar : ℕ → String
-mkNiceVar = mkNiceVar' "�"
+mkNiceVar = mkNiceVar' "𝒙"

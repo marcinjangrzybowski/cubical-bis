@@ -74,6 +74,7 @@ open import Cubical.Data.List as L
 import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Maybe as Mb
 open import Cubical.Data.Bool
+import Cubical.Data.Prod as Prod
 open import Cubical.Data.Unit
 open import Cubical.Data.FinData using () renaming (zero to fzero; suc to fsuc)
 open import Cubical.Data.Sigma
@@ -462,6 +463,14 @@ unquoteSigma tm = do
   unify (con (quote _,_) (x v∷ v[ y ])) tm
   pure (x , y)
 
+unquoteSigmaType : Term → TC (Term × Term)
+unquoteSigmaType tm = do
+  (x , _) ← newHole
+  (y , _) ← newHole
+  unify (def (quote Σ) (x v∷ v[ y ])) tm
+  pure (x , y)
+
+
 unquoteSum : Term → TC (Term ⊎.⊎ Term)
 unquoteSum tm = (do
   (x , _) ← newHole
@@ -473,11 +482,32 @@ unquoteSum tm = (do
   pure (⊎.inr x)
   )
 
+
+-- it us using from⨄, to unify (expected) value for inr case,
+-- in case the term reduces to inl, result is unquoted 
+unifyRight :
+    Term -- hole : type B
+  → Term -- term : (A ⊎ B)
+  → ∀ {ℓ} {A : Type ℓ}
+  → TC (Maybe A)
+unifyRight h tm =
+ let t' = def (quote ⊎.from⨄) v[ tm ]
+ in (unify h t' >> pure nothing)
+      <|> (just <$> unquoteTC t')
+
+
+-- module unifyRightTest where
+--  macro
+--   inr-Test : Term → TC Unit
+--   inr-Test = {!!}
+
+
 unquoteJust : Term → TC Term
 unquoteJust tm = do
  (x , _) ← newHole
  unify (con (quote just) (v[ x ])) tm
  pure x
+
 
 matchList : Term → TC (List Term)
 matchList (con (quote []) _) = pure []
@@ -503,3 +533,80 @@ module _ (doNotReduce : _) where
   showQuotedN tm hole = withReduceDefs (false , doNotReduce) do
     qtm ← normalise tm >>= quoteTC
     unify hole (con (quote q[_]≡_) (tm v∷ v[ qtm ]))
+
+getContext' : TC (List ((ℕ × String) × Arg TypeTm))
+getContext' = (zipWithIndex <$> getContext) >>=
+  mapM λ (k , (s ,  a)) → (((k , s) ,_) ∘S arg (argInfo a)) <$> inferType (var k [])  
+
+
+infixr 50 _][_
+
+opaque
+ _][_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → A → B → A × B
+ _][_ = _,_
+
+
+prodToTermList : Term → (List Term)
+prodToTermList tm@(con (quote Prod._×_._,_) (_ ∷ _ ∷  _ ∷ _ ∷ x v∷ v[ y ])) =  x ∷ prodToTermList y
+prodToTermList tm@(con (quote Prod._×_._,_) (x v∷ v[ y ])) =  x ∷ prodToTermList y
+prodToTermList tm@(def (quote _][_) (_ ∷ _ ∷ _ ∷ _ ∷ x v∷ v[ y ])) =  x ∷ prodToTermList y
+prodToTermList tm@(def (quote _][_) (x v∷ v[ y ])) =  x ∷ prodToTermList y
+prodToTermList tm = [ tm ]
+
+prodToList : Term → Term
+prodToList tm@(con (quote Prod._×_._,_) (_ ∷ _ ∷  _ ∷ _ ∷ x v∷ v[ y ])) =
+   con (quote _∷_) (x v∷ v[ prodToList y ])
+prodToList tm@(con (quote Prod._×_._,_) (x v∷ v[ y ])) =
+   con (quote _∷_) (x v∷ v[ prodToList y ])
+prodToList tm@(def (quote _][_) (_ ∷ _ ∷ _ ∷ _ ∷ x v∷ v[ y ])) =
+   con (quote _∷_) (x v∷ v[ prodToList y ])
+prodToList tm@(def (quote _][_) (x v∷ v[ y ])) =
+   con (quote _∷_) (x v∷ v[ prodToList y ])
+prodToList tm = def (quote [_]) v[ tm ]
+
+toListTerm : List Term → Term
+toListTerm [] = con (quote []) []
+toListTerm (x ∷ xs) = con (quote _∷_) (x v∷ v[ toListTerm xs ])
+
+macro
+ prodToTermListTest : Term → Term → TC Unit
+ prodToTermListTest tm _ = typeError (L.map termErr (prodToTermList tm))
+
+ prodToListTest : Term → Term → TC Unit
+ prodToListTest tm ho = unify ho (prodToList tm)
+
+ toListTermTest : Term → TC Unit
+ toListTermTest ho = unify ho (toListTerm (lit (nat 13) ∷ lit (nat 23) ∷ lit (nat 3) ∷ []))
+
+
+-- _ : Type Prod.× Type Prod.× Type
+-- _ = Term Prod.∺ Term Prod.∺ Term
+
+-- _ : Unit
+-- _ = prodToListTest (Term Prod.∺ Term Prod.∺ Term)
+
+_ : List ℕ
+_ = prodToListTest (0 ][ 1 ][ 3)
+
+_ : List ℕ
+_ = toListTermTest
+
+tryGetName : Term → Maybe (Name × List (Arg Term))
+tryGetName (con c args) = just (c , args)
+tryGetName (def f args) = just (f , args)
+tryGetName _ = nothing
+
+tryGetTwoVArgs : List (Arg Term) → Maybe (Term × Term)
+tryGetTwoVArgs (x v∷ v[ y ]) = just (x , y)
+tryGetTwoVArgs (_ h∷ xs) = tryGetTwoVArgs xs
+tryGetTwoVArgs _ = nothing
+
+tryGetOneVArgs : List (Arg Term) → Maybe Term
+tryGetOneVArgs (v[ x ]) = just x
+tryGetOneVArgs (_ h∷ xs) = tryGetOneVArgs xs
+tryGetOneVArgs _ = nothing
+
+tryPairFromFst : Term → Maybe Term
+tryPairFromFst (def (quote fst) xs) =
+   tryGetOneVArgs xs
+tryPairFromFst _ = nothing
