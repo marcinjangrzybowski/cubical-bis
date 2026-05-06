@@ -13,8 +13,8 @@ open import Cubical.Data.Nat as ℕ hiding (_·_;_+_)
 open import Cubical.Data.Nat.Order as ℕ
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum as ⊎
-open import Cubical.Data.Fast.Int as ℤ using (pos)
-import Cubical.Data.Fast.Int.Order as ℤ
+open import Cubical.Data.Int.Fast as ℤ using (pos)
+import Cubical.Data.Int.Fast.Order as ℤ
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -23,13 +23,6 @@ open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _//_)
 open import Cubical.Data.NatPlusOne
 
 import Cubical.Algebra.CommRing as CR
-import Cubical.Algebra.CommRing.Instances.Rationals.Fast as ℚ
-
-open import Cubical.Data.Rationals.Fast as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Fast.Order as ℚ using
-  ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡  ; [_/_]₊)
-open import Cubical.Data.Rationals.Fast.Order.Properties as ℚ
- using (invℚ₊;/2₊;/3₊;/4₊)
 
 
 open import Cubical.HITs.CauchyReals.Base
@@ -42,10 +35,16 @@ open import Cubical.HITs.CauchyReals.Continuous
 open import Cubical.HITs.SequentialColimit as SCL
 open import Cubical.Data.Sequence
 
-open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
-open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
-open import Cubical.Tactics.CommRingSolverFast.IntReflection
+-- open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
+-- open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
+-- open import Cubical.Tactics.CommRingSolverFast.IntReflection
 open import Cubical.HITs.CauchyReals.LiftingExpr
+
+
+open import Cubical.HITs.CauchyReals.RationalsImports 
+-- open import Cubical.Data.Rationals.Order.Properties 
+
+
 
 private
   variable
@@ -112,22 +111,22 @@ Seq⊆-<N : Seq⊆
 Seq⊆-<N .Seq⊆.𝕡 n x = (x <ᵣ fromNat (suc n)) , isProp<ᵣ _ _
 Seq⊆-<N .Seq⊆.𝕡⊆ n x x∈ =
   isTrans<ᵣ _ _ _ x∈
-   (<ℚ→<ᵣ _ _ (ℚ.<ℤ→<ℚ _ _ ℤ.<-sucℤ))
+   (<ℚ→<ᵣ _ _ (<ℤ→<ℚ _ _ ℤ.<-sucℤ))
 
 Seq⊆-abs<N : Seq⊆
 Seq⊆-abs<N .Seq⊆.𝕡 n = ointervalℙ (fromNeg (suc n)) (fromNat (suc n))
 
 Seq⊆-abs<N .Seq⊆.𝕡⊆ n x (<x , x<) =
   isTrans<ᵣ _ _ _
-   (<ℚ→<ᵣ _ _ (ℚ.<ℤ→<ℚ _ _ ℤ.<-sucℤ)) <x
+   (<ℚ→<ᵣ _ _ (<ℤ→<ℚ _ _ ℤ.<-sucℤ)) <x
    , isTrans<ᵣ _ _ _ x<
-   (<ℚ→<ᵣ _ _ (ℚ.<ℤ→<ℚ _ _ ℤ.<-sucℤ))
+   (<ℚ→<ᵣ _ _ (<ℤ→<ℚ _ _ ℤ.<-sucℤ))
 
 Seq⊆-[0,N⟩ : Seq⊆
 Seq⊆-[0,N⟩ .Seq⊆.𝕡 n = pred≤< 0 (fromNat (suc n))
 Seq⊆-[0,N⟩ .Seq⊆.𝕡⊆ n x (0≤x , x<sn) = 0≤x ,
   isTrans<ᵣ _ _ _ x<sn
-   (<ℚ→<ᵣ _ _ (ℚ.<ℤ→<ℚ _ _ ℤ.<-sucℤ))
+   (<ℚ→<ᵣ _ _ (<ℤ→<ℚ _ _ ℤ.<-sucℤ))
 
 Seq⊆-abs<N-s⊇-⊤Pred : Seq⊆-abs<N Seq⊆.s⊇ ⊤Pred
 Seq⊆-abs<N-s⊇-⊤Pred x _ =     PT.map
@@ -211,7 +210,7 @@ record Seq⊆→ (A : Type ℓ) (s : Seq⊆) : Type ℓ where
 ∩$-cont P s op r s⊇P cₙ x ε x∈ =
  PT.rec squash₁ (λ (n , p , q) →
    PT.map2 (λ (δ , X) (η , Y) →
-        ℚ.min₊ δ η , λ v v∈ x∼v →
+        min₊ δ η , λ v v∈ x∼v →
           let z = Y v (X v (∼-monotone≤ (ℚ.min≤ _ _) x∼v))
                            (∼-monotone≤ (ℚ.min≤' (fst δ) _) x∼v)
           in subst2 _∼[ ε ]_
@@ -234,7 +233,7 @@ record Seq⊆→ (A : Type ℓ) (s : Seq⊆) : Type ℓ where
 ∩$-cont' P s op r s⊇P cₙ x ε x∈ =
  PT.rec squash₁ (λ (n , p , q) →
    PT.map2 (λ (δ , X) (η , Y) →
-        ℚ.min₊ δ η , λ v v∈ x∼v →
+        min₊ δ η , λ v v∈ x∼v →
           let z = Y v (X v (∼-monotone≤ (ℚ.min≤ _ _) x∼v))
                            (∼-monotone≤ (ℚ.min≤' (fst δ) _) x∼v)
           in subst2 _∼[ ε ]_
@@ -258,7 +257,7 @@ record Seq⊆→ (A : Type ℓ) (s : Seq⊆) : Type ℓ where
 ∩$-cont'' P s op r s⊇P cₙ x ε x∈ =
  PT.rec squash₁ (λ (n , p , q) →
    PT.map2 (λ (δ , X) (η , Y) →
-        ℚ.min₊ δ η , λ v v∈ x∼v →
+        min₊ δ η , λ v v∈ x∼v →
           let z = Y v (X v v∈ (∼-monotone≤ (ℚ.min≤ _ _) x∼v))
                            (∼-monotone≤ (ℚ.min≤' (fst δ) _) x∼v)
           in subst2 _∼[ ε ]_
@@ -274,39 +273,38 @@ record Seq⊆→ (A : Type ℓ) (s : Seq⊆) : Type ℓ where
 
 
 restrSq : ∀ n → Lipschitz-ℚ→ℚ-restr (fromNat (suc n))
-                  ((2 ℚ₊· fromNat (suc n)))
+                  ((2 ·₊ fromNat (suc n)))
                   λ x → x ℚ.· x
 
 restrSq n q r x x₁ ε x₂ =
 
-  subst (ℚ._< 2 ℚ.· fst (fromNat (suc n)) ℚ.· fst ε)
+  subst (ℚ._< 2 ℚ.· [ pos (suc n) / 1 ] ℚ.· fst ε)
     (ℚ.abs·abs (q ℚ.+ r) (q ℚ.- r) ∙
       cong {x = ((q ℚ.+ r) ℚ.· (q ℚ.- r))}
             {y = ((q ℚ.· q) ℚ.- (r ℚ.· r))}
-            ℚ.abs ℚ!!) z
+            abs ℚ!!) z
 
  where
-  zz : ℚ.abs (q ℚ.+ r) ℚ.< 2 ℚ.· fst (fromNat (suc n))
-  zz = subst (ℚ.abs (q ℚ.+ r) ℚ.<_)
-           ℚ!
-          (ℚ.isTrans≤< _ _ _ (ℚ.abs+≤abs+abs q r)
-              ((ℚ.<Monotone+ _ _ _ _ x x₁ )))
-
-  z : ℚ.abs (q ℚ.+ r) ℚ.· ℚ.abs (q ℚ.- r) ℚ.<
-        2 ℚ.· fst (fromNat (suc n)) ℚ.· fst ε
+  zz : abs (q ℚ.+ r) ℚ.< 2 ℚ.· [ pos (suc n) / 1 ]
+  zz = ℚ.isTrans≤< _ _ _ (ℚ.abs+≤abs+abs q r)
+        (subst ((abs q ℚ.+ abs r) ℚ.<_) ℚ! (ℚ.<Monotone+ _ _ _ _ x x₁)) 
+   
+  z : abs (q ℚ.+ r) ℚ.· abs (q ℚ.- r) ℚ.<
+        2 ℚ.· [ pos (suc n) / 1 ] ℚ.· fst ε
   z = ℚ.<Monotone·-onPos _ _ _ _
-      zz x₂ (ℚ.0≤abs (q ℚ.+ r)) ((ℚ.0≤abs (q ℚ.- r)))
+      zz x₂ (0≤abs (q ℚ.+ r)) ((0≤abs (q ℚ.- r)))
 
 
 
 
 
 
-clampedSq : ∀ (n : ℕ) → Σ (ℝ → ℝ) (Lipschitz-ℝ→ℝ (2 ℚ₊· fromNat (suc n)))
+clampedSq : ∀ (n : ℕ) → Σ (ℝ → ℝ) (Lipschitz-ℝ→ℝ (2 ·₊ fromNat (suc n)))
 clampedSq n =
   let ex = Lipschitz-ℚ→ℚ-extend ([ 1+ n / 1 ]₊)
-             (((2 ℚ₊· fromNat (suc n)))) (λ x → x ℚ.· x) (ℚ.[ 1 / 4 ]₊) (ℚ.<Δ n) (restrSq n)
-  in fromLipschitzGo (((2 ℚ₊· fromNat (suc n)))) (_ , Lipschitz-rat∘ ((2 ℚ₊· fromNat (suc n)))
+             (((2 ·₊ fromNat (suc n)))) (λ x → x ℚ.· x) ([ 1 / 4 ]₊)
+              ℚ.decℚ<? (restrSq n)
+  in fromLipschitzGo (((2 ·₊ fromNat (suc n)))) (_ , Lipschitz-rat∘ ((2 ·₊ fromNat (suc n)))
    (((λ x → x ℚ.· x) ∘
        ℚ.clamp (ℚ.- ([ pos (suc n) , 1 ] ℚ.- [ 1 , 4 ]))
        ([ pos (suc n) , 1 ] ℚ.- [ 1 , 4 ]))) ex)
@@ -319,18 +317,16 @@ sqSeq→ .Seq⊆→.fun⊆ x n m x∈ x∈' n<m =
     (openIintervalℙ _ _) (openIintervalℙ _ _)
    (λ x _ → fst (clampedSq (suc n)) x) (λ x _ → fst (clampedSq (suc m)) x)
    (AsContinuousWithPred (ointervalℙ (fromNeg (suc n)) (fromNat (suc n)))
-     _ ((Lipschitz→IsContinuous ((2 ℚ₊· fromNat (suc (suc n))))
+     _ ((Lipschitz→IsContinuous ((2 ·₊ fromNat (suc (suc n))))
      ((fst (clampedSq (suc n)))) ((snd (clampedSq (suc n)))))))
    (AsContinuousWithPred (ointervalℙ (fromNeg (suc m)) (fromNat (suc m)))
-    _ ((Lipschitz→IsContinuous ((2 ℚ₊· fromNat (suc (suc m))))
+    _ ((Lipschitz→IsContinuous ((2 ·₊ fromNat (suc (suc m))))
         ((fst (clampedSq (suc m)))) ((snd (clampedSq (suc m)))))))
    (λ r r∈ r∈' →
-      let Q  = ([ pos (suc (suc n)) , 1 ] ℚ.- [ 1 , 4 ])
-          Q' = ([ pos (suc (suc m)) , 1 ] ℚ.- [ 1 , 4 ])
-          Q'<Q : Q ℚ.≤ Q'
+      let Q  = _ ; Q' = _ ; Q'<Q : Q ℚ.≤ Q'
           Q'<Q = ℚ.≤-+o [ pos (suc (suc n)) , 1 ] [ pos (suc (suc m)) , 1 ] (ℚ.- [ 1 , 4 ])
-                 (ℚ.≤ℤ→≤ℚ _ _ (ℤ.ℕ≤→pos-≤-pos _ _ ((ℕ.≤-k+ {k = 2} (ℕ.<-weaken n<m)))) )
-          sn≤Q : [ pos (suc n) / 1 ] ℚ.≤ Q
+                 (≤ℤ→≤ℚ _ _ (ℤ.ℕ≤→pos-≤-pos _ _ ((ℕ.≤-k+ {k = 2} (ℕ.<-weaken n<m)))) )
+          
           sn≤Q = ℚ.inj (ℤ.Σℕ→≤ (3 , ℤ!))
       in cong {x = ℚ.clamp (ℚ.- Q) Q r} {y = ℚ.clamp (ℚ.- Q') Q' r}
              (λ x → rat (x ℚ.· x))
@@ -360,7 +356,7 @@ opaque
    (∩$-cont ⊤Pred Seq⊆-abs<N (λ _ → openIintervalℙ _ _) sqSeq→ Seq⊆-abs<N-s⊇-⊤Pred
     λ n → AsContinuousWithPred (ointervalℙ (fromNeg (suc n)) (fromNat (suc n)))
          (flip (λ x n₁ → fst (clampedSq (suc n₁)) x) n)
-          (Lipschitz→IsContinuous (2 ℚ₊· fromNat (suc (suc n)))
+          (Lipschitz→IsContinuous (2 ·₊ fromNat (suc (suc n)))
            (fst (clampedSq (suc n))) (snd (clampedSq (suc n)))))
 
 
@@ -382,8 +378,8 @@ opaque
         (𝟚.toWitness {Q = ℚ.≤Dec 0 [ 1 / 2 ]} _ ))
         ∙ cong {x = ([ 1 / 2 ] ℚ.· (q ℚ.- r))}
                {y = ((q ℚ.· [ 1 / 2 ]) ℚ.- (r ℚ.· [ 1 / 2 ]))}
-               ℚ.abs ℚ!!)
-       (ℚ.<-o· (ℚ.abs (q ℚ.- r)) (fst ε) [ 1 / 2 ]
+               abs ℚ!!)
+       (ℚ.<-o· (abs (q ℚ.- r)) (fst ε) [ 1 / 2 ]
         ((𝟚.toWitness {Q = ℚ.<Dec 0 [ 1 / 2 ]} _ )) x))
 
  /2ᵣ : ℝ → ℝ
@@ -505,12 +501,12 @@ IsContinuous·ᵣL x = subst IsContinuous
 ·IdR = ≡Continuous _ _ (IsContinuous·ᵣR 1) IsContinuousId
   (λ r → sym (rat·ᵣrat r 1) ∙ cong rat (ℚ.·IdR r) )
 
-·IdL : ∀ x → 1 ·ᵣ x ≡ x
-·IdL = ≡Continuous _ _ (IsContinuous·ᵣL 1) IsContinuousId
+·IdLᵣ : ∀ x → 1 ·ᵣ x ≡ x
+·IdLᵣ = ≡Continuous _ _ (IsContinuous·ᵣL 1) IsContinuousId
   (λ r → sym (rat·ᵣrat 1 r) ∙ cong rat (ℚ.·IdL r) )
 
 opaque
- unfolding _+ᵣ_
+ unfolding _+ᵣ_ NonExpanding₂.go
  ·DistL+ : (x y z : ℝ) → (x ·ᵣ (y +ᵣ z)) ≡ ((x ·ᵣ y) +ᵣ (x ·ᵣ z))
  ·DistL+ x y z =
    ≡Continuous _ _
@@ -544,16 +540,16 @@ IsCommRingℝ = CR.makeIsCommRing
   +ᵣAssoc +IdR +-ᵣ +ᵣComm ·ᵣAssoc
    ·IdR ·DistL+ ·ᵣComm
 
-ℝring : CR.CommRing ℓ-zero
-ℝring = (_ , CR.commringstr 0 1 _+ᵣ_ _·ᵣ_ -ᵣ_ IsCommRingℝ)
+ℝcommRing : CR.CommRing ℓ-zero
+ℝcommRing = (_ , CR.commringstr 0 1 _+ᵣ_ _·ᵣ_ -ᵣ_ IsCommRingℝ)
 
 
-x+x≡2x : ∀ x → x +ᵣ x ≡ 2 ·ᵣ x
-x+x≡2x x = cong₂ _+ᵣ_
-    (sym (·IdL x))
-    (sym (·IdL x))
-    ∙ sym (·DistR+ 1 1 x)
-    ∙ cong (_·ᵣ x) (+ᵣ-rat _ _)
+-- x+x≡2x : ∀ x → x +ᵣ x ≡ 2 ·ᵣ x
+-- x+x≡2x x = cong₂ _+ᵣ_
+--     (sym (·IdL x))
+--     (sym (·IdL x))
+--     ∙ sym (·DistR+ 1 1 x)
+--     ∙ cong (_·ᵣ x) (+ᵣ-rat _ _)
 
 opaque
 
@@ -621,16 +617,11 @@ opaque
 -ᵣ·-ᵣ x y = -ᵣ· x (-ᵣ y) ∙ cong (-ᵣ_) (·-ᵣ x y) ∙ -ᵣInvol _
 
 
-_^ⁿ_ : ℝ → ℕ → ℝ
-x ^ⁿ zero = 1
-x ^ⁿ suc n = (x ^ⁿ n) ·ᵣ x
 
 
-^ⁿ-ℚ^ⁿ : ∀ n q → ((rat q) ^ⁿ n) ≡ rat (q ℚ.ℚ^ⁿ n)
-^ⁿ-ℚ^ⁿ zero _ = refl
-^ⁿ-ℚ^ⁿ (suc n) a =
-  cong (_·ᵣ rat a) (^ⁿ-ℚ^ⁿ n a) ∙
-          sym (rat·ᵣrat _ _)
+-- _^ⁿ_ : ℝ → ℕ → ℝ
+-- x ^ⁿ zero = 1
+-- x ^ⁿ suc n = (x ^ⁿ n) ·ᵣ x
 
 
 opaque
@@ -661,10 +652,21 @@ IsContinuous₂·ᵣ :  IsContinuous₂ _·ᵣ_
 IsContinuous₂·ᵣ = IsContinuous·ᵣL , IsContinuous·ᵣR
 
 
-ℚ→ℝHom : CR.CommRingHom ℚ.ℚCommRing ℝring
+ℚ→ℝHom : CR.CommRingHom ℚCommRing ℝcommRing
 ℚ→ℝHom .fst = rat
 ℚ→ℝHom .snd .CR.IsCommRingHom.pres0 = refl
 ℚ→ℝHom .snd .CR.IsCommRingHom.pres1 = refl
 ℚ→ℝHom .snd .CR.IsCommRingHom.pres+ x y = sym (+ᵣ-rat x y)
 ℚ→ℝHom .snd .CR.IsCommRingHom.pres· x y = rat·ᵣrat x y
 ℚ→ℝHom .snd .CR.IsCommRingHom.pres- x = sym (-ᵣ-rat x)
+
+module Exponentiationᵣ = CR.Exponentiation ℝcommRing
+
+open Exponentiationᵣ renaming (_^_ to _^ⁿ_;^-ldist-· to ^ⁿ-ldist-·) public
+
+
+^ⁿ-ℚ^ⁿ : ∀ n q → ((rat q) ^ⁿ n) ≡ rat (q ℚ.^ⁿ n)
+^ⁿ-ℚ^ⁿ zero _ = refl
+^ⁿ-ℚ^ⁿ (suc n) a = 
+  cong (rat a ·ᵣ_) (^ⁿ-ℚ^ⁿ n a) ∙ sym (rat·ᵣrat _ _)
+

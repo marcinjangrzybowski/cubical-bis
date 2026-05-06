@@ -45,9 +45,9 @@ open import Cubical.Tactics.Reflection.Utilities using (quoteDefsfNames;ω[];_ω
 open import Cubical.Tactics.Reflection.Goals
 
 open import Cubical.Data.Int using (ℤ;pos;negsuc)
-open import Cubical.Data.Fast.Int as Fastℤ hiding (_+'_)
-import Cubical.Data.Fast.Int.Order as ℤ
-import Cubical.Algebra.CommRing.Instances.Fast.Int as Fastℤ'
+open import Cubical.Data.Int.Fast as Fastℤ hiding (_+'_)
+import Cubical.Data.Int.Fast.Order as ℤ
+import Cubical.Algebra.CommRing.Instances.Int.Fast as Fastℤ'
 
 -- import Cubical.Data.Rationals as ℚ
 -- import Cubical.Algebra.CommRing.Instances.Rationals as ℚ'

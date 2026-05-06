@@ -1,4 +1,4 @@
-module Cubical.Algebra.OrderedCommRing.Instances.Fast.Int where
+module Cubical.Algebra.OrderedCommRing.Instances.Int.Fast where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -8,26 +8,23 @@ open import Cubical.Data.Empty as ⊥
 
 open import Cubical.HITs.PropositionalTruncation
 
-open import Cubical.Data.Fast.Int as ℤ
+open import Cubical.Data.Int.Fast as ℤ
   renaming (_+_ to _+ℤ_ ; _-_ to _-ℤ_; -_ to -ℤ_ ; _·_ to _·ℤ_)
-open import Cubical.Data.Fast.Int.Order
+open import Cubical.Data.Int.Fast.Order
   renaming (_<_ to _<ℤ_ ; _≤_ to _≤ℤ_)
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Fast.Int
+open import Cubical.Algebra.CommRing.Instances.Int.Fast
 
-open import Cubical.Algebra.OrderedCommRing
+open import Cubical.Algebra.OrderedCommRing.Base
 
 open import Cubical.Relation.Nullary
 
 open import Cubical.Relation.Binary.Order.StrictOrder
-open import Cubical.Relation.Binary.Order.StrictOrder.Instances.Fast.Int
+open import Cubical.Relation.Binary.Order.StrictOrder.Instances.Int.Fast
 
 open import Cubical.Relation.Binary.Order.Pseudolattice
-open import Cubical.Relation.Binary.Order.Pseudolattice.Instances.Fast.Int
-
-open import Cubical.Relation.Binary
-open BinaryRelation
+open import Cubical.Relation.Binary.Order.Pseudolattice.Instances.Int.Fast
 
 open CommRingStr
 open OrderedCommRingStr
@@ -63,4 +60,4 @@ isOrderedCommRing (snd ℤOrderedCommRing) = isOrderedCommRingℤ
     isOrderedCommRingℤ .≤-<-trans       = λ _ _ _ → ≤<-trans
     isOrderedCommRingℤ .·MonoR≤         = λ _ _ _ → 0≤o→≤-·o
     isOrderedCommRingℤ .·MonoR<         = λ _ _ _ → 0<o→<-·o
-    isOrderedCommRingℤ .0<1             = zero-<possuc
+    isOrderedCommRingℤ .0<1             = pos<pos tt

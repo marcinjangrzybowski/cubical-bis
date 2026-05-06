@@ -20,12 +20,17 @@ open import Cubical.Data.Nat as ℕ hiding (
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order as ℕ using ()
 open import Cubical.Data.Sum
+<<<<<<< HEAD:Cubical/Data/Fast/Int/Properties.agda
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Fin.Base
 open import Cubical.Data.Fin.Properties
 open import Cubical.Data.Nat.Divisibility
 open import Cubical.Data.Nat.GCD
+=======
+open import Cubical.Data.Fin.Base
+open import Cubical.Data.Fin.Properties
+>>>>>>> lorenzo/archimedean-ring-experiment-wip:Cubical/Data/Int/Fast/Properties.agda
 
 open import Cubical.Data.Int.Base as ℤ
   hiding (_+_ ; _·_ ; _-_ ; _ℕ-_ ; sumFinℤ ; sumFinℤId)
@@ -37,6 +42,9 @@ open import Cubical.Data.Int.Properties as P public using (
   ; abs→⊎ ; ⊎→abs ; abs≡0 ; ¬x≡0→¬abs≡0 ; abs- ; 0≢1-ℤ ; clamp)
 
 open import Cubical.Data.Fast.Int.Base
+
+open MeetProperties ℕ≤Pseudolattice
+open JoinProperties ℕ≤Pseudolattice
 
 open MeetProperties ℕ≤Pseudolattice
 open JoinProperties ℕ≤Pseudolattice
@@ -1171,6 +1179,7 @@ private
 
 -- some lemmas about finite sums
 
+<<<<<<< HEAD:Cubical/Data/Fast/Int/Properties.agda
 sumFinℤ0 : (n : ℕ) → sumFinℤ {n = n} (λ (x : Fin n) → 0) ≡ 0
 sumFinℤ0 n = sumFinGen0 _+_ 0 +IdR n (λ _ → 0) λ _ → refl
 
@@ -1196,8 +1205,11 @@ gcdℤ a b =
        , sym (sign·abs b)
         ∙∙ cong (sign b ·_) (cong pos (sym q))
         ∙∙ ·Assoc _ _ _
-
-abs-max : ∀ n → pos (abs n) ≡ max n (- n)
-abs-max (pos zero) = refl
-abs-max (pos (suc n)) = refl
-abs-max (negsuc n) = refl
+=======
+-- sumFinℤ0 : (n : ℕ) → sumFinℤ {n = n} (λ (x : Fin n) → 0) ≡ 0
+-- sumFinℤ0 n = sumFinGen0 _+_ 0 +IdR n (λ _ → 0) λ _ → refl
+--
+-- sumFinℤHom : {n : ℕ} (f g : Fin n → ℤ)
+--   → sumFinℤ {n = n} (λ x → f x + g x) ≡ sumFinℤ {n = n} f + sumFinℤ {n = n} g
+-- sumFinℤHom {n = n} = sumFinGenHom _+_ 0 +IdR +Comm +Assoc n
+>>>>>>> lorenzo/archimedean-ring-experiment-wip:Cubical/Data/Int/Fast/Properties.agda

@@ -18,6 +18,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Empty
 import Cubical.Data.Nat as ℕ
 import Cubical.Data.Int as ℤ
+import Cubical.Data.Int as ℤ
 
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommMonoid
@@ -221,6 +222,22 @@ module RingTheory (R' : Ring ℓ) where
   fromℤ (ℤ.pos n) = fromℕ n
   fromℤ (ℤ.negsuc n) = - (fromℕ (ℕ.suc n))
 
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
   ·lCancel≃integralDomain : ((c m n : R) → c · m ≡ c · n → (c ≡ 0r → ⊥) → m ≡ n)
                                ≃ ((c m : R) → c · m ≡ 0r → (c ≡ 0r → ⊥) → m ≡ 0r)
   ·lCancel≃integralDomain = propBiimpl→Equiv

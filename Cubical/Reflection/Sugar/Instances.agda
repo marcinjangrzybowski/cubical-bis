@@ -191,3 +191,9 @@ traverseList f (x ∷ xs) = ⦇ (f x) ∷ (traverseList f xs) ⦈
 sucesfullM? :  {M : Functorω} {{_ : RawApplicative M}} {{_ : RawMonad M}} {{_ : RawMonadFail M E}} →
                 M A → M Bool
 sucesfullM? m = (m >> pure true) <|> pure false
+
+assertM :  {M : Functorω} {{_ : RawApplicative M}} {{_ : RawMonad M}} {{_ : RawMonadFail M E}} →
+                E → M Bool →  M Unit
+assertM err expectedTrue = do
+  et ← expectedTrue
+  if et then pure tt else fail err 

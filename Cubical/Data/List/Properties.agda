@@ -13,7 +13,7 @@ open import Cubical.Data.Maybe as Mb
 open import Cubical.Data.Sum as ⊎ hiding (map)
 open import Cubical.Data.Unit
 open import Cubical.Relation.Nullary
-
+open import Cubical.Data.W.W
 open import Cubical.Data.List.Base as List
 
 module _ {ℓ} {A : Type ℓ} where
@@ -507,3 +507,30 @@ mapAt : (A → A) → ℕ → List A → List A
 mapAt _ _ [] = []
 mapAt f (suc k) (x ∷ xs) = x ∷ mapAt f k xs
 mapAt f zero (x ∷ xs) = f x ∷ xs
+
+
+module ListAsWType (A : Type ℓ) where
+ WList : Type ℓ
+ WList = W (Maybe A) (caseMaybe ⊥ Unit)
+
+ List→WList : List A → WList
+ List→WList [] = sup-W nothing λ ()
+ List→WList (x ∷ xs) = sup-W (just x) λ _ → List→WList xs
+
+ WList→List : WList → List A
+ WList→List (sup-W nothing _) = []
+ WList→List (sup-W (just x) xs) = x ∷ WList→List (xs _)
+
+ IsoListWList-sec : section List→WList WList→List 
+ IsoListWList-sec (sup-W nothing x) = cong (sup-W nothing) (funExt λ ())
+ IsoListWList-sec (sup-W (just x) xs) = cong (sup-W (just x)) (funExt λ _ → IsoListWList-sec (xs _))
+ 
+ IsoListWList-ret : retract List→WList WList→List 
+ IsoListWList-ret [] = refl
+ IsoListWList-ret (x ∷ xs) i = x ∷ IsoListWList-ret xs i  
+
+ IsoListWList : Iso (List A) (WList)
+ IsoListWList .Iso.fun = List→WList
+ IsoListWList .Iso.inv = WList→List
+ IsoListWList .Iso.sec = IsoListWList-sec
+ IsoListWList .Iso.ret = IsoListWList-ret

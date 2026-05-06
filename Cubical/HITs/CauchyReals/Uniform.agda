@@ -66,27 +66,6 @@ Integral'≡ a b x f g s p =
      (X tp msh≤))) ∘_
 
 
-IsUContinuousℙ-transl : ∀ P Δ f
- → IsUContinuousℙ (P ∘ (_-ᵣ Δ)) f
- → IsUContinuousℙ P λ x x∈ → f (x +ᵣ Δ) (subst-∈ P (sym (𝐑'.plusMinus _ _)) x∈)
-IsUContinuousℙ-transl P Δ f =
- map-snd (λ X u v u∈ v∈ u∼v →
-   X _ _ _ _ (+ᵣ-∼ _ _ _ _ u∼v)) ∘_
-
-IsUContinuousℙ+ᵣ₂ : ∀ P f g → IsUContinuousℙ P f → IsUContinuousℙ P g →
-   IsUContinuousℙ P λ x x∈ → f x x∈ +ᵣ g x x∈
-IsUContinuousℙ+ᵣ₂ P f g fuc guc ε =
-  let (δ , X) = fuc (/2₊ ε)
-      (δ' , X') = guc (/2₊ ε)
-  in ℚ.min₊ δ δ' ,
-      λ u v u∈ v∈ u∼v →
-       subst∼ (ℚ.ε/2+ε/2≡ε _)
-         (triangle∼
-            (+ᵣ-∼ _ _ _ (/2₊ ε)
-             (X u v u∈ v∈ (∼-monotone≤ (ℚ.min≤ _ _) u∼v)))
-            (+ᵣ-∼' _ _ _ (/2₊ ε)
-             (X' u v u∈ v∈ (∼-monotone≤ (ℚ.min≤' _ _) u∼v))))
-
 <ε-lemma : ∀ x (y : ℝ)  (ε y' : ℚ₊)
                    → absᵣ y <ᵣ rat (fst y')
                    → absᵣ x <ᵣ rat (fst ε ℚ.· fst (invℚ₊ y'))

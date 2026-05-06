@@ -424,6 +424,10 @@ macro
  q[_] tm h =
    quoteTC tm >>= unify h
 
+ qr[_] : Term → Term → TC Unit
+ qr[_] tm h =
+   withReconstructed true (quoteTC tm) >>= unify h
+
 infixr 5 _ω∷_
 
 data HetListω : Typeω where
@@ -492,9 +496,8 @@ unifyRight :
   → TC (Maybe A)
 unifyRight h tm =
  let t' = def (quote ⊎.from⨄) v[ tm ]
- in (unify h t' >> pure nothing)
+ in (noConstraints (unify h t') >> pure nothing)
       <|> (just <$> unquoteTC t')
-
 
 -- module unifyRightTest where
 --  macro
@@ -533,7 +536,8 @@ module _ (doNotReduce : _) where
   showQuotedN tm hole = withReduceDefs (false , doNotReduce) do
     qtm ← normalise tm >>= quoteTC
     unify hole (con (quote q[_]≡_) (tm v∷ v[ qtm ]))
-
+    
+-- gives types in telescope all scoped in final 
 getContext' : TC (List ((ℕ × String) × Arg TypeTm))
 getContext' = (zipWithIndex <$> getContext) >>=
   mapM λ (k , (s ,  a)) → (((k , s) ,_) ∘S arg (argInfo a)) <$> inferType (var k [])  
@@ -610,3 +614,6 @@ tryPairFromFst : Term → Maybe Term
 tryPairFromFst (def (quote fst) xs) =
    tryGetOneVArgs xs
 tryPairFromFst _ = nothing
+
+[_∺_] : ∀ {ℓ} → (A : Type ℓ) → A → A
+[ _ ∺ x ] = x

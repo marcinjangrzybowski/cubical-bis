@@ -4,11 +4,15 @@ open import Cubical.Foundations.Prelude hiding (Path)
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Int as ℤ
-open import Cubical.Data.Rationals as ℚ
-open import Cubical.Data.Rationals.Order as ℚ
+open import Cubical.Data.Int.Fast using (pos;neg)
+import Cubical.Data.Int as ℤ
 
 open import Cubical.Data.NatPlusOne
+
+
+
+open import Cubical.HITs.CauchyReals.RationalsImports 
+open ℚ
 
 private
   variable
@@ -24,43 +28,32 @@ data ℝ where
  rat : ℚ → ℝ
  -- HoTT (11.3.3)
  lim : (x : ℚ₊ → ℝ) →
-       (∀ ( δ ε : ℚ₊) → x δ ∼[ δ ℚ₊+ ε ] x ε) →  ℝ
+       (∀ ( δ ε : ℚ₊) → x δ ∼[ δ +₊ ε ] x ε) →  ℝ
  -- HoTT (11.3.4)
  eqℝ : ∀ x y → (∀ ε → x ∼[ ε ] y) → x ≡ y
 
 data _∼[_]_   where
  rat-rat : ∀ q r ε
-   → (ℚ.- fst ε) ℚ.< (q ℚ.- r)
-   → (q ℚ.- r) ℚ.< fst ε → (rat q) ∼[ ε ] (rat r)
+   → (- fst ε) < (q - r)
+   → (q - r) < fst ε → (rat q) ∼[ ε ] (rat r)
  rat-lim : ∀ q y ε δ p v →
-        (rat q) ∼[ fst ε ℚ.- fst δ , v ] ( y δ )
+        (rat q) ∼[ fst ε - fst δ , v ] ( y δ )
         → (rat q) ∼[ ε ] (lim y p )
  lim-rat : ∀ x r ε δ p v →
-        (x δ) ∼[ fst ε ℚ.- fst δ , v ] ( rat r )
+        (x δ) ∼[ fst ε - fst δ , v ] ( rat r )
         → (lim x p) ∼[ ε ] (rat r )
  lim-lim : ∀ x y ε δ η p p' v →
-        (x δ) ∼[ (fst ε ℚ.- (fst δ ℚ.+ fst η)) , v ] (y η )
+        (x δ) ∼[ (fst ε - (fst δ + fst η)) , v ] (y η )
         → (lim x p) ∼[ ε ] (lim y p' )
  isProp∼ : ∀ r q r' → isProp (r ∼[ q ] r')
 
 rat-rat-fromAbs : ∀ q r ε
-   → ℚ.abs (q ℚ.- r) ℚ.< fst ε → (rat q) ∼[ ε ] (rat r)
+   → abs (q - r) < fst ε → (rat q) ∼[ ε ] (rat r)
 rat-rat-fromAbs q r ε x =
   rat-rat _ _ _
-      (isTrans<≤ (ℚ.- fst ε) (ℚ.- ℚ.abs (q ℚ.- r)) (q ℚ.- r)
-         (minus-< (ℚ.abs (q ℚ.- r)) (fst ε)  x)
-           (isTrans≤ (ℚ.- ℚ.abs (q ℚ.- r))
-             (ℚ.- (ℚ.- (q ℚ.- r))) (q ℚ.- r)
-             (minus-≤ (ℚ.- (q ℚ.- r)) (ℚ.abs (q ℚ.- r))
-               (isTrans≤ (ℚ.- (q ℚ.- r)) _ (ℚ.abs (q ℚ.- r))
-                  (ℚ.≤max (ℚ.- (q ℚ.- r)) (q ℚ.- r))
-                    (≡Weaken≤ (ℚ.max (ℚ.- (q ℚ.- r)) (q ℚ.- r))
-                     _
-                       (ℚ.maxComm (ℚ.- (q ℚ.- r)) (q ℚ.- r) ))))
-              (≡Weaken≤ (ℚ.- (ℚ.- (q ℚ.- r))) (((q ℚ.- r)))
-                 (ℚ.-Invol (q ℚ.- r)))))
-    ( isTrans≤< (q ℚ.- r) (ℚ.abs (q ℚ.- r)) (fst ε)
-      (ℚ.≤max (q ℚ.- r) (ℚ.- (q ℚ.- r)) ) x)
+       (subst (_ <_) ℚ!! (minus-< _ _
+         (isTrans≤< _ _ _ (-≤abs (q - r)) x)))      
+                 (isTrans≤< _ _ _ (≤abs _) x)
 
 
 _∼[_]ₚ_ : ℝ → ℚ₊ → ℝ → hProp ℓ-zero
@@ -84,20 +77,20 @@ record Elimℝ {ℓ} {ℓ'} (A : ℝ → Type ℓ)
   ratA : ∀ x → A (rat x)
   -- HoTT (11.3.5)
   limA : ∀ x p → (a : ∀ q → A (x q)) →
-             (∀ δ ε → B {x δ} {x ε} (a δ) (a ε) (δ ℚ₊+ ε) (p δ ε) ) → A (lim x p)
-  eqA : ∀ {x y} p a a' → (∀ δ ε → B a a' _ (p (δ ℚ₊+ ε)))
+             (∀ δ ε → B {x δ} {x ε} (a δ) (a ε) (δ +₊ ε) (p δ ε) ) → A (lim x p)
+  eqA : ∀ {x y} p a a' → (∀ δ ε → B a a' _ (p (δ +₊ ε)))
    → (∀ ε → B a a' ε (p ε))
    → PathP (λ i → A (eqℝ x y p i)) a a'
 
   rat-rat-B : ∀ q r ε x x₁ → B (ratA q) (ratA r) ε (rat-rat q r ε x x₁)
   rat-lim-B : ∀ q y ε δ p v r v' u' →
-       B (ratA q) (v' δ) ((fst ε ℚ.- fst δ) , v) r →
+       B (ratA q) (v' δ) ((fst ε - fst δ) , v) r →
        B (ratA q) (limA y p v' u') ε (rat-lim q y ε δ p v r)
   lim-rat-B : ∀ x r ε δ p v u v' u'
-    → B (v' δ) (ratA r) ((fst ε ℚ.- fst δ) , v) u
+    → B (v' δ) (ratA r) ((fst ε - fst δ) , v) u
     → B (limA x p v' u') (ratA r) ε (lim-rat x r ε δ p v u)
   lim-lim-B : ∀ x y ε δ η p p' v r v' u' v'' u''
-     → B (v' δ) (v'' η) ((fst ε ℚ.- (fst δ ℚ.+ fst η)) , v) r
+     → B (v' δ) (v'' η) ((fst ε - (fst δ + fst η)) , v) r
      → B (limA x p v' u') (limA y p' v'' u'')
      ε (lim-lim x y ε δ η p p' v r)
 
@@ -212,21 +205,21 @@ record Recℝ {ℓ} {ℓ'} (A : Type ℓ)
  field
   ratA : ℚ → A
   limA : (a : ℚ₊ → A) →
-             (∀ δ ε → B (a δ) (a ε) (δ ℚ₊+ ε)) → A
+             (∀ δ ε → B (a δ) (a ε) (δ +₊ ε)) → A
   eqA : ∀ a a' → (∀ ε → B a a' ε) → a ≡ a'
 
   rat-rat-B : ∀ q r ε
-       → (ℚ.- fst ε) ℚ.< (q ℚ.- r)
-       → (q ℚ.- r) ℚ.< fst ε
+       → (- fst ε) < (q - r)
+       → (q - r) < fst ε
        → B (ratA q) (ratA r) ε
   rat-lim-B : ∀ q y ε p δ v →
-       (B (ratA q) (y δ) ((fst ε ℚ.- fst δ) , v)) →
+       (B (ratA q) (y δ) ((fst ε - fst δ) , v)) →
        B (ratA q) (limA y p) ε
   lim-rat-B : ∀ x r ε δ p v
-    → B (x δ) (ratA r) ((fst ε ℚ.- fst δ) , v)
+    → B (x δ) (ratA r) ((fst ε - fst δ) , v)
     → B (limA x p) (ratA r) ε
   lim-lim-B : ∀ x y ε δ η p p' v
-     → B (x δ) (y η) (((fst ε ℚ.- (fst δ ℚ.+ fst η)) , v))
+     → B (x δ) (y η) (((fst ε - (fst δ + fst η)) , v))
      → B (limA x p) (limA y p') ε
 
   isPropB : ∀ a a' ε → isProp (B a a' ε)
@@ -252,7 +245,7 @@ record Recℝ {ℓ} {ℓ'} (A : Type ℓ)
 
  go~ = Elimℝ.go∼ d
 
-subst∼ : ∀ {u v ε ε'} → fst ε ≡ fst ε' → u ∼[ ε ] v → u ∼[ ε' ] v
+subst∼ : ∀ {u v ε 0<ε ε' 0<ε'} → ε ≡ ε' → u ∼[ (ε , 0<ε) ] v → u ∼[ (ε' , 0<ε') ] v
 subst∼ = subst (_ ∼[_] _) ∘ ℚ₊≡
 
 _subst∼[_]_ : ∀ {x x' y y' ε ε'} →
@@ -265,29 +258,29 @@ record Casesℝ {ℓ} {ℓ'} (A : Type ℓ)
  field
   ratA : ℚ → A
   limA : (x : ℚ₊ → ℝ) →
-             ((δ ε : ℚ₊) → x δ ∼[ δ ℚ₊+ ε ] x ε) → A
+             ((δ ε : ℚ₊) → x δ ∼[ δ +₊ ε ] x ε) → A
   eqA : ∀ a a' → (∀ ε → B a a' ε) → a ≡ a'
 
-  rat-rat-B : (q r : ℚ) (ε : ℚ₊) (x : (ℚ.- fst ε) ℚ.< (q ℚ.- r))
-      (x₁ : (q ℚ.- r) ℚ.< fst ε) →
+  rat-rat-B : (q r : ℚ) (ε : ℚ₊) (x : (- fst ε) < (q - r))
+      (x₁ : (q - r) < fst ε) →
       B (ratA q) (ratA r) ε
   rat-lim-B : (q : ℚ) (y : ℚ₊ → ℝ) (ε δ : ℚ₊)
-      (p : (δ₁ ε₁ : ℚ₊) → y δ₁ ∼[ δ₁ ℚ₊+ ε₁ ] y ε₁)
-      (v : 0< (fst ε ℚ.- fst δ))
-      (r : rat q ∼[ (fst ε ℚ.- fst δ) , v ] y δ) (v' : (q₁ : ℚ₊) → A)
-      (u' : (δ₁ ε₁ : ℚ₊) → B (v' δ₁) (v' ε₁) (δ₁ ℚ₊+ ε₁)) →
-      B (ratA q) (v' δ) ((fst ε ℚ.- fst δ) , v) → B (ratA q) (limA y p) ε
+      (p : (δ₁ ε₁ : ℚ₊) → y δ₁ ∼[ δ₁ +₊ ε₁ ] y ε₁)
+      (v : 0< (fst ε - fst δ))
+      (r : rat q ∼[ (fst ε - fst δ) , v ] y δ) (v' : (q₁ : ℚ₊) → A)
+      (u' : (δ₁ ε₁ : ℚ₊) → B (v' δ₁) (v' ε₁) (δ₁ +₊ ε₁)) →
+      B (ratA q) (v' δ) ((fst ε - fst δ) , v) → B (ratA q) (limA y p) ε
   lim-rat-B : (x : ℚ₊ → ℝ) (r : ℚ) (ε δ : ℚ₊)
-      (p : (δ₁ ε₁ : ℚ₊) → x δ₁ ∼[ δ₁ ℚ₊+ ε₁ ] x ε₁)
-      (v : 0< (fst ε ℚ.- fst δ))
-      (u : x δ ∼[ (fst ε ℚ.- fst δ) , v ] rat r) (v' : (q : ℚ₊) → A)
-      (u' : (δ₁ ε₁ : ℚ₊) → B (v' δ₁) (v' ε₁) (δ₁ ℚ₊+ ε₁)) →
-      B (v' δ) (ratA r) ((fst ε ℚ.- fst δ) , v) → B (limA x p) (ratA r) ε
+      (p : (δ₁ ε₁ : ℚ₊) → x δ₁ ∼[ δ₁ +₊ ε₁ ] x ε₁)
+      (v : 0< (fst ε - fst δ))
+      (u : x δ ∼[ (fst ε - fst δ) , v ] rat r) (v' : (q : ℚ₊) → A)
+      (u' : (δ₁ ε₁ : ℚ₊) → B (v' δ₁) (v' ε₁) (δ₁ +₊ ε₁)) →
+      B (v' δ) (ratA r) ((fst ε - fst δ) , v) → B (limA x p) (ratA r) ε
   lim-lim-B : (x y : ℚ₊ → ℝ) (ε δ η : ℚ₊)
-      (p : (δ₁ ε₁ : ℚ₊) → x δ₁ ∼[ δ₁ ℚ₊+ ε₁ ] x ε₁)
-      (p' : (δ₁ ε₁ : ℚ₊) → y δ₁ ∼[ δ₁ ℚ₊+ ε₁ ] y ε₁)
-      (v : 0< (fst ε ℚ.- (fst δ ℚ.+ fst η)))
-      (r : x δ ∼[ (fst ε ℚ.- (fst δ ℚ.+ fst η)) , v ] y η) →
+      (p : (δ₁ ε₁ : ℚ₊) → x δ₁ ∼[ δ₁ +₊ ε₁ ] x ε₁)
+      (p' : (δ₁ ε₁ : ℚ₊) → y δ₁ ∼[ δ₁ +₊ ε₁ ] y ε₁)
+      (v : 0< (fst ε - (fst δ + fst η)))
+      (r : x δ ∼[ (fst ε - (fst δ + fst η)) , v ] y η) →
       B (limA x p) (limA y p') ε
 
   isPropB : ∀ a a' ε → isProp (B a a' ε)
@@ -309,3 +302,11 @@ record Casesℝ {ℓ} {ℓ'} (A : Type ℓ)
  go = Elimℝ.go d
  go~ = Elimℝ.go∼ d
 
+
+redℝ : ∀ (x : ℝ) → singl  x
+redℝ = Elimℝ-Prop.go w
+ where
+ w : Elimℝ-Prop singl
+ w .Elimℝ-Prop.ratA q = rat (ℚ.reduce q) , cong rat (reducedEqual q)
+ w .Elimℝ-Prop.limA x p x₁ = lim x p , refl
+ w .Elimℝ-Prop.isPropA _ = isPropSingl

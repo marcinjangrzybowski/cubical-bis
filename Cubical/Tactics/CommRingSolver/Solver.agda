@@ -1470,6 +1470,18 @@ module SansReflection (crs : CommRingSolverConfig) where
   --         (u₁ , y₁) = ⊎.rec (0ₕ ,_) (idfun _) x₁
   --     in inr (u₀ ·X+ u₁ , λ { (v ∷ vs) i → y₀ (v ∷ vs) i ·` v +` y₁ vs i })
 
+  const·ₕ : ∀ {n} a (e : IteratedHornerForms n) →
+           Σ[ e' ∈ IteratedHornerForms n ] (∀ xs → eval e' xs ≡ (scalar` a ·` eval e xs))
+  const·ₕ a (const x) = HornerForms.const (a · x) , λ { [] → (pres· _ _)}
+  const·ₕ a 0H = 0H , λ _ → sym (R`.0RightAnnihilates _) 
+  const·ₕ a (e ·X+ e₁) =
+     let e' , e=' = const·ₕ a e
+         e₁' , e₁=' = const·ₕ a e₁
+     in e' ·X+ e₁' , λ { (x ∷ xs) →
+         cong₂ _+`_ (cong (_·` _) (e=' (x ∷ xs)) ∙
+           sym (R`.·Assoc _ _ _) ) (e₁=' xs) ∙
+            sym (R`.·DistR+ (scalar` a) _ _ ) }
+  
   Normalized0ₕ : ∀ n → Normalized (0ₕ {n})
   Normalized0ₕ zero = inl refl
   Normalized0ₕ (suc n) = inl tt*

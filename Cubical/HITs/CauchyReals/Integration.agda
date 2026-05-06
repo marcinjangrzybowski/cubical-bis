@@ -25,11 +25,6 @@ open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Data.NatPlusOne
 
-open import Cubical.Data.Rationals.Fast as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Fast.Order as ℚ using
-  ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡ ; [_/_]₊)
-open import Cubical.Data.Rationals.Fast.Order.Properties as ℚ
- using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
 
 
 open import Cubical.HITs.CauchyReals.Base
@@ -43,11 +38,20 @@ open import Cubical.HITs.CauchyReals.Sequence
 open import Cubical.HITs.CauchyReals.Derivative
 open import Cubical.HITs.CauchyReals.Summation
 
-open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
-open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
-open import Cubical.Tactics.CommRingSolverFast.IntReflection
+
 open import Cubical.HITs.CauchyReals.LiftingExpr
-open import Cubical.Tactics.CommRingSolverFast.RealsReflection
+
+
+open import Cubical.HITs.CauchyReals.RationalsImports 
+
+
+open ℚ using (_⁻¹₊)
+
+open import Cubical.Tactics.CommRingSolver.Specialised.Reals
+
+
+open import Cubical.HITs.CauchyReals.LiftingExpr
+
 
 
 record Partition[_,_] (a b : ℝ) : Type₀ where

@@ -14,11 +14,13 @@ open import Cubical.Data.Nat using (ℕ)
 import Cubical.Data.Nat as ℕ
 open import Cubical.Data.Maybe
 open import Cubical.Data.List
-open import Cubical.Data.Fast.Int using (_ℕ-_)
-import Cubical.Data.Fast.Int as ℤ
-import Cubical.Data.Fast.Int.Order as ℤ
+open import Cubical.Data.Int.Fast using (_ℕ-_)
+import Cubical.Data.Int.Fast as ℤ
+import Cubical.Data.Int.Fast.Order as ℤ
 
 import Cubical.HITs.SetQuotients as SetQuotient
+
+open import Cubical.Relation.Nullary.Base
 
 open import Agda.Builtin.Reflection hiding (Type)
 open import Agda.Builtin.String
@@ -34,6 +36,8 @@ open import Cubical.Tactics.Reflection.Error
 open import Cubical.Data.Rationals as ℚ
 open import Cubical.Data.Rationals.Order
 open import Cubical.Algebra.CommRing.Instances.Rationals
+open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.Ring
 
 open import Cubical.Tactics.CommRingSolver.Config
 open import Cubical.Tactics.CommRingSolver.Solver
@@ -46,7 +50,13 @@ import Cubical.HITs.SetQuotients as SetQuotient
 
 open import Cubical.Tactics.CommRingSolver.Specialised.FastIntPlus
 
+open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
+open PositiveRationals
+
 open EqElims
+
+open RingTheory (CommRing→Ring ℚCommRing)
+
 
 _ : Q[ ℕ.suc 3 ℕ.+ 12 ]≡ lit (nat 16)
 _ = showQuotedN [] ((ℕ.suc 3) ℕ.+ 12)
@@ -82,11 +92,17 @@ mbConcreteℚ' tm  = pure nothing
 
 
 mbConcreteℚ : Term → TC (Maybe Term)
-mbConcreteℚ tm =
- withNormalisation true
-  (withReconstructed true
-   (withReduceDefs (false , []) (checkType tm q[ ℚ ] >>= normalise  >>= mbConcreteℚ')))
-
+mbConcreteℚ tm@(con (quote SetQuotient.[_])
+     (_ ∷ _ ∷ _ ∷ _ ∷
+      v[ con (quote _,_) (_ ∷ _ ∷ _ ∷ _ ∷ con _ v[ lit _ ] v∷ v[ con (quote 1+_) v[ lit _ ] ]) ])) =
+       pure (just tm)
+mbConcreteℚ tm = --pure nothing
+ checkType tm q[ ℚ ] >>= normalise  >>= mbConcreteℚ'
+-- do
+--  withNormalisation true
+--   (withReconstructed true
+--    (withReduceDefs (false , []) (checkType tm q[ ℚ ] >>= normalise  >>= mbConcreteℚ')))
+  
 
 
 macro
@@ -114,9 +130,13 @@ macro
     matchTerm t@(def (quote _·_) xs) = just <$> `_·_` xs
     matchTerm t = map-Maybe (λ t' → (λ _ → con (quote K) v[ t' ]) , []) <$> mbConcreteℚ t
 
+mbNegℚ : (x : ℚ) → Maybe (Σ ℚ (λ -x → ℚ.- -x ≡ x))
+mbNegℚ x with <Dec x 0
+... | yes p = just (ℚ.- x , -Idempotent x)
+... | no ¬p = nothing
 
 open Discrete ℚCommRing discreteℚ ℚCommRingIsNotZeroRing
-              nothing nothing nothing
+              (just mbNegℚ) nothing nothing
 
               (quoteDefsfNames ( _·_ ω∷ _+_ ω∷ (-_) ω∷ ω[] ))
               ℚmatcher
@@ -157,18 +177,17 @@ _,ℚ_ : ℚ → ℚ → ℚ × ℚ
 _,ℚ_ = _,_
 
 doNotUnfoldsℚ : List Name
-doNotUnfoldsℚ = quote ℚ.abs ∷ quote ℚ.max ∷ quote ℚ.min ∷ []
+doNotUnfoldsℚ = quote ℚ.max ∷ quote ℚ.min ∷ []
 
 
 
 wrdℕ : ∀ {a} {A : Type a} → TC A → TC A
 wrdℕ = withReduceDefs
-   (false , ((quote ℕ._·_) ∷
+   (false , (quote [_∺_] ∷ (quote ℕ._·_) ∷
     (quote ℕ._+_) ∷ (quote ℤ._+_) ∷ (quote (ℤ.-_)) ∷ (quote ℤ._·_) ∷ (quote _ℕ-_)
      -- ∷ []))
      ∷ (quote _+₁_) ∷ (quote _·₊₁_) ∷ (quote ℕ₊₁→ℕ) ∷ (quote ℤ.ℕ₊₁→ℤ)
       ∷ (quote ℤ.0<→ℕ₊₁-fst) ∷ []))
-
 
 module _ (dbg : Bool) where
 
@@ -188,7 +207,7 @@ module _ (dbg : Bool) where
 
 
   wrdℚ : ∀ {a} {A : Type a} → TC A → TC A
-  wrdℚ = withReduceDefs ( false , ((quoteDefsfNames
+  wrdℚ = withReduceDefs ( false , quote [_∺_] ∷ ((quoteDefsfNames
       (ℚ._+_ ω∷ ℚ.-_ ω∷ _·_ ω∷ ℕ._·_ ω∷ ℕ._+_ ω∷ ℤ._+_ ω∷ (ℤ.-_)
       ω∷ ℤ._·_ ω∷ _ℕ-_ ω∷ _+₁_ ω∷ _·₊₁_ ω∷ ℕ₊₁→ℕ ω∷ ℤ.ℕ₊₁→ℤ
        ω∷ ℤ.0<→ℕ₊₁-fst ω∷ ω[])) ++ doNotUnfoldsℚ))

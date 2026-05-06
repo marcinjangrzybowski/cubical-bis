@@ -24,7 +24,7 @@ open import Cubical.Tactics.Reflection.Variables
 open import Cubical.Tactics.Reflection.Utilities
 open import Cubical.Tactics.Reflection.Error
 
-import Cubical.Algebra.CommRing.Instances.Fast.Int as FastℤCR
+import Cubical.Algebra.CommRing.Instances.Int.Fast as FastℤCR
 
 private
  variable

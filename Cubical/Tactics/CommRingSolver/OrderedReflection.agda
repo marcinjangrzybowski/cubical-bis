@@ -13,6 +13,7 @@ open import Cubical.Reflection.Base
 
 open import Cubical.Data.Maybe as Mb
 open import Cubical.Data.Sum
+open import Cubical.Data.Unit
 open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
 import Cubical.Data.FinData as Fin
@@ -47,12 +48,12 @@ open import Cubical.Tactics.Reflection.Utilities using (quoteDefsfNames;ω[];_ω
 open import Cubical.Tactics.Reflection.Goals
 
 open import Cubical.Data.Int using (ℤ;pos;negsuc)
-import Cubical.Data.Fast.Int as Fastℤ
-import Cubical.Data.Fast.Int.Order as ℤ
-import Cubical.Algebra.CommRing.Instances.Fast.Int as Fastℤ'
+import Cubical.Data.Int.Fast as Fastℤ
+import Cubical.Data.Int.Fast.Order as ℤ
+import Cubical.Algebra.CommRing.Instances.Int.Fast as Fastℤ'
 import Cubical.Algebra.OrderedCommRing
 import Cubical.Algebra.OrderedCommRing.Instances.Rationals as OrderedRats
-import Cubical.Algebra.OrderedCommRing.Instances.Fast.Int as OrderedFastℤ
+import Cubical.Algebra.OrderedCommRing.Instances.Int.Fast as OrderedFastℤ
 
 -- import Cubical.Data.Rationals as ℚ
 -- import Cubical.Algebra.CommRing.Instances.Rationals as ℚ'
@@ -72,9 +73,13 @@ open import Cubical.Algebra.OrderedCommRing.Properties
 import Cubical.Tactics.CommRingSolver.Specialised.Rationals as Rat
 import Cubical.Data.Rationals as Rat
 import Cubical.Data.Rationals.Order as Rat
-import Cubical.Data.Rationals.Order.Properties as Rat
+import Cubical.Data.Rationals.Inverse as Rat
+-- import Cubical.Data.Rationals.Order.Properties as Rat
 
 import Cubical.Data.Prod as Prod
+
+open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
+open PositiveRationals
 
 
 infix 55 _↘_
@@ -102,6 +107,9 @@ module OrderedCommRingSolver (ocrs : OrderedCommRingSolverConfig) where
   L.map (λ (k , tm) →  "\n" ∷ₑ mkNiceVar k ∷ₑ " ∶ " ∷ₑ [ tm ]ₑ) ∘
    zipWithIndex
 
+
+ -- log : List ErrorPart → TC Unit
+ -- log = debugPrint "commRingSolver" 0
 
  IneqData = (Bool × (Term × Term))
 
@@ -141,37 +149,56 @@ module OrderedCommRingSolver (ocrs : OrderedCommRingSolverConfig) where
 
  
 
- record IneqInCtx : Type where
-  constructor ineqInCtx
+ record GivenInequality : Type where
+  constructor givenInequality
   field
    proofTerm : Term
    strict? : Bool
    lhs rhs : Term
 
 
-
-  
- matchTyInCtx :
-    (ℕ × String) × Term → TC (Maybe IneqInCtx) --(Maybe (Term × (Bool × (Term × Term))))
- matchTyInCtx ((k , _) , tm) = map-Maybe (uncurry (uncurry ∘ ((uncurry ∘_) ∘ ineqInCtx))) <$> (do
-   nothing ← normalise tm >>= mkMatchInequalityGoalTC 
-    where just x → pure (just (var k [] , x))
-   (map-Maybe ((def (quote snd) v[ var k [] ]) ,_)
-    <$> (inferType (def (quote snd) v[ var k [] ]) >>= normalise
-           >>= mkMatchInequalityGoalTC)) <|> pure nothing)
-   -- mkMatchInequalityGoalTC tm'
-
- inferIneqsInCtx : TC (List IneqInCtx)
- inferIneqsInCtx = do
-   ctx ← getContext'
-   catMaybes <$> mapM ((matchTyInCtx ∘S (map-snd unArg)) >=>
-    Mb.rec (pure nothing) λ (ineqInCtx tmk rel lhs rhs) →
-      just <$> (ineqInCtx tmk rel <$> pure lhs <*> pure rhs)) ctx
+ tryUseAsGivenInequality : Bool → Term → TC (Maybe GivenInequality)
+ tryUseAsGivenInequality normaliseFlag tm = 
+   map-Maybe (λ (b , lhs , rhs) → givenInequality tm b lhs rhs) <$>
+     (inferType tm
+       >>= (if normaliseFlag then normalise else pure)
+       >>= mkMatchInequalityGoalTC)
     
+   
+ -- matchTyInCtx :
+ --    (ℕ × String) × Term → TC (Maybe GivenInequality) --(Maybe (Term × (Bool × (Term × Term))))
+ -- matchTyInCtx ((k , _) , tm) = map-Maybe (uncurry (uncurry ∘ ((uncurry ∘_) ∘ givenInequality))) <$> (do
+ --   -- aggresive
+ --   nothing ← normalise tm >>= mkMatchInequalityGoalTC 
+ --    where just x → pure (just (var k [] , x))
+ --   -- pure nothing
+ --   (map-Maybe ((def (quote snd) v[ var k [] ]) ,_)
+ --    <$> (inferType (def (quote snd) v[ var k [] ]) >>= normalise
+ --           >>= mkMatchInequalityGoalTC)) <|> pure nothing
+ --           )
+
+ 
+
+ inferIneqsInCtx : TC (List GivenInequality)
+ inferIneqsInCtx = do
+   ctxLen ← length <$> getContext
+   catMaybes <$> mapM (tryUseAsGivenInequality false)
+     (L.map (λ k → var k []) (range ctxLen))
+
+ inferIneqsByVars : Vars → TC (List GivenInequality)
+ inferIneqsByVars vrs =
+   catMaybes <$> mapM (λ tm → tryUseAsGivenInequality true (def (quote snd) v[ tm ]))
+     (catMaybes (L.map tryPairFromFst vrs)) 
+ -- do
+ --   ctxLen ← length <$> getContext
+ --   catMaybes <$> mapM tryUseAsGivenInequality
+ --     (L.map (λ k → var k []) (range ctxLen))
+
+
  macro
   ineqsInCtx : Term → TC Unit
   ineqsInCtx tm = do
-    uu ←  (L.join ∘S  L.map (λ (ineqInCtx tmk rel lhs rhs) →
+    uu ←  (L.join ∘S  L.map (λ (givenInequality tmk rel lhs rhs) →
              (tmk ∷ₑ " : " ∷ₑ lhs ∷ₑ (if rel then "<" else "≤") ∷ₑ rhs  ∷ₑ [ "\n" ]ₑ )))
             <$> inferIneqsInCtx 
     typeError $ "ineqs in ctx: \n" ∷ₑ uu
@@ -185,6 +212,31 @@ module OrderedCommRingSolver (ocrs : OrderedCommRingSolverConfig) where
  --   v∷ v[ a ]))
 
 
+ -- collectInfoFromVarTerms : Term → Vars → TC Term
+ -- collectInfoFromVarTerms ocrsTerm =
+ --   foldlM (λ x tm → do
+ --        x' ← inferInfoFromTerm x
+ --        pure $ con (quote _,_) (x' v∷ v[ tm ]))
+ --     (con (quote lift)
+ --                (harg {quantity-ω} unknown ∷
+ --                 harg {quantity-ω} unknown ∷
+ --                 harg {quantity-ω} unknown ∷ v[ con (quote tt) [] ]))
+ --   where
+ --   module _ (xx : Term × Term) where
+
+ --   --  _ : Term
+ --   --  _ = def (quote fst)
+ --   --       (harg {quantity-ω} unknown ∷
+ --   --        harg {quantity-ω} unknown ∷
+ --   --        harg {quantity-ω} unknown ∷
+ --   --        harg {quantity-ω} unknown ∷ v[ var 0 [] ])
+
+ --   inferInfoFromTerm : Term → TC Term
+ --   inferInfoFromTerm t = do
+ --     {!t!}
+
+
+
  collectInfoFromCtx : Term → Vars → TC Term
  collectInfoFromCtx ocrsTerm vars = do
    ineqInfoType ← normalise $ def (quote SansReflectionOreded.VarsIneqInfo)
@@ -193,15 +245,17 @@ module OrderedCommRingSolver (ocrs : OrderedCommRingSolverConfig) where
    noInfoIneqInfoTm ←   -- 
     (checkType (def (quote SansReflectionOreded.varsIneqNoInfo)
           (ocrsTerm v∷ (ℕAsTerm (length vars)) v∷ [ variableList vars ])) (ineqInfoType))
-   
-   ictx ← inferIneqsInCtx
+   infoFromTerms ← pure noInfoIneqInfoTm
+     -- collectInfoFromVarTerms ocrsTerm vars
+
+   ictx ← _++_ <$> inferIneqsInCtx <*> inferIneqsByVars vars
    
 
    -- ineqInfoTm ← withReduceDefs (false , [])
    --   (foldlM infoFromSigmasStep noInfoIneqInfoTm (zipWithIndex vars))
 
    withReduceDefs (false , [])
-     (foldlM cifcStep noInfoIneqInfoTm ictx) -- >>= flip checkType (ineqInfoType))
+     (foldlM cifcStep infoFromTerms ictx) -- >>= flip checkType (ineqInfoType))
    -- typeError [ ineqInfoTm ]ₑ
   where
    -- infoFromSigmasStep : Term → (ℕ × Term) → TC Term
@@ -209,27 +263,27 @@ module OrderedCommRingSolver (ocrs : OrderedCommRingSolverConfig) where
    --   {!tryPairFromFst v!}
    -- infoFromSigmasStep t _ = pure t
    
-   cifcStep : Term → IneqInCtx → TC Term
+   cifcStep : Term → GivenInequality → TC Term
    cifcStep t iic = do
-     just ((b , prfTm) , k) ← (maybeVarIneqInfo vars)
-       where nothing → (pure t)
+     just ((b , prfTm) , k) ← maybeVarIneqInfo iic
+        where nothing → (pure t)
      bTm ← quoteTC b >>= normalise
      kTm ← quoteTC k >>= normalise
      pure $ def (quote SansReflectionOreded.setVarsIneqInfo')
        ((ocrsTerm v∷ (ℕAsTerm (length vars)) v∷ variableList vars ∷
           kTm v∷ bTm v∷ prfTm v∷ v[ t ]))
     where
-    open IneqInCtx iic
 
-    maybeVarIneqInfo : (v : Vars) →  TC (Maybe ((Bool × Term) × _)) 
-    maybeVarIneqInfo vrs = do
-     is0 ← mbPureMatchZero lhs
+
+    maybeVarIneqInfo : GivenInequality → TC (Maybe ((Bool × Term) × _)) 
+    maybeVarIneqInfo iic = do
+     is0 ← mbPureMatchZero IIC.lhs
      pure $ if is0 
-      then ((strict? , proofTerm) ,_) <$> indexOfFin rhs vrs
+      then ((IIC.strict? , IIC.proofTerm) ,_) <$> indexOfFin IIC.rhs vars
       else nothing
       -- (withReconstructed true (unify 0r`Tm lhs) >> 
       --  pure (((strict? , proofTerm) ,_) <$> indexOfFin rhs vrs)) <|> pure nothing
-
+     where module IIC = GivenInequality iic
 
  quoteIneqType : Term → TC (Abstr IneqData)
  quoteIneqType goal = do
@@ -260,7 +314,9 @@ module OrderedCommRingSolver (ocrs : OrderedCommRingSolverConfig) where
  <≤!-macro : Term → List Term → Bool → TC Unit
  <≤!-macro hole asmptionsTms justShow = withReduceDefs (false ,
      (quote SansReflectionOreded.Decidable≲.x≲y-fromDec) ∷ doNotUnfold) do
+   log [ "start" ]ₑ
    goal ← inferType hole >>= normalise
+   log $ "goal:" ∷nl [ goal  ]ₑ
    -- wait-for-term goal
    -- just (rel , lhs , rhs) ← mkMatchInequalityGoalTC goal
    --   where nothing → typeError [ "not an inequality" ]ₑ
@@ -290,6 +346,7 @@ module OrderedCommRingSolver (ocrs : OrderedCommRingSolverConfig) where
                ∘ nicelyShowGoal vars ∘ fst ∘ fst) assmptionsIneqData
               typeError (([ "failWithReason: " ] ++ₑ (showFailReason failReasonStr) ) ++nl nsg ++nl
                 asmptnsNice)
+   log [ "done" ]ₑ
    pure _
    -- sTy ← inferType solution >>= normalise
    -- lTy ← inferType lemH >>= normalise
@@ -377,7 +434,7 @@ module WithOrdering {rℓ rℓ`} (crsc : CommRingSolverConfig) where
    ocrsc .mbInverses = mbInv
    ocrsc .mbPureMatchZero = mbPureMatch0
    ocrsc .mkMatchInequalityGoalTC tm =
-     pure ((tryGetName tm) >>= matchIneqTy)
+     pure (tryGetName tm >>= matchIneqTy)
    
      -- (just <$> (((true ,_) <$> (tryMatchRelDef nm< tm)) <|> ((false ,_) <$> (tryMatchRelDef nm≤ tm))))
      --   <|> (pure nothing)
@@ -385,12 +442,10 @@ module WithOrdering {rℓ rℓ`} (crsc : CommRingSolverConfig) where
 
 
 module OrederedSolverRationals where
-  hasInvs : (∀ x y k → 0 Rat.< k → (k Rat.· x) Rat.< y → Σ _ λ 1/k → x Rat.< (1/k Rat.· y))
-               × (∀ x y k → 0 Rat.< k → (k Rat.· x) Rat.≤ y → Σ _ λ 1/k → x Rat.≤ (1/k Rat.· y))
-  hasInvs .fst x y k 0<k p = (fst (Rat.invℚ₊ (k , 0<k))) ,
-   subst (x Rat.<_) (Rat.·Comm y _) (Rat.y·x<z→x<z·invℚ₊y x y (k , 0<k) p)
-  hasInvs .snd x y k 0<k p = (fst (Rat.invℚ₊ (k , 0<k))) ,
-   subst (x Rat.≤_) (Rat.·Comm y _) (Rat.y·x≤z→x≤z·invℚ₊y x y (k , 0<k) p)
+
+  open OrderedCommRingStr (snd ℚOrderedCommRing)
+  open OrderedCommRingReasoning ℚOrderedCommRing
+  open OrderedCommRingTheory ℚOrderedCommRing
 
   0ℚraw : Rat.ℚ
   0ℚraw = Rat.[ pos ℕ.zero , (1+ ℕ.zero) ]
@@ -430,7 +485,7 @@ module OrederedSolverRationals where
     ((_ ,
    snd (OrderedRats.ℚOrderedCommRing) .OrderedCommRingStr.isOrderedCommRing))
    (λ _ _ z → z) (λ _ _ z → z) (λ _ _ z → z)
-   Rat.<Dec Rat.≤Dec Rat.≡⊎# (just hasInvs)
+   Rat.<Dec Rat.≤Dec Rat.≡⊎# (just (curry Rat.Σinverseℚ₊))
      0ℚtrmTestTC (quote Rat._<_) (quote Rat._≤_)
    -- (quote Rat._<_) (quote Rat._≤_)
 

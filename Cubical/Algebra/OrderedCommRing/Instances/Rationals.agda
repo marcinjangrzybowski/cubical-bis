@@ -6,6 +6,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _//_)
@@ -13,12 +14,14 @@ open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _//_)
 open import Cubical.Data.Nat as ℕ hiding (_+_ ; _·_)
 open import Cubical.Data.NatPlusOne as ℕ₊₁
 -- to be replaced with fast integers once we have fast rationals
-open import Cubical.Data.Fast.Int as ℤ hiding (_+_ ; _-_ ; -_ ; _·_)
-import Cubical.Data.Fast.Int.Order as ℤ
+open import Cubical.Data.Int.Fast as ℤ hiding (_+_ ; _-_ ; -_ ; _·_)
+import Cubical.Data.Int.Fast.Order as ℤ
+
+open import Cubical.Data.List hiding ([_])
 
 open import Cubical.Data.Rationals as ℚ
   renaming (_+_ to _+ℚ_ ; _-_ to _-ℚ_; -_ to -ℚ_ ; _·_ to _·ℚ_)
-open import Cubical.Data.Rationals.Order
+open import Cubical.Data.Rationals.Order as ℚ -- hiding (ℚ₊;max₊;min₊)
   renaming (_<_ to _<ℚ_ ; _≤_ to _≤ℚ_)
 
 open import Cubical.Algebra.CommRing
@@ -67,57 +70,225 @@ isOrderedCommRing (snd ℚOrderedCommRing) = isOrderedCommRingℚ
   isOrderedCommRingℚ .≤-<-trans       = isTrans≤<
   isOrderedCommRingℚ .·MonoR≤         = ≤-·o
   isOrderedCommRingℚ .·MonoR<         = <-·o
-  isOrderedCommRingℚ .0<1             =  <ℤ→<ℚ _ _ (ℤ.pos<pos tt)
+  isOrderedCommRingℚ .0<1             = pos<pos tt
 
-  -- module PositiveRationals where
+module 1/2∈ℚ = Characteristic≠2 ℚOrderedCommRing [ 1 / 2 ] (eq/ _ _ refl)
 
-  --   private
-  --     0<+Closed : ∀ x y → 0 <ℚ x → 0 <ℚ y → 0 <ℚ x +ℚ y
-  --     0<+Closed = SQ.elimProp2 (λ x y → isProp→ $ isProp→ $ isProp< 0 $ x +ℚ y) λ
-  --       { (pos zero    , _) _ 0<x _ → ⊥.rec (ℤ.isIrrefl< 0<x)
-  --       ; (negsuc n    , _) _ 0<x _ → ⊥.rec $
-  --         ℤ.¬pos≤negsuc {0} {n} $ ℤ.<-weaken $ subst (0 ℤ.<_) (ℤ.·IdR _) 0<x
-  --       ; (pos (suc n) , _) (pos zero    , _) _ 0<y → ⊥.rec (ℤ.isIrrefl< 0<y)
-  --       ; (pos (suc n) , _) (negsuc m    , _) _ 0<y → ⊥.rec $
-  --         ℤ.¬pos≤negsuc {0} {m} $ ℤ.<-weaken $ subst (0 ℤ.<_) (ℤ.·IdR _) 0<y
-  --       ; (pos (suc n) , 1+ a) (pos (suc m) , 1+ b) _ 0<y →
-  --         subst (0 ℤ.<_)
-  --               (  pos+ (suc n ℕ.· suc b) (suc m ℕ.· suc a)
-  --               ∙∙ cong₂ ℤ._+_ (ℤ.pos·pos (suc n) (suc b)) (ℤ.pos·pos (suc m) (suc a))
-  --               ∙∙ sym (ℤ.·IdR _))
-  --               (ℤ.suc-≤-suc ℤ.zero-≤pos) }
 
-  --     0<·Closed : ∀ x y → 0 <ℚ x → 0 <ℚ y → 0 <ℚ x ·ℚ y
-  --     0<·Closed = SQ.elimProp2 (λ x y → isProp→ $ isProp→ $ isProp< 0 $ x ·ℚ y) λ
-  --       { (pos zero    , a) _ 0<x _ → ⊥.rec (ℤ.isIrrefl< 0<x)
-  --       ; (negsuc n    , a) _ 0<x _ → ⊥.rec $
-  --         ℤ.¬pos≤negsuc {0} {n} $ ℤ.<-weaken $ subst (0 ℤ.<_) (ℤ.·IdR _) 0<x
-  --       ; (pos (suc n) , a) (pos zero    , b) _ 0<y → ⊥.rec (ℤ.isIrrefl< 0<y)
-  --       ; (pos (suc n) , a) (negsuc m    , b) _ 0<y → ⊥.rec $
-  --         ℤ.¬pos≤negsuc {0} {m} $ ℤ.<-weaken $ subst (0 ℤ.<_) (ℤ.·IdR _) 0<y
-  --       ; (pos (suc n) , a) (pos (suc m) , b) 0<x 0<y →
-  --         subst (0 ℤ.<_)
-  --               (pos·pos (suc n) (suc m) ∙ sym (ℤ.·IdR _))
-  --               (ℤ.suc-≤-suc ℤ.zero-≤pos) }
+open Units ℚCommRing
+open CommRingTheory ℚCommRing
+open OrderedCommRingReasoning ℚOrderedCommRing
 
-  --   open Positive ℚOrderedCommRing 0<+Closed 0<·Closed renaming (
-  --     R₊ to ℚ₊ ; isSetR₊ to isSetℚ₊ ; R₊≡ to ℚ₊≡) public
+private
+  ℚCR  = OrderedCommRing→CommRing ℚOrderedCommRing
 
-  --   -- Natural number literals for ℚ
+module PositiveRationals where
 
-  --   open import Cubical.Data.Nat.Literals public
+  opaque
+    0<+Closed : ∀ x y → 0 <ℚ x → 0 <ℚ y → 0 <ℚ x +ℚ y
+    0<+Closed = SQ.elimProp2 (λ _ _ → isProp→ (isProp→ (isProp< 0 _)))
+     λ
+      { (pos (suc n) , _) (pos (suc m) , _) (pos<pos p) (pos<pos q) → pos<pos tt }
 
-  --   instance
-  --     fromNatℚ₊ : HasFromNat ℚ₊
-  --     fromNatℚ₊ = record { Constraint = λ { zero → ⊥ ; _ → Unit }
-  --                        ; fromNat = λ
-  --                        { (suc n) .fst → [ pos (suc n) / 1 ]
-  --                        ; (suc n) .snd → subst (0 ℤ.<_)
-  --                                               (sym (ℤ.·IdR (pos (suc n))))
-  --                                               (ℤ.suc-≤-suc ℤ.zero-≤pos) } }
+    0<·Closed : ∀ x y → 0 <ℚ x → 0 <ℚ y → 0 <ℚ x ·ℚ y
+    0<·Closed = SQ.elimProp2 (λ _ _ → isProp→ (isProp→ (isProp< 0 _))) λ
+      { (pos (suc n) , _) (pos (suc m) , _) (pos<pos p) (pos<pos q) → pos<pos tt   }
 
-  --   [_/_]₊ : ℕ₊₁ → ℕ₊₁ → ℚ₊
-  --   [ 1+ n / 1+ m ]₊ .fst = [ pos (suc n) / 1+ m ]
-  --   [ 1+ n / 1+ m ]₊ .snd = subst (0 ℤ.<_)
-  --                                 (sym (ℤ.·IdR (pos (suc n))))
-  --                                 (ℤ.suc-≤-suc ℤ.zero-≤pos)
+  open Positive ℚOrderedCommRing 0<+Closed 0<·Closed public renaming (
+      R₊ to ℚ₊ ; isSetR₊ to isSetℚ₊ ; R₊≡ to ℚ₊≡
+    ; R₊AdditiveSemigroup to +ℚ₊Semigroup ; R₊MultiplicativeCommMonoid to ·ℚ₊CommMonoid)
+  open module PositiveHalvesℚ =
+    PositiveHalves ℚOrderedCommRing [ 1 / 2 ] (eq/ _ _ refl) 0<+Closed 0<·Closed
+
+  -- Natural number literals for ℚ
+
+  open import Cubical.Data.Nat.Literals public
+
+  instance
+    fromNatℚ₊ : HasFromNat ℚ₊
+    fromNatℚ₊ = record { Constraint = λ { zero → ⊥ ; _ → Unit }
+                       ; fromNat = λ { (suc n) .fst → [ pos (suc n) / 1 ]
+                                     ; (suc n) .snd → pos<pos tt } }
+
+  [_/_]₊ : ℕ₊₁ → ℕ₊₁ → ℚ₊
+  [ 1+ n / 1+ m ]₊ = [ pos (suc n) / 1+ m ] , pos<pos tt
+
+  opaque
+   0<max : ∀ a b → 0 ℚ.< a → 0 ℚ.< b → 0 ℚ.< ℚ.max a b 
+   0<max x y 0<x 0<y =  elimProp2
+    {P = λ a b → 0 <ℚ a → 0 <ℚ b → 0 <ℚ ℚ.max a b}
+    (λ a b → isPropΠ2 λ _ _ → isProp< 0 (ℚ.max a b))
+    (λ { (pos (suc n) , 1+ a) (pos (suc m) , 1+ b) (pos<pos p) (pos<pos q) →
+    let
+      1+n = suc n ; 1+m = suc m ; 1+a = suc a ; 1+b = suc b
+    in
+      -- NOTE :
+      -- if we are only concerned about efficiency, then there is no need to recompute,
+      -- as `maxSuc` already reduces efficiently to refl for concrete (large) numbers
+      -- however, since `_<_` is an indexed data type, we recompute anyway to avoid
+      -- `transpX-_<_` in the normal form
+      inj (ℤ.recompute< (subst (0 ℤ.<_)
+      (sym $ cong (pos ∘ (ℕ._· 1)) $ maxSuc {predℕ (1+n ℕ.· 1+b)} {predℕ (1+m ℕ.· 1+a)})
+      (ℤ.pos<pos tt))) })
+    x y 0<x 0<y
+
+   
+  max₊ : ℚ₊ → ℚ₊ → ℚ₊
+  fst (max₊ x y) = ℚ.max (fst x) (fst y)
+  snd (max₊ x y) = 0<max (fst x) (fst y) (snd x) (snd y)
+
+  opaque
+   0<min : ∀ a b → 0 ℚ.< a → 0 ℚ.< b → 0 ℚ.< ℚ.min a b 
+   0<min x y 0<x 0<y = elimProp2
+    {P = λ a b → 0 <ℚ a → 0 <ℚ b → 0 <ℚ ℚ.min a b}
+    (λ a b → isPropΠ2 λ _ _ → isProp< 0 (ℚ.min a b))
+    (λ { (pos (suc n) , 1+ a) (pos (suc m) , 1+ b) (pos<pos p) (pos<pos q) →
+    let
+      1+n = suc n ; 1+m = suc m ; 1+a = suc a ; 1+b = suc b
+    in
+      inj (ℤ.recompute< (subst (0 ℤ.<_)
+      (sym $ cong (pos ∘ (ℕ._· 1)) $ minSuc {predℕ (1+n ℕ.· 1+b)} {predℕ (1+m ℕ.· 1+a)})
+      (ℤ.pos<pos tt))) })
+      x y 0<x 0<y
+
+
+  min₊ : ℚ₊ → ℚ₊ → ℚ₊
+  fst (min₊ x y) = ℚ.min (fst x) (fst y)
+  snd (min₊ x y) = 0<min (fst x) (fst y) (snd x) (snd y) 
+
+  min₊≤L : ∀ ε δ → min₊ ε δ ≤₊ ε
+  min₊≤L ε δ = min≤ ⟨ ε ⟩₊ ⟨ δ ⟩₊
+
+  min₊≤R : ∀ ε δ → min₊ ε δ ≤₊ δ
+  min₊≤R ε δ = ℚ.recompute≤ $
+    subst (_≤ℚ ⟨ δ ⟩₊) (ℚ.minComm ⟨ δ ⟩₊ ⟨ ε ⟩₊) (min≤ ⟨ δ ⟩₊ ⟨ ε ⟩₊)
+
+  -- min/2₊<L : ∀ ε δ → (min₊ ε δ /2₊) <₊ ε
+  -- min/2₊<L ε δ = {!!}
+
+  -- min/2₊<R : ∀ ε δ → (min₊ ε δ /2₊) <₊ δ
+  -- min/2₊<R ε δ = {!!}
+
+  ≤ℤ→≤ℚ : ∀ m n → m ℤ.≤ n → [ m , 1 ] ≤ℚ [ n , 1 ]
+  ≤ℤ→≤ℚ m n = inj ∘S (subst2 ℤ._≤_ (sym (ℤ.·IdR m)) (sym (ℤ.·IdR n)))
+
+  <ℤ→<ℚ : ∀ m n → m ℤ.< n → [ m , 1 ] <ℚ [ n , 1 ]
+  <ℤ→<ℚ m n = inj ∘S subst2 ℤ._<_ (sym (ℤ.·IdR m)) (sym (ℤ.·IdR n))
+
+
+  [k/n]<[k'/n] : ∀ k k' n → k ℤ.< k' → ([ ( k , n ) ]) <ℚ ([ (k' , n) ])
+  [k/n]<[k'/n] k k' n k<k' = inj (ℤ.<-·o {k} k<k')
+
+  [k/n]≤[k'/n] : ∀ k k' n → k ℤ.≤ k' → ([ ( k , n ) ]) ≤ℚ ([ (k' , n) ])
+  [k/n]≤[k'/n] k k' n k<k' = inj (ℤ.≤-·o {k} k<k')
+
+  0<[k/n]→0<k : ∀ k n → 0 <ℚ [ k / n  ] → 0 ℤ.< k
+  0<[k/n]→0<k (pos zero) _ (pos<pos ())
+  0<[k/n]→0<k (pos (suc _)) _ _ = ℤ.pos<pos tt
+  
+  eqElim₊ : (lrhs : ℚ₊ → ℚ × ℚ) →
+    (∀ {k m} → fst (lrhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , inj (ℤ.pos<pos tt)))
+          ≡  snd (lrhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , inj (ℤ.pos<pos tt))))
+      → ∀ (ε : ℚ₊) → fst (lrhs ε) ≡ snd (lrhs ε)
+  eqElim₊ lrhs p = uncurry (ElimProp.go w)
+    where
+    w : ElimProp (λ z → ∀ p →  fst (lrhs (z , p)) ≡ snd (lrhs (z , p)))
+    w .ElimProp.isPropB _ = isPropΠ λ _ → isSetℚ _ _
+    w .ElimProp.f (ℤ.pos (suc n) , (1+ n₁)) (inj (ℤ.pos<pos _)) = p {n} {n₁}
+
+  private
+   substℚ₊ : ∀ {ℓ} (A : ℚ → Type ℓ) (lrhs : ℚ₊ → ℚ × ℚ) →
+     (∀ {k m} → fst (lrhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , inj (ℤ.pos<pos tt)))
+           ≡  snd (lrhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , inj (ℤ.pos<pos tt))))
+       → ∀ (ε : ℚ₊) → A (fst (lrhs ε)) → A (snd (lrhs ε))
+   substℚ₊ A lrhs p ε =
+     subst A (eqElim₊ lrhs p ε)
+
+
+  eqElim₂₊ : {lhs rhs : ℚ₊ → ℚ₊ → ℚ} →
+    (∀ k m k' m' → lhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , inj (ℤ.pos<pos tt))
+            ([ ((ℤ.pos (suc k')) , 1+ m') ] , inj (ℤ.pos<pos tt))
+          ≡  rhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , inj (ℤ.pos<pos tt))
+           ([ ((ℤ.pos (suc k')) , 1+ m') ] , inj (ℤ.pos<pos tt)))
+      → ∀ {ε ε' : ℚ₊} → lhs ε ε' ≡ rhs ε ε'
+  eqElim₂₊ {lhs} {rhs} p {ε , 0<ε} {ε' , 0<ε'} = ElimProp2.go w ε ε' 0<ε 0<ε'
+    where
+    w : ElimProp2 (λ z z' → ∀ p p' →  lhs (z , p) (z' , p') ≡ rhs (z , p) (z' , p'))
+    w .ElimProp2.isPropB _ _ = isPropΠ2 λ _ _ → isSetℚ _ _
+    w .ElimProp2.f (ℤ.pos (suc n) , (1+ n₁)) (ℤ.pos (suc m) , (1+ m₁)) (inj (ℤ.pos<pos _)) (inj (ℤ.pos<pos _)) =
+      p n n₁ m m₁
+
+
+  module EqElims where
+   data ℚTypes : Type where
+    [ℚ] [ℚ₊] : ℚTypes
+
+   ℚSignature : Type
+   ℚSignature = List ℚTypes
+
+   lrhsDom : ℚTypes → Type
+   lrhsDom [ℚ] = ℚ
+   lrhsDom [ℚ₊] = ℚ₊
+
+
+   lrhsDomFst : ℚTypes → Type
+   lrhsDomFst [ℚ] = ℤ
+   lrhsDomFst [ℚ₊] = ℕ₊₁
+
+   lrhsCtr : ∀ b → lrhsDomFst b → ℕ₊₁ → (lrhsDom b)
+   lrhsCtr [ℚ] k m = [ k , m ]
+   lrhsCtr [ℚ₊] n m = [ ℕ₊₁→ℤ n , m ] , inj (ℤ.pos<pos tt)
+
+   LRhs : ℚSignature → Type
+   LRhs [] = ℚ × ℚ
+   LRhs (x ∷ xs) = lrhsDom x → LRhs xs
+
+   LemType : ∀ s → LRhs s → Type
+   LemType [] (lhs , rhs) = lhs ≡ rhs
+   LemType (x ∷ xs) lrhs = (k : lrhsDomFst x) (m : ℕ₊₁) → LemType xs (lrhs (lrhsCtr x k m))
+
+
+   EqType : ∀ s → LRhs s → Type
+   EqType [] (lhs , rhs) = lhs ≡ rhs
+   EqType (x ∷ xs) lrhs = (q : lrhsDom x) → EqType xs (lrhs q)
+
+   isPropEqType : ∀ s → (lrhs : LRhs s) → isProp (EqType s lrhs)
+   isPropEqType [] lrhs = isSetℚ _ _
+   isPropEqType (_ ∷ s) lrhs = isPropΠ $ isPropEqType s ∘ lrhs
+
+   EllimEqₛ : ∀ s → (lrhs : LRhs s) → LemType s lrhs → EqType s lrhs
+   EllimEqₛ [] lrhs e = e
+   EllimEqₛ ([ℚ] ∷ xs) lrhs e = ElimProp.go w
+    where
+    w : ElimProp _
+    w .ElimProp.isPropB = isPropEqType xs ∘ lrhs
+    w .ElimProp.f (k , m) = EllimEqₛ xs (lrhs _) (e k m)
+
+   EllimEqₛ ([ℚ₊] ∷ xs) lrhs e = uncurry (ElimProp.go w)
+    where
+    w : ElimProp (λ z → ∀ p → EqType xs (lrhs (z , p)))
+    w .ElimProp.isPropB q = isPropΠ λ _ → isPropEqType xs (lrhs (q , _))
+    w .ElimProp.f (ℤ.pos (suc n) , m) (inj (ℤ.pos<pos _)) = EllimEqₛ xs (lrhs _) (e (1+ n) m)
+
+module NonNegativeRationals where
+
+
+  opaque
+    0≤+Closed : ∀ x y → 0 ≤ℚ x → 0 ≤ℚ y → 0 ≤ℚ x +ℚ y
+    0≤+Closed = SQ.elimProp2 (λ _ _ → isProp→ (isProp→ (isProp≤ 0 _)))
+     λ
+      { (pos _ , _) (pos _ , _) (pos≤pos _) (pos≤pos _) → pos≤pos _ }
+
+    0≤·Closed : ∀ x y → 0 ≤ℚ x → 0 ≤ℚ y → 0 ≤ℚ x ·ℚ y
+    0≤·Closed = SQ.elimProp2 (λ _ _ → isProp→ (isProp→ (isProp≤ 0 _))) λ
+      { (pos _ , _) (pos _ , _) (pos≤pos _) (pos≤pos _) → pos≤pos _   }
+
+  open NonNegative ℚOrderedCommRing 0≤+Closed 0≤·Closed public renaming (
+      R₀₊ to ℚ₀₊ ; isSetR₀₊ to isSetℚ₀₊ ; R₀₊≡ to ℚ₀₊≡
+    ; R₀₊CommSemiring to +ℚ₀₊CommSemiring)
+
+
+  instance
+    fromNatℚ₀₊ : HasFromNat ℚ₀₊
+    fromNatℚ₀₊ = record { Constraint = λ _ → Unit
+                       ; fromNat = λ n → ([ pos n / 1 ] , pos≤pos _) }

@@ -34,6 +34,8 @@ module Recover {ℓ} (A∙ : Pointed ℓ) (h : isHomogeneous A∙) where
     B∙ : ∥ A ∥₁ → Pointed ℓ
     B∙ tx = fst (toEquivPtd tx)
 
+  RecoveredFrom : ∥ A ∥₁ → Type ℓ
+  RecoveredFrom a = typ (B∙ a) 
   -- the key observation is that B∙ ∣ x ∣₁ is definitionally equal to (A , x)
   private
     obvs : ∀ x → B∙ ∣ x ∣₁ ≡ (A , x)

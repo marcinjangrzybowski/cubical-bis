@@ -26,12 +26,6 @@ open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Data.NatPlusOne
 
-open import Cubical.Data.Rationals.Fast as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Fast.Order as ℚ using
-  ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
-open import Cubical.Data.Rationals.Fast.Order.Properties as ℚ
- using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
-
 
 open import Cubical.HITs.CauchyReals.Base
 open import Cubical.HITs.CauchyReals.Closeness
@@ -43,11 +37,20 @@ open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
 open import Cubical.HITs.CauchyReals.Derivative
 
-open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
-open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
-open import Cubical.Tactics.CommRingSolverFast.IntReflection
+
 open import Cubical.HITs.CauchyReals.LiftingExpr
-open import Cubical.Tactics.CommRingSolverFast.RealsReflection
+
+
+open import Cubical.HITs.CauchyReals.RationalsImports 
+
+
+open ℚ using (_⁻¹₊)
+
+open import Cubical.Tactics.CommRingSolver.Specialised.Reals
+
+
+open import Cubical.HITs.CauchyReals.LiftingExpr
+
 
 private
   variable
@@ -149,29 +152,29 @@ clampDegen a b x b≤a =
         (sym (≤x→clamp a' b' a b'≤a))
 
 clamp-dist : ∀ a b x y →
-  ℚ.abs (ℚ.clamp a b x ℚ.- ℚ.clamp a b y) ℚ.≤ ℚ.abs (b ℚ.- a)
+  abs (ℚ.clamp a b x ℚ.- ℚ.clamp a b y) ℚ.≤ abs (b ℚ.- a)
 clamp-dist a b =
   ⊎.rec
     (λ a≤b →
       ℚ.elimBy≤
        (λ x y X →
-         subst (ℚ._≤ ℚ.abs (b ℚ.- a))
+         subst (ℚ._≤ abs (b ℚ.- a))
           (ℚ.absComm- (ℚ.clamp a b x) (ℚ.clamp a b y)) X)
        λ x y x≤y →
-         subst (ℚ._≤ ℚ.abs (b ℚ.- a))
-           (cong ℚ.abs
+         subst (ℚ._≤ abs (b ℚ.- a))
+           (cong abs
              (sym (ℚclampInterval-delta a b x y a≤b x≤y))
            ∙ ℚ.absComm- (ℚ.clamp a b y) (ℚ.clamp a b x))
            (ℚ.clampDist x y a b))
     (λ b≤a x y →
-      subst (ℚ._≤ ℚ.abs (b ℚ.- a))
-       (cong {x = 0} ℚ.abs (ℚ! ∙ cong (ℚ._-_ (ℚ.clamp a b x) ) (clampDegen a b x b≤a ∙ sym (clampDegen a b y b≤a))))
+      subst (ℚ._≤ abs (b ℚ.- a))
+       (cong {x = 0} abs (ℚ! ∙ cong (ℚ._-_ (ℚ.clamp a b x) ) (clampDegen a b x b≤a ∙ sym (clampDegen a b y b≤a))))
        
-       (ℚ.0≤abs (b ℚ.- a)) )
+       (0≤abs (b ℚ.- a)) )
    (ℚ.≤cases a b)
 
 opaque
- unfolding minᵣ
+ unfolding minᵣ NonExpanding₂.go
  clampᵣ-dist : ∀ a b x y → absᵣ (clampᵣ a b x -ᵣ clampᵣ a b y) ≤ᵣ absᵣ (b -ᵣ a)
  clampᵣ-dist a b x y = ≤Cont₂
   {f₀ x y} {λ a b → absᵣ (b -ᵣ a)}

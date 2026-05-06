@@ -6,6 +6,9 @@ open import Cubical.Data.Empty
 open import Cubical.Data.Unit
 
 open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
+
+import Cubical.Data.Rationals.Order.Properties as ℚ
+
 open import Cubical.HITs.CauchyReals.Base
 open import Cubical.HITs.CauchyReals.Closeness
 

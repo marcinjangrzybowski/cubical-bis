@@ -8,7 +8,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 
-open import Cubical.Data.Fast.Int as ℤ using (ℤ; pos·pos; pos0+; pos; negsuc; ℕ₊₁→ℤ) renaming
+open import Cubical.Data.Int.Fast as ℤ using (ℤ; pos·pos; pos0+; pos; negsuc; ℕ₊₁→ℤ) renaming
   (_+_ to _+ℤ_ ; _·_ to _·ℤ_ ; -_ to -ℤ_ ; abs to ∣_∣ℤ ; sign to sgn)
 open import Cubical.HITs.SetQuotients as SetQuotient renaming (_/_ to _//_)
 open import Cubical.Data.Nat as ℕ using (ℕ; zero; suc) renaming
@@ -28,7 +28,7 @@ open import Cubical.Data.Nat.Coprime
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Fast.Int using (ℤCommRing)
+open import Cubical.Algebra.CommRing.Instances.Int.Fast using (ℤCommRing)
 
 ∼→sign≡sign : ∀ a a' b b' → (a , b) ∼ (a' , b') → ℤ.sign a ≡ ℤ.sign a'
 ∼→sign≡sign (ℤ.pos zero)    (ℤ.pos zero)    (1+ _) (1+ _) = λ _ → refl
@@ -114,15 +114,26 @@ module Reduce where
     where
       open ToCoprime renaming (toCoprime to tc) ; tc-cancelʳ = toCoprime-cancelʳ
 
-  reduced : ∀ x → Cod x
-  reduced = SetQuotient.elim isSetValuedCod cop.reduced[] reduced[]∼
+  
 
+  reduced : ∀ x → Cod x
+  reduced = SetQuotient.Elim.go w
+   where
+   w : Elim Cod
+   w .Elim.isSetB = isSetValuedCod
+   w .Elim.f = cop.reduced[]
+   w .Elim.f∼ = reduced[]∼
+  
 open Reduce public
 
 -- useful functions for defining operations on ℚ
 
 reduce : ℚ → ℚ
 reduce = [_] ∘ fst ∘  reduced
+
+reducedEqual : ∀ x → x ≡ reduce x
+reducedEqual x = sym (snd (snd (reduced x)))
+
 
 record OnCommonDenom : Type where
  no-eta-equality
@@ -442,6 +453,12 @@ eq/ a b r i + _//_.squash/ x₁ x₂ p q i₁ i₂ =
 _//_.squash/ x x₁ p q i i₁ + z =
   isSetℚ (x + z) (x₁ + z) (cong (_+ z) p) (cong (_+ z) q) i i₁
 
+_+red_ : ℚ → ℚ → ℚ
+x +red x₁ = reduce (x + x₁)
+
++=+red : ∀ x y → x + y ≡ x +red y
++=+red _ _ = reducedEqual _
+
 +-impl : ∀ x y → x + y ≡ x impl+ y
 +-impl = SetQuotient.ElimProp2.go w
  where
@@ -593,96 +610,4 @@ x - y = x + (- y)
 +CancelL- x y z p = (sym (+IdR x)  ∙ cong (x +_) (sym (+InvR y)))
   ∙∙  (+Assoc x y (- y)) ∙∙ cong (_- y) p
 
-abs : ℚ → ℚ
-abs x = max x (- x)
-
-abs' : ℚ → ℚ
-abs' = SetQuotient.Rec.go w
- where
- w : SetQuotient.Rec ℚ
- w .SetQuotient.Rec.isSetB = isSetℚ
- w .SetQuotient.Rec.f (a , b) = [ ℤ.pos (ℤ.abs a) , b ]
- w .SetQuotient.Rec.f∼ (a , 1+ b) (a' , 1+ b') r = eq/ _ _
-   ((sym (ℤ.pos·pos (ℤ.abs a) (suc b')) ∙
-      cong ℤ.pos (sym (ℤ.abs· (a) (ℕ₊₁→ℤ (1+ b'))) ))
-     ∙∙ cong (λ x → ℤ.pos (ℤ.abs x)) r
-     ∙∙ sym ((sym (ℤ.pos·pos (ℤ.abs a') (suc b)) ∙
-      cong ℤ.pos (sym (ℤ.abs· (a') (ℕ₊₁→ℤ (1+ b))) ))))
-
-abs'≡abs : ∀ x → abs x ≡ abs' x
-abs'≡abs = SetQuotient.ElimProp.go λ where
-  .SetQuotient.ElimProp.isPropB _ → isSetℚ _ _
-  .SetQuotient.ElimProp.f (a , b) →
-    abs [ a / b ]
-                            ≡⟨⟩
-    max [ a / b ] [ -1 ·ℤ a / 1 ·₊₁ b ]
-                            ≡[ i ]⟨ max [ a / b ] [ ℤ.-1·x≡-x a i / ·₊₁-identityˡ b i ] ⟩
-    max [ a / b ] [ -ℤ a / b ]
-                            ≡⟨⟩
-    [ ℤ.max (a ·ℤ ℕ₊₁→ℤ b) (-ℤ a ·ℤ ℕ₊₁→ℤ b) / b ·₊₁ b ]
-                            ≡⟨ sym $ cong [_/ _ ] (ℤ.·DistPosLMax a (-ℤ a) (ℕ₊₁→ℕ b)) ⟩
-    [ ℤ.max a (-ℤ a) ·ℤ (ℕ₊₁→ℤ b) / b ·₊₁ b ]
-                            ≡⟨ ·CancelR b ⟩
-    [ ℤ.max a (-ℤ a) / b ]
-                            ≡⟨ sym $ cong [_/ b ] (ℤ.abs-max a) ⟩
-    [ pos ∣ a ∣ℤ / b ]
-                            ≡⟨⟩
-    abs' [ a / b ]
-                            ∎
-
-
-ℤ+→ℚ+ : ∀ m n → [ m / 1 ] + [ n / 1 ] ≡ [ m ℤ.+ n / 1 ]
-ℤ+→ℚ+ m n = eq/ _ _ ℤ!
-
-ℤ-→ℚ- : ∀ m n → [ m / 1 ] - [ n / 1 ] ≡ [ m ℤ.- n / 1 ]
-ℤ-→ℚ- m n = eq/ _ _ ℤ!
-
-ℕ+→ℚ+ : ∀ m n → fromNat m + fromNat n ≡ fromNat (m ℕ.+ n)
-ℕ+→ℚ+ m n = eq/ _ _ ℤ!
-
-ℕ·→ℚ· : ∀ m n → fromNat m · fromNat n ≡ fromNat (m ℕ.· n)
-ℕ·→ℚ· m n = eq/ _ _ ℤ!
-
-
-
-sign : ℚ → ℚ
-sign = Rec.go w
- where
- w : Rec _
- w .Rec.isSetB = isSetℚ
- w .Rec.f (p , _) = [ ℤ.sign p / 1 ]
- w .Rec.f∼ (ℤ.pos zero , (1+ nn)) (ℤ.pos zero , snd₂) x = refl
- w .Rec.f∼ (ℤ.pos zero , (1+ nn)) (ℤ.pos (suc n₁) , snd₂) x =
-    ⊥.rec $ ℕ.znots $
-     ℤ.injPos (x ∙ sym (ℤ.pos·pos (suc n₁) (suc nn)))
- w .Rec.f∼ (ℤ.pos (suc n₁) , snd₁) (ℤ.pos zero , (1+ nn)) x =
-   ⊥.rec $ ℕ.znots $
-     ℤ.injPos (sym x ∙ sym (ℤ.pos·pos (suc n₁) (suc nn)))
- w .Rec.f∼ (ℤ.pos (suc n) , snd₁) (ℤ.pos (suc n₁) , snd₂) x = refl
- w .Rec.f∼ (ℤ.pos n₁ , snd₂) (ℤ.negsuc n , snd₁) x =
-    ⊥.rec (
-     �.toWitnessFalse
-      {Q = (ℤ.discreteℤ _ _)}
-       tt ((cong (ℤ.-_) (ℤ.pos·pos (suc n) (ℕ₊₁→ℕ snd₂))
-        ∙ sym (ℤ.negsuc·pos n _)) ∙∙ (sym x) ∙∙ sym (ℤ.pos·pos n₁ _) ))
- w .Rec.f∼ (ℤ.negsuc n , snd₁) (ℤ.pos n₁ , snd₂) x =
-   ⊥.rec (
-     �.toWitnessFalse
-      {Q = (ℤ.discreteℤ _ _)}
-       tt ((cong (ℤ.-_) (ℤ.pos·pos (suc n) (ℕ₊₁→ℕ snd₂))
-        ∙ sym (ℤ.negsuc·pos n (ℕ₊₁→ℕ snd₂))) ∙∙ x ∙∙ sym (ℤ.pos·pos n₁ _) ))
- w .Rec.f∼ (ℤ.negsuc n , snd₁) (ℤ.negsuc n₁ , snd₂) x = refl
-
-numerator0→0 : (u : ℤ × ℕ₊₁) → u .fst ≡ 0 → [ u ] ≡ 0
-numerator0→0 (a , b) p = eq/ ((a , b)) ((0 , 1)) q
-  where
-  q : a ℤ.· (ℕ₊₁→ℤ 1) ≡ 0 ℤ.· (ℕ₊₁→ℤ b)
-  q =
-    a ℤ.· (ℕ₊₁→ℤ 1)
-      ≡⟨ ℤ.·IdR a ⟩
-    a
-      ≡⟨ p ⟩
-    0
-      ≡⟨ sym (ℤ.·AnnihilL (ℕ₊₁→ℤ b)) ⟩
-    0 ℤ.· (ℕ₊₁→ℤ b) ∎
 

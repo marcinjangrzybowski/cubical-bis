@@ -45,9 +45,9 @@ open import Cubical.Tactics.Reflection.Utilities using (quoteDefsfNames;ω[];_ω
 open import Cubical.Tactics.Reflection.Goals
 
 open import Cubical.Data.Int using (ℤ;pos;negsuc)
-import Cubical.Data.Fast.Int as Fastℤ
-import Cubical.Data.Fast.Int.Order as ℤ
-import Cubical.Algebra.CommRing.Instances.Fast.Int as Fastℤ'
+import Cubical.Data.Int.Fast as Fastℤ
+import Cubical.Data.Int.Fast.Order as ℤ
+import Cubical.Algebra.CommRing.Instances.Int.Fast as Fastℤ'
 
 -- import Cubical.Data.Rationals as ℚ
 -- import Cubical.Algebra.CommRing.Instances.Rationals as ℚ'
@@ -58,9 +58,16 @@ import Cubical.Algebra.AbGroup.Base as AbGroup
 
 open import Cubical.Tactics.CommRingSolver.Config
 
+
+log : List ErrorPart → TC Unit
+log _ = pure _
+ -- debugPrint "commRingSolver" 0
+
+
 module CommRingSolver (crs : CommRingSolverConfig) where
 
  open CommRingSolverConfig crs
+
 
  Fuel = ℕ
 
@@ -242,26 +249,31 @@ module CommRingSolver (crs : CommRingSolverConfig) where
 
   solve!-macro : Term → TC Unit
   solve!-macro hole = withReduceDefs
-      (false , doNotUnfold)
+      (false , quote [_∺_] ∷ doNotUnfold)
     do
+      log [ "start CRS" ]ₑ
+
       crsTerm ← quoteωTC crs
       goal ← inferType hole >>= normalise
+      log ("CRS goal:" ∷nl [ goal ]ₑ)
 
-
-      Wait.wait-for-type (λ _ → pure _) goal
+      Wait.wait-for-type (λ w → debugPrint "WFT" 0 ("wft: " ∷nl w) ) goal
       just (lhs , rhs) ← get-boundary goal
         where
           nothing
             → typeError(strErr "The CommRingSolver failed to parse the goal "
                                ∷ termErr goal ∷ [])
-
+      log [ "got bdr..." ]ₑ
       (lhs' , rhs' , vars) ← toAlgebraExpr (lhs , rhs)
-
+      log [ "got exprs..." ]ₑ
 
       let solution = solverCallWithVars (length vars) vars crsTerm lhs' rhs'
+      log [ "CRS unifying..." ]ₑ
       unify hole (solution nothing)
         <|> do prfHole ← checkType unknown unknown
-               unify hole (solution (just prfHole))
+               unify hole (solution (just prfHole)) <|>
+                 typeError  ("unableToUnify prfHole" ∷nl
+                    (map,ₑ vars ++nl map,ₑ (lhs ∷ rhs ∷ [])))
                solutionType ←
                 (withReduceDefs (false , []) (inferType (solution nothing) >>= normalise))
                    <|> typeError (map,ₑ vars ++ₑ map,ₑ (lhs ∷ rhs ∷ []))
@@ -278,7 +290,7 @@ module CommRingSolver (crs : CommRingSolverConfig) where
                  --    typeError [ lhsMeta ]ₑ
                  --    )
                  --   mbDiscreteScalars)
-
+      log [ "end CRS" ]ₑ
 
 
   module _ where
@@ -440,6 +452,7 @@ module CommRingSolver (crs : CommRingSolverConfig) where
 mbNegℤ : (x : Fastℤ.ℤ) → Maybe (Σ Fastℤ.ℤ (λ -x → Fastℤ.- -x ≡ x))
 mbNegℤ (Fastℤ.pos n) = nothing
 mbNegℤ (Fastℤ.negsuc n) = just (Fastℤ.pos (ℕ.suc n) ,  refl)
+
 
 cdℤ : (a b : Fastℤ.ℤ) → Σ[ (a' , b' , c ) ∈ _ × _ × _ ]
                 (a ≡ a' Fastℤ.· c) × (b ≡ b' Fastℤ.· c)

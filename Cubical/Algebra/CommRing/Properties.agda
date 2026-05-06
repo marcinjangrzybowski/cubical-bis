@@ -242,6 +242,13 @@ module Exponentiation (R' : CommRing ℓ) where
  ·-of-^-is-^-of-+ f zero n = ·IdL _
  ·-of-^-is-^-of-+ f (suc m) n = sym (·Assoc _ _ _) ∙ congR _·_ (·-of-^-is-^-of-+ f m n)
 
+ module _ (op : R → R) (op1 : op 1r ≡ 1r)
+          (op· : ∀ x y → op (x · y) ≡ op x · op y) where
+          
+  dist·→dist^ : ∀ n x → op (x ^ n) ≡ op x ^ n  
+  dist·→dist^ zero _ = op1
+  dist·→dist^ (suc n) x = op· _ _ ∙ cong (op x ·_) (dist·→dist^ n x)
+ 
  ^-ldist-· : (f g : R) (n : ℕ) → (f · g) ^ n ≡ (f ^ n) · (g ^ n)
  ^-ldist-· f g zero = sym (·IdL 1r)
  ^-ldist-· f g (suc n) = path

@@ -8,7 +8,7 @@ module Cubical.Algebra.CommRing.Instances.Rationals where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Algebra.CommRing
-open import Cubical.Data.Rationals as ℚ
+open import Cubical.Data.Rationals as ℚg
 open import Cubical.Data.Empty
 import Cubical.Data.Int as ℤ
 

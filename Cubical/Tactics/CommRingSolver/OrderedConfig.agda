@@ -29,9 +29,7 @@ record OrderedCommRingSolverConfig : Typeω where
   pres<         : ∀ x y → x < y → scalar` x <` scalar` y
   pres≤         : ∀ x y → x ≤ y → scalar` x ≤` scalar` y
   reflect<      : ∀ x y → scalar` x <` scalar` y → x < y
-  mbInverses    : Maybe
-    ((∀ x y k → 0r < k → (scalar` k ·` x) <` y → Σ[ 1/k ∈ _ ] (x <` (scalar` 1/k ·` y)))
-     × (∀ x y k → 0r < k → (scalar` k ·` x) ≤` y → Σ[ 1/k ∈ _ ] (x ≤` (scalar` 1/k ·` y))))
+  mbInverses    : Maybe  (∀ ε → 0r < ε → Σ[ δ ∈ _ ] (ε · δ ≡ 1r))
   mbPureMatchZero : Term → TC Bool  
   mkMatchInequalityGoalTC :
     Term → TC (Maybe (Bool × (Term × Term)))

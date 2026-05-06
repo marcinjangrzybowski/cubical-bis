@@ -243,11 +243,13 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
  VarsIneqInfo n [] = Unit*
  VarsIneqInfo (suc n) (x ∷ po) = IneqInfo x × VarsIneqInfo n po
 
- idsOfVarsWithNoIneqInfo : ∀ {n} {xs} → VarsIneqInfo n xs → List (Fin n)
- idsOfVarsWithNoIneqInfo {n} {[]} x = []
- idsOfVarsWithNoIneqInfo {n} {_ ∷ xs} (noInfo x , z) = zero ∷ L.map suc (idsOfVarsWithNoIneqInfo z)
- idsOfVarsWithNoIneqInfo {n} {_ ∷ _} (_ , z) = L.map suc (idsOfVarsWithNoIneqInfo z)
- 
+ partitionVarsByHavingInfo : ∀ {n} {xs} → VarsIneqInfo n xs → (List (Fin n) × List (Fin n))
+ partitionVarsByHavingInfo {xs = []} _ = [] , []
+ partitionVarsByHavingInfo {xs = _ ∷ xs} (AnnotatedRing.noInfo x , z) =
+   map-× ((zero ∷_) ∘ L.map suc) (L.map suc) (partitionVarsByHavingInfo z)
+ partitionVarsByHavingInfo {xs = _ ∷ xs} (_ , z) =
+  map-× (L.map suc) ((zero ∷_) ∘ L.map suc) (partitionVarsByHavingInfo z)
+  
  dropVarsIneqInfo : ∀ {n} {xs} k → VarsIneqInfo (suc n) xs → VarsIneqInfo n (drop k xs)  
  dropVarsIneqInfo {xs = x₁ ∷ xs} zero = snd
  dropVarsIneqInfo {suc n} {xs = x₁ ∷ xs} (suc k) = map-snd (dropVarsIneqInfo {n} {xs} k)
@@ -390,7 +392,9 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
     (monomialIneqInfo _ xs vs (snd x) ii· ^IneqInfo v (x .fst) m)
     
  polyTermIneqInfo : ∀ n pt xs → VarsIneqInfo n xs → IneqInfo (evPolynomialTerm {n} pt xs)
- polyTermIneqInfo n (false , snd₁) xs x = (noInfo' "todo false in polyTerm")
+ polyTermIneqInfo n (false , a , b) xs x =
+   noInfo (noInfoMsg "todo false in polyTerm : " ∷ [ noInfoMsg $ caseMaybe "n" "j" a ] )
+   -- (noInfo' ("todo false in polyTerm" <> ?))
  polyTermIneqInfo n (true , a , b) xs x =
   subst IneqInfo (sym (fromJust-def-mb·`mb (map-Maybe (fst (snd commAlg)) a) _))
     (scalarIneqInfo a ii· monomialIneqInfo n b xs x)
@@ -462,8 +466,8 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
 
    where
    open Elimination E
-
-
+-- ((ε , 0<ε) : ℚ₊) → Σ[ δ ∈ ℚ ] (ε ℚ.· δ ≡ 1)
+    
   mbVerySimpleElim : ∀ n (P : IteratedHornerForms (suc n)) k xs 
     → 0r` ≡ eval P xs
     → Elimination P k 1
@@ -471,10 +475,18 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
      (
        ((lookup k xs)) ≡ evalInVecR Q (drop k xs)))
   mbVerySimpleElim n P k xs 0=P E = do
-     se@(((s , _) , Q) , p) ← mbSimpleElim n P k xs 0=P E
-     s=1 ← decToMaybe (s ≟ 1r)
-     pure (Q , sym (R`.·IdL' _ _ (cong scalar` s=1 ∙ pres1)) ∙  p)
-
+     se@(((s , 0<s) , Q) , p) ← mbSimpleElim n P k xs 0=P E
+     decRec
+      (λ s=1 → pure (Q , sym (R`.·IdL' _ _ (cong scalar` s=1 ∙ pres1)) ∙  p))
+      (λ _ → do
+        (1/s , s·1/s=1) ← mbInverses <* s <* 0<s
+        let (Q' , Q'=) = const·ₕ 1/s Q
+        pure (Q' , ((sym (R`.·IdL' _ _ (R`.·Comm _ _ ∙
+                (sym (pres· _ _) ∙∙ cong scalar` s·1/s=1 ∙∙ pres1))) ∙ (sym $ R`.·Assoc _ _ _))
+          ∙∙ cong (scalar` 1/s ·`_) p
+          ∙∙ sym (Q'= (drop k xs)))))
+       (s ≟ 1r)
+    
 
   ElimData : ∀ {n m ℓg G} → Problem (suc n) IteratedHornerForms (suc m) {ℓg} G →
      Fin (suc m) → Type (ℓ-max (ℓ-max ℓ ℓ`) oℓ`)
@@ -489,12 +501,12 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
     where module P = Problem PRB
   
   tryAssumption : ∀ n xs → (VarsIneqInfo (suc n) xs) → (asmption : Assumption _ _ _)
-            → Maybe (Σ[ (k , (P , (q , _))) ∈ (Fin (suc n)
+            → UseAssumptionFailReason ⊎ (Σ[ (k , (P , (q , _))) ∈ (Fin (suc n)
               × IteratedHornerForms (suc n) ×
                (Σ[ q ∈ _ ] (0r` ≲[ fst (fst asmption) ] q)))  ] 
          lookup k xs ≡ eval P (q ∷ drop k xs))
   tryAssumption n xs vii ((b , ihf , mbVarToElim) , 0≲[b]ihf) = do
-        let varsToTry = Mb.rec (idsOfVarsWithNoIneqInfo vii) [_] mbVarToElim
+        let varsToTry = Mb.rec (uncurry L._++_ (partitionVarsByHavingInfo vii)) [_] mbVarToElim
             ihfN , ihfN= = normalizeIHF ihf
             q = eval ihfN xs
             ihf* = (Constant _ (- 1r) ·X+ ihfN)
@@ -503,13 +515,15 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
                     ∙∙ cong (q +`_) ((RT`.-IsMult-1 _)
                       ∙ cong (_·` q) ((cong (-`_) (sym pres1) ∙ sym (pres- 1r) )
                        ∙ sym (evalConstant  _ (- 1r) (q ∷ xs)))) ∙∙ R`.+Comm _ _
-        (_ , isj , ihf' , ihf'=) ← L.findP 
+        (_ , isj , ihf' , ihf'=) ← maybeToSum
+             [ "noElimFound" ]ₑ
+             (L.findP 
                  (λ k →
                    do  (zero , u) ← mbIsolatedPowerVar ihf* (suc k)
                          where _ → nothing
                        let se = toElimination ihf* (suc k) zero u
                        mbVerySimpleElim _ ihf* (suc k) (q ∷ xs) 0=ihf* se)
-                    varsToTry
+                    varsToTry)
         let k = fromIsJust isj
         pure ((k , ihf' , q , subst (0r` ≲[ b ]_) (ihfN= _) 0≲[b]ihf) , ihf'= )
 
@@ -528,8 +542,8 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
 
    mbEliminationHead : UseAssumptionFailReason ⊎ Σ _ (ElimData PRB)
    mbEliminationHead with tryAssumption _ P.xs P.vii (lookup zero P.assumptions)
-   ... | nothing = inl [ strErr ("unable to use asumption...") ]
-   ... | just z = inr (zero , z)
+   ... | inl uafr = inl uafr
+   ... | inr z = inr (zero , z)
 
    -- mbEliminationSomwhere : UseAssumptionFailReason ⊎ ElimData PRB
    -- mbEliminationSomwhere = if Dec→Bool (ℕ.discreteℕ (L.length hasNoInfos) zero )
