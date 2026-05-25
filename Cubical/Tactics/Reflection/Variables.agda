@@ -111,13 +111,17 @@ prependWithoutRepetition t vs =
 Abstr : Type ℓ → Type ℓ
 Abstr X = (Temp X × Vars)
 
+opaque
+ marker : ∀ {n} → String → Maybe (FD.Fin (ℕ.suc n)) 
+ marker _ = just FD.zero
+
 ℕ→FinDataTerm : ℕ → Term 
 ℕ→FinDataTerm ℕ.zero = con (quote FD.zero) []
 ℕ→FinDataTerm (ℕ.suc x) = con (quote FD.suc) v[ ℕ→FinDataTerm x ]
 -- produces term with id of var (Fin)
 abstrVarId : Term → Abstr Term
 abstrVarId tm = (λ x → Mb.rec
- (lit (string "imposible!"))
+ (def (quote marker) v[ (lit (string "imposible! in abstrVarId"))] )
  (λ m → con (quote just) v[ ℕ→FinDataTerm m ])
  (x tm)) , [ tm ]
 

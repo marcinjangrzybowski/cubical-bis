@@ -116,7 +116,7 @@ module OrderedCommRingSolver (ocrs : OrderedCommRingSolverConfig) where
  IneqProofData = ((Bool × (Term × Term)) × Term) × Term
 
 
- nicelyShowGoal : Vars -> IneqData → TC _
+ nicelyShowGoal : Vars -> IneqData → TC (List ErrorPart)
  nicelyShowGoal vars (rel , lhs' , rhs') = do
    lhs'' ← prettyExpr (length vars) lhs'
    rhs'' ← prettyExpr (length vars) rhs'
@@ -254,8 +254,8 @@ module OrderedCommRingSolver (ocrs : OrderedCommRingSolverConfig) where
    -- ineqInfoTm ← withReduceDefs (false , [])
    --   (foldlM infoFromSigmasStep noInfoIneqInfoTm (zipWithIndex vars))
 
-   withReduceDefs (false , [])
-     (foldlM cifcStep infoFromTerms ictx) -- >>= flip checkType (ineqInfoType))
+   -- withReduceDefs (false , [])
+   (foldlM cifcStep infoFromTerms ictx) -- >>= flip checkType (ineqInfoType))
    -- typeError [ ineqInfoTm ]ₑ
   where
    -- infoFromSigmasStep : Term → (ℕ × Term) → TC Term
@@ -313,25 +313,31 @@ module OrderedCommRingSolver (ocrs : OrderedCommRingSolverConfig) where
 
  <≤!-macro : Term → List Term → Bool → TC Unit
  <≤!-macro hole asmptionsTms justShow = withReduceDefs (false ,
-     (quote SansReflectionOreded.Decidable≲.x≲y-fromDec) ∷ doNotUnfold) do
+       (quote SansReflectionOreded.Decidable≲.x≲y-fromDec) ∷ doNotUnfold) do
    log [ "start" ]ₑ
    goal ← inferType hole >>= normalise
    log $ "goal:" ∷nl [ goal  ]ₑ
+   log $ "asmtpns:" ∷nl map␤ₑ asmptionsTms
+   mapM ((inferType) >=> λ ty → log $ "asmpTy: " ∷ₑ [ ty ]ₑ   ) asmptionsTms
    -- wait-for-term goal
    -- just (rel , lhs , rhs) ← mkMatchInequalityGoalTC goal
    --   where nothing → typeError [ "not an inequality" ]ₑ
    -- -- typeError ("inequality " ∷ₑ (if rel then "<" else "≤") ∷nl lhs ∷nl [ rhs ]ₑ) 
    -- (lhs' , rhs' , vars) ← toAlgebraExpr (lhs , rhs)
+   log [ "reflecting.." ]ₑ
    ((goalIneqData , assmptionsIneqData) , vars) ← assignFst <$>
      ( amapM₂ _,_ (quoteIneqType goal)
         (aForM asmptionsTms quoteIneqProof))
+   log [ "reflected!" ]ₑ
    ocrsTerm ← quoteωTC ocrs
    -- (lemH , _) ← newHole
- 
+   nsg' ← nicelyShowGoal vars goalIneqData
+   log ([ "collecting info from ctx.." ]ₑ ++nl nsg')
    ineqInfoTm ← collectInfoFromCtx ocrsTerm vars
+   log [ "collected info from ctx!" ]ₑ
    if justShow then (typeError []) else (pure tt)
    -- assmptsTm ← pure (con (quote L.[]) [])
-   nothing ← (withReduceDefs (false , []) $
+   nothing ← ( -- withReduceDefs (false , []) $
      unifyRight hole (≲solverCallWithVars (length vars) vars goalIneqData ocrsTerm
          assmptionsIneqData ineqInfoTm))
       <|> (do

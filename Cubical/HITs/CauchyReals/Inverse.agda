@@ -57,6 +57,7 @@ module Rℝ where
  open RP.RingTheory ℝRing public
  open CR.CommRingTheory ℝcommRing public
 
+
 Invᵣ-restrℚ : (η : ℚ₊) →
   Σ (ℚ → ℚ) (Lipschitz-ℚ→ℚ ( (η ·₊ η) ℚ.⁻¹₊))
   

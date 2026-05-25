@@ -30,6 +30,7 @@ open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int.Fast using (ℤCommRing)
 
+-- TODO : consider moviegt to integer , with good name move to 
 ∼→sign≡sign : ∀ a a' b b' → (a , b) ∼ (a' , b') → ℤ.sign a ≡ ℤ.sign a'
 ∼→sign≡sign (ℤ.pos zero)    (ℤ.pos zero)    (1+ _) (1+ _) = λ _ → refl
 ∼→sign≡sign (ℤ.pos zero)    (ℤ.pos (suc n)) (1+ _) (1+ _) = ⊥.rec ∘ ℕ.znots ∘ ℤ.injPos
@@ -134,7 +135,6 @@ reduce = [_] ∘ fst ∘  reduced
 reducedEqual : ∀ x → x ≡ reduce x
 reducedEqual x = sym (snd (snd (reduced x)))
 
-
 record OnCommonDenom : Type where
  no-eta-equality
  field
@@ -197,11 +197,6 @@ infix  8 -_
 private abstract
   lem₁ : ∀ a b c d e (p : a ℤ.· b ≡ c ℤ.· d) → b ℤ.· (a ℤ.· e) ≡ d ℤ.· (c ℤ.· e)
   lem₁ a b c d e p =   ℤ! ∙∙ cong (ℤ._· e) p ∙∙ ℤ!
-
-  -- lem₂ : ∀ a b c → a ℤ.· (b ℤ.· c) ≡ c ℤ.· (b ℤ.· a)
-  -- lem₂ a b c =   cong (a ℤ.·_) (ℤ.·Comm b c) ∙ ℤ.·Assoc a c b
-  --              ∙ cong (ℤ._· b) (ℤ.·Comm a c) ∙ sym (ℤ.·Assoc c a b)
-  --              ∙ cong (c ℤ.·_) (ℤ.·Comm a b)
 
 minR : OnCommonDenomSym
 minR .OnCommonDenomSym.g (a , b) (c , d) = ℤ.min (a ℤ.· ℕ₊₁→ℤ d) (c ℤ.· ℕ₊₁→ℤ b)
@@ -433,6 +428,8 @@ maxAbsorbLMin = SetQuotient.elimProp2 (λ _ _ → isSetℚ _ _)
 _impl+_ : ℚ → ℚ → ℚ
 _impl+_ = OnCommonDenomSym.go +Rec
 
+
+-- TODO : write explanation for this
 _+_ : ℚ → ℚ → ℚ
 [ a ] + [ a₁ ] = [ a ] impl+ [ a₁ ]
 [ a ] + eq/ a₁ b r i = [ a ] impl+ (eq/ a₁ b r i)
@@ -489,6 +486,7 @@ x +red x₁ = reduce (x + x₁)
 _impl·_ : ℚ → ℚ → ℚ
 _impl·_ = OnCommonDenomSym.go ·Rec
 
+-- TODO : write explanation for this
 _·_ : ℚ → ℚ → ℚ
 [ a ] · [ a₁ ] = [ a ] impl· [ a₁ ]
 [ a ] · eq/ a₁ b r i = [ a ] impl· (eq/ a₁ b r i)
@@ -555,6 +553,8 @@ _//_.squash/ x x₁ p q i i₁ · z =
 [0/n]≡[0/m] : ∀ n m → [ ℤ.pos zero / 1+ n ] ≡ [ ℤ.pos zero / 1+ m ]
 [0/n]≡[0/m] n m = eq/ _ _ refl
 
+-- TODO : remove properites, which are already in ring, and ocmm ring theory, and if they are necssary
+--  , put them isndie module make them 
 
 -_ : ℚ → ℚ
 - x = -1 · x
@@ -610,4 +610,5 @@ x - y = x + (- y)
 +CancelL- x y z p = (sym (+IdR x)  ∙ cong (x +_) (sym (+InvR y)))
   ∙∙  (+Assoc x y (- y)) ∙∙ cong (_- y) p
 
-
+numerator0→0 : (u : ℤ × ℕ₊₁) → u .fst ≡ 0 → [ u ] ≡ 0
+numerator0→0 (a , b) p = eq/ ((a , b)) ((0 , 1)) (ℤ! ∙ p)

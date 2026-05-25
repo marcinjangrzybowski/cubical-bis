@@ -102,6 +102,7 @@ isPropIsContinuous f = isPropΠ2 λ _ _ → squash₁
        (isProp∼ _ _ _)
         (λ (θ , θ∼) (η , η∼) →
          let δ =  (min₊ θ η) /2₊
+             
              zF : f (lim x p) ∼[ ε /2₊ ] g (x δ)
              zF = subst (f (lim x p) ∼[  ε /2₊ ]_)
                   (R _)
@@ -111,8 +112,10 @@ isPropIsContinuous f = isPropΠ2 λ _ _ → squash₁
                        (ℚ.min≤ (fst θ) (fst η)))
                   (sym∼ _ _ _ ((𝕣-lim-self x p δ δ)))))
              zG : g (lim x p) ∼[  ε /2₊ ] g (x δ)
-             zG = η∼ _ (∼-monotone≤ (subst (ℚ._≤ fst η)
-                      ℚ!!
+             zG = η∼ _ (∼-monotone≤ 
+                        
+                       (subst (ℚ._≤ fst η)
+                       ℚ!!
                        (ℚ.min≤' (fst θ) (fst η)))
                   (sym∼ _ _ _ ((𝕣-lim-self x p δ δ))))
          in subst∼ ℚ!! (triangle∼ zF (sym∼ _ _ _ zG)))

@@ -77,9 +77,6 @@ _ = showQuotedN [] (1+ ((ℕ.suc 3) ℕ.+ 12))
 -- someℚ' = 1 + 0
 
 
--- _ : {!!}
--- _ = showQuotedN someℚ'
-
 
 mbConcreteℚ' : Term → TC (Maybe Term)
 mbConcreteℚ' tm@(con (quote SetQuotient.[_])
@@ -96,12 +93,12 @@ mbConcreteℚ tm@(con (quote SetQuotient.[_])
      (_ ∷ _ ∷ _ ∷ _ ∷
       v[ con (quote _,_) (_ ∷ _ ∷ _ ∷ _ ∷ con _ v[ lit _ ] v∷ v[ con (quote 1+_) v[ lit _ ] ]) ])) =
        pure (just tm)
-mbConcreteℚ tm = --pure nothing
- checkType tm q[ ℚ ] >>= normalise  >>= mbConcreteℚ'
--- do
---  withNormalisation true
---   (withReconstructed true
---    (withReduceDefs (false , []) (checkType tm q[ ℚ ] >>= normalise  >>= mbConcreteℚ')))
+mbConcreteℚ tm = do 
+ 
+ (just _) ← runSpeculative ((_, false) <$> goT) 
+   where nothing → pure nothing 
+ withReconstructed true goT
+ where goT = checkType tm q[ ℚ ] >>= (normalise)  >>= mbConcreteℚ'
   
 
 
@@ -113,8 +110,6 @@ macro
     (normalise x >>= typeError ∘ [_]ₑ))
 
 
--- _ : _
--- _ = wrTest (1+ ((ℕ.suc 3) ℕ.+ 12))
 
 ℚmatcher : RingReflectionMatcher
 ℚmatcher .RingReflectionMatcher.mkMatchTermTC _ _ =  pure matchTerm
@@ -128,6 +123,15 @@ macro
     matchTerm t@(def (quote -_) xs) = just <$> `-_` xs
     matchTerm t@(def (quote _+_) xs) = just <$> `_+_` xs
     matchTerm t@(def (quote _·_) xs) = just <$> `_·_` xs
+    
+    matchTerm t@(con (quote SetQuotient.[_])
+     (_ ∷ _ ∷ _ ∷ _ ∷
+      v[ con (quote _,_) (_ ∷ _ ∷ _ ∷ _ ∷ a  v∷ v[ b ]) ])) = do
+       nothing ← mbConcreteℚ t
+        where just cq → pure $ just ((λ _ → con (quote K) v[ cq ]) , [])
+       let t' = (def (quote [_/_]) (a v∷ v[ b ]))
+       
+       just <$> pure ((λ ass → polynomialVariable (ass t')) , t' ∷ [])
     matchTerm t = map-Maybe (λ t' → (λ _ → con (quote K) v[ t' ]) , []) <$> mbConcreteℚ t
 
 mbNegℚ : (x : ℚ) → Maybe (Σ ℚ (λ -x → ℚ.- -x ≡ x))
@@ -135,10 +139,12 @@ mbNegℚ x with <Dec x 0
 ... | yes p = just (ℚ.- x , -Idempotent x)
 ... | no ¬p = nothing
 
+basicℚDNUFs = (quoteDefsfNames (min ω∷ max ω∷ _·_ ω∷ _+_ ω∷ (-_) ω∷ ω[] ))
+
 open Discrete ℚCommRing discreteℚ ℚCommRingIsNotZeroRing
               (just mbNegℚ) nothing nothing
 
-              (quoteDefsfNames ( _·_ ω∷ _+_ ω∷ (-_) ω∷ ω[] ))
+              basicℚDNUFs
               ℚmatcher
                renaming (solve! to ℚ!!) public
 

@@ -3,21 +3,14 @@ module Cubical.Data.Rationals.Inverse where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
--- open import Cubical.Foundations.Equiv
-
--- open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
 
--- open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _//_)
 
 open import Cubical.Data.Nat as ℕ hiding (_+_ ; _·_)
 open import Cubical.Data.NatPlusOne as ℕ₊₁
--- -- to be replaced with fast integers once we have fast rationals
 open import Cubical.Data.Int.Fast as ℤ hiding (_+_ ; _-_ ; -_ ; _·_)
 import Cubical.Data.Int.Fast.Order as ℤ
-
--- open import Cubical.Data.List hiding ([_])
 
 open import Cubical.Data.Rationals as ℚ
   renaming (_+_ to _+ℚ_ ; _-_ to _-ℚ_; -_ to -ℚ_ ; _·_ to _·ℚ_)
@@ -29,14 +22,6 @@ open import Cubical.Algebra.CommRing.Instances.Rationals
 
 open import Cubical.Algebra.OrderedCommRing.Base
 open import Cubical.Algebra.OrderedCommRing.Properties
-
--- open import Cubical.Relation.Nullary
-
--- open import Cubical.Relation.Binary.Order.StrictOrder
--- open import Cubical.Relation.Binary.Order.StrictOrder.Instances.Rationals
-
--- open import Cubical.Relation.Binary.Order.Pseudolattice
--- open import Cubical.Relation.Binary.Order.Pseudolattice.Instances.Rationals
 
 open CommRingStr
 open OrderedCommRingStr
@@ -50,7 +35,7 @@ open import Cubical.Tactics.CommRingSolver.Specialised.Rationals
 open ElimProp
 
 Σinverseℚ₊ : ((ε , 0<ε) : ℚ₊) → Σ[ δ ∈ ℚ ] (ε ℚ.· δ ≡ 1)
-Σinverseℚ₊ = uncurry (SQ.ElimProp.go w)
+Σinverseℚ₊ = uncurry $ (SQ.ElimProp.go w)
  where
  w : _
  w .isPropB ε = isPropΠ λ _ → inverseUniqueness ε

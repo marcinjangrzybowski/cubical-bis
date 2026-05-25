@@ -10,7 +10,7 @@ open import Cubical.Functions.Logic using (_⊔′_; ⇔toPath)
 open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Int.Fast.Base as ℤ using (ℤ; ℕ₊₁→ℤ)
+open import Cubical.Data.Int.Fast.Base as ℤ using (ℤ; ℕ₊₁→ℤ;pos;negsuc)
 import Cubical.Data.Int.Fast.Properties as ℤ
 import Cubical.Data.Int.Fast.Order as ℤ
 open import Cubical.Data.Int.Fast.Divisibility as ℤ
@@ -31,8 +31,9 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 open import Cubical.Tactics.CommRingSolver
 
-infix 4 _≤_ _<_ _≥_ _>_
 
+infix 4 _≤_ _<_ _≥_ _>_
+-- TODO : try to use solver, and refactor it reasonably
 private
   ·CommR : (a b c : ℤ) → a ℤ.· b ℤ.· c ≡ a ℤ.· c ℤ.· b
   ·CommR a b c = sym (ℤ.·Assoc a b c) ∙ cong (a ℤ.·_) (ℤ.·Comm b c) ∙ ℤ.·Assoc a c b
@@ -744,24 +745,9 @@ minus-<' n m p =
   subst2 _<_ (-Invol m) (-Invol n)
    (minus-< (ℚ.- n) (ℚ.- m) p)
 
-
+--TODO : get rid of  0< completly, propagate the change
 0<ₚ_ : ℚ → hProp ℓ-zero
 0<ₚ x  = (0 < x) , isProp< _ _
--- Rec.go w
---  where
---  w : Rec (hProp ℓ-zero)
---  w .Rec.isSetB = isSetHProp
---  w .Rec.f (x , _) = (0 ℤ.< x) , ℤ.isProp<
---  w .Rec.f∼ (x , y) (x' , y') p = {!x x'!}
---   -- ⇔toPath --0<·ℕ₊₁
---   --   {!!}
---   --   {!!}
---      -- (λ u → ℤ.0<·ℕ₊₁ x' y
---      --   (subst ℤ.0<_ p (ℤ.·0< x (ℤ.pos (ℕ₊₁→ℕ y'))
---      --     u _)))
---      -- (λ u → ℤ.0<·ℕ₊₁ x y'
---      --   (subst ℤ.0<_ (sym p) (ℤ.·0< x' (ℤ.pos (ℕ₊₁→ℕ y))
---      --     u _)))
 
 0<_ = fst ∘ 0<ₚ_
 
@@ -792,141 +778,15 @@ opaque
         → ((m ℚ.+ n) ℚ.+ o) ≡ o' → 0< o'
 +₃0<' m n o o' x y z p = subst 0<_ p (+₃0< m n o x y z)
 
-
--- ℚ₊ : Type
--- ℚ₊ = Σ ℚ 0<_
-
--- infix 20 [_/_]₊
-
--- [_/_]₊ : ℕ₊₁ → ℕ₊₁ → ℚ₊
--- [_/_]₊ p q = [ ℕ₊₁→ℤ p , q ] , inj (ℤ.pos<pos tt)
-
--- instance
---   fromNatℚ₊ : HasFromNat ℚ₊
---   fromNatℚ₊ =
---    record { Constraint = λ { zero → ⊥ ; _ → Unit }
---              ; fromNat = λ { (suc n) → ([ ℤ.pos (suc n) , 1 ] , inj (ℤ.pos<pos tt)) } }
-
--- ℚ₊≡ : {x y : ℚ₊} → fst x ≡ fst y → x ≡ y
--- ℚ₊≡ = Σ≡Prop (snd ∘ 0<ₚ_)
-
--- _ℚ₊·_ : ℚ₊ → ℚ₊ → ℚ₊
--- _ℚ₊·_ x x₁ = ((fst x) ℚ.· (fst x₁)) ,
---   ·0< (fst x) (fst x₁) (snd x) (snd x₁)
-
--- _ℚ₊+_ : ℚ₊ → ℚ₊ → ℚ₊
--- _ℚ₊+_ x x₁ = ((fst x) ℚ.+ (fst x₁)) ,
---   +0< (fst x) (fst x₁) (snd x) (snd x₁)
-
--- 0<→< : ∀ q → 0< q → 0 < q
--- 0<→< q x = x
-
--- 0<ℚ₊ : (ε : ℚ₊) → 0 < fst ε
--- 0<ℚ₊ = uncurry 0<→<
-
--- 0≤ℚ₊ : (ε : ℚ₊) → 0 ≤ fst ε
--- 0≤ℚ₊ ε = <Weaken≤ 0 (fst ε) (uncurry 0<→< ε)
-
-
--- <→0< : ∀ q → 0 < q → 0< q
--- <→0< q x = x
-
--- 0<-min : ∀ x y → 0< x → 0< y → 0< (ℚ.min x y)
--- 0<-min = elimProp2
---  (λ x y → isPropΠ2 λ _ _ → snd (0<ₚ (ℚ.min x y)))
---   λ where
---     (ℤ.pos zero , snd₁) (ℤ.pos n₁ , snd₂) (inj (ℤ.pos<pos ())) _
---     (ℤ.pos (suc n) , snd₁) (ℤ.pos zero , snd₂) x (inj (ℤ.pos<pos ()))
---     (ℤ.pos (suc n) , snd₁) (ℤ.pos (suc n₁) , snd₂) x x₁ →
---       subst (0 <_) (cong (λ m → [ ℤ.pos m , _ ]) (sym minSuc)) (inj (ℤ.pos<pos _))
-
--- min₊ : ℚ₊ → ℚ₊ → ℚ₊
--- min₊ (x , y) (x' , y') =
---   ℚ.min x x' , 0<-min x x' y y'
-
--- max₊ : ℚ₊ → ℚ₊ → ℚ₊
--- max₊ (x , y) (x' , y') =
---   ℚ.max x x' , <→0< (ℚ.max x x') (isTrans<≤ 0 x _ (0<→< x y) (≤max x x'))
-
--- -- min< : ∀ n m → n < m →  ℚ.min n m ≡ n
--- -- min< = elimProp2 (λ _ _ → isPropΠ λ _ → isSetℚ _ _)
--- --   λ (x , 1+ y) (x' , 1+ y') (inj (u , p)) →
--- --     eq/ _ _
--- --      (ℤ.·DistPosLMin _ _ _ ∙ {!!})
--- -- -- with n ≟ m
--- -- -- ... | lt x₁ = {!x!}
--- -- -- ... | eq x₁ = cong (ℚ.min n) (sym x₁) ∙ minIdem n
--- -- -- ... | gt x₁ = {!x!}
-
 -< : ∀ q r → q < r → 0 < r ℚ.- q
 -< q r x = subst (_< r ℚ.- q) (+InvR q) (<-+o q r (ℚ.- q) x)
-
-
 
 -≤ : ∀ q r → q ≤ r → 0 ≤ r ℚ.- q
 -≤ q r x = subst (_≤ r ℚ.- q) (+InvR q) (≤-+o q r (ℚ.- q) x)
 
-
--- <+ℚ₊ : ∀ x y (ε : ℚ₊) → x < y → x < (y ℚ.+ fst ε)
--- <+ℚ₊ x y ε x₁ =
---  subst (_< y ℚ.+ fst ε)
---    (ℚ.+IdR x) (<Monotone+ x y 0 (fst ε) x₁ (0<ℚ₊ ε))
-
--- <+ℚ₊' : ∀ x y (ε : ℚ₊) → x ≤ y → x < (y ℚ.+ fst ε)
--- <+ℚ₊' x y ε x₁ =
---  subst (_< y ℚ.+ fst ε)
---    (ℚ.+IdR x) (≤<Monotone+ x y 0 (fst ε) x₁ (0<ℚ₊ ε))
-
-
--- ≤+ℚ₊ : ∀ x y (ε : ℚ₊) → x ≤ y → x ≤ (y ℚ.+ fst ε)
--- ≤+ℚ₊ x y ε x₁ =
---  subst (_≤ y ℚ.+ fst ε)
---    (ℚ.+IdR x) (≤Monotone+ x y 0 (fst ε) x₁ (0≤ℚ₊ ε))
-
-
--- pos[-x<x] : (ε : ℚ₊) → ℚ.- (fst ε) < (fst ε)
--- pos[-x<x] ε = isTrans< (ℚ.- (fst ε)) 0 (fst ε) (-ℚ₊<0 ε) (0<ℚ₊ ε)
-
--- pos[-x≤x] : (ε : ℚ₊) → ℚ.- (fst ε) ≤ (fst ε)
--- pos[-x≤x] ε = isTrans≤ (ℚ.- (fst ε)) 0 (fst ε) (-ℚ₊≤0 ε) (0≤ℚ₊ ε)
-
--- <-ℚ₊ : ∀ x y (ε : ℚ₊) → x < y → (x ℚ.- fst ε) < y
--- <-ℚ₊ x y ε x₁ =
---  subst ((x ℚ.- fst ε) <_)
---    (ℚ.+IdR y) (<Monotone+ x y (ℚ.- (fst ε)) 0 x₁ (-ℚ₊<0 ε))
-
-
--- <-ℚ₊' : ∀ x y (ε : ℚ₊) → x ≤ y → (x ℚ.- fst ε) < y
--- <-ℚ₊' x y ε x₁ =
---  subst ((x ℚ.- fst ε) <_)
---    (ℚ.+IdR y) (≤<Monotone+ x y (ℚ.- (fst ε)) 0 x₁ (-ℚ₊<0 ε))
-
-
--- ≤-ℚ₊ : ∀ x y (ε : ℚ₊) → x ≤ y → (x ℚ.- fst ε) ≤ y
--- ≤-ℚ₊ x y ε x₁ =
---  subst ((x ℚ.- fst ε) ≤_)
---    (ℚ.+IdR y) (≤Monotone+ x y (ℚ.- (fst ε)) 0 x₁ (-ℚ₊≤0 ε))
-
--- -ℚ₊<ℚ₊ : (ε ε' : ℚ₊) → (ℚ.- (fst ε)) < fst ε'
--- -ℚ₊<ℚ₊ ε ε' = isTrans< (ℚ.- (fst ε)) 0 (fst ε') (-ℚ₊<0 ε) (0<ℚ₊ ε')
-
--- -ℚ₊≤ℚ₊ : (ε ε' : ℚ₊) → ℚ.- (fst ε) ≤ fst ε'
--- -ℚ₊≤ℚ₊ ε ε' = isTrans≤ (ℚ.- fst ε) 0 (fst ε') (-ℚ₊≤0 ε) (0≤ℚ₊ ε')
-
-
-
+-- TODO move clamp to ordCommRing
 clamp : ℚ → ℚ → ℚ → ℚ
 clamp d u x = ℚ.min (ℚ.max d x) u
-
--- -- ≠→0<abs : ∀ q r → ¬ q ≡ r → 0< ℚ.abs (q ℚ.- r)
--- -- ≠→0<abs q r u with q ≟ r
--- -- ... | lt x = <→0< (ℚ.abs (q ℚ.- r)) $ isTrans<≤ 0 (r ℚ.- q) (ℚ.abs (q ℚ.- r))
--- --                  (-< q r x)
--- --                    (subst (_≤ abs (q - r))
--- --                      (-[x-y]≡y-x q r) $ ≤max' (q - r) (ℚ.- (q - r)))
--- -- ... | eq x = ⊥.rec (u x)
--- -- ... | gt x = <→0< (ℚ.abs (q ℚ.- r)) $ isTrans<≤ 0 (q ℚ.- r) (ℚ.abs (q ℚ.- r))
--- --                  (-< r q x) (≤max (q - r) (ℚ.- (q - r)))
 
 ≤→≡⊎< : ∀ q r → q ≤ r → (q ≡ r) ⊎ (q < r)
 ≤→≡⊎< q r y with q ≟ r
@@ -936,110 +796,6 @@ clamp d u x = ℚ.min (ℚ.max d x) u
 
 ≤→¬≡→< : ∀ q r → q ≤ r → ¬ (q ≡ r) → q < r
 ≤→¬≡→< q r q≤r q≠r = ⊎.rec (⊥.rec ∘S  q≠r) (idfun _) (≤→≡⊎< q r q≤r)
-
--- -- -- ≤≃≡⊎< : ∀ q r → (q ≤ r) ≃ ((q ≡ r) ⊎ (q < r))
--- -- -- ≤≃≡⊎< q r = propBiimpl→Equiv
--- -- --   (isProp≤ q r)
--- -- --   (⊎.isProp⊎ (isSetℚ _ _) ((isProp< q r)) λ u v → ≤→≯ r q (≡Weaken≤ _ _ (sym u)) v)
--- -- --     (≤→≡⊎< q r) (⊎.rec (≡Weaken≤ _ _) (<Weaken≤ q r))
-
--- ≤ℤ→≤ℚ : ∀ m n → m ℤ.≤ n → [ m , 1 ] ≤ [ n , 1 ]
--- ≤ℤ→≤ℚ m n = inj ∘S (subst2 ℤ._≤_ (sym (ℤ.·IdR m)) (sym (ℤ.·IdR n)))
-
--- <ℤ→<ℚ : ∀ m n → m ℤ.< n → [ m , 1 ] < [ n , 1 ]
--- <ℤ→<ℚ m n = inj ∘S subst2 ℤ._<_ (sym (ℤ.·IdR m)) (sym (ℤ.·IdR n))
-
--- -- -- [k/n]<[k'/n] : ∀ k k' n → k ℤ.< k' → ([ ( k , n ) ]) < ([ (k' , n) ])
--- -- -- [k/n]<[k'/n] k k' n k<k' = inj (ℤ.<-·o {k} k<k')
-
--- -- -- [k/n]≤[k'/n] : ∀ k k' n → k ℤ.≤ k' → ([ ( k , n ) ]) ≤ ([ (k' , n) ])
--- -- -- [k/n]≤[k'/n] k k' n k<k' = inj (ℤ.≤-·o {k} k<k')
-
-
--- -- -- eqElim₊ : (lrhs : ℚ₊ → ℚ × ℚ) →
--- -- --   (∀ {k m} → fst (lrhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , inj (ℤ.pos<pos tt)))
--- -- --         ≡  snd (lrhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , inj (ℤ.pos<pos tt))))
--- -- --     → ∀ (ε : ℚ₊) → fst (lrhs ε) ≡ snd (lrhs ε)
--- -- -- eqElim₊ lrhs p = uncurry (ElimProp.go w)
--- -- --   where
--- -- --   w : ElimProp (λ z → ∀ p →  fst (lrhs (z , p)) ≡ snd (lrhs (z , p)))
--- -- --   w .ElimProp.isPropB _ = isPropΠ λ _ → isSetℚ _ _
--- -- --   w .ElimProp.f (ℤ.pos (suc n) , (1+ n₁)) (inj (ℤ.pos<pos _)) = p {n} {n₁}
-
-
--- -- -- substℚ₊ : ∀ {ℓ} (A : ℚ → Type ℓ) (lrhs : ℚ₊ → ℚ × ℚ) →
--- -- --   (∀ {k m} → fst (lrhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , inj (ℤ.pos<pos tt)))
--- -- --         ≡  snd (lrhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , inj (ℤ.pos<pos tt))))
--- -- --     → ∀ (ε : ℚ₊) → A (fst (lrhs ε)) → A (snd (lrhs ε))
--- -- -- substℚ₊ A lrhs p ε =
--- -- --   subst A (eqElim₊ lrhs p ε)
-
-
--- -- -- eqElim₂₊ : {lhs rhs : ℚ₊ → ℚ₊ → ℚ} →
--- -- --   (∀ k m k' m' → lhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , inj (ℤ.pos<pos tt))
--- -- --           ([ ((ℤ.pos (suc k')) , 1+ m') ] , inj (ℤ.pos<pos tt))
--- -- --         ≡  rhs ([ ((ℤ.pos (suc k)) , 1+ m) ] , inj (ℤ.pos<pos tt))
--- -- --          ([ ((ℤ.pos (suc k')) , 1+ m') ] , inj (ℤ.pos<pos tt)))
--- -- --     → ∀ {ε ε' : ℚ₊} → lhs ε ε' ≡ rhs ε ε'
--- -- -- eqElim₂₊ {lhs} {rhs} p {ε , 0<ε} {ε' , 0<ε'} = ElimProp2.go w ε ε' 0<ε 0<ε'
--- -- --   where
--- -- --   w : ElimProp2 (λ z z' → ∀ p p' →  lhs (z , p) (z' , p') ≡ rhs (z , p) (z' , p'))
--- -- --   w .ElimProp2.isPropB _ _ = isPropΠ2 λ _ _ → isSetℚ _ _
--- -- --   w .ElimProp2.f (ℤ.pos (suc n) , (1+ n₁)) (ℤ.pos (suc m) , (1+ m₁)) (inj (ℤ.pos<pos _)) (inj (ℤ.pos<pos _)) =
--- -- --     p n n₁ m m₁
-
-
--- -- -- module EqElims where
--- -- --  data ℚTypes : Type where
--- -- --   [ℚ] [ℚ₊] : ℚTypes
-
--- -- --  ℚSignature : Type
--- -- --  ℚSignature = List ℚTypes
-
--- -- --  lrhsDom : ℚTypes → Type
--- -- --  lrhsDom [ℚ] = ℚ
--- -- --  lrhsDom [ℚ₊] = ℚ₊
-
-
--- -- --  lrhsDomFst : ℚTypes → Type
--- -- --  lrhsDomFst [ℚ] = ℤ
--- -- --  lrhsDomFst [ℚ₊] = ℕ₊₁
-
--- -- --  lrhsCtr : ∀ b → lrhsDomFst b → ℕ₊₁ → (lrhsDom b)
--- -- --  lrhsCtr [ℚ] k m = [ k , m ]
--- -- --  lrhsCtr [ℚ₊] n m = [ ℕ₊₁→ℤ n , m ] , inj (ℤ.pos<pos tt)
-
--- -- --  LRhs : ℚSignature → Type
--- -- --  LRhs [] = ℚ × ℚ
--- -- --  LRhs (x ∷ xs) = lrhsDom x → LRhs xs
-
--- -- --  LemType : ∀ s → LRhs s → Type
--- -- --  LemType [] (lhs , rhs) = lhs ≡ rhs
--- -- --  LemType (x ∷ xs) lrhs = (k : lrhsDomFst x) (m : ℕ₊₁) → LemType xs (lrhs (lrhsCtr x k m))
-
-
--- -- --  EqType : ∀ s → LRhs s → Type
--- -- --  EqType [] (lhs , rhs) = lhs ≡ rhs
--- -- --  EqType (x ∷ xs) lrhs = (q : lrhsDom x) → EqType xs (lrhs q)
-
--- -- --  isPropEqType : ∀ s → (lrhs : LRhs s) → isProp (EqType s lrhs)
--- -- --  isPropEqType [] lrhs = isSetℚ _ _
--- -- --  isPropEqType (_ ∷ s) lrhs = isPropΠ $ isPropEqType s ∘ lrhs
-
--- -- --  EllimEqₛ : ∀ s → (lrhs : LRhs s) → LemType s lrhs → EqType s lrhs
--- -- --  EllimEqₛ [] lrhs e = e
--- -- --  EllimEqₛ ([ℚ] ∷ xs) lrhs e = ElimProp.go w
--- -- --   where
--- -- --   w : ElimProp _
--- -- --   w .ElimProp.isPropB = isPropEqType xs ∘ lrhs
--- -- --   w .ElimProp.f (k , m) = EllimEqₛ xs (lrhs _) (e k m)
-
--- -- --  EllimEqₛ ([ℚ₊] ∷ xs) lrhs e = uncurry (ElimProp.go w)
--- -- --   where
--- -- --   w : ElimProp (λ z → ∀ p → EqType xs (lrhs (z , p)))
--- -- --   w .ElimProp.isPropB q = isPropΠ λ _ → isPropEqType xs (lrhs (q , _))
--- -- --   w .ElimProp.f (ℤ.pos (suc n) , m) (inj (ℤ.pos<pos _)) = EllimEqₛ xs (lrhs _) (e (1+ n) m)
-
 
 
 ℚintervalℙ : ℚ → ℚ → ℙ ℚ

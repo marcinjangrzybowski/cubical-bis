@@ -613,6 +613,10 @@ module SansReflection (crs : CommRingSolverConfig) where
         ⁇→ (⟦ e₁ ⟧ xs ≡ ⟦ e₂ ⟧ xs)
  solveByDec _ e₁ e₂ xs = ⁇λ solve e₁ e₂ xs
 
+ -- opaque
+ --  emptyVars : Vec (fst R`) zero
+ --  emptyVars = []
+
  IsConstPossiblyNonNull : ∀ {n} → IteratedHornerForms n → Type (ℓ-suc ℓ)
  IsConstPossiblyNonNull (const x) = Unit*
  IsConstPossiblyNonNull 0H = ⊥*

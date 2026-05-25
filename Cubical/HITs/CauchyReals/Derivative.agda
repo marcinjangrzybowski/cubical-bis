@@ -1066,8 +1066,13 @@ uDerivativeOfℙ· a b a<b f g f' g'
                         (ℚ.isTrans≤ _ _ _
                           (ℚ.min≤ _ (ucf ε' .fst .fst))
                           (ℚ.min≤' (δf' .fst) _)))))
-                          ((cong ((absᵣ h) ·ᵣ_) (cong rat ℚ!!
-                           ∙ rat·ᵣrat (fst ε ℚ.· [ 1 / 3 ]) _ )
+                          ((cong  ((absᵣ h) ·ᵣ_) (
+                           cong {x = ([ 1 / 3 ] ℚ.· fst ε ) ℚ.· fst (invℚ₊ M)}
+                            {fst ε ℚ.· [ 1 / 3 ] ℚ.·
+                              (invℚ₊ M) .fst}
+                             rat ℚ!! 
+                           ∙ rat·ᵣrat (fst ε ℚ.· [ 1 / 3 ]) _
+                           )
                     ∙∙ ·ᵣAssoc _ _ _
                     ∙∙ cong₂ _·ᵣ_ refl
                        (sym (invℝ₊-rat _))))
@@ -1092,8 +1097,11 @@ uDerivativeOfℙ· a b a<b f g f' g'
                          ∙ sym (-absᵣ _))
                        (isTrans<≤ᵣ _ _ _ ∣h∣<δ
                          (≤ℚ→≤ᵣ _ _ (ℚ.min≤' (ℚ.min (δf' .fst) (δg' .fst)) _))))))
-                     
-                     (cong rat ℚ!! ∙ (rat·ᵣrat (fst ε ℚ.· [ 1 / 3 ]) _
+                     --    cong rat ℚ!! ∙
+                     ( cong {x = ([ 1 / 3 ] ℚ.· fst ε ) ℚ.· fst (invℚ₊ M)}
+                            {fst ε ℚ.· [ 1 / 3 ] ℚ.·
+                              (invℚ₊ M) .fst}
+                             rat ℚ!!  ∙ (rat·ᵣrat (fst ε ℚ.· [ 1 / 3 ]) _
                       ∙ cong₂ _·ᵣ_ refl (sym (invℝ₊-rat _))))
                       ))))
        in
@@ -1113,7 +1121,8 @@ uDerivativeOfℙ· a b a<b f g f' g'
                   (sym (·DistL+ _ _ _)))
                 (cong (absᵣ h ·ᵣ_)
                  (cong₂ _+ᵣ_ ((+ᵣ-rat _ _)) refl
-                     ∙ +ᵣ-rat _ _ ∙ cong rat ℚ!!)))))
+                     ∙ +ᵣ-rat _ _ ∙ cong rat ℚ!!
+                     )))))
 
 uDerivativeOfℙ² : ∀ a b → a <ᵣ b
   → (f f' : ∀ x → x ∈ intervalℙ a b → ℝ)

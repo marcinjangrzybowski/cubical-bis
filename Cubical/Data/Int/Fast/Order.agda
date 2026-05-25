@@ -710,6 +710,18 @@ data Trichotomy m n : Type where
   eq : m ≡ n → Trichotomy m n
   gt : n < m → Trichotomy m n
 
+record TrichotomyRec {ℓ : Level} (n : ℤ) (P : ℤ → Type ℓ) : Type ℓ where
+  no-eta-equality
+  field
+    lt-case : ∀ m → (p : m < n) → P m
+    eq-case : P n
+    gt-case : ∀ m → (p : n < m) → P m
+
+  go : ∀ m → (t : Trichotomy m n) → P m
+  go m (lt p) = lt-case m p
+  go m (eq p) = subst P (sym p) eq-case
+  go m (gt p) = gt-case m p
+
 Trichotomy-suc : Trichotomy m n → Trichotomy (sucℤ m) (sucℤ n)
 Trichotomy-suc (lt m<n) = lt (suc-<-suc m<n)
 Trichotomy-suc (eq m≡n) = eq (cong sucℤ m≡n)
@@ -733,6 +745,10 @@ negsuc m ≟ negsuc n with m ℕ.≟ n
 ... | ℕ.lt p = gt $ recompute< $ negsuc<negsuc {n} {m} (ℕ.<→<ᵗ p)
 ... | ℕ.eq p = eq (cong negsuc p)
 ... | ℕ.gt p = lt $ recompute< $ negsuc<negsuc {m} {n} (ℕ.<→<ᵗ p)
+
+
+byTrichotomy : ∀ x₀ → {A : ℤ → Type} → TrichotomyRec x₀ A → ∀ x → A x
+byTrichotomy x₀ r x = TrichotomyRec.go r x (_ ≟ _)
 
 -- alternative proof
 _≟'_ : ∀ m n → Trichotomy m n

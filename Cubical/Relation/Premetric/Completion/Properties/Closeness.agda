@@ -49,15 +49,14 @@ open PositiveHalvesℚ
 open PremetricTheory using (isLimit ; limit ; isComplete ; subst≈L ; subst≈R)
 open PremetricTheory.PremetricReasoning M'
 
-
 private
   M = M' .fst
   ℚOCR = ℚOrderedCommRing
   ℚCR  = OrderedCommRing→CommRing ℚOCR
   ℚR   = OrderedCommRing→Ring ℚOCR
-  open OrderedCommRingReasoning ℚOCR
-  open OrderedCommRingTheory ℚOCR
-  open RingTheory ℚR
+  -- open OrderedCommRingReasoning ℚOCR
+  open OrderedCommRingTheory ℚOCR using (0<Δ→<)
+
   open PremetricStr (M' .snd)
   open import Cubical.Relation.Premetric.Completion.Base M' renaming (ℭ to ℭM)
   open import Cubical.Relation.Premetric.Completion.Elim M'
@@ -75,17 +74,17 @@ subst∼ x y = substℚ₊ {P = x ∼[_] y}
 ι-lim+₊ : ∀ x y ε δ yc → ι x ∼[ ε ] y δ → ι x ∼[ ε +₊ δ ] lim y yc
 ι-lim+₊ x y ε δ yc p = ι-lim x y (ε +₊ δ) δ yc
   <≤ℚ!
-  (subst∼ _ _ (sym (plusMinus₊ ε δ)) p)
+  (subst∼ _ _ ℚ!! p)
 
 lim-ι+₊ : ∀ x y ε δ xc → x δ ∼[ ε ] ι y → lim x xc ∼[ ε +₊ δ ] ι y
 lim-ι+₊ x y ε δ xc p = lim-ι x y (ε +₊ δ) δ xc
   <≤ℚ!
-  (subst∼ _ _ (sym (plusMinus₊ ε δ)) p)
+  (subst∼ _ _ ℚ!! p)
 
 lim-lim+₊ : ∀ x y ε δ η xc yc → x δ ∼[ ε ] y η → lim x xc ∼[ ε +₊ (δ +₊ η) ] lim y yc
 lim-lim+₊ x y ε δ η xc yc p = lim-lim x y (ε +₊ (δ +₊ η)) δ η xc yc
   <≤ℚ!
-  (subst∼ _ _ (sym (plusMinus₊ ε (δ +₊ η))) p)
+  (subst∼ _ _ ℚ!! p)
 
 -- Lemma 3.5
 isRefl∼ : ∀ x ε → x ∼[ ε ] x
@@ -955,8 +954,8 @@ isLimitLim x xc ε θ = Elimℭ-Prop.go e (x ε) x xc ε θ (isRefl∼ (x ε) θ
     (isProp∼ (lim u uc) (ε +₊ θ) (lim x xc))
     ((λ (δ , (δ<θ , limu∼[δ]xε)) →
     let η = [ θ -₊ δ ]⟨ δ<θ ⟩ /4₊        
-    in lim-lim u x (ε +₊ θ) η ε uc xc <≤ℚ! (
-        subst∼ (u η) (x ε) ℚ!! ((IH η u uc _ _ (uc η η)) ▴ limu∼[δ]xε))))
+    in lim-lim u x (ε +₊ θ) η ε uc xc <≤ℚ!
+       (subst∼ (u η) (x ε) ℚ!! ((IH η u uc _ _ (uc η η)) ▴ limu∼[δ]xε))))
     (isRounded∼ (lim u uc) (x ε) θ limu∼[θ]xε)
   isPropA e u = isPropΠ4 λ _ _ _ _ → isProp→ (isProp∼ _ _ _)
 

@@ -139,8 +139,8 @@ module _ where
   ratAprox : ℚ
   ratAprox = getApproxVal (realNum ·ᵣ realNum') [ 1 / 1000 ]₊ 
 
-  _ : ℚ
-  _ = {!!}
+  -- _ : ℚ
+  -- _ = {!!}
 
 
 -- digits : ℕ → ℚ → ℕ × ℕ
@@ -161,7 +161,8 @@ module _ where
 
 module Aprox-𝓮 where
  opaque
-  unfolding limₙ→∞[expSeqRatio]=0
+  unfolding
+   limₙ→∞[expSeqRatio]=0
             -- _·ᵣ_
             -- _+ᵣ_
             -- -ᵣ_
@@ -178,8 +179,8 @@ module Aprox-𝓮 where
     -- 0<·Closed
     -- clampᵣ-rat
     -- clamp-limΣ
-    expSeq-rat
-    fromLipschitz
+    -- expSeq-rat
+    -- fromLipschitz
     -- sin cos
     -- IsoIsUConvSeries'IsCauchy'SequenceSum ∃rationalApprox ∃rationalApprox≤ ≤ᵣ-refl
     -- <ᵣ-+o <ᵣ-+o-pre <ᵣWeaken≤ᵣ isTrans≤<ᵣ isTrans≤ᵣ +ᵣComm +ᵣAssoc +ᵣ-rat
@@ -218,15 +219,20 @@ module Aprox-𝓮 where
   _ = [ pos 109601 , (1+ 40319) ]
 
 
-
+  -- zz : {!!}
+  -- zz = {!!}
 
   eAprox : ℚ
-  eAprox = ℚ.reduce (getApproxVal (expℚ₊ [ 12 / 13 ]₊) [ 1 / 100 ]₊) 
+  eAprox = ℚ.reduce (getApproxVal (expℚ₊ 1) [ 1 / 10 ]₊) 
 
-  -- _ : ℕ
-  -- _ = {!!}
-  -- e-dgts : _ 
-  -- e-dgts = {!!}
+  𝑒Aprox : ℚ
+  𝑒Aprox = [ pos 685 , (1+ 251) ]
+
+
+  _ : ℕ
+  _ = {!!}
+  e-dgts : ℕ × ℕ
+  e-dgts = 2 , 71828182845904523536
 
 -- -- --   _ : ℕ
 -- -- --   _ = 7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274
@@ -241,8 +247,6 @@ module Aprox-𝓮 where
 
 -- -- -- 2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274
 
-  𝑒Aprox : ℕ × ℕ
-  𝑒Aprox = {!digitsℝ (expℚ₊ [ 13 / 12 ]₊) 20!}
 
 -- -- -- -- -- --   _ : ℚ
 -- -- -- -- -- --   _ = {!𝑒Aprox!}

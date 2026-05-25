@@ -54,6 +54,17 @@ open OrderedCommRingTheory ℚOrderedCommRing hiding (_#_)
 
 open import Cubical.Tactics.CommRingSolver.OrderedReflection
 
+
+
+seqΣ∘·2 : ∀ s n → seqΣ s (n ℕ.· 2) ≡
+                  seqΣ (λ n → s (n ℕ.· 2) + s (suc (n ℕ.· 2))) n
+seqΣ∘·2 s zero = refl
+seqΣ∘·2 s (suc n) =
+    sym (+Assoc (seqΣ s (n ·ℕ 2)) _ _)
+  ∙ cong₂ _+_ (seqΣ∘·2 _ n) refl
+
+
+
 lowerBoundℕ⁻¹ : ∀ (q : ℚ₊) → Σ[ k ∈ ℕ₊₁ ] ([ 1 , k ] ≤ fst q)
 lowerBoundℕ⁻¹ q = 
  let (m , n) , (_ , p) = reduced (fst q)

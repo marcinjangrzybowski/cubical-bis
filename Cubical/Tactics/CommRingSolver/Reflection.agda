@@ -60,8 +60,8 @@ open import Cubical.Tactics.CommRingSolver.Config
 
 
 log : List ErrorPart → TC Unit
-log _ = pure _
- -- debugPrint "commRingSolver" 0
+log = -- pure _
+ debugPrint "commRingSolver" 0
 
 
 module CommRingSolver (crs : CommRingSolverConfig) where
@@ -227,6 +227,9 @@ module CommRingSolver (crs : CommRingSolverConfig) where
        refineRingGoal preNForm rhsMeta
        unify hole solution
 
+  -- _ : Term
+  -- _ = con (quote emptyVec)
+  --      (harg {quantity-ω} unknown ∷ P[ harg {quantity-ω} unknown ])
 
   private
    solverCallWithVars : ℕ → Vars → Term → Term → Term → Maybe Term → Term
@@ -254,7 +257,7 @@ module CommRingSolver (crs : CommRingSolverConfig) where
       log [ "start CRS" ]ₑ
 
       crsTerm ← quoteωTC crs
-      goal ← inferType hole >>= normalise
+      goal ← inferType hole  >>= normalise
       log ("CRS goal:" ∷nl [ goal ]ₑ)
 
       Wait.wait-for-type (λ w → debugPrint "WFT" 0 ("wft: " ∷nl w) ) goal
@@ -269,9 +272,9 @@ module CommRingSolver (crs : CommRingSolverConfig) where
 
       let solution = solverCallWithVars (length vars) vars crsTerm lhs' rhs'
       log [ "CRS unifying..." ]ₑ
-      unify hole (solution nothing)
+      (unify hole (solution nothing))
         <|> do prfHole ← checkType unknown unknown
-               unify hole (solution (just prfHole)) <|>
+               withReduceDefs (false , []) $ unify hole (solution (just prfHole)) <|>
                  typeError  ("unableToUnify prfHole" ∷nl
                     (map,ₑ vars ++nl map,ₑ (lhs ∷ rhs ∷ [])))
                solutionType ←
