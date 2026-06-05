@@ -22,7 +22,6 @@ private
     ℓ ℓ' : Level
 
 module HomomorphismProperties (R@(⟨R⟩ , _) : CommRing ℓ)
-                         -- (_≟_ : Discrete ⟨R⟩ )
                          (R'@(⟨R'⟩ , _) : CommRing ℓ')
                          (hom@(scalar‵ , _) : CommRingHom R R') where
  open CommRingStr (snd R)
@@ -70,7 +69,7 @@ module HomomorphismProperties (R@(⟨R⟩ , _) : CommRing ℓ)
  -EvalDist (const x) []   = pres- _
  -EvalDist 0H  xs =  Eval0H xs ∙
    sym (R‵.0Selfinverse)
-   ∙ cong -‵_ (sym (Eval0H xs)) --
+   ∙ cong -‵_ (sym (Eval0H xs))
  -EvalDist (P ·X+ Q) (x ∷ xs) =
      (eval (-ₕ P) (x ∷ xs)) ·‵ x +‵ eval (-ₕ Q) xs
    ≡⟨ cong (λ u → u ·‵ x +‵ eval (-ₕ Q) xs) (-EvalDist P _) ⟩
@@ -82,14 +81,6 @@ module HomomorphismProperties (R@(⟨R⟩ , _) : CommRing ℓ)
    ≡⟨ R‵.-Dist _ _ ⟩
      -‵ eval (P ·X+ Q) (x ∷ xs) ∎
 
- -- combineCases+ : {n : ℕ} (P Q : IteratedHornerForms (ℕ.suc n))
- --                 (r s : IteratedHornerForms n)
- --                 (x : fst R') (xs : Vec (fst R') n)
- --                 → eval ((P ·X+ r) +ₕ (Q ·X+ s)) (x ∷ xs)
- --                 ≡ eval ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs)
- -- combineCases+ {n = n} P Q r s x xs with (isZero (P +ₕ Q) and isZero (r +ₕ s)) 𝟚.≟ true
- -- ... | yes p = compute+ₕEvalBothZero n P Q r s x xs p
- -- ... | no p = compute+ₕEvalNotBothZero n P Q r s x xs (𝟚.¬true→false _ p)
 
  +Homeval :
    {n : ℕ} (P Q : IteratedHornerForms n) (xs : Vec ⟨R'⟩ n)

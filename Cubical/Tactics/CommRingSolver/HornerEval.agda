@@ -68,8 +68,6 @@ module HornerEval (R@(⟨R⟩ , _) : CommRing ℓ)
   no-eta-equality
   field
    evalInVecR : {n : ℕ} → A n → Vec ⟨R'⟩ n → ⟨R'⟩
-   -- evalInVecRₛ : {n : ℕ} → (P : A n) → (xs : Vec ⟨R⟩ n) →
-   --  Σ[ r ∈ ⟨R⟩ ] fst hom r ≡ evalInVecR P (map (fst hom) xs)  
    
 
   _≑_ : ∀ {n} → A n → A n → Type ℓ'
@@ -100,13 +98,11 @@ module HornerEval (R@(⟨R⟩ , _) : CommRing ℓ)
  instance
   EvalInVecRIteratedHornerForms : EvalInVecR IteratedHornerForms
   EvalInVecRIteratedHornerForms .EvalInVecR.evalInVecR = eval
-  -- EvalInVecRIteratedHornerForms .EvalInVecR.evalInVecRₛ = evalScalar
 
   EvalInVecR× : ∀ {ℓa} {ℓa'} {A : ℕ → Type ℓa} {{ev :  EvalInVecR A}}
                         {A' : ℕ → Type ℓa'} {{ev' : EvalInVecR A'}}
                         → EvalInVecR λ n → Σ[ (a , a') ∈ (A n × A' n) ] (a ≑' a')
   EvalInVecR× .EvalInVecR.evalInVecR ((_ , a) , _) = evalInVecR a 
-  -- EvalInVecR× .EvalInVecR.evalInVecRₛ ((_ , a) , _) = evalInVecRₛ a
 
 
  record _≑>_ {ℓa} {ℓa'} (A : ℕ → Type ℓa) {{ev :  EvalInVecR A}}

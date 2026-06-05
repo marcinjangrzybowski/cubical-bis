@@ -45,7 +45,6 @@ private
 
 
 module HornerForms (R@(⟨R⟩ , _) : CommRing ℓ)
-                         -- (_≟_ : Discrete ⟨R⟩ )
                          (R'@(⟨R'⟩ , _) : CommRing ℓ')
                          (hom@(scalar‵ , _) : CommRingHom R R')
                          where

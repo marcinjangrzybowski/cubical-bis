@@ -1,4 +1,4 @@
-module Cubical.Tactics.CommRingSolver.OrderedSolver where
+module Cubical.Tactics.CommRingSolver.OrderedSolver.Core where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -42,8 +42,8 @@ open import Cubical.Algebra.Ring.BigOps
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.Tactics.Reflection.Error
 open import Agda.Builtin.String
-
-open import Cubical.Tactics.CommRingSolver.Solver
+ 
+open import Cubical.Tactics.CommRingSolver.Solver.Core as Solver
 
 
 data NoInfo : Type where
@@ -69,7 +69,6 @@ module _ {ℓ` oℓ`} (R` : CommRing ℓ`) (O`@((_<`_ , _≤`_) , _) : RingOrder
    open IsOrderedCommRing (snd O`) public
    open OrderedCommRingTheory OR` public
 
-  -- open OCR` using () renaming (_<_ to _<`_)
   module R` where
     open CommRingStr (snd R`) public
     open RingTheory (CommRing→Ring R`) public
@@ -187,10 +186,10 @@ module _ {ℓ` oℓ`} (R` : CommRing ℓ`) (O`@((_<`_ , _≤`_) , _) : RingOrder
   R`A .snd .CommRingStr.isCommRing .IsCommRing.·Comm _ _ = Σ≡₁ (R`.·Comm _ _ )
 
 
-module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
+module SansReflectionOrdered (ocrs : OrderedCommRingSolverConfig) where
 
  open OrderedCommRingSolverConfig ocrs
- open SansReflection commRingSolverConfig 
+ open Solver.SansReflection commRingSolverConfig  
  
  private
   module RT` = RingTheory (CommRing→Ring R`)
@@ -207,17 +206,9 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
  
  open AnnotatedRing R` (_ , iocr`) mb·`lCancel public
 
- -- isPositive* : (0r` <` x)  → IneqInfo x
- -- isPositive* = ?
  
- -- isNonNeg* : (0r` ≤` x) → IneqInfo x
- -- isNonNeg* = ?
  
- -- isNonZero* : (x #` 0r`) → IneqInfo x
- -- isNonZero* = ?
  
- -- isZero* : (x ≡ 0r`) → IneqInfo x
- -- isZero* = ?
  
  IneqInfo→Mb≲ : ∀ x b → IneqInfo x → (FailReason) ⊎ (0r` ≲[ b ] x)
  IneqInfo→Mb≲ x b (noInfo x₁) = inl (missingInfo x₁)
@@ -367,12 +358,12 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
  ²IneqInfo v (isNonZero x) = isPositive (OCR`.#→0<² _ x)
  ²IneqInfo v (isZero x) = isZero (RT`.0LeftAnnihilates' _ _ x)
  
- ^IneqInfo : ∀ v → IneqInfo v → ∀ m → IneqInfo (fromJust-def 1r` (v ^'' m))
+ ^IneqInfo : ∀ v → IneqInfo v → ∀ m → IneqInfo (fromJust-def 1r` (v powMaybe m))
  ^IneqInfo v _ zero = isPositive OCR`.0<1
  ^IneqInfo v y one = y
  ^IneqInfo v y (suc (suc m)) =
    subst IneqInfo (sym (R`.·Assoc _ _ _))
-     (²IneqInfo v y ii· subst IneqInfo (^''≡^ v m) (^IneqInfo v y m))
+     (²IneqInfo v y ii· subst IneqInfo (powMaybe≡^ v m) (^IneqInfo v y m))
 
  scalarIneqInfo : ∀ a → IneqInfo (fromJust-def 1r` (map-Maybe scalar` a))
  scalarIneqInfo nothing = isPositive OCR`.0<1
@@ -383,36 +374,35 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
       (λ _ → noInfo' "todo negative scalar") (0r ≤? x))
     (0r <? x)
  
- monomialIneqInfo : ∀ n m xs → VarsIneqInfo n xs → IneqInfo (Mb.fromJust-def 1r` (evMonomial m xs))
+ monomialIneqInfo : ∀ n m xs → VarsIneqInfo n xs → IneqInfo (Mb.fromJust-def 1r` (evalMonomial m xs))
  monomialIneqInfo n [] xs x = isPositive OCR`.0<1
  monomialIneqInfo .one (_∷_ {zero} m xs) (v ∷ vs) x = ^IneqInfo v (x .fst) m
  monomialIneqInfo .(suc (suc n)) (_∷_ {suc n} m xs) (v ∷ vs) x =
    subst IneqInfo
-  (sym (fromJust-def-mb·`mb (evMonomial xs vs)  (v ^'' m)))
+  (sym (fromJust-def-mb·`mb (evalMonomial xs vs)  (v powMaybe m)))
     (monomialIneqInfo _ xs vs (snd x) ii· ^IneqInfo v (x .fst) m)
     
- polyTermIneqInfo : ∀ n pt xs → VarsIneqInfo n xs → IneqInfo (evPolynomialTerm {n} pt xs)
+ polyTermIneqInfo : ∀ n pt xs → VarsIneqInfo n xs → IneqInfo (evalPolynomialTerm {n} pt xs)
  polyTermIneqInfo n (false , a , b) xs x =
    noInfo (noInfoMsg "todo false in polyTerm : " ∷ [ noInfoMsg $ caseMaybe "n" "j" a ] )
-   -- (noInfo' ("todo false in polyTerm" <> ?))
  polyTermIneqInfo n (true , a , b) xs x =
   subst IneqInfo (sym (fromJust-def-mb·`mb (map-Maybe (fst (snd commAlg)) a) _))
     (scalarIneqInfo a ii· monomialIneqInfo n b xs x)
  
- polyIneqInfo : ∀ n po xs → VarsIneqInfo n xs → IneqInfo (evPolynomial {n} po xs)
+ polyIneqInfo : ∀ n po xs → VarsIneqInfo n xs → IneqInfo (evalPolynomial {n} po xs)
  polyIneqInfo n [] xs _ = isZero refl
  polyIneqInfo n (x ∷ po) xs y =
    let u = polyIneqInfo n po xs y ii+ polyTermIneqInfo n x xs y
-   in subst IneqInfo (sym (evPolynomial∷ x po xs)) u
+   in subst IneqInfo (sym (evalPolynomial∷ x po xs)) u
 
- polyIneqInfoFromNoInfo : ∀ n po xs  → IneqInfo (evPolynomial {n} po xs)
+ polyIneqInfoFromNoInfo : ∀ n po xs  → IneqInfo (evalPolynomial {n} po xs)
  polyIneqInfoFromNoInfo n po xs = polyIneqInfo n po xs (varsIneqNoInfo n xs)
 
 
  module Decidable≲ {requireDiscreteScalar : IsJust mbDiscreteScalars} where
   open Decidable {requireDiscreteScalar}
   x≲y-fromDecΣ : ∀ (n : ℕ) b (e₀ e₁ : RExpr n) (xs : Vec (fst R`) n) →
-        Σ[ po ∈ _ ] (0r` ≲[ b ] evPolynomial po xs → (⟦ e₀ ⟧ xs) ≲[ b ] (⟦ e₁ ⟧ xs))
+        Σ[ po ∈ _ ] (0r` ≲[ b ] evalPolynomial po xs → (⟦ e₀ ⟧ xs) ≲[ b ] (⟦ e₁ ⟧ xs))
        
   x≲y-fromDecΣ n b e₀ e₁ xs =
    let e = (e₁ +' -' e₀)
@@ -426,25 +416,7 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
        
   x≲y-fromDec n b e₀ e₁ xs = snd (x≲y-fromDecΣ n b e₀ e₁ xs)
 
-  -- solveInequalityOld : ∀ (n : ℕ) b (e₀ e₁ : RExpr n) (xs : Vec (fst R`) n) →
-  --         VarsIneqInfo n xs → (FailReason ⊎ (⟦ e₀ ⟧ xs ≲[ b ] ⟦ e₁ ⟧ xs))
-  -- solveInequalityOld n b e₀ e₁ xs xsInfo =
-  --  let po , u = x≲y-fromDecΣ n b e₀ e₁ xs
-  --      pi = polyIneqInfo n po xs xsInfo
-  --  in ⊎.map (λ z → z) u (IneqInfo→Mb≲ _ b pi)
 
-  -- solveInequalityWA : ∀ (n : ℕ) b (e₀ e₁ : RExpr n) (xs : Vec (fst R`) n) →
-  --         Σ[ (k , kb) ∈ (Fin n × Bool) ] (Σ[ (δ , u) ∈ Σ (RExpr n) (flip FreeOf k) ]
-  --            (⟦ δ ⟧ xs ≲[ kb ] lookup k xs))
-  --           → VarsIneqInfo n xs → (FailReason ⊎ (⟦ e₀ ⟧ xs ≲[ b ] ⟦ e₁ ⟧ xs))
-  -- solveInequalityWA n b e₀ e₁ xs ((k , bk) , (δ , u) , δ<) xsInfo =
-  --  let e₀' , p₀ = Δrepl k e₀ δ u
-  --      e₁' , p₁ = Δrepl k e₁ δ u
-  --      xs' = (update k (λ x → x R‵.+ R‵.- ⟦ δ ⟧ xs) xs)
-  --      xsInfo' = updVarsIneqInfo' n (λ x → x R‵.+ R‵.- ⟦ δ ⟧ xs) xs k bk
-  --         (x≲y→0≲y-x bk _ _ δ<) xsInfo
-  --  in ⊎.map (λ x → x) (subst2 _≲[ b ]_ (sym (p₀ xs)) (sym (p₁ xs)))
-  --      (solveInequalityOld n b e₀' e₁' xs' xsInfo')
 
 
   mbSimpleElim : ∀ n (P : IteratedHornerForms (suc n)) k xs
@@ -466,7 +438,6 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
 
    where
    open Elimination E
--- ((ε , 0<ε) : ℚ₊) → Σ[ δ ∈ ℚ ] (ε ℚ.· δ ≡ 1)
     
   mbVerySimpleElim : ∀ n (P : IteratedHornerForms (suc n)) k xs 
     → 0r` ≡ eval P xs
@@ -495,9 +466,6 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
                       IteratedHornerForms (suc n) ×
                       (Σ[ yy ∈ ⟨ R` ⟩ ] (0r` ≲[ fst (fst (lookup assId P.assumptions)) ] yy)) ]
                       (lookup k P.xs ≡ eval P (q ∷ drop k P.xs))
-                      -- × (∀ kk → (¬_ ∘ (k ≡_)) ⁇Π 
-                      --    ((lookup kk (Vec.drop assId (P.assumptions)))
-                      --    .fst .snd .snd))
     where module P = Problem PRB
   
   tryAssumption : ∀ n xs → (VarsIneqInfo (suc n) xs) → (asmption : Assumption _ _ _)
@@ -535,7 +503,6 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
     ed ← mbEliminationHead
     pe ← preEliminate ed
     inr (eliminate ed pe)
-    -- ⊎.map (λ x → x) eliminate mbEliminationHead
    where
    module P = Problem PRB
    
@@ -545,17 +512,7 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
    ... | inl uafr = inl uafr
    ... | inr z = inr (zero , z)
 
-   -- mbEliminationSomwhere : UseAssumptionFailReason ⊎ ElimData PRB
-   -- mbEliminationSomwhere = if Dec→Bool (ℕ.discreteℕ (L.length hasNoInfos) zero )
-   --  then (inl [ "no vars with no info" ]ₑ)
-   --  else
-   --   (Mb.rec (inl noAssFindMsg) inr (Vec.findP
-   --    (tryAssumption _ _ P.vii) P.assumptions))
-   --  where
-   --   hasNoInfos : List (Fin (suc n))
-   --   hasNoInfos = idsOfVarsWithNoIneqInfo P.vii
 
-   --   noAssFindMsg =  "no suitable asumption found " ∷ₑ map,ₑ (L.map toℕ hasNoInfos)
 
    module _ ((assId , ((k , P , (q , ≲q)) , (xs[k]≡evP))) : Σ _ (ElimData PRB)) where
     open Problem
@@ -669,93 +626,4 @@ module SansReflectionOreded (ocrs : OrderedCommRingSolverConfig) where
 
   mkInequalityProof : ∀ (n : ℕ) → (b : Bool) → (e₀ e₁ : RExpr n) (xs : Vec (fst R`) n) →
       _ → Maybe (Fin n) → Assumption' n xs
-  mkInequalityProof n z e₀ e₁ xs prf k = (inequality z e₀ e₁ , k) , prf 
-  
-  -- solveInequality : ∀ (n : ℕ) b (e₀ e₁ : RExpr n) (xs : Vec (fst R`) n) 
-  --         → List (Assumption' n xs) → VarsIneqInfo n xs → (FailReason ⊎ (⟦ e₀ ⟧ xs ≲[ b ] ⟦ e₁ ⟧ xs))
-  -- solveInequality n b e₀ e₁ xs assmptns xsInfo =
-  --  let po , u = x≲y-fromDecΣ n b e₀ e₁ xs
-       
-  --      prb = mkProblemRE n xs assmptns xsInfo b e₀ e₁
-  --      p' = Problem≑> (Expr≑>IHF) prb
-  --  in Mb.rec (inl unableToUseAssumption)
-  --     (trySolve ∘ Problem≑> IHF≑>Poly)
-  --     (foldAssumptions p')
-
-
-
- -- --  -- evPolynomial∷
- -- -- -- module Pre {ℓ ℓ'} {U : Type ℓ} {V : Type ℓ'} (uvEval : U → V → ⟨ R` ⟩) where
- -- -- --  data IneqInfo : (u : U) → Type (ℓ-max (ℓ-max ℓ ℓ`) (ℓ-max oℓ` ℓ')) where
- -- -- --   noInfo : ∀ {u} → IneqInfo u
- -- -- --   isPositive : ∀ {u} → (∀ v → 0r` <` uvEval u v)  → IneqInfo u
- -- -- --   isNonNeg : ∀ {u} → (∀ v → 0r` ≤` uvEval u v) → IneqInfo u
- -- -- --   isNonZero : ∀ {u} → (∀ v → (uvEval u v ≡ 0r`) → ⊥) → IneqInfo u
- -- -- --   isZero : ∀ {u} → (∀ v → uvEval u v ≡ 0r`) → IneqInfo u
-
- 
-
- -- -- -- VarIneqInfo = Pre.IneqInfo {V = Unit} (λ x _ → x)
-
- -- -- -- module IneqInfo {ℓ} {U : ℕ → Type ℓ} (uvEval : ∀ {n} → U n → Vec ⟨ R` ⟩ n → ⟨ R` ⟩) where
- -- -- --  module _ (n : ℕ) where
- -- -- --   open  Pre (uvEval {n}) public
- -- -- --  InferIneqInfo : Type (ℓ-max (ℓ-max ℓ` oℓ`) ℓ)
- -- -- --  InferIneqInfo = ∀ n → (Vec (Σ _ VarIneqInfo) n) → ∀ u → IneqInfo n u
-
- -- -- -- module MonomialIneqInfo = IneqInfo (λ {n} x → fromJust-def 1r` ∘ evMonomial {n = n} x)
- -- -- -- module PolyTermIneqInfo = IneqInfo evPolynomialTerm
- -- -- -- module PolyIneqInfo = IneqInfo evPolynomial
-
- 
- 
- -- -- -- monomialIneqInfo : MonomialIneqInfo.InferIneqInfo
- -- -- -- monomialIneqInfo = h
- -- -- --  where
- -- -- --   open MonomialIneqInfo
- -- -- --   h : InferIneqInfo
- -- -- --   h = {!!}
- -- -- --   -- n [] [] = noInfo
- -- -- --   -- h n ((x , Pre.noInfo) ∷ []) (x₂ ∷ []) = noInfo
- -- -- --   -- h n ((x , Pre.isPositive x₁) ∷ []) (x₂ ∷ []) = {!!}
- -- -- --   -- h n ((x , Pre.isNonNeg x₁) ∷ []) (x₂ ∷ []) = {!!}
- -- -- --   -- h n ((x , Pre.isNonZero x₁) ∷ []) (x₂ ∷ []) = {!!}
- -- -- --   -- h (suc zero) ((fst₁ , Pre.isZero x) ∷ x₁) (x₂ ∷ []) = {!!}
- -- -- --   -- h n (x ∷ x₁ ∷ x₃) (x₂ ∷ x₄ ∷ u) = {!!}
-
-
- -- -- -- pTermIneqInfo : PolyTermIneqInfo.InferIneqInfo
- -- -- -- pTermIneqInfo = h
- -- -- --  where
- -- -- --   open PolyTermIneqInfo
- -- -- --   h : InferIneqInfo
- -- -- --   h n x (fst₁ , snd₁) = {!!}
-
-
- -- -- -- pIneqInfo : PolyIneqInfo.InferIneqInfo
- -- -- -- pIneqInfo = h
- -- -- --  where
-
- -- -- --   open PolyIneqInfo
-   
- -- -- --   fromPTermII : ∀ n u → PolyTermIneqInfo.IneqInfo n u → IneqInfo n [ u ]
- -- -- --   fromPTermII n u Pre.noInfo = noInfo
- -- -- --   fromPTermII n u (Pre.isPositive x) = isPositive x
- -- -- --   fromPTermII n u (Pre.isNonNeg x) = isNonNeg x
- -- -- --   fromPTermII n u (Pre.isNonZero x) = isNonZero x
- -- -- --   fromPTermII n u (Pre.isZero x) = isZero x
-
- -- -- --   h : InferIneqInfo
- -- -- --   h n x [] = isZero λ _ → refl
- -- -- --   h n x (x₁ ∷ u) =
- -- -- --    let aa = fromPTermII n _ (pTermIneqInfo n x x₁)
- -- -- --        bb = h n x u
- -- -- --    in {!!}
-
-
- -- -- -- -- monomialIneqInfo zero [] [] = MonomialIneqInfo.noInfo
- -- -- -- -- monomialIneqInfo (suc n) ((fst₁ , snd₁) ∷ []) (x₂ ∷ []) = {!!}
- -- -- -- -- monomialIneqInfo (suc n) (x ∷ x₁ ∷ x₃) (x₂ ∷ x₄ ∷ u) = {!!}
- 
-
-
+  mkInequalityProof n z e₀ e₁ xs prf k = (inequality z e₀ e₁ , k) , prf

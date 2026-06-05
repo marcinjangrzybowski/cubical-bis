@@ -30,14 +30,10 @@ open import Cubical.Data.Int.Fast
 
 open import Cubical.Relation.Binary
 
-open import Cubical.Tactics.CommRingSolver.Reflection
-open import Cubical.Tactics.CommRingSolver.OrderedSolver
 open import Cubical.Tactics.CommRingSolver.OrderedReflection
 
--- import Cubical.Tactics.CommRingSolver.Specialised.Rationals as ℚ
 import Cubical.Data.Rationals as ℚ
 import Cubical.Data.Rationals.Order as ℚ
--- import Cubical.Data.Rationals.Order.Properties as ℚ
 
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals as ℚ
 module ℚ₊ = PositiveRationals 
@@ -49,7 +45,6 @@ module ℚ₊ = PositiveRationals
 
 
 
--- open OrderedCommRingSolver ocrscℤ
 
 bb : ℚ.ℚ → ℚ.ℚ
 bb a = a ℚ.+ a
@@ -72,12 +67,6 @@ module RatExamples where
           (d≤e : d ℚ.≤ e) 
           (0≤e : 0 ℚ.≤ e)
           (0≤d : 0 ℚ.≤ d)
-          -- (zz : 0 ℚ.< a₊ .fst)
-          -- (a₀₊ : Σ _ (0 ℚ.≤_))
-          -- (u : 0 ℚ.< fst a₊)
-          -- (f : d ℚ.< a)
-          -- (g : d ℚ.< b)
-          -- (_ : c ℚ.< c)
           where
  
   _ : 1 ℚ.· (2 ℚ.· b ℚ.+ ℚ.[ (1 , 1) ] ℚ.· c) ℚ.+ 3 ℚ.· d ℚ.< (2 ℚ.· a ℚ.+ c) ℚ.+ (fst a₊) ℚ.+ 5 ℚ.· e
@@ -87,6 +76,15 @@ module RatExamples where
   _ : 1 ℚ.· (2 ℚ.· b ℚ.+ ℚ.[ (1 , 1) ] ℚ.· c) ℚ.+ 3 ℚ.· d ℚ.< (2 ℚ.· a ℚ.+ c) ℚ.+ (fst (fst a₊')) ℚ.+ 5 ℚ.· e
   _ = <≤ℚ![ b<a ][ d≤e ]
 
+  _ : 2 ℚ.· b ℚ.+ d ℚ.< 2 ℚ.· a ℚ.+ e ℚ.+ fst a₊
+  _ = <≤ℚ![ b<a ][ d≤e ]
+
+  _ : d ℚ.+ 2 ℚ.· b ℚ.≤ e ℚ.+ 2 ℚ.· a
+  _ = <≤ℚ![ b<a ][ d≤e ]
+
+  _ : 0 ℚ.≤ d ℚ.+ e
+  _ = <≤ℚ![ 0≤d ][ 0≤e ]
+
 
  module  TestFromClosensess (ε θ δ : ℚ₊.ℚ₊) (δ<θ : fst δ ℚ.< fst θ) where
  
@@ -94,319 +92,131 @@ module RatExamples where
   η = [ θ -₊ δ ]⟨ δ<θ ⟩
   
   test1 : 0 ℚ.< (ε +₊ θ) -₊ (η /4₊ +₊ ε)
-      -- η = [ θ -₊ δ ]⟨ δ<θ ⟩ ; 3η/4 = η /4₊ +₊ (η /4₊ +₊ η /4₊)
-      -- 4η/4 = (η /4₊ +₊ η /4₊) +₊ (η /4₊ +₊ η /4₊)
 
-      -- Δ : 0 <ℚ (ε +₊ θ) -₊ (η /4₊ +₊ ε)
-      -- Δ = {!!}
   test1 = <≤ℚ!
+
+
+ module SimpleAssumptionExamples (a b c d : ℚ.ℚ)
+                                (a≤b : a ℚ.≤ b)
+                                (b<c : b ℚ.< c)
+                                (0≤d : 0 ℚ.≤ d) where
+
+  _ : a ℚ.+ a ℚ.≤ b ℚ.+ b
+  _ = <≤ℚ![ a≤b ]
+
+  _ : a ℚ.+ d ℚ.≤ b ℚ.+ d
+  _ = <≤ℚ![ a≤b ]
+
+  _ : a ℚ.+ b ℚ.< c ℚ.+ b
+  _ = <≤ℚ![ a≤b ][ b<c ]
+
+  explicit≤ : a ℚ.+ d ℚ.≤ b ℚ.+ d
+  explicit≤ = <≤ℚ![ a≤b ]
+
+  explicit< : a ℚ.+ d ℚ.< c ℚ.+ d
+  explicit< = <≤ℚ![ a≤b ][ b<c ]
+
+  strictAndNonStrict : a ℚ.+ b ℚ.+ d ℚ.< c ℚ.+ b ℚ.+ d
+  strictAndNonStrict = <≤ℚ![ a≤b ][ b<c ]
+
+
+ module PositiveSlackExamples (ε : ℚ₊.ℚ₊)
+                              (a b d : ℚ.ℚ)
+                              (a≤b : a ℚ.≤ b)
+                              (0≤d : 0 ℚ.≤ d) where
+
+  _ : a ℚ.< b ℚ.+ fst ε
+  _ = <≤ℚ![ a≤b ]
+
+  _ : a ℚ.+ d ℚ.< b ℚ.+ d ℚ.+ fst ε
+  _ = <≤ℚ![ a≤b ]
   
 
--- --   -- _ : 0 ℚ.<  fst a₊
--- -- --   -- _ =  <≤ℚ![ b<a ]
 
--- -- -- -- -- -- module _ (a₊ : Σ _ (0 <_))
--- -- -- -- -- --          (a b c d e : ℤ)
--- -- -- -- -- --          (_ : 0 < a)
--- -- -- -- -- --          (_ : 0 ≤ a)
--- -- -- -- -- --          (a₀₊ : Σ _ (0 ≤_))
--- -- -- -- -- --          (u : d ≤ a)
--- -- -- -- -- --          (f : d < a)
--- -- -- -- -- --          (g : d < b)
--- -- -- -- -- --          (_ : c < c)
--- -- -- -- -- --          where
--- -- -- -- -- --  _ : Unit
--- -- -- -- -- --  _ = {!ineqsInCtx!}
 
 
 
--- -- module _ (w : String → ℤ)
--- --          (w₊ : String → Σ ℤ (0 <_)) (w₀₊ : String → ℤ) (wx₊ wy₊ : Σ ℤ (0 <_)) where
 
--- --  -- _ : Unit
--- --  -- _ = {!ineqsInCtx!}
 
 
--- --  t0 :  2 + 3 · w "y" ≤ (w "x" · w "x") + 3 · w "y" + 4
--- --  t0 = <≤ℤ!
 
 
--- --  t1 : 2 · w "y" < fst (wx₊) + 2 · w "y" + 3
--- --  t1 = <≤ℤ!
 
 
 
 
 
 
--- --  module V1 (0≤wx : 0 ≤ (w "x")) where
--- --   t2 : 2 · w "y" < (w "x") + 2 · w "y" + 3 + w "a" - w "a"
--- --   t2 = <≤ℤ!
 
 
--- --  module V2 (_ : 0 ≤ (w "x")) uu uuu (uu<uuu : uu < uuu) where
--- --   t2 : 2 · w "y" + uu < (w "x") + 2 · w "y" + 3 + uuu
--- --   t2 = <≤ℤ![ uu<uuu ]
 
 
--- --  module V3 (_ : 0 ≤ (w "x")) uu' uuu' (uu'<uuu' : uu' < uuu') uu uuu (uu<uuu : uu < uuu) where
--- --   t2 : 2 · w "y" + uu + 2 · uu' < uuu + 2 · uuu'  + (w "x") + 2 · w "y" + 3
--- --   t2 = <≤ℤ![ uu<uuu ][ uu'<uuu' ↘ uu' ]
 
 
--- -- -- -- -- -- --  -- t3 : 2 · w "y" < fst (w₊ "x") + 2 · w "y" + 3
--- -- -- -- -- -- --  -- t3 = <≤!
 
 
--- -- --  module _ (x<y : w "x" < w "y") (w<0 : (w "ww") < 0 ) where
--- -- -- --  --  -- _ : Unit
--- -- -- --  --  -- _ = {!ineqsInCtx!}
 
 
--- -- --   t4 : 3 · (fst (wx₊))  <  w "u" · fst (wy₊) · (w "y" · w "u" - w "u" · w "x") + 3 · (fst (wx₊))
--- -- --         - ((w "ww") · (w "ww") · (w "ww")) + w "a" - w "a"
--- -- --   t4 = <≤ℤ![ x<y ][ w<0 ]
 
--- -- -- -- -- -- -- -- -- -- -- -- -- private
--- -- -- -- -- -- -- -- -- -- -- -- --   variable
--- -- -- -- -- -- -- -- -- -- -- -- --     ℓ ℓ' : Level
 
 
 
--- -- -- -- -- -- -- -- -- -- -- -- -- module TestErrors (R : CommRing ℓ) where
--- -- -- -- -- -- -- -- -- -- -- -- --   open CommRingStr (snd R)
 
--- -- -- -- -- -- -- -- -- -- -- -- --   {-
--- -- -- -- -- -- -- -- -- -- -- -- --     The following should give an type checking error,
--- -- -- -- -- -- -- -- -- -- -- -- --     making the user aware that the problem is, that 'Type₀'
--- -- -- -- -- -- -- -- -- -- -- -- --     is not a CommRing.
--- -- -- -- -- -- -- -- -- -- -- -- --   -}
--- -- -- -- -- -- -- -- -- -- -- -- --   {-
--- -- -- -- -- -- -- -- -- -- -- -- --   _ : 0r ≡ 0r
--- -- -- -- -- -- -- -- -- -- -- -- --   _ = solve Type₀
--- -- -- -- -- -- -- -- -- -- -- -- --   -}
 
--- -- -- -- -- -- -- -- -- -- -- -- -- module TestWithℤ where
--- -- -- -- -- -- -- -- -- -- -- -- --   open CommRingStr (ℤCommRing .snd)
 
--- -- -- -- -- -- -- -- -- -- -- -- -- {-
--- -- -- -- -- -- -- -- -- -- -- -- --   the following is not possible yet: the ring solver normalises the goal
--- -- -- -- -- -- -- -- -- -- -- -- --   and expands some of the definitions of the operations. A possible fix could be
--- -- -- -- -- -- -- -- -- -- -- -- --   to not normalize - but then one has to (at least) translate every use of a binary
--- -- -- -- -- -- -- -- -- -- -- -- --   minus. (#1101)
 
--- -- -- -- -- -- -- -- -- -- -- -- --   ex13 : (x y : ℤ) → (x · y) · 1r ≡ 1r · (y · x)
--- -- -- -- -- -- -- -- -- -- -- -- --   ex13 x y = solve! ℤCommRing
 
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -}
--- -- -- -- -- -- -- -- -- -- -- -- --   open CommRingSolverMacros
 
--- -- -- -- -- -- -- -- -- -- -- -- --   ex0 : (a b : fst ℤCommRing) → a + b ≡ b + a
--- -- -- -- -- -- -- -- -- -- -- -- --   ex0 a b = solve! ℤCommRing
 
 
 
--- -- -- -- -- -- -- -- -- -- -- -- -- module Test0 (R : CommRing ℓ) where
--- -- -- -- -- -- -- -- -- -- -- -- --   open CommRingStr (snd R)
--- -- -- -- -- -- -- -- -- -- -- -- --   open RingTheory (CommRing→Ring R) using () renaming (fromℤ to scalar)
 
--- -- -- -- -- -- -- -- -- -- -- -- --   open SolveOverℤ.Generic R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   relTrans : BinaryRelation.isTrans {A = ((fst R) × (Σ[ b ∈ (fst R) ] (b ≡ 0r → ⊥)))}
--- -- -- -- -- -- -- -- -- -- -- -- --                λ  (a , (b , _)) (c , (d , _)) → a · d ≡ c · b
--- -- -- -- -- -- -- -- -- -- -- -- --   relTrans (a , (b , _)) (a' , (b' , b'≢0)) (a'' , (b'' , _)) p q =
--- -- -- -- -- -- -- -- -- -- -- -- --     {!!}
--- -- -- -- -- -- -- -- -- -- -- -- --    where
--- -- -- -- -- -- -- -- -- -- -- -- --     u : b' · (- (a · b'') + b · a'') ≡ 0r
--- -- -- -- -- -- -- -- -- -- -- -- --     u = eliminate! a' p q []
 
 
--- -- -- -- -- -- -- -- -- -- -- -- module Test0intDom (R : CommRing ℓ) (isIntDom : _) where
--- -- -- -- -- -- -- -- -- -- -- --   open CommRingStr (snd R)
--- -- -- -- -- -- -- -- -- -- -- --   open RingTheory (CommRing→Ring R) renaming (fromℤ to scalar)
 
--- -- -- -- -- -- -- -- -- -- -- --   open SolveOverℤ.Reasonable R isIntDom
 
--- -- -- -- -- -- -- -- -- -- -- --   relTrans : BinaryRelation.isTrans {A = ((fst R) × (Σ[ b ∈ (fst R) ] (b ≡ 0r → ⊥)))}
--- -- -- -- -- -- -- -- -- -- -- --                λ  (a , (b , _)) (c , (d , _)) → a · d ≡ c · b
--- -- -- -- -- -- -- -- -- -- -- --   relTrans (a , (b , _)) (a' , (b' , b'≢0)) (a'' , (b'' , _)) p q =
--- -- -- -- -- -- -- -- -- -- -- --     sym (equalByDifference _ _ (solve! ∙ w))
--- -- -- -- -- -- -- -- -- -- -- --    where
--- -- -- -- -- -- -- -- -- -- -- --     w : - (a · b'') + b · a'' ≡ 0r
--- -- -- -- -- -- -- -- -- -- -- --     w = eliminate! a' p q P[ b'≢0 ]
--- -- -- -- -- -- -- -- -- -- -- -- -- module Test (R : CommRing ℓ) (x y z w v : fst R) where
--- -- -- -- -- -- -- -- -- -- -- -- --   open CommRingStr (snd R)
--- -- -- -- -- -- -- -- -- -- -- -- --   open RingTheory (CommRing→Ring R) using () renaming (fromℤ to scalar ; fromℕ to ⟨_⟩ₙ)
--- -- -- -- -- -- -- -- -- -- -- -- --   open Exponentiation R using (_^_)
 
--- -- -- -- -- -- -- -- -- -- -- -- --   open SolveOverℤ.Generic
 
--- -- -- -- -- -- -- -- -- -- -- -- --   _ : 0r ≡ 0r
--- -- -- -- -- -- -- -- -- -- -- -- --   _ = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   _ : 1r ≡ 1r
--- -- -- -- -- -- -- -- -- -- -- -- --   _ = solve! R
 
 
--- -- -- -- -- -- -- -- -- -- -- -- --   _ :   1r · (1r + 0r)
--- -- -- -- -- -- -- -- -- -- -- -- --       ≡ (1r · 0r) + 1r
--- -- -- -- -- -- -- -- -- -- -- -- --   _ = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   _ :   1r · 0r + (1r - 1r)
--- -- -- -- -- -- -- -- -- -- -- -- --       ≡ 0r - 0r
--- -- -- -- -- -- -- -- -- -- -- -- --   _ = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   ex1 : x ≡ x
--- -- -- -- -- -- -- -- -- -- -- -- --   ex1 = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   ex2 : (0r - 1r) · x ≡ 0r - x
--- -- -- -- -- -- -- -- -- -- -- -- --   ex2 = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   ex3 : x + y ≡ y + x
--- -- -- -- -- -- -- -- -- -- -- -- --   ex3 = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   ex4 : y ≡ (y - x) + x
--- -- -- -- -- -- -- -- -- -- -- -- --   ex4 = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   -- xHole : fst R
--- -- -- -- -- -- -- -- -- -- -- -- --   -- xHole = {!!}
 
--- -- -- -- -- -- -- -- -- -- -- -- --   ex5 : x ≡ (x - y) + y
--- -- -- -- -- -- -- -- -- -- -- -- --   ex5 = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   ex6 : (x + y) · (x - y) ≡ x · x - y · y
--- -- -- -- -- -- -- -- -- -- -- -- --   ex6 = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   -- module RelTest where
--- -- -- -- -- -- -- -- -- -- -- -- --   --  relTest :  (fst R) × (fst R) → (fst R) × (fst R) → Type ℓ
--- -- -- -- -- -- -- -- -- -- -- -- --   --  relTest (a , b) (c , d) = a · d ≡ c · b
 
--- -- -- -- -- -- -- -- -- -- -- -- --   --  relTrans : BinaryRelation.isTrans relTest
--- -- -- -- -- -- -- -- -- -- -- -- --   --  relTrans (a , b) (a' , b') (a'' , b'') p q =
--- -- -- -- -- -- -- -- -- -- -- -- --   --    {!!}
--- -- -- -- -- -- -- -- -- -- -- -- --   --   where
--- -- -- -- -- -- -- -- -- -- -- -- --   --    u : b' · (- (a · b'') + b · a'') ≡ 0r
--- -- -- -- -- -- -- -- -- -- -- -- --   --    u = eliminate! R a' p q []
 
 
--- -- -- -- -- -- -- -- -- -- -- -- --   ex7 : (x + y) · (x + y) · (x + y) · (x + y)
--- -- -- -- -- -- -- -- -- -- -- -- --                 ≡ x · x · x · x + (scalar 4) · x · x · x · y + (scalar 6) · x · x · y · y
--- -- -- -- -- -- -- -- -- -- -- -- --                   + (scalar 4) · x · y · y · y + y · y · y · y
--- -- -- -- -- -- -- -- -- -- -- -- --   ex7 = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   module _ (p : _)
--- -- -- -- -- -- -- -- -- -- -- -- --            (p1 : _) where
--- -- -- -- -- -- -- -- -- -- -- -- --    ex7' : v + z · x + y + w · x + (- w) + v ≡ (scalar 2 · v) + x + y + x + scalar 2
--- -- -- -- -- -- -- -- -- -- -- -- --    ex7' =
--- -- -- -- -- -- -- -- -- -- -- -- --     ring! R (v ∷ y ∷ x ∷ [])
--- -- -- -- -- -- -- -- -- -- -- -- --        (p ∷ P[ p1 ])
 
--- -- -- -- -- -- -- -- -- -- -- -- --   exNorm0 : (x + y + y + x - y  + scalar 5  -  x + (- scalar 1)) · x · (scalar 3) ≡
--- -- -- -- -- -- -- -- -- -- -- -- --             (⟨ 3 ⟩ₙ · x · (⟨ 4 ⟩ₙ + y + x))
--- -- -- -- -- -- -- -- -- -- -- -- --   exNorm0 = normalize! R
 
 
--- -- -- -- -- -- -- -- -- -- -- -- --   exNorm : (x + y) · ((x + x) - y - y) + scalar 5 + (- scalar 1) ≡
--- -- -- -- -- -- -- -- -- -- -- -- --             (⟨ 2 ⟩ₙ · (⟨ 2 ⟩ₙ + x ^ 2 - y ^ 2))
--- -- -- -- -- -- -- -- -- -- -- -- --   exNorm = normalize! R
 
 
--- -- -- -- -- -- -- -- -- -- -- -- --   exNorm2 : v + z · x + y + w · x + (- w) + v + (scalar 2 · v) + x + y + x + scalar 2 ≡
--- -- -- -- -- -- -- -- -- -- -- -- --              (⟨ 2 ⟩ₙ - w + ⟨ 4 ⟩ₙ · v + ⟨ 2 ⟩ₙ · y + ⟨ 2 ⟩ₙ · x + z · x + w · x)
--- -- -- -- -- -- -- -- -- -- -- -- --   exNorm2 = normalize! R
 
 
--- -- -- -- -- -- -- -- -- -- -- -- --   exNorm3 : - (y + z) + ( - y - z)  - x - x · ⟨ 3 ⟩ₙ ≡
--- -- -- -- -- -- -- -- -- -- -- -- --                (- ⟨ 2 ⟩ₙ · (y + z + ⟨ 2 ⟩ₙ · x))
--- -- -- -- -- -- -- -- -- -- -- -- --   exNorm3 = normalize! R
 
 
--- -- -- -- -- -- -- -- -- -- -- -- --   -- exNorm : (x + y) · (x - y) + scalar 2 + (- scalar 1) ≡ (1r + x ^ 2 - y ^ 2)
--- -- -- -- -- -- -- -- -- -- -- -- --   -- exNorm = normalize! R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   -- exNorm2 : v + z · x + y + w · x + (- w) + v + (scalar 2 · v) + x + y + x + scalar 2 ≡
--- -- -- -- -- -- -- -- -- -- -- -- --   --            (⟨ 2 ⟩ₙ - w + ⟨ 4 ⟩ₙ · v + ⟨ 2 ⟩ₙ · y + ⟨ 2 ⟩ₙ · x + z · x + w · x)
--- -- -- -- -- -- -- -- -- -- -- -- --   -- exNorm2 = normalize! R
 
--- -- -- -- -- -- -- -- -- -- -- -- --   -- exNorm3 : - y - z - x - x ≡ ?
--- -- -- -- -- -- -- -- -- -- -- -- --   -- exNorm3 = normalize! R
 
 
--- -- -- -- -- -- -- -- -- -- -- -- -- --   module SolveForExamples
--- -- -- -- -- -- -- -- -- -- -- -- -- --     (eq1 : ( y · y + v + z · x + w · x + (- w) + v + (scalar 2 · v) ≡ - (y · y) - x  - x - scalar 2))
--- -- -- -- -- -- -- -- -- -- -- -- -- --     (eq2 :  y + (x · x · x)  ≡ scalar 2)
--- -- -- -- -- -- -- -- -- -- -- -- -- --     (eq3 : ( y · scalar 2 · y · v + v + z · x + w · x + (- w) + v + (scalar 2 · v) ≡ - (y · w · y · scalar 4) · v - x  - x - scalar 2))
--- -- -- -- -- -- -- -- -- -- -- -- -- --          where
 
--- -- -- -- -- -- -- -- -- -- -- -- -- --     solveForEx : ⟨ 2 ⟩ₙ · y ^ 2 ≡
--- -- -- -- -- -- -- -- -- -- -- -- -- --                   - ⟨ 2 ⟩ₙ + w - ⟨ 4 ⟩ₙ · v - ⟨ 2 ⟩ₙ · x - z · x - w · x
--- -- -- -- -- -- -- -- -- -- -- -- -- --     solveForEx = solveFor! R y eq1
 
--- -- -- -- -- -- -- -- -- -- -- -- -- --     solveForEx2 : y ≡ ⟨ 2 ⟩ₙ - x ^ 3
--- -- -- -- -- -- -- -- -- -- -- -- -- --     solveForEx2 = solveFor! R y eq2
 
--- -- -- -- -- -- -- -- -- -- -- -- -- --     solveForEx3 : ⟨ 2 ⟩ₙ · v · (⟨ 1 ⟩ₙ + ⟨ 2 ⟩ₙ · w) · y ^ 2 ≡
--- -- -- -- -- -- -- -- -- -- -- -- -- --                    - ⟨ 2 ⟩ₙ + w - ⟨ 4 ⟩ₙ · v - ⟨ 2 ⟩ₙ · x - z · x - w · x
--- -- -- -- -- -- -- -- -- -- -- -- -- --     solveForEx3 = solveFor! R y eq3
 
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   {-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --     Examples that used to fail (see #513):
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   -}
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   ex8 : x · 0r ≡ 0r
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   ex8 = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   ex9 : x · (y - z) ≡ x · y - x · z
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   ex9 = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   {-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --     The solver should also deal with non-trivial terms in equations.
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --     In the following example, such a term is given by "f x".
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   -}
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   pow : ℕ → fst R → fst R
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   pow (suc n) x = x · (pow n x)
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   pow (zero) x = 1r
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   module _ (f : fst R → fst R) (n : ℕ) where
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --     ex10 : (x : (fst R)) → (pow n x) + 0r ≡ (pow n x)
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --     ex10 x = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --     ex11 : (x : (fst R)) → (f x) + 0r ≡ (f x)
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --     ex11 x = solve! R
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- module _ (R : CommRing ℓ) (A : CommAlgebra R ℓ') where
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   open CommRingStr ⦃...⦄
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   private
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --     instance
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --       _ : CommRingStr ⟨ A ⟩ₐ
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --       _ = (A .fst .snd)
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   {-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --     The ring solver should also be able to deal with more complicated arguments
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --     and operations with that are not given as the exact names in CommRingStr.
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   -}
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   ex12 : (x y : ⟨ A ⟩ₐ) → x + y ≡ y + x
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --   ex12 x y = solve! (CommAlgebra→CommRing A)
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- module TestInPlaceSolving (R : CommRing ℓ) where
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --    open CommRingStr (snd R)
-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --    testWithOneVariabl : (x : fst R) → x + 0r ≡ 0r + x
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --    testWithOneVariabl x = solve! R
-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --    testWithTwoVariables :  (x y : fst R) → x + y ≡ y + x
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --    testWithTwoVariables x y =
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --      x + y                      ≡⟨ solve! R ⟩
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --      y + x ∎
-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --    testEquationalReasoning : (x : fst R) → x + 0r ≡ 0r + x
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --    testEquationalReasoning x =
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --      x + 0r                       ≡⟨ solve! R ⟩
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --      0r + x ∎
-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --    testEquationalReasoning' : (x : fst R) (p : 0r + x ≡ 1r) → x + 0r ≡ 1r
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --    testEquationalReasoning' x p =
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --      x + 0r              ≡⟨ solve! R ⟩
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --      0r + x              ≡⟨ p ⟩
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --      1r ∎

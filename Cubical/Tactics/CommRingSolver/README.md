@@ -21,5 +21,8 @@ There are three parts of the appraoch to prove x=y:
 
 To see how the ring solver might be used, check out `Examples.agda`.
 
+For a more detailed explanation of the current solver architecture and proof
+pipeline, see `SolverOverview.md`.
+
 There is another version of the solver, for natural numbers instead of commutatitive rings, in `Cubical/Algebra/NatSolver`.
 To understand how both solvers work, it is probably good to have a look at `Cubical/Algebra/NatSolver/Examples.agda`.

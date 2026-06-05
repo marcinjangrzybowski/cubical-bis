@@ -16,86 +16,57 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 open BinaryRelation
 
-open import Agda.Builtin.String
+
+-- ℚ as a set quotient of ℤ × ℕ₊₁ (as in the HoTT book)
+
+_∼_ : ℤ × ℕ₊₁ → ℤ × ℕ₊₁ → Type₀
+(a , b) ∼ (c , d) = a · ℕ₊₁→ℤ d ≡ c · ℕ₊₁→ℤ b
+
+ℚ : Type₀
+ℚ = (ℤ × ℕ₊₁) // _∼_
 
 
+isSetℚ : isSet ℚ
+isSetℚ = SetQuotient.squash/
 
-record Person (S : Type) : Type where
- field
-  firstName : S
-  sndName : S
-  age : ℕ.ℕ
-
-
-marcin : Person String
-marcin .Person.firstName = "Marcin"
-marcin .Person.sndName = "Turek-Grzybowski"
-marcin .Person.age = 39
+[_/_] : ℤ → ℕ₊₁ → ℚ
+[ a / b ] = [ a , b ]
 
 
-fare : Person String
-fare .Person.firstName = "francois"
-fare .Person.sndName = "rideau"
-fare .Person.age = 52
+-- TODO : use solver here, make proof opaque
+isEquivRel∼ : isEquivRel _∼_
+isEquivRel.reflexive isEquivRel∼ (a , b) = refl
+isEquivRel.symmetric isEquivRel∼ (a , b) (c , d) = sym
+isEquivRel.transitive isEquivRel∼ (a , b) (c , d) (e , f) p q = ·rCancel _ _ (e · pos (ℕ.suc (ℕ₊₁.n b))) r (ℕ.snotz ∘ injPos)
+  where r = (a · ℕ₊₁→ℤ f) · ℕ₊₁→ℤ d ≡[ i ]⟨ ·Comm a (ℕ₊₁→ℤ f) i · ℕ₊₁→ℤ d ⟩
+            (ℕ₊₁→ℤ f · a) · ℕ₊₁→ℤ d ≡⟨ sym (·Assoc (ℕ₊₁→ℤ f) a (ℕ₊₁→ℤ d)) ⟩
+            ℕ₊₁→ℤ f · (a · ℕ₊₁→ℤ d) ≡[ i ]⟨ ℕ₊₁→ℤ f · p i ⟩
+            ℕ₊₁→ℤ f · (c · ℕ₊₁→ℤ b) ≡⟨ ·Assoc (ℕ₊₁→ℤ f) c (ℕ₊₁→ℤ b) ⟩
+            (ℕ₊₁→ℤ f · c) · ℕ₊₁→ℤ b ≡[ i ]⟨ ·Comm (ℕ₊₁→ℤ f) c i · ℕ₊₁→ℤ b ⟩
+            (c · ℕ₊₁→ℤ f) · ℕ₊₁→ℤ b ≡[ i ]⟨ q i · ℕ₊₁→ℤ b ⟩
+            (e · ℕ₊₁→ℤ d) · ℕ₊₁→ℤ b ≡⟨ sym (·Assoc e (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b)) ⟩
+            e · (ℕ₊₁→ℤ d · ℕ₊₁→ℤ b) ≡[ i ]⟨ e · ·Comm (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b) i ⟩
+            e · (ℕ₊₁→ℤ b · ℕ₊₁→ℤ d) ≡⟨ ·Assoc e (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ d) ⟩
+            (e · ℕ₊₁→ℤ b) · ℕ₊₁→ℤ d ∎
 
-module StalowaWola where
+eq/⁻¹ : ∀ x y → Path ℚ [ x ] [ y ] → x ∼ y
+eq/⁻¹ = SetQuotient.effective (λ _ _ → isSetℤ _ _) isEquivRel∼
 
- module M = Person marcin
- module F = Person fare
+eqℚ : ∀ {k m k' m'} → (k , 1+ m) ∼ (k' , 1+ m') → [ k / 1+ m ] ≡ [ k' / 1+ m' ]
+eqℚ = eq/ _ _
 
- _ : ℕ.ℕ
- _ = {!F.age!}
-
--- -- ℚ as a set quotient of ℤ × ℕ₊₁ (as in the HoTT book)
-
--- _∼_ : ℤ × ℕ₊₁ → ℤ × ℕ₊₁ → Type₀
--- (a , b) ∼ (c , d) = a · ℕ₊₁→ℤ d ≡ c · ℕ₊₁→ℤ b
-
--- ℚ : Type₀
--- ℚ = (ℤ × ℕ₊₁) // _∼_
-
-
--- isSetℚ : isSet ℚ
--- isSetℚ = SetQuotient.squash/
-
--- [_/_] : ℤ → ℕ₊₁ → ℚ
--- [ a / b ] = [ a , b ]
+discreteℚ : Discrete ℚ
+discreteℚ = discreteSetQuotients isEquivRel∼ (λ _ _ → discreteℤ _ _)
 
 
--- -- TODO : use solver here, make proof opaque
--- isEquivRel∼ : isEquivRel _∼_
--- isEquivRel.reflexive isEquivRel∼ (a , b) = refl
--- isEquivRel.symmetric isEquivRel∼ (a , b) (c , d) = sym
--- isEquivRel.transitive isEquivRel∼ (a , b) (c , d) (e , f) p q = ·rCancel _ _ (e · pos (ℕ.suc (ℕ₊₁.n b))) r (ℕ.snotz ∘ injPos)
---   where r = (a · ℕ₊₁→ℤ f) · ℕ₊₁→ℤ d ≡[ i ]⟨ ·Comm a (ℕ₊₁→ℤ f) i · ℕ₊₁→ℤ d ⟩
---             (ℕ₊₁→ℤ f · a) · ℕ₊₁→ℤ d ≡⟨ sym (·Assoc (ℕ₊₁→ℤ f) a (ℕ₊₁→ℤ d)) ⟩
---             ℕ₊₁→ℤ f · (a · ℕ₊₁→ℤ d) ≡[ i ]⟨ ℕ₊₁→ℤ f · p i ⟩
---             ℕ₊₁→ℤ f · (c · ℕ₊₁→ℤ b) ≡⟨ ·Assoc (ℕ₊₁→ℤ f) c (ℕ₊₁→ℤ b) ⟩
---             (ℕ₊₁→ℤ f · c) · ℕ₊₁→ℤ b ≡[ i ]⟨ ·Comm (ℕ₊₁→ℤ f) c i · ℕ₊₁→ℤ b ⟩
---             (c · ℕ₊₁→ℤ f) · ℕ₊₁→ℤ b ≡[ i ]⟨ q i · ℕ₊₁→ℤ b ⟩
---             (e · ℕ₊₁→ℤ d) · ℕ₊₁→ℤ b ≡⟨ sym (·Assoc e (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b)) ⟩
---             e · (ℕ₊₁→ℤ d · ℕ₊₁→ℤ b) ≡[ i ]⟨ e · ·Comm (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b) i ⟩
---             e · (ℕ₊₁→ℤ b · ℕ₊₁→ℤ d) ≡⟨ ·Assoc e (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ d) ⟩
---             (e · ℕ₊₁→ℤ b) · ℕ₊₁→ℤ d ∎
+-- Natural number and negative integer literals for ℚ
 
--- eq/⁻¹ : ∀ x y → Path ℚ [ x ] [ y ] → x ∼ y
--- eq/⁻¹ = SetQuotient.effective (λ _ _ → isSetℤ _ _) isEquivRel∼
+open import Cubical.Data.Nat.Literals public
 
--- eqℚ : ∀ {k m k' m'} → (k , 1+ m) ∼ (k' , 1+ m') → [ k / 1+ m ] ≡ [ k' / 1+ m' ]
--- eqℚ = eq/ _ _
+instance
+  fromNatℚ : HasFromNat ℚ
+  fromNatℚ = record { Constraint = λ _ → Unit ; fromNat = λ n → [ pos n / 1 ] }
 
--- discreteℚ : Discrete ℚ
--- discreteℚ = discreteSetQuotients isEquivRel∼ (λ _ _ → discreteℤ _ _)
-
-
--- -- Natural number and negative integer literals for ℚ
-
--- open import Cubical.Data.Nat.Literals public
-
--- instance
---   fromNatℚ : HasFromNat ℚ
---   fromNatℚ = record { Constraint = λ _ → Unit ; fromNat = λ n → [ pos n / 1 ] }
-
--- instance
---   fromNegℚ : HasFromNeg ℚ
---   fromNegℚ = record { Constraint = λ _ → Unit ; fromNeg = λ n → [ neg n / 1 ] }
+instance
+  fromNegℚ : HasFromNeg ℚ
+  fromNegℚ = record { Constraint = λ _ → Unit ; fromNeg = λ n → [ neg n / 1 ] }

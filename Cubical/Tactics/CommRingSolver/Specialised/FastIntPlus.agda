@@ -17,23 +17,19 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.List
 open import Cubical.Data.Nat.Literals
 
-open import Cubical.Data.Int as Slowℤ using (fromNegℤ; fromNatℤ)
-open import Cubical.Data.Nat using (ℕ; discreteℕ) renaming (_+_ to _+ℕ_)
+import Cubical.Data.Int as Slowℤ
+open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.NatPlusOne
 import Cubical.Data.Nat as ℕ
 open import Cubical.Data.Bool
-open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_)
 
 open import Cubical.Relation.Nullary.Base
 
 open import Cubical.Algebra.CommRing
 
-import Cubical.Algebra.CommRing.Properties as CommRingProperties
-import Cubical.Algebra.Ring.Properties as RingProperties
-
 open import Cubical.Tactics.CommRingSolver.AlgebraExpression
 
-open import Cubical.Tactics.CommRingSolver.Solver
+open import Cubical.Tactics.CommRingSolver.Solver.Core
 open import Cubical.Tactics.CommRingSolver.Config
 open import Cubical.Tactics.CommRingSolver.GenericCommRing
 open import Cubical.Reflection.Sugar
@@ -42,30 +38,14 @@ open import Cubical.Tactics.Reflection.Variables
 open import Cubical.Tactics.Reflection.Error
 open import Cubical.Tactics.Reflection.Utilities
 open import Cubical.Tactics.Reflection.Utilities using (quoteDefsfNames;ω[];_ω∷_) public
-open import Cubical.Tactics.Reflection.Goals
 
 open import Cubical.Data.Int using (ℤ;pos;negsuc)
 open import Cubical.Data.Int.Fast as Fastℤ hiding (_+'_)
 import Cubical.Data.Int.Fast.Order as ℤ
 import Cubical.Algebra.CommRing.Instances.Int.Fast as Fastℤ'
 
--- import Cubical.Data.Rationals as ℚ
--- import Cubical.Algebra.CommRing.Instances.Rationals as ℚ'
-import Cubical.HITs.SetQuotients as SetQuotient
-
-open import Cubical.Data.List.Dependent as DL using (_∷_ ; P[_] ; []) public
-import Cubical.Algebra.AbGroup.Base as AbGroup
-
-open import Cubical.Tactics.CommRingSolver.Config
 open import Cubical.Tactics.CommRingSolver.Reflection
 
--- module _ (k : ℕ₊₁) where
---  _ : Q[ pos (Fastℤ.abs (ℕ₊₁→ℤ k)) ]≡
---       con (quote pos)
---       v[ def (quote Fastℤ.abs) v[ def (quote ℕ₊₁→ℤ) v[ var 0 [] ] ] ]
---  _ = showQuotedN
---       (quoteDefsfNames (ℕ₊₁→ℤ ω∷ sign  ω∷ ω[]))
---        (pos (Fastℤ.abs (ℕ₊₁→ℤ k)))
 
 
 module FastℤPlusRingSolver where

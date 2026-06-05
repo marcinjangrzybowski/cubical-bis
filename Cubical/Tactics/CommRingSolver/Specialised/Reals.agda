@@ -8,8 +8,6 @@ open import Cubical.Reflection.Base
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Bool
-import Cubical.Data.FinData as FD
-import Cubical.Data.Vec as V
 open import Cubical.Data.Nat using (ℕ)
 import Cubical.Data.Nat as ℕ
 open import Cubical.Data.Maybe
@@ -33,14 +31,12 @@ open import Cubical.Tactics.Reflection.Utilities
 open import Cubical.Tactics.Reflection.Error
 
 open import Cubical.Tactics.CommRingSolver.Config
-open import Cubical.Tactics.CommRingSolver.Solver
+open import Cubical.Tactics.CommRingSolver.Solver.Core
 open import Cubical.Tactics.CommRingSolver.AlgebraExpression
 open import Cubical.Tactics.CommRingSolver.Reflection
 open import Cubical.Tactics.CommRingSolver.GenericCommRing
 
 open import Cubical.Data.NatPlusOne
-import Cubical.HITs.SetQuotients as SetQuotient
-
 
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 open PositiveRationals
@@ -54,11 +50,8 @@ open import Cubical.HITs.CauchyReals.Multiplication
 
 
 
--- open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
--- open import Cubical.Tactics.CommRingSolverFast.IntReflection
 open import Cubical.HITs.CauchyReals.LiftingExpr
 
--- open import Cubical.Tactics.CommRingSolverFast.RealsReflection
 
 open import Cubical.Algebra.CommRing
 
@@ -66,10 +59,7 @@ open import Cubical.Algebra.CommRing.Instances.Rationals
 
 open import Cubical.Data.Rationals as ℚ
 
-open import Cubical.Tactics.CommRingSolver.Reflection
 import Cubical.Tactics.CommRingSolver.Specialised.Rationals as Sℚ
-
-open import Cubical.Tactics.CommRingSolver.GenericCommRing
 
 rat-CommRingHom : IsCommRingHom (ℚCommRing .snd) rat (ℝcommRing .snd)
 rat-CommRingHom .IsCommRingHom.pres0 = refl

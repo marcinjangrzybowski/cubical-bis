@@ -8,8 +8,6 @@ open import Cubical.Reflection.Base
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Bool
-import Cubical.Data.FinData as FD
-import Cubical.Data.Vec as V
 open import Cubical.Data.Nat using (ℕ)
 import Cubical.Data.Nat as ℕ
 open import Cubical.Data.Maybe
@@ -40,13 +38,12 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 
 open import Cubical.Tactics.CommRingSolver.Config
-open import Cubical.Tactics.CommRingSolver.Solver
+open import Cubical.Tactics.CommRingSolver.Solver.Core
 open import Cubical.Tactics.CommRingSolver.AlgebraExpression
 open import Cubical.Tactics.CommRingSolver.Reflection
 open import Cubical.Tactics.CommRingSolver.GenericCommRing
 
 open import Cubical.Data.NatPlusOne
-import Cubical.HITs.SetQuotients as SetQuotient
 
 open import Cubical.Tactics.CommRingSolver.Specialised.FastIntPlus
 
@@ -70,11 +67,7 @@ _ : Q[ 1+ (ℕ.suc 3 ℕ.+ 12) ]≡ con (quote 1+_) v[ lit (nat 16) ]
 _ = showQuotedN [] (1+ ((ℕ.suc 3) ℕ.+ 12))
 
 
--- someℚ : ℚ
--- someℚ = [ -3 / 12 ]
 
--- someℚ' : ℚ
--- someℚ' = 1 + 0
 
 
 
@@ -153,7 +146,6 @@ abstractℚandℚ₊ : Term → TC (List (ℕ × ℚTypes) × Term)
 abstractℚandℚ₊ tm = do
 
   fv ← (zipWithIndex ∘ catMaybes) <$> (mapM mbℚVar (freeVars tm))
-  -- quoteTC fv >>= normalise >>= (typeError ∘ [_]ₑ)
   let N = length fv
   let tm' = remapVars (rmpV N fv) tm
   pure (rev (map snd fv) , absV fv tm')
@@ -191,7 +183,6 @@ wrdℕ : ∀ {a} {A : Type a} → TC A → TC A
 wrdℕ = withReduceDefs
    (false , (quote [_∺_] ∷ (quote ℕ._·_) ∷
     (quote ℕ._+_) ∷ (quote ℤ._+_) ∷ (quote (ℤ.-_)) ∷ (quote ℤ._·_) ∷ (quote _ℕ-_)
-     -- ∷ []))
      ∷ (quote _+₁_) ∷ (quote _·₊₁_) ∷ (quote ℕ₊₁→ℕ) ∷ (quote ℤ.ℕ₊₁→ℤ)
       ∷ (quote ℤ.0<→ℕ₊₁-fst) ∷ []))
 
@@ -246,15 +237,12 @@ module _ (dbg : Bool) where
       wrdℚ $ debugPrint' "ratSolver" 20 ("ℚLemType: " ∷nl [ lemType ]ₑ)
       when dbg do eqType ← wrdℚ $  normalise (def (quote LemType) (sigTm v∷ lrhs v∷ []))
                   wrdℚ $ debugPrint' "ratSolver" 20 ("ℚEqType: " ∷nl [ eqType ]ₑ)
-      -- lemType ← wrdℚ $  normalise (def (quote LemType) (sigTm v∷ lrhs v∷ []))
-      -- sharedHole ← wrdℚ $ checkType unknown lemType
 
       sbi ← atTargetLam lemType λ tgTy → do
         tgTy2 ← wrdℕ $ normalise tgTy >>= extractNMs
         debugPrint' "ratSolver" 20 [ tgTy2 ]ₑ
         wrdℚ $ debugPrint' "ratSolver" 20 ("ℤLemType: " ∷nl [ tgTy2 ]ₑ)
         h2 ← checkType unknown tgTy2
-        -- FastℤPlusRingSolver.solve!-macro h2 -- IPR.solve!-macro h2
         FastℤPlusRingSolver.solve!-macro h2
         debugPrint' "ratSolver" 20 [ "ints solved!" ]ₑ
         pure (def (quote ℚ.eqℚ) (h2 v∷ []))
@@ -263,8 +251,6 @@ module _ (dbg : Bool) where
                map (λ (i , _) → varg (var i []))  sigℚ)
       debugPrint' "ratSolver" 20 [ "pre unify checkpoint" ]ₑ
       unify hole solveℚTm
-      -- -- typeError [] --(termErr sharedHole ∷ [])
--- atTargetLam
 
 macro
   ℚ! : Term → TC _
@@ -274,22 +260,5 @@ macro
   ℚ!dbg = solve!!-macro true
 
 
--- -- private
--- --  module _ (zring : CommRing ℓ-zero) where
--- --   module ETNF = EqualityToNormalform ℚCommRing ℚCommRing
--- --                  (idCommRingHom _)
--- --   module ETNF≟ = ETNF.Decidable discreteℚ (λ _ → nothing) nothing nothing nothing
--- --           (just ℚ'.ℚCommRingIsNotZeroRing) (just (λ _ x → x))
--- -- macro
--- --   ℚ! : Term → TC _
--- --   ℚ! = CommRingSolver.solve!-macro ℚCommRing ℚCommRing nothing ℚMatcher
--- --       ((quote ℕ._·_) ∷ (quote ℕ._+_) ∷ (quote _+_) ∷ (quote (-_)) ∷ (quote _·_) ∷ [])
--- --       (quote ETNF.solveByDec) (quote ETNF≟.HF-Maybe-prf)
--- --       λ _ → pure true
 
 
-
--- module ℚ!!-tests where
-
---  test1 : 1 + 0 ≡ 1
---  test1  = ℚ!!

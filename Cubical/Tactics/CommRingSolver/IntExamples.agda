@@ -7,7 +7,7 @@ open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; _-_; -_)
 open import Cubical.Data.Nat using (ℕ; suc; zero)
 import Cubical.Data.Nat as ℕ
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Fast.Int
+open import Cubical.Algebra.CommRing.Instances.Int.Fast
 open import Cubical.Algebra.CommAlgebra
 
 open import Cubical.Tactics.CommRingSolver.Reflection
@@ -41,6 +41,20 @@ module TestWithℤ (v : ℕ → ℤ) (v' : ℕ → ℕ) where
 
  ex1 : (a b : fst ℤCommRing) → 2 + a + b + pos (v' 0 ℕ.+ v' 1) ≡ pos (suc (suc (v' 0))) + b + a + pos (v' 1)
  ex1 a b = ℤ!
+
+ exNegCancel : (a : ℤ) → a + (- a) ≡ 0r
+ exNegCancel a = ℤ!
+
+ exDistrib : (a b c : ℤ) → a · (b + c) ≡ a · b + a · c
+ exDistrib a b c = ℤ!
+
+ exCollectMixedSigns : (a : ℤ) → 9 · a + (- 4) · a ≡ 5 · a
+ exCollectMixedSigns a = ℤ!
+
+ exNatLiteralCoefficient : (a : ℤ) →
+                           pos (v' 0) · a + pos (v' 1) · a
+                           ≡ pos (v' 0 ℕ.+ v' 1) · a
+ exNatLiteralCoefficient a = ℤ!
 
 
 module _ (z z₁ : ℤ) (n n₁ : ℕ) where
