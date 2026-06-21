@@ -33,7 +33,9 @@ module ℚ where
  open import Cubical.Data.Rationals.Base public
  open import Cubical.Data.Rationals.Properties public
  open import Cubical.Data.Rationals.Order public
- open import Cubical.Data.Rationals.Order.Properties public
+ open import Cubical.Data.Rationals.Order.AbsoluteValue public
+ open import Cubical.Data.Rationals.Order.Floor public
+ open import Cubical.Data.Rationals.Order.Algebra public
  open import Cubical.Data.Rationals.Inverse public
 
 

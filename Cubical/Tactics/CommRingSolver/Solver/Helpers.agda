@@ -95,55 +95,30 @@ module SansReflection (crs : CommRingSolverConfig) where
      eval (Variable n k) xs                       ≡⟨ isEqualToNormalform (∣ k) xs ⟩
      ⟦ ∣ (suc k) ⟧ (x ∷ xs) ∎
 
- isEqualToNormalform (-' e) [] =
-   eval (-ₕ (normalize e)) []  ≡⟨ -EvalDist (normalize e) [] ⟩
-   -` eval (normalize e) []    ≡⟨ cong -`_ (isEqualToNormalform e [] ) ⟩
-   -` ⟦ e ⟧ [] ∎
- isEqualToNormalform (-' e) (x ∷ xs) =
-   eval (-ₕ (normalize e)) (x ∷ xs) ≡⟨ -EvalDist (normalize e) (x ∷ xs) ⟩
-   -` eval (normalize e) (x ∷ xs)    ≡⟨ cong -`_ (isEqualToNormalform e (x ∷ xs) ) ⟩
-   -` ⟦ e ⟧ (x ∷ xs) ∎
+ isEqualToNormalform (-' e) xs =
+   eval (-ₕ (normalize e)) xs  ≡⟨ -EvalDist (normalize e) xs ⟩
+   -` eval (normalize e) xs    ≡⟨ cong -`_ (isEqualToNormalform e xs) ⟩
+   -` ⟦ e ⟧ xs ∎
 
- isEqualToNormalform (e +' e₁) [] =
-       eval (normalize e +ₕ normalize e₁) []
-     ≡⟨ +Homeval (normalize e) _ [] ⟩
-       eval (normalize e) []
-       +` eval (normalize e₁) []
-     ≡⟨ cong (λ u → u +` eval (normalize e₁) [])
-             (isEqualToNormalform e []) ⟩
-       ⟦ e ⟧ []
-       +` eval (normalize e₁) []
-     ≡⟨ cong (λ u → ⟦ e ⟧ [] +` u) (isEqualToNormalform e₁ []) ⟩
-       ⟦ e ⟧ [] +` ⟦ e₁ ⟧ [] ∎
- isEqualToNormalform (e +' e₁) (x ∷ xs) =
-       eval (normalize e +ₕ normalize e₁) (x ∷ xs)
-     ≡⟨ +Homeval (normalize e) _ (x ∷ xs) ⟩
-       eval (normalize e) (x ∷ xs) +` eval (normalize e₁) (x ∷ xs)
-     ≡⟨ cong (λ u → u +` eval (normalize e₁) (x ∷ xs))
-             (isEqualToNormalform e (x ∷ xs)) ⟩
-       ⟦ e ⟧ (x ∷ xs) +` eval (normalize e₁) (x ∷ xs)
-     ≡⟨ cong (λ u → ⟦ e ⟧ (x ∷ xs) +` u) (isEqualToNormalform e₁ (x ∷ xs)) ⟩
-       ⟦ e ⟧ (x ∷ xs) +` ⟦ e₁ ⟧ (x ∷ xs) ∎
+ isEqualToNormalform (e +' e₁) xs =
+       eval (normalize e +ₕ normalize e₁) xs
+     ≡⟨ +Homeval (normalize e) _ xs ⟩
+       eval (normalize e) xs +` eval (normalize e₁) xs
+     ≡⟨ cong (λ u → u +` eval (normalize e₁) xs)
+             (isEqualToNormalform e xs) ⟩
+       ⟦ e ⟧ xs +` eval (normalize e₁) xs
+     ≡⟨ cong (λ u → ⟦ e ⟧ xs +` u) (isEqualToNormalform e₁ xs) ⟩
+       ⟦ e ⟧ xs +` ⟦ e₁ ⟧ xs ∎
 
- isEqualToNormalform (e ·' e₁) [] =
-       eval (normalize e ·ₕ normalize e₁) []
-     ≡⟨ ·Homeval (normalize e) _ [] ⟩
-       eval (normalize e) [] ·` eval (normalize e₁) []
-     ≡⟨ cong (λ u → u ·` eval (normalize e₁) [])
-             (isEqualToNormalform e []) ⟩
-       ⟦ e ⟧ [] ·` eval (normalize e₁) []
-     ≡⟨ cong (λ u → ⟦ e ⟧ [] ·` u) (isEqualToNormalform e₁ []) ⟩
-       ⟦ e ⟧ [] ·` ⟦ e₁ ⟧ [] ∎
-
- isEqualToNormalform (e ·' e₁) (x ∷ xs) =
-       eval (normalize e ·ₕ normalize e₁) (x ∷ xs)
-     ≡⟨ ·Homeval (normalize e) _ (x ∷ xs) ⟩
-       eval (normalize e) (x ∷ xs) ·` eval (normalize e₁) (x ∷ xs)
-     ≡⟨ cong (λ u → u ·` eval (normalize e₁) (x ∷ xs))
-             (isEqualToNormalform e (x ∷ xs)) ⟩
-       ⟦ e ⟧ (x ∷ xs) ·` eval (normalize e₁) (x ∷ xs)
-     ≡⟨ cong (λ u → ⟦ e ⟧ (x ∷ xs) ·` u) (isEqualToNormalform e₁ (x ∷ xs)) ⟩
-       ⟦ e ⟧ (x ∷ xs) ·` ⟦ e₁ ⟧ (x ∷ xs) ∎
+ isEqualToNormalform (e ·' e₁) xs =
+       eval (normalize e ·ₕ normalize e₁) xs
+     ≡⟨ ·Homeval (normalize e) _ xs ⟩
+       eval (normalize e) xs ·` eval (normalize e₁) xs
+     ≡⟨ cong (λ u → u ·` eval (normalize e₁) xs)
+             (isEqualToNormalform e xs) ⟩
+       ⟦ e ⟧ xs ·` eval (normalize e₁) xs
+     ≡⟨ cong (λ u → ⟦ e ⟧ xs ·` u) (isEqualToNormalform e₁ xs) ⟩
+       ⟦ e ⟧ xs ·` ⟦ e₁ ⟧ xs ∎
 
  Expr≑>IHF : RExpr ≑> IteratedHornerForms 
  Expr≑>IHF ._≑>_.to = normalize
@@ -223,9 +198,7 @@ module SansReflection (crs : CommRingSolverConfig) where
    (λ _≟_ → decToMaybe (x ≟ x')) ∷ [])
  IHR? 0H e = map-[X]?
   (λ f → λ { (v ∷ vs) → sym   (f (v ∷ vs)) }) (IHR?0 e)
- IHR? e 0H =
-    map-[X]?
-  (λ f → λ { (v ∷ vs) → (f (v ∷ vs)) }) (IHR?0 e)
+ IHR? e 0H = IHR?0 e
  IHR? (e ·X+ e₁) (e' ·X+ e₁') =
   map-[X]?
     ((λ (f , f') → λ {(v ∷ vs) →

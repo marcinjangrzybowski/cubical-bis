@@ -42,7 +42,6 @@ open import Cubical.HITs.CauchyReals.LiftingExpr
 
 
 open import Cubical.HITs.CauchyReals.RationalsImports 
--- open import Cubical.Data.Rationals.Order.Properties 
 
 
 

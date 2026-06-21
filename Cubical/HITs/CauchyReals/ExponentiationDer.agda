@@ -35,7 +35,10 @@ open import Cubical.Data.NatPlusOne
 open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
 open import Cubical.Data.Rationals.Order as ℚ using
   ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
-open import Cubical.Data.Rationals.Order.Properties as ℚ
+open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ
+open import Cubical.Data.Rationals.Order.Floor as ℚ
+open import Cubical.Data.Rationals.Order.Algebra as ℚ
+open import Cubical.Data.Rationals.Inverse as ℚ
  using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
 
 

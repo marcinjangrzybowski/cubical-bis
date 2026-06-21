@@ -155,10 +155,7 @@ module HornerForms (R@(⟨R⟩ , _) : CommRing ℓ)
   (const r) +ₕ (const s) = const (r + s)
   0H +ₕ Q = Q
   (P ·X+ r) +ₕ 0H = P ·X+ r
-  (P ·X+ r) +ₕ (Q ·X+ s) =
-    let left = (P +ₕ Q)
-        right = (r +ₕ s)
-    in left ·X+ right
+  (P ·X+ r) +ₕ (Q ·X+ s) = (P +ₕ Q) ·X+ (r +ₕ s)
 
   -ₕ : {n : ℕ} → IteratedHornerForms n → IteratedHornerForms n
   -ₕ (const x) = const (- x)
@@ -174,10 +171,7 @@ module HornerForms (R@(⟨R⟩ , _) : CommRing ℓ)
 
   const x ·ₕ const y = const (x · y)
   0H ·ₕ Q = 0H
-  (P ·X+ Q) ·ₕ S =
-     let
-        z = (P ·ₕ S)
-     in (z ·X+ 0ₕ) +ₕ (Q ⋆ S)
+  (P ·X+ Q) ·ₕ S = ((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)
 
   asRawRing : (n : ℕ) → RawRing ℓ
   RawRing.Carrier (asRawRing n) = IteratedHornerForms n

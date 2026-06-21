@@ -36,8 +36,10 @@ open import Cubical.Algebra.CommRing.Instances.Int.Fast using (ℤCommRing)
 
 open import Cubical.Data.Rationals.Properties
 open import Cubical.Data.Rationals.Order
-open import Cubical.Data.Rationals.Inverse
-open import Cubical.Data.Rationals.Order.Properties
+open import Cubical.Data.Rationals.Inverse hiding (lowerBoundℕ⁻¹)
+open import Cubical.Data.Rationals.Order.AbsoluteValue
+open import Cubical.Data.Rationals.Order.Floor
+open import Cubical.Data.Rationals.Order.Algebra
 
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 open import Cubical.Algebra.OrderedCommRing.Properties

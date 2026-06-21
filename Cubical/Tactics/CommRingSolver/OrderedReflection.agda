@@ -62,7 +62,7 @@ open import Cubical.Algebra.OrderedCommRing.Properties
 import Cubical.Tactics.CommRingSolver.Specialised.Rationals as Rat
 import Cubical.Data.Rationals as Rat
 import Cubical.Data.Rationals.Order as Rat
-import Cubical.Data.Rationals.Inverse as Rat
+import Cubical.Data.Rationals.Inverse.Base as Rat
 
 import Cubical.Data.Prod as Prod
 

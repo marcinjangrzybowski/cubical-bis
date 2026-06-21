@@ -7,7 +7,10 @@ open import Cubical.Data.Unit
 
 open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
 
-import Cubical.Data.Rationals.Order.Properties as ℚ
+import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ
+import Cubical.Data.Rationals.Order.Floor as ℚ
+import Cubical.Data.Rationals.Order.Algebra as ℚ
+import Cubical.Data.Rationals.Inverse as ℚ
 
 open import Cubical.HITs.CauchyReals.Base
 open import Cubical.HITs.CauchyReals.Closeness

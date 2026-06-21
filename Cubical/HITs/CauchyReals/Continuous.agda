@@ -30,7 +30,10 @@ open import Cubical.HITs.CauchyReals.Order
 
 
 open import Cubical.HITs.CauchyReals.RationalsImports 
-open import Cubical.Data.Rationals.Order.Properties
+open import Cubical.Data.Rationals.Order.AbsoluteValue
+open import Cubical.Data.Rationals.Order.Floor
+open import Cubical.Data.Rationals.Order.Algebra
+open import Cubical.Data.Rationals.Inverse
 
 
 open import Cubical.HITs.CauchyReals.LiftingExpr
