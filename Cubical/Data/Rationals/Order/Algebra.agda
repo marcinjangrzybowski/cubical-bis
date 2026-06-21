@@ -216,9 +216,9 @@ clampDist' : ∀ L L' x y → x ≤ y →
     abs (clamp L L' y - clamp L L' x) ≤ abs (y - x)
 clampDist' L L' x y z =
  subst2 _≤_
-  (sym (absNonNeg (clamp L L' y - clamp L L' x)
+  (sym (0≤→abs≡id (clamp L L' y - clamp L L' x)
           (-≤ _ _ (≤MonotoneClamp L L' x y z))))
-  (sym (absNonNeg (y - x)
+  (sym (0≤→abs≡id (y - x)
     (-≤ x y z)
     ))
   (clampDiff L L' x y z)
@@ -226,8 +226,8 @@ clampDist' L L' x y z =
 clampDist : ∀ L L' x y →
     abs (clamp L L' y - clamp L L' x) ≤ abs (y - x)
 clampDist L L' =
- elimBy≤ (λ x y → subst2 _≤_ (absComm- (clamp L L' y) (clamp L L' x))
-    (absComm- y x)) (clampDist' L L')
+ elimBy≤ (λ x y → subst2 _≤_ (abs-Comm (clamp L L' y) (clamp L L' x))
+    (abs-Comm y x)) (clampDist' L L')
 
 maxDist : ∀ M x y →
     abs (max M y - max M x) ≤ abs (y - x)
@@ -395,10 +395,6 @@ x^ⁿ≤1 x (suc n) 0≤x x≤1 =
      (decℚ≤? {0} {1})
 
 
-·-ℚ^ⁿ : ∀ n m x → (x ^ⁿ n) · (x ^ⁿ m) ≡ (x ^ⁿ (n ℕ.+ m))
-·-ℚ^ⁿ zero m x = ℚ!!
-·-ℚ^ⁿ (suc n) m x = ℚ!! ∙ cong (x ·_) (·-ℚ^ⁿ n m x)
-
 _ℚ₊^ⁿ_ : ℚ₊ → ℕ → ℚ₊
 (q , 0<q) ℚ₊^ⁿ n = (q ^ⁿ n) , 0<ℚ^ⁿ q 0<q n
 
@@ -408,16 +404,6 @@ fromNat-^ m ℕ.zero = refl
 fromNat-^ m (suc n) =   
  cong ((fromNat m) ·_) (fromNat-^ m n) ∙
    ℕ·→ℚ· m (m ℕ.^ n)
-
-0^ⁿ :  ∀ n → 0 ^ⁿ (suc n) ≡ 0
-0^ⁿ n = ℚR.0LeftAnnihilates (0 ^ⁿ n)
-
-1^ⁿ :  ∀ n → 1 ^ⁿ n ≡ 1
-1^ⁿ zero = refl
-1^ⁿ (suc n) = ℚR.·IdL _ ∙ 1^ⁿ n
-
-
-
 
 -1ⁿ : ℕ → ℚ
 -1ⁿ zero = 1

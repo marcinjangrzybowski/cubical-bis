@@ -40,6 +40,14 @@ open import Cubical.Data.Rationals.Order.Algebra as ℚ
 open import Cubical.Data.Rationals.Inverse as ℚ
  using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
 
+open import Cubical.Algebra.CommRing.Properties using (Exponentiation)
+open import Cubical.Algebra.CommRing.Instances.Rationals using (ℚCommRing)
+open import Cubical.Algebra.OrderedCommRing using (OrderedCommRingTheory)
+open import Cubical.Algebra.OrderedCommRing.Instances.Rationals using (ℚOrderedCommRing)
+
+module ℚO = OrderedCommRingTheory ℚOrderedCommRing
+module ℚExponentiation = Exponentiation ℚCommRing
+
 
 open import Cubical.HITs.CauchyReals.Base
 open import Cubical.HITs.CauchyReals.Lems
@@ -249,13 +257,13 @@ clamp-abs : ∀ L L' x → L ℚ.≤ L' →
      ℚ.abs (ℚ.clamp L L' x) ℚ.≤ ℚ.max (ℚ.abs L) (ℚ.abs L')
 clamp-abs L L' x L≤L' = ⊎.rec
   (λ 0≤ → subst (ℚ._≤ ℚ.max (ℚ.abs L) (ℚ.abs L'))
-     (sym (ℚ.absNonNeg _ 0≤))
+     (sym (ℚO.0≤→abs≡id _ 0≤))
        (ℚ.isTrans≤ _ _ _ (ℚ.clamp≤ L L' x)
         (ℚ.isTrans≤ _ _ _
           (ℚ.≤abs _) (ℚ.≤max' _ _))))
   (λ <0 →
      subst (ℚ._≤ ℚ.max (ℚ.abs L) (ℚ.abs L'))
-       (sym (ℚ.absNeg _ <0))
+       (sym (ℚO.<0→abs≡- _ <0))
        (ℚ.isTrans≤ _ _ _
          (ℚ.isTrans≤ _ _ _
           (ℚ.minus-≤ _ _ (ℚ.≤clamp L L' x L≤L'))
@@ -289,19 +297,19 @@ module _ (f : ℚ → ℝ) (B : ℕ → ℚ₊)  where
                 ((ℚ.≡Weaken≤ _ _ (((ℚ.≤→max (ℚ.abs (fromNeg (suc n)))
                     (ℚ.abs (fromNat (suc n))
                      ) (ℚ.≡Weaken≤ _ _
-                        ((ℚ.absNeg _
+                        ((ℚO.<0→abs≡- _
                          (ℚ.<ℤ→<ℚ _ _ ℤ.negsuc<-zero)
-                          ) ∙ sym (ℚ.absPos _ (ℚ.0<sucN _))))))
-                      ∙ ℚ.absPos _ (ℚ.0<sucN _)))) )
+                          ) ∙ sym (ℚO.0<→abs≡id _ (ℚ.0<sucN _))))))
+                      ∙ ℚO.0<→abs≡id _ (ℚ.0<sucN _)))) )
               (ℚ.isTrans≤ _ _ _ (clamp-abs _ _ _
                 (ℚ.≤ℤ→≤ℚ _ _ ℤ.negsuc<pos))
                 ((ℚ.≡Weaken≤ _ _ (((ℚ.≤→max (ℚ.abs (fromNeg (suc n)))
                     (ℚ.abs (fromNat (suc n))
                      ) (ℚ.≡Weaken≤ _ _
-                        ((ℚ.absNeg _
+                        ((ℚO.<0→abs≡- _
                          (ℚ.<ℤ→<ℚ _ _ ℤ.negsuc<-zero)
-                          ) ∙ sym (ℚ.absPos _ (ℚ.0<sucN _))))))
-                      ∙ ℚ.absPos _ (ℚ.0<sucN _)))) ))
+                          ) ∙ sym (ℚO.0<→abs≡id _ (ℚ.0<sucN _))))))
+                      ∙ ℚO.0<→abs≡id _ (ℚ.0<sucN _)))) ))
               (≤ℚ→≤ᵣ _ _ (ℚ.≤-o· _ _ _ (ℚ.0≤ℚ₊ (B n))
                 (ℚ.clampDist _ _ _ _))))
 
@@ -941,7 +949,7 @@ opaque
      ℚ.elimBy≡⊎<'
       (λ x y X u∈ v∈ →
         sym∼ _ _ _ ∘ X v∈ u∈ ∘ (subst (ℚ._< fst (ε ℚ₊^ⁿ suc n))
-           (ℚ.absComm- _ _)))
+           (ℚO.abs-Comm _ _)))
       (λ x u∈ v∈ _ → subst (_ ∼[ _ ]_)
          (cong (fst ∘ (root (1+ n))) (ℝ₊≡ refl)) (refl∼ _ _))
       λ x Δ u∈ v∈ X →
@@ -954,8 +962,8 @@ opaque
           let X' = isTrans<≡ᵣ _ _ _
                (ₙ√-StrictMonotone {ℚ₊→ℝ₊ Δ} {ℚ₊→ℝ₊ (ε ℚ₊^ⁿ suc n)} (1+ n)
                ((<ℚ→<ᵣ _ _ (subst (ℚ._< fst (ε ℚ₊^ⁿ suc n))
-                   (ℚ.absComm- _ _ ∙ cong ℚ.abs
-                     lem--063 ∙ (ℚ.absPos _ (ℚ.0<ℚ₊ Δ))) X))))
+                   (ℚO.abs-Comm _ _ ∙ cong ℚ.abs
+                     lem--063 ∙ (ℚO.0<→abs≡id _ (ℚ.0<ℚ₊ Δ))) X))))
                      (cong (fst ∘ (root (1+ n)))
                         (ℝ₊≡
                           (sym (^ⁿ-ℚ^ⁿ _ _)))
@@ -2118,7 +2126,7 @@ module _ (Z N : ℕ) where
        ∙ cong (ℚ._· fst (invℚ₊ (fromNat (suc n))))
          (ℚ.·DistR+ (fromNat (2 ℕ.+ Z) ℚ^ⁿ suc n) (-1) (fromNat (2 ℕ.+ Z) ℚ^ⁿ suc n)
            ∙ cong₂ (ℚ._+_)
-           (ℚ.·-ℚ^ⁿ (suc n) (suc n) (fromNat (2 ℕ.+ Z)) ∙ cong {x = (suc n) ℕ.+ (suc n)} ((fromNat (2 ℕ.+ Z)) ℚ^ⁿ_)
+           (ℚExponentiation.·-of-^-is-^-of-+ (fromNat (2 ℕ.+ Z)) (suc n) (suc n) ∙ cong {x = (suc n) ℕ.+ (suc n)} ((fromNat (2 ℕ.+ Z)) ℚ^ⁿ_)
              (cong (λ n' → suc (n ℕ.+ suc n')) (sym (ℕ.+-zero n))))
              (sym (ℚ.-·- (ℚ.- 1) _) ∙ ℚ.·IdL _)
              ) )
@@ -2306,14 +2314,14 @@ opaque
 --             (<ᵣWeaken≤ᵣ _ _ 1<z))))
 --            (ineqStrict x y y≤B x<y))
 --          (cong (bound z B ·ᵣ_)
---           (cong rat (sym (ℚ.absPos _ (ℚ.-< _ _ x<y)) ∙ ℚ.abs'≡abs _))))
+--           (cong rat (sym (ℚO.0<→abs≡id _ (ℚ.-< _ _ x<y)) ∙ ℚ.abs'≡abs _))))
 --     w (inr (inr y<x)) =
 --       <ᵣWeaken≤ᵣ _ _ (isTrans<≡ᵣ _ _ _ (isTrans≡<ᵣ _ _ _
 --           (minusComm-absᵣ _ _ ∙
 --            absᵣPos _ (x<y→0<y-x _ _ (^ℚ-StrictMonotoneR 1<z y x y<x)))
 --            (ineqStrict y x x≤B y<x))
 --          (cong (bound z B ·ᵣ_)
---           (cong rat ((sym (ℚ.-[x-y]≡y-x _ _) ∙ sym (ℚ.absNeg _
+--           (cong rat ((sym (ℚ.-[x-y]≡y-x _ _) ∙ sym (ℚO.<0→abs≡- _
 --             (subst ((y ℚ.- x) ℚ.<_)
 --               (ℚ.+InvR _) (ℚ.<-+o _ _ (ℚ.- x) y<x)))) ∙ ℚ.abs'≡abs _))))
 
@@ -2322,9 +2330,9 @@ opaque
 --                     absᵣ (fst (z ^ℚ y) -ᵣ fst (z ^ℚ x))
 --   ineqInv-abs = ℚ.elimBy≤ (λ x y X u v →
 --     subst2 (λ a b → (-ᵣ (bound (invℝ₊ z) B)) ·ᵣ rat a ≤ᵣ b)
---                     (ℚ.absComm- _ _) (minusComm-absᵣ _ _) (X v u))
+--                     (ℚO.abs-Comm _ _) (minusComm-absᵣ _ _) (X v u))
 --      λ x y x≤y x≤ _ →
 --         subst2 (λ a b → (-ᵣ (bound (invℝ₊ z) B)) ·ᵣ rat a ≤ᵣ b)
---           (sym (ℚ.absNonNeg _ (ℚ.-≤ _ _ x≤y)))
+--           (sym (ℚO.0≤→abs≡id _ (ℚ.-≤ _ _ x≤y)))
 --            (sym (absᵣNonNeg _ (x≤y→0≤y-x _ _ (^ℚ-MonotoneR _ _ x≤y (<ᵣWeaken≤ᵣ _ _ 1<z) ))))
 --            (ineqInv x y x≤ x≤y)

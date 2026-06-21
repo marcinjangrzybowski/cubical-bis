@@ -212,11 +212,6 @@ floor-lemma p q = eq/ _ _
        ∙ ℤ!)
        
 
-absComm- : ∀ x y → abs (x - y) ≡ abs (y - x)
-absComm- x y i = maxComm (-[x-y]≡y-x y x (~ i)) (-[x-y]≡y-x x y i) i
-
-
-
 <≃sign : ∀ x → ((0 < x) ≃ (sign x ≡ 1))
                × ((0 ≡ x) ≃ (sign x ≡ 0))
                  × ((x < 0) ≃ (sign x ≡ -1))
@@ -281,21 +276,6 @@ abs≡sign· x = abs'≡abs x ∙ ElimProp.go w x
  w .ElimProp.f x@(ℤ.pos (suc n) , snd₁) = sym (·CancelR 1)
  w .ElimProp.f x@(ℤ.negsuc n , snd₁)    = sym (·CancelR 1)
 
-absPos : ∀ x → 0 < x → abs x ≡ x
-absPos x 0<x = abs≡sign· x ∙∙ cong (x ·_) (fst (<→sign x) 0<x)  ∙∙ (·IdR x)
-
-absNonNeg : ∀ x → 0 ≤ x → abs x ≡ x
-absNonNeg x 0<x with x ≟ 0
-... | lt x₁ = ⊥.rec $ ≤→≯ 0 x 0<x x₁
-... | eq x₁ = cong abs x₁ ∙ sym x₁
-... | gt x₁ = absPos x x₁
-
-
-absNeg : ∀ x → x < 0 → abs x ≡ - x
-absNeg x x<0 = abs≡sign· x ∙∙ cong (x ·_) (snd (snd (<→sign x)) x<0)
-                 ∙∙ ·Comm x -1
-
-
 data Trichotomy0· (m n : ℚ) : Type₀ where
   eqₘ₌₀ : m ≡ 0 → m · n ≡ 0  → Trichotomy0· m n
   eqₙ₌₀ : n ≡ 0 → m · n ≡ 0 → Trichotomy0· m n
@@ -350,25 +330,13 @@ abs·abs x y = cong₂ _·_ (abs≡sign· x) (abs≡sign· y)
    ∙∙ (·Assoc x y (sign·sign x y i0))
  ∙∙ (λ i → x · y · sign·sign x y i) ∙ sym (abs≡sign· (x · y))
 
-
-0≤x² : ∀ x → 0 ≤ x · x
-0≤x² = ElimProp.go w
- where
- w : ElimProp (λ z → 0 ≤ z · z)
- w .ElimProp.isPropB _ = isProp≤ _ _
- w .ElimProp.f (p , q) = inj (subst (0 ℤ.≤_) (sym (ℤ.·IdR _)) (ℤ.0≤x² p))
-
-
-abs² : ∀ x → abs x · abs x ≡ x · x 
-abs² x = abs·abs x x ∙ absNonNeg (x · x) (0≤x² x)
-
 abs'·abs' : ∀ x y → abs' x · abs' y ≡ abs' (x · y)
 abs'·abs' x y = cong₂ _·_ (sym (abs'≡abs x)) (sym (abs'≡abs y))
   ∙∙ abs·abs x y ∙∙ abs'≡abs (x · y)
 
 pos·abs : ∀ x y → 0 ≤ x →  abs (x · y) ≡ x · (abs y)
 pos·abs x y 0≤x = sym (abs·abs x y) ∙ cong (_· (abs y))
-  (absNonNeg x 0≤x)
+  (0≤→abs≡id x 0≤x)
 
 
 absCases : (q : ℚ) → (abs q ≡ - q) ⊎ (abs q ≡ q)
@@ -391,14 +359,14 @@ distFromℤ m = ℤ.byTrichotomy m w
       (ℚ! ∙ λ i → [ (ℤ.sucℤ≡1+ n (~ i)) / 1 ]) (<≤ℚ![ m-n<1 ] )))
   where
   m-n<1 :  ([ m / 1 ] - [ n / 1 ]) < 1
-  m-n<1  = subst (_< 1) (absPos ([ m / 1 ] - [ n / 1 ])
+  m-n<1  = subst (_< 1) (0<→abs≡id ([ m / 1 ] - [ n / 1 ])
     (<≤ℚ![ <ℤ→<ℚ _ _ n<m ])) ∣m-n∣<1 
   
  w : ℤ.TrichotomyRec m _
  w .lt-case = h m
  w .eq-case _ = refl
  w .gt-case n m<n x =
-   sym (h n m m<n (subst (_< 1) (absComm- [ m / 1 ] [ n / 1 ]) x))
+   sym (h n m m<n (subst (_< 1) (abs-Comm [ m / 1 ] [ n / 1 ]) x))
    
 
 absFrom≤×≤ : ∀ ε q →
@@ -425,42 +393,16 @@ abs+pos x y x₁ with y ≟ 0
  let xx = (≤-o+ y (- y) x
             (<Weaken≤ y (- y) $ isTrans< y 0 (- y) x₂ ((minus-< y 0 x₂))))
  in subst (λ yy → abs (x + y) ≤ x + yy)
-        (sym (absNeg y x₂)) (absFrom≤×≤ (x - y) _
+        (sym (<0→abs≡- y x₂)) (absFrom≤×≤ (x - y) _
           (subst (_≤ x + y)
             (sym (-Distr' x y)) (≤-+o (- x) x y
              (<Weaken≤ (- x) x $ isTrans< (- x) 0 x (minus-< 0 x x₁) x₁))) xx)
-... | eq x₂ = subst2 _≤_ (sym (absPos x x₁)
+... | eq x₂ = subst2 _≤_ (sym (0<→abs≡id x x₁)
         ∙ cong abs (sym (+IdR x) ∙ cong (x +_) ( (sym x₂))))
    (sym (+IdR x) ∙ cong (x +_) (cong abs (sym x₂))  ) (isRefl≤ x)
-... | gt x₂ = subst2 _≤_ (sym (absPos _ (<Monotone+ 0 x 0 y x₁ x₂)))
-    (cong (x +_) (sym (absPos y x₂)))
+... | gt x₂ = subst2 _≤_ (sym (0<→abs≡id _ (<Monotone+ 0 x 0 y x₁ x₂)))
+    (cong (x +_) (sym (0<→abs≡id y x₂)))
    $ isRefl≤ (x + y)
-
-
-abs+≤abs+abs : ∀ x y → abs (x + y) ≤ abs x + abs y
-abs+≤abs+abs x y with (x ≟ 0) | (y ≟ 0)
-... | _ | gt x₁ = subst2 (_≤_)
-                   (cong abs (+Comm y x))
-            ((+Comm y (abs x)) ∙ cong ((abs x) +_ ) (sym (absPos y x₁)))
-             (abs+pos y x x₁)
-... | eq x₁ | _ = subst2 _≤_ (cong abs (sym (+IdL y) ∙
-    cong (_+ y) (sym x₁) ))
-                    (sym (+IdL (abs y)) ∙
-                     cong (_+ (abs y)) (cong abs (sym x₁)))
-                      (isRefl≤ (abs y))
-... | gt x₁ | _ = subst (abs (x + y) ≤_)
-            (cong (_+ (abs y)) (sym (absPos x x₁)))
-              (abs+pos x y x₁)
-... | lt x₁ | lt x₂ =
-  subst2 _≤_ (sym (-Distr x y) ∙ sym (absNeg (x + y)
-    (<Monotone+ x 0 y 0 x₁ x₂)))
-     (cong₂ _+_ (sym (absNeg x x₁)) (sym (absNeg y x₂))) (isRefl≤ ((- x) - y) )
-... | lt x₁ | eq x₂ =
-  subst2 _≤_ ((cong abs (sym (+IdR x) ∙
-    cong (x +_) (sym x₂))))
-     (sym (+IdR (abs x)) ∙
-                     cong ((abs x) +_ ) (cong abs (sym x₂)))
-    ((isRefl≤ (abs x)))
 
 
 clamp≤ : ∀ L L' x → clamp L L' x ≤ L'
@@ -531,7 +473,7 @@ clamped≤ L L' x L≤x = subst (_≤ x)
   (cong (flip min L') (sym (≤→max L x L≤x))) (min≤ x L')
 
 -- -- -- abs'Comm- : ∀ x y → abs' (x - y) ≡ abs' (y - x)
--- -- -- abs'Comm- x y = sym (abs'≡abs (x - y)) ∙∙ absComm- x y ∙∙ abs'≡abs (y - x)
+-- -- -- abs'Comm- x y = sym (abs'≡abs (x - y)) ∙∙ abs-Comm x y ∙∙ abs'≡abs (y - x)
 
 ≤MonotoneClamp : ∀ L L' x y → x ≤ y → clamp L L' x ≤ clamp L L' y
 ≤MonotoneClamp L L' x y p =
@@ -593,20 +535,20 @@ Dichotomyℚ n m = decRec inr (inl ∘ ≮→≥ _ _) (<Dec m n)
 sign·abs : ∀ x → abs x · (sign x) ≡ x
 sign·abs x with 0 ≟ x
 ... | lt x₁ =
- cong₂ _·_ (absPos x x₁) (fst (<→sign x) x₁)
+ cong₂ _·_ (0<→abs≡id x x₁) (fst (<→sign x) x₁)
     ∙ ·IdR x
 ... | eq x₁ = cong (abs x ·_) ( (fst (snd (<→sign x)) x₁))
  ∙ ·AnnihilR (abs x) ∙ x₁
 ... | gt x₁ =
-  cong₂ _·_ (absNeg x x₁) (snd (snd (<→sign x)) x₁)
+  cong₂ _·_ (<0→abs≡- x x₁) (snd (snd (<→sign x)) x₁)
     ∙ -·- x 1 ∙ ·IdR x
 
 opaque
  0#→0<abs' : ∀ q → 0 # q → 0 < abs' q
  0#→0<abs' q (inl x) =
-   subst (0 <_) (sym (absPos q x) ∙ (abs'≡abs q)) x
+   subst (0 <_) (sym (0<→abs≡id q x) ∙ (abs'≡abs q)) x
  0#→0<abs' q (inr y) =
-   subst (0 <_) (sym (absNeg q y) ∙ (abs'≡abs q)) (minus-< q 0 y)
+   subst (0 <_) (sym (<0→abs≡- q y) ∙ (abs'≡abs q)) (minus-< q 0 y)
 
 0#→ℚ₊ : ∀ q → 0 # q → ℚ₊
 0#→ℚ₊ q x = abs' q ,  (0#→0<abs' q x)
@@ -643,4 +585,3 @@ opaque
 -- -- -- -- ceil-fracℚ₊ : ∀ (x : ℚ₊) → Σ (ℕ × ℚ) λ (k , q) →
 -- -- -- --                        (fromNat k + q ≡ fst x ) × (q < 1)
 -- -- -- -- ceil-fracℚ₊ = {!!}
-

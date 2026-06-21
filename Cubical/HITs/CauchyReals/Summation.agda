@@ -159,12 +159,12 @@ clamp-dist a b =
       ℚ.elimBy≤
        (λ x y X →
          subst (ℚ._≤ abs (b ℚ.- a))
-          (ℚ.absComm- (ℚ.clamp a b x) (ℚ.clamp a b y)) X)
+          (abs-Comm (ℚ.clamp a b x) (ℚ.clamp a b y)) X)
        λ x y x≤y →
          subst (ℚ._≤ abs (b ℚ.- a))
            (cong abs
              (sym (ℚclampInterval-delta a b x y a≤b x≤y))
-           ∙ ℚ.absComm- (ℚ.clamp a b y) (ℚ.clamp a b x))
+           ∙ abs-Comm (ℚ.clamp a b y) (ℚ.clamp a b x))
            (ℚ.clampDist x y a b))
     (λ b≤a x y →
       subst (ℚ._≤ abs (b ℚ.- a))

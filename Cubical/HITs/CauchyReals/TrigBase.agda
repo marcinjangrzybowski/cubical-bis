@@ -354,7 +354,7 @@ x·x≡∣x∣·∣x∣ x = ≡Cont₂
    (asIsContinuous₂-fst _ IsContinuousId) (asIsContinuous₂-fst _ IsContinuousId))
   (cont₂·₂ᵣ
    (asIsContinuous₂-fst _ IsContinuousAbsᵣ) (asIsContinuous₂-fst _ IsContinuousAbsᵣ))
-   (λ x x' → ℚℝ! ∙∙ cong rat (sym (ℚ.abs² x)) ∙∙
+   (λ x x' → ℚℝ! ∙∙ cong rat (sym (abs²≡² x)) ∙∙
      ((λ i → rat (ℚ.abs'≡abs x i ℚ.· ℚ.abs'≡abs x i)) ∙ ℚℝ!))
  x x
    
@@ -2788,4 +2788,3 @@ opaque
 -- 1st-rootNonNeg (x , x≤0) =
 --   sym (invEq (equivAdjointEquiv (nth-pow-root-equiv₀₊ 1))
 --      (ℝ₀₊≡ (·IdL _)))
-

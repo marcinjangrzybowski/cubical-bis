@@ -39,6 +39,10 @@ open import Cubical.Data.Rationals.Order.Algebra as ℚ
 open import Cubical.Data.Rationals.Inverse as ℚ
  using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
 
+open import Cubical.Algebra.OrderedCommRing using (OrderedCommRingTheory)
+open import Cubical.Algebra.OrderedCommRing.Instances.Rationals using (ℚOrderedCommRing)
+
+module ℚO = OrderedCommRingTheory ℚOrderedCommRing
 
 open import Cubical.HITs.CauchyReals.Base
 open import Cubical.HITs.CauchyReals.Lems
@@ -62,7 +66,7 @@ open import Cubical.HITs.CauchyReals.Uniform
  (IsContinuousConst 0)
  (IsContinuous^ⁿ 2)
  (λ q → isTrans≤≡ᵣ _ _ _
-   (≤ℚ→≤ᵣ _ _ (ℚ.0≤x² q))
+   (≤ℚ→≤ᵣ _ _ (ℚO.0≤² q))
    (rat·ᵣrat _ _ ∙
     cong₂ _·ᵣ_
      (sym (·IdL _))

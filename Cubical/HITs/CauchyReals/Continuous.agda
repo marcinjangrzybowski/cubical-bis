@@ -192,7 +192,7 @@ abs'q≤Δ₁' q n n< = (ℚ.isTrans≤ (ℚ.abs' q) (fromNat (suc n)) _
    ℚ!!
   (ℚ.≤-+o
    (abs ((x ℚ.- y) ℚ.+ y))
-   (abs (x ℚ.- y) ℚ.+ abs y) (ℚ.- (abs y)) (ℚ.abs+≤abs+abs (x ℚ.- y) y))
+   (abs (x ℚ.- y) ℚ.+ abs y) (ℚ.- (abs y)) (triangularInequality (x ℚ.- y) y))
 
 opaque
  unfolding absᵣ _<ᵣ_
@@ -312,7 +312,7 @@ opaque
      (λ r' → cong rat (ℚ.≤→max _ _
                (subst2 ℚ._≤_ (ℚ.abs'≡abs (r ℚ.+ r'))
                  (cong₂ ℚ._+_ (ℚ.abs'≡abs r) (ℚ.abs'≡abs r'))
-                (ℚ.abs+≤abs+abs r r') ) )) y) x
+                (triangularInequality r r') ) )) y) x
 
 absᵣ-triangle'' : (x y : ℝ) → absᵣ (x -ᵣ y) ≤ᵣ (absᵣ x +ᵣ absᵣ y)
 absᵣ-triangle'' x y = isTrans≤≡ᵣ _ _ _ (absᵣ-triangle _ _) (cong (absᵣ x +ᵣ_) (sym (-absᵣ y))) 
@@ -1235,12 +1235,12 @@ IsContinuousWithPred⊆ P P' f P'⊆P X u ε u∈P =
   (λ x y X →
     (cong abs (cong₂ ℚ._-_ (ℚ.maxComm y x) (ℚ.minComm y x)))
        ∙∙ X ∙∙
-      ℚ.absComm- x y)
+      abs-Comm x y)
   λ x y x≤y →
     cong abs
       (cong₂ ℚ._-_
         (ℚ.≤→max _ _ x≤y) (ℚ.≤→min _ _ x≤y))
-     ∙ ℚ.absComm- y x
+     ∙ abs-Comm y x
 
 opaque
  unfolding absᵣ

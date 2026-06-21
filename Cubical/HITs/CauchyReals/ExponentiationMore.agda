@@ -43,6 +43,11 @@ open import Cubical.Data.Rationals.Order.Algebra as ℚ
 open import Cubical.Data.Rationals.Inverse as ℚ
  using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
 
+open import Cubical.Algebra.OrderedCommRing using (OrderedCommRingTheory)
+open import Cubical.Algebra.OrderedCommRing.Instances.Rationals using (ℚOrderedCommRing)
+
+module ℚO = OrderedCommRingTheory ℚOrderedCommRing
+
 
 open import Cubical.HITs.CauchyReals.Base
 open import Cubical.HITs.CauchyReals.Lems
@@ -699,7 +704,7 @@ opaque
 -- bdl' 1≤z n = ℚ.elimBy≡⊎<
 --  (λ x y X y∈ x∈ → subst2 _≤ᵣ_
 --       (minusComm-absᵣ _ _)
---       (cong (rat ∘ (fst (slUpBd Z n) ℚ.·_)) (ℚ.absComm- _ _))
+--       (cong (rat ∘ (fst (slUpBd Z n) ℚ.·_)) (ℚO.abs-Comm _ _))
 --       (X x∈ y∈)  )
 --  (λ x _ _ → subst2 _≤ᵣ_
 --     (cong absᵣ (sym (+-ᵣ _)))
@@ -724,7 +729,7 @@ opaque
 --       cong₂ (_·ᵣ_)
 --         (cong₂ (_·ᵣ_) (^ⁿ-ℚ^ⁿ _ _) (cong rat (ℚ.ℤ+→ℚ+ _ _))
 --          ∙ sym (rat·ᵣrat _ _) )
---         (cong rat (sym (ℚ.absPos _ (ℚ.-< _ _ y₀<y₁))))
+--         (cong rat (sym (ℚO.0<→abs≡id _ (ℚ.-< _ _ y₀<y₁))))
 --        ∙ sym (rat·ᵣrat _ _)))
 
 
@@ -812,7 +817,7 @@ module BDL (z : ℝ₊) (Z : ℕ)
   bdl' z Z z≤Z 1/Z≤z 1≤z n = ℚ.elimBy≡⊎<
    (λ x y X y∈ x∈ → subst2 _≤ᵣ_
         (minusComm-absᵣ _ _)
-        (cong (rat ∘ (fst (slUpBd Z n) ℚ.·_)) (ℚ.absComm- _ _))
+        (cong (rat ∘ (fst (slUpBd Z n) ℚ.·_)) (ℚO.abs-Comm _ _))
         (X x∈ y∈)  )
    (λ x _ _ → subst2 _≤ᵣ_
       (cong absᵣ (sym (+-ᵣ _)))
@@ -837,7 +842,7 @@ module BDL (z : ℝ₊) (Z : ℕ)
         cong₂ (_·ᵣ_)
           (cong₂ (_·ᵣ_) (^ⁿ-ℚ^ⁿ _ _) (cong rat (ℚ.ℤ+→ℚ+ _ _))
            ∙ sym (rat·ᵣrat _ _) )
-          (cong rat (sym (ℚ.absPos _ (ℚ.-< _ _ y₀<y₁))))
+          (cong rat (sym (ℚO.0<→abs≡id _ (ℚ.-< _ _ y₀<y₁))))
          ∙ sym (rat·ᵣrat _ _)))
 
 
@@ -921,7 +926,7 @@ module BDL (z : ℝ₊) (Z : ℕ)
               (cong absᵣ (cong₂ _-ᵣ_ (cong fst (sym (^ℚ-minus _ _)))
                                      (cong fst (sym (^ℚ-minus _ _)))))
               (cong (λ uu → rat (fst (slUpBd Z n) ℚ.· uu))
-                (cong ℚ.abs (sym lem--083) ∙ ℚ.absComm- _ _))
+                (cong ℚ.abs (sym lem--083) ∙ ℚO.abs-Comm _ _))
             wwwR'
         where
          wwwR' : absᵣ (fst ((invℝ₊ u₊) ^ℚ (ℚ.- y)) -ᵣ fst ((invℝ₊ u₊) ^ℚ (ℚ.- x)))
@@ -960,7 +965,7 @@ module BDL (z : ℝ₊) (Z : ℕ)
 -- --  bdlInv : boundedInvLipschitz slUpBdInv
 -- --  bdlInv n = ℚ.elimBy≡⊎<
 -- --   (λ x y X y∈ x∈ → subst2 _≤ᵣ_
--- --        (cong rat (ℚ.absComm- _ _))
+-- --        (cong rat (ℚO.abs-Comm _ _))
 -- --        (cong (rat (fst (slUpBdInv n)) ·ᵣ_) (minusComm-absᵣ _ _))
 -- --        (X x∈ y∈)  )
 -- --   ((λ x _ _ → subst2 _≤ᵣ_
@@ -969,7 +974,7 @@ module BDL (z : ℝ₊) (Z : ℕ)
 -- --      (≤ᵣ-refl 0)))
 -- --   λ y₀ y₁ y₀<y₁ y₀∈ y₁∈ →
 -- --    subst2 _≤ᵣ_
--- --      (cong rat (sym (ℚ.absPos _ (ℚ.-< _ _ y₀<y₁))))
+-- --      (cong rat (sym (ℚO.0<→abs≡id _ (ℚ.-< _ _ y₀<y₁))))
 -- --      (cong (rat (fst (slUpBdInv n)) ·ᵣ_)
 -- --       (sym (absᵣNonNeg _ (x≤y→0≤y-x _ _
 -- --          (^ℚ-MonotoneR _ _ (ℚ.<Weaken≤ _ _ y₀<y₁) (<ᵣWeaken≤ᵣ _ _ 1<z) )))))

@@ -1659,7 +1659,7 @@ opaque
                         s (suc N) ·ᵣ  (rat ([ ℤ.pos 1 / 1+ 1 ] ℚ.^ⁿ m½))
            zzz m  = isTrans≤ᵣ _ _ _ (g (m ℕ.+ m½))
                        (≤ᵣ-o·ᵣ _ _ (s (suc N)) (<ᵣWeaken≤ᵣ _ _ (sPos _))
-                         (≤ℚ→≤ᵣ _ _ (subst2 ℚ._≤_ (ℚ.·-ℚ^ⁿ (suc m) m½ [ 1 / 2 ])
+                         (≤ℚ→≤ᵣ _ _ (subst2 ℚ._≤_ (ℚExponentiation.·-of-^-is-^-of-+ [ 1 / 2 ] (suc m) m½)
                              (ℚ.·IdL _)
                             (ℚ.≤-·o (([ ℤ.pos 1 / 1+ 1 ] ℚ.^ⁿ (suc m)))
                                  1 _ ((ℚ.0≤ℚ₊ ([ 1 / 2 ]₊ ℚ.ℚ₊^ⁿ m½)))

@@ -94,7 +94,7 @@ invℚ q p = sign q · fst ((0#→ℚ₊ q p) ⁻¹₊)
 invℚ₊≡invℚ : ∀ q p → invℚ (fst q) p ≡ fst (q ⁻¹₊)
 invℚ₊≡invℚ q p = cong₂ _·_ (fst (<→sign (fst q)) (snd q))
    (cong (fst ∘ _⁻¹₊) (ℚ₊≡ (sym (abs'≡abs (fst q)) ∙
-     absPos (fst q) ((snd q))))) ∙ ℚR.·IdL (fst ( q ⁻¹₊))
+     0<→abs≡id (fst q) ((snd q))))) ∙ ℚR.·IdL (fst ( q ⁻¹₊))
     
 fromNat-invℚ' : ∀ n p → invℚ [ ℕ₊₁→ℤ n / (1+ zero) ] p ≡ [ (pos 1) / n ]
 fromNat-invℚ' n p = eq/ _ _ ℤ!
@@ -272,6 +272,6 @@ lowerBoundℕ⁻¹ : ∀ (q : ℚ₊) → Σ[ k ∈ ℕ₊₁ ] ([ 1 , k ] < fst
 lowerBoundℕ⁻¹ q = 
  map-snd (subst ([ 1 , _ ] <_) (cong (fst ∘ (_⁻¹₊))
    (ℚ₊≡ {abs (fst ( q ⁻¹₊)) , 
-     (subst (0 <_) (sym (absPos _ (snd ( q ⁻¹₊))))
+     (subst (0 <_) (sym (0<→abs≡id _ (snd ( q ⁻¹₊))))
       (snd ( q ⁻¹₊)))}
-    (absPos _ (snd ( q ⁻¹₊)))) ∙ invℚ₊-invol q)  ∘S fst (invℚ₊-<-invℚ₊ _ [ _ / _ ]₊)) (boundℕ (fst ( q ⁻¹₊)))
+    (0<→abs≡id _ (snd ( q ⁻¹₊)))) ∙ invℚ₊-invol q)  ∘S fst (invℚ₊-<-invℚ₊ _ [ _ / _ ]₊)) (boundℕ (fst ( q ⁻¹₊)))

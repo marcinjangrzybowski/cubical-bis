@@ -191,13 +191,13 @@ module AlternatingSeries s
    (λ x y X →
      ( (cong₂ ℚ._-_ (ℚ.maxComm y x) (ℚ.minComm y x)))
         ∙∙ X ∙∙
-       ℚ.absComm- x y)
+       abs-Comm x y)
    λ x y x≤y →
-     sym (ℚ.absNonNeg _ (ℚ.-≤ (ℚ.min x y) (ℚ.max x y)
+     sym (0≤→abs≡id _ (ℚ.-≤ (ℚ.min x y) (ℚ.max x y)
         (ℚ.isTrans≤ _ _ _ (ℚ.min≤ x y) (ℚ.≤max x y)))) ∙ cong abs
        (cong₂ ℚ._-_
          (ℚ.≤→max _ _ x≤y) (ℚ.≤→min _ _ x≤y))
-      ∙ ℚ.absComm- y x
+      ∙ abs-Comm y x
 
 
  distBroaden : ∀ x y a b 
@@ -206,7 +206,7 @@ module AlternatingSeries s
  distBroaden x y a b b≤x b≤y x≤a y≤a =
   subst2 ℚ._≤_
        (abs≡⊔-⊓ x y)
-       (sym (ℚ.absNonNeg (a ℚ.- b) (ℚ.-≤ b a (ℚ.isTrans≤ _ _ _ b≤y y≤a))))
+       (sym (0≤→abs≡id (a ℚ.- b) (ℚ.-≤ b a (ℚ.isTrans≤ _ _ _ b≤y y≤a))))
          (+Mono≤ (ℚ.max x y) a (ℚ.- (ℚ.min x y)) (ℚ.- b)
           (subst (_ ℚ.≤_) (ℚ.maxIdem a) (ℚ.≤MonotoneMax x a y a x≤a y≤a))
            (ℚ.minus-≤ b (ℚ.min x y)
@@ -269,7 +269,7 @@ module AlternatingSeries s
          (evenΣDecr N n 0<N))
       ((ℚ.isTrans≤ _ _ _ (altΣboundedByEven (m ℕ.+ N))
          (evenΣDecr N m 0<N))))
-     (ℚ.≡Weaken≤ _ _ (ℚ.absComm- (ℚ.seqΣ s (N ∸ (suc N ∣2))) (ℚ.seqΣ s (N ∸ (N ∣2))) ∙ (even-odd-Σ-dist N 0<N)))
+     (ℚ.≡Weaken≤ _ _ (abs-Comm (ℚ.seqΣ s (N ∸ (suc N ∣2))) (ℚ.seqΣ s (N ∸ (N ∣2))) ∙ (even-odd-Σ-dist N 0<N)))
 
  cauchyByAlt : ∀ N n m → N ℕ.< m → N ℕ.< n →    
                       abs (ℚ.seqΣ s n ℚ.- ℚ.seqΣ s m) ℚ.≤
@@ -308,7 +308,7 @@ module MkAlternating (s : ℕ → ℚ₊)
  
  -- open AlternatingSeries s' as sd
  -- open WithLim ( (λ {a} → map-snd (λ {N} X n N<n → subst (ℚ._< fst a)
- --  (sym (ℚ.absPos _ (snd (s n))) ∙ sym (ℚ.absᵣ∘-1ⁿ· n (fst (s n)))) (X n N<n)))
+ --  (sym (0<→abs≡id _ (snd (s n))) ∙ sym (ℚ.absᵣ∘-1ⁿ· n (fst (s n)))) (X n N<n)))
  --                    ∘ s→0)
 
 module FueleldSum (s : ℕ → ℚ) where

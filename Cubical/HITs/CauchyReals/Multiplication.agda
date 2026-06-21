@@ -285,7 +285,7 @@ restrSq n q r x x₁ ε x₂ =
 
  where
   zz : abs (q ℚ.+ r) ℚ.< 2 ℚ.· [ pos (suc n) / 1 ]
-  zz = ℚ.isTrans≤< _ _ _ (ℚ.abs+≤abs+abs q r)
+  zz = ℚ.isTrans≤< _ _ _ (triangularInequality q r)
         (subst ((abs q ℚ.+ abs r) ℚ.<_) ℚ! (ℚ.<Monotone+ _ _ _ _ x x₁)) 
    
   z : abs (q ℚ.+ r) ℚ.· abs (q ℚ.- r) ℚ.<
@@ -668,4 +668,3 @@ open Exponentiationᵣ renaming (_^_ to _^ⁿ_;^-ldist-· to ^ⁿ-ldist-·) publ
 ^ⁿ-ℚ^ⁿ zero _ = refl
 ^ⁿ-ℚ^ⁿ (suc n) a = 
   cong (rat a ·ᵣ_) (^ⁿ-ℚ^ⁿ n a) ∙ sym (rat·ᵣrat _ _)
-

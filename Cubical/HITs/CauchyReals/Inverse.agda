@@ -81,7 +81,7 @@ Invᵣ-restrℚ η = f ,
               (ℚ.max (fst η) r ℚ.- ℚ.max (fst η) q)
                (ℚ.0≤ℚ₊ ( (ℚ.maxWithPos η q ·₊ ℚ.maxWithPos η r) ℚ.⁻¹₊))
            ∙ cong (fst ((ℚ.maxWithPos η q ·₊ ℚ.maxWithPos η r) ℚ.⁻¹₊) ℚ.·_)
-       ((ℚ.absComm- (ℚ.max (fst η) r) (ℚ.max (fst η) q)))
+       ((abs-Comm (ℚ.max (fst η) r) (ℚ.max (fst η) q)))
        
   in subst (ℚ._≤ fst ( (η ·₊ η) ℚ.⁻¹₊) ℚ.· abs (q ℚ.- r))
        (sym z)
@@ -1549,7 +1549,7 @@ opaque
                                (<ᵣ→<ℚ (abs (u⊓v ℚ.- u⊔v))
                                 (fst δ)
                                  (isTrans≡<ᵣ _ _ _
-                                  (cong rat (ℚ.absComm- u⊓v u⊔v ∙ ℚ.absPos _
+                                  (cong rat (abs-Comm u⊓v u⊔v ∙ 0<→abs≡id _
                                    (<ᵣ→<ℚ _ _
                                       (isTrans<≡ᵣ _ _ _
                                        (x<y→0<y-x _ _ u⊓v<u⊔v)
@@ -1694,4 +1694,3 @@ opaque
                     ℚℝ!)
                 ( sym (absᵣ-rat _) ∙ cong absᵣ (sym (-ᵣ-rat₂ _ _)))
                 (≤ℚ→≤ᵣ _ _ (ℚ.clampDist L L' u u'))
-

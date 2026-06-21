@@ -25,6 +25,7 @@ open import Cubical.Data.Sigma
 open PositiveRationals public
 open PositiveHalvesℚ public
 open OrderedCommRingTheory ℚOrderedCommRing hiding (_#_) public
+module ℚExponentiation = Exponentiation ℚCommRing
 
 open import Cubical.Data.Rationals.Base public
 

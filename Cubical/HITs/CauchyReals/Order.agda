@@ -523,11 +523,11 @@ opaque
  abs-dist : ∀ q r → abs (abs' q ℚ.- abs' r) ℚ.≤ abs (q ℚ.- r)
  abs-dist =
    ℚ.elimBy≡⊎<'
-     (λ x y → subst2 ℚ._≤_ (absComm- (abs' x) (abs' y)) (absComm- x y))
+     (λ x y → subst2 ℚ._≤_ (abs-Comm (abs' x) (abs' y)) (abs-Comm x y))
      (λ x → ℚ.≡Weaken≤ _ _ (cong abs (ℚ.+InvR (abs' x) ∙ sym (ℚ.+InvR x))))
      λ x ε →
       subst (abs (abs' x ℚ.- abs' (x ℚ.+ fst ε)) ℚ.≤_)
-       (sym (ℚ.-[x-y]≡y-x x (x ℚ.+ fst ε)) ∙ sym (absNeg (x ℚ.- (x ℚ.+ fst ε))
+       (sym (ℚ.-[x-y]≡y-x x (x ℚ.+ fst ε)) ∙ sym (<0→abs≡- (x ℚ.- (x ℚ.+ fst ε))
             <≤ℚ!))
 
        ((absFrom≤×≤ _ _
@@ -555,13 +555,13 @@ opaque
                      abs (ℚ!!)
                       ∙ abs'≡abs x))
                    ((λ i → abs'≡abs (x ℚ.+ fst ε) i
-                    ℚ.+ (absNeg (ℚ.- fst ε) <≤ℚ! i) ℚ.+
+                    ℚ.+ (<0→abs≡- (ℚ.- fst ε) <≤ℚ! i) ℚ.+
                        (ℚ.- abs' (x ℚ.+ fst ε))) ∙
                         ℚ!!)
             $ ℚ.≤-+o (abs (x ℚ.+ fst ε ℚ.+ (ℚ.- fst ε)))
                   (abs (x ℚ.+ fst ε) ℚ.+ abs (ℚ.- fst ε))
              (ℚ.- abs' (x ℚ.+ fst ε))
-             (abs+≤abs+abs (x ℚ.+ fst ε) (ℚ.- (fst ε))))))
+             (triangularInequality (x ℚ.+ fst ε) (ℚ.- (fst ε))))))
 
 
 
