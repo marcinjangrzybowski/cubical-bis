@@ -140,3 +140,10 @@ module CanonicalHomFromℤ (ring : CommRing ℓ) where
       fromℤ≡φ : ∀ n → R.fromℤ n ≡ φ $cr n
       fromℤ≡φ (pos n)    = fromℕ≡φ∘pos n
       fromℤ≡φ (negsuc n) = cong R.-_ (fromℕ≡φ∘pos (suc n)) ∙ sym (pres- (pos (suc n)))
+
+  record HasCanonicalHomFromℤ
+    ⦃ fromNatR : HasFromNat (fst ring) ⦄
+    ⦃ fromNegR : HasFromNeg (fst ring) ⦄ : Type ℓ where
+   field
+    fromNatIsCanonical : ∀ x ⦃ constr ⦄ → fromNat ⦃ fromNatR ⦄ x ⦃ constr ⦄ ≡ R.fromℤ (pos x) 
+    fromNegIsCanonical : ∀ x ⦃ constr ⦄ → fromNeg ⦃ fromNegR ⦄ x ⦃ constr ⦄ ≡ R.fromℤ (negsuc x) 

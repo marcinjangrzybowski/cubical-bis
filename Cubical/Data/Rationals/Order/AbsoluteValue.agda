@@ -61,6 +61,13 @@ open PositiveHalvesℚ
 
 open OrderedCommRingTheory ℚOrderedCommRing hiding (_#_)
 
+·Monotone0# : ∀ q q' → 0 # q → 0 # q' → 0 # (q · q')
+·Monotone0# q q' (inl x) (inl x₁) = inl <≤ℚ!
+·Monotone0# q q' (inl x) (inr x₁) = inr (<≤ℚ![ x₁ ])
+·Monotone0# q q' (inr x) (inl x₁) = inr (<≤ℚ![ x ])
+·Monotone0# q q' (inr x) (inr x₁) = inl (<≤ℚ![ x ][ x₁ ])
+
+
 0≤ℚ₊ : (ε : ℚ₊) → 0 ≤ fst ε
 0≤ℚ₊ ε = <Weaken≤ 0 (fst ε) (ε .snd)
 
@@ -156,8 +163,8 @@ sign = Rec.go w
         ∙ sym (ℤ.negsuc·pos n (ℕ₊₁→ℕ snd₂))) ∙∙ x ∙∙ sym (ℤ.pos·pos n₁ _) ))
  w .Rec.f∼ (ℤ.negsuc n , snd₁) (ℤ.negsuc n₁ , snd₂) x = refl
 
--- x+x≡2x : ∀ x → x + x ≡ 2 · x
--- x+x≡2x x = ℚ!!
+x+x≡2x : ∀ x → x + x ≡ 2 · x
+x+x≡2x x = ℚ!!
 
 
 
@@ -356,11 +363,14 @@ distFromℤ m = ℤ.byTrichotomy m w
  h : (m n : ℤ) → n ℤ.< m → abs ([ m / 1 ] - [ n / 1 ]) < 1 → m ≡ n
  h m n n<m ∣m-n∣<1 = ⊥.rec (≤→≯ _ _
     (≤ℤ→≤ℚ _ _ (ℤ.<→suc≤ n<m)) (subst {x = 1 + [ n / 1 ]} ([ m / 1 ] <_)
-      (ℚ! ∙ λ i → [ (ℤ.sucℤ≡1+ n (~ i)) / 1 ]) (<≤ℚ![ m-n<1 ] )))
+      (ℚ! ∙ λ i → [ (ℤ.sucℤ≡1+ n (~ i)) / 1 ])
+      (<≤ℚ![ m-n<1 ])
+      ))
   where
   m-n<1 :  ([ m / 1 ] - [ n / 1 ]) < 1
   m-n<1  = subst (_< 1) (0<→abs≡id ([ m / 1 ] - [ n / 1 ])
-    (<≤ℚ![ <ℤ→<ℚ _ _ n<m ])) ∣m-n∣<1 
+    (<≤ℚ![ <ℤ→<ℚ _ _ n<m ])
+    ) ∣m-n∣<1 
   
  w : ℤ.TrichotomyRec m _
  w .lt-case = h m
@@ -422,30 +432,30 @@ elimBy≤ : ∀ {ℓ} {A : ℚ → ℚ → Type ℓ}
 elimBy≤ s f x y = ⊎.rec
   (f _ _ ) (s _ _ ∘ f _ _ ) (≤cases x y)
 
--- -- -- elim≤By≡⊎< : ∀ {ℓ} (a : ℚ) {A : ∀ x → a ≤ x → Type ℓ}
--- -- --   → (A a (isRefl≤ a))
--- -- --   → (∀ x a<x → A x (<Weaken≤ _ _ a<x)  )
--- -- --   → ∀ x a<x → A x a<x
--- -- -- elim≤By≡⊎< a {A = A} r f x =
--- -- --   ⊎.rec
--- -- --     (λ a=x → subst (uncurry A) (Σ≡Prop (isProp≤ a) a=x) r)
--- -- --     (subst (A x) (isProp≤ a x _ _) ∘ f x)
--- -- --     ∘ (≤→≡⊎< a x)
+-- -- elim≤By≡⊎< : ∀ {ℓ} (a : ℚ) {A : ∀ x → a ≤ x → Type ℓ}
+-- --   → (A a (isRefl≤ a))
+-- --   → (∀ x a<x → A x (<Weaken≤ _ _ a<x)  )
+-- --   → ∀ x a<x → A x a<x
+-- -- elim≤By≡⊎< a {A = A} r f x =
+-- --   ⊎.rec
+-- --     (λ a=x → subst (uncurry A) (Σ≡Prop (isProp≤ a) a=x) r)
+-- --     (subst (A x) (isProp≤ a x _ _) ∘ f x)
+-- --     ∘ (≤→≡⊎< a x)
 
--- -- -- elimBy≡⊎< : ∀ {ℓ} {A : ℚ → ℚ → Type ℓ}
--- -- --   → (∀ x y → A x y → A y x)
--- -- --   → (∀ x → A x x)
--- -- --   → (∀ x y → x < y → A x y)
--- -- --   → ∀ x y → A x y
--- -- -- elimBy≡⊎< {A = A} s r f =
--- -- --  elimBy≤ s (λ x y → ⊎.rec (λ p → subst (A x) p (r x)) (f x y) ∘ ≤→≡⊎< x y)
+-- -- elimBy≡⊎< : ∀ {ℓ} {A : ℚ → ℚ → Type ℓ}
+-- --   → (∀ x y → A x y → A y x)
+-- --   → (∀ x → A x x)
+-- --   → (∀ x y → x < y → A x y)
+-- --   → ∀ x y → A x y
+-- -- elimBy≡⊎< {A = A} s r f =
+-- --  elimBy≤ s (λ x y → ⊎.rec (λ p → subst (A x) p (r x)) (f x y) ∘ ≤→≡⊎< x y)
 
 
--- -- -- max< : ∀ x y z → x < z → y < z → max x y < z
--- -- -- max< = elimBy≤
--- -- --   (λ x y X z y<z x<z → subst (_< z) (maxComm x y) (X z x<z y<z) )
--- -- --   λ x y x≤y z x<z y<z →
--- -- --     subst (_< z) (sym (≤→max x y x≤y)) y<z
+-- -- max< : ∀ x y z → x < z → y < z → max x y < z
+-- -- max< = elimBy≤
+-- --   (λ x y X z y<z x<z → subst (_< z) (maxComm x y) (X z x<z y<z) )
+-- --   λ x y x≤y z x<z y<z →
+-- --     subst (_< z) (sym (≤→max x y x≤y)) y<z
 
 maxDistMin : ∀ x y z → min (max x y) z ≡ max (min x z) (min y z)
 maxDistMin = elimBy≤
@@ -553,21 +563,6 @@ opaque
 0#→ℚ₊ : ∀ q → 0 # q → ℚ₊
 0#→ℚ₊ q x = abs' q ,  (0#→0<abs' q x)
 
-·Monotone0# : ∀ q q' → 0 # q → 0 # q' → 0 # (q · q')
-·Monotone0# q q' (inl x) (inl x₁) =
- inl ( (·0< q q' (x) ( x₁)))
-·Monotone0# q q' (inl x) (inr x₁) =
-  inr (minus-<' 0 (q · q')
-        (subst {x = q · - q'} {y = - (q · q')} (0 <_) ℚ!!
-         ( (·0< q (- q') ( x) ( (minus-< q' 0 x₁)))) ))
-·Monotone0# q q' (inr x) (inl x₁) =
-  inr (minus-<' 0 (q · q')
-     (subst (0 <_) (sym (·Assoc -1 q q'))
-       (( (·0< (- q) q' ( (minus-< q 0 x)) ( x₁))))))
-·Monotone0# q q' (inr x) (inr x₁) =
- inl (subst (0 <_) (-·- q q') (
-     (·0< (- q) (- q') ( (minus-< q 0 x)) ( (minus-< q' 0 x₁)))) )
-
 
 
 0#sign : ∀ q → 0 # q ≃ 0 # (sign q)
@@ -582,6 +577,6 @@ opaque
       (Dichotomyℚ 0 q))
 
 
--- -- -- -- ceil-fracℚ₊ : ∀ (x : ℚ₊) → Σ (ℕ × ℚ) λ (k , q) →
--- -- -- --                        (fromNat k + q ≡ fst x ) × (q < 1)
--- -- -- -- ceil-fracℚ₊ = {!!}
+-- -- -- -- -- ceil-fracℚ₊ : ∀ (x : ℚ₊) → Σ (ℕ × ℚ) λ (k , q) →
+-- -- -- -- --                        (fromNat k + q ≡ fst x ) × (q < 1)
+-- -- -- -- -- ceil-fracℚ₊ = {!!}

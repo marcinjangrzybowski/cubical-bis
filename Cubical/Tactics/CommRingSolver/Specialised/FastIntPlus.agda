@@ -225,6 +225,6 @@ module FastℤPlusRingSolver where
  config .CommRingSolverConfig.polyVarGuard = (λ _ → pure true)
  config .CommRingSolverConfig.scalarSolver = (λ _ _ → pure false)
 
- open CommRingSolver config hiding (solve!-lemma-macro) public
+ open CommRingSolver (debugPrint "commRingSolver" 100) config hiding (solve!-lemma-macro) public
 
 open FastℤPlusRingSolver public using () renaming (solve! to ℤ+!)

@@ -31,7 +31,6 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 open import Cubical.Tactics.CommRingSolver
 
-
 infix 4 _≤_ _<_ _≥_ _>_
 -- TODO : try to use solver, and refactor it reasonably
 private

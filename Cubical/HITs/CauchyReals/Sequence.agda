@@ -1443,6 +1443,7 @@ IsConvSeries'≃IsCauchySequence'Sum s =
 --                (ℚ.<+ℚ₊' (fst ε) (fst ε) δ (ℚ.isRefl≤ (fst ε))))))
 
 
+
 -- TODO HoTT 11.3.50.
 
 
@@ -1737,96 +1738,93 @@ module RatioTest₊
  module WW (m n : ℕ) where
 
 
+  s' : Seq
+  s' = s ∘ (ℕ._+ (suc (m ℕ.+ N)))
+
+
+  f' : ((n : ℕ) →  N ℕ.≤ n →
+         (s (suc n)) ≤ᵣ
+         s n ·ᵣ rat [ 1 / 2 ])
+  f' n n< =
+     subst2 {x = ((s (suc n) ／ᵣ[ s n , inl (sPos n) ])
+                    +ᵣ 0 ) ·ᵣ s n }
+        _≤ᵣ_ (congS (_·ᵣ s n) (+IdR _) ∙
+          [x/y]·yᵣ _ _ _) (·ᵣComm _ _)
+       ((<ᵣWeaken≤ᵣ _ _
+          (<ᵣ-·ᵣo _ _ (s n , sPos _)
+           (isTrans≤<ᵣ _ _ _ (≤absᵣ _)
+             (isTrans≡<ᵣ _ _ _ (cong absᵣ ℝ!) (snd N½ n (
+              ℕ.<-trans (ℕ.left-≤-max {suc (fst N½)} {fst Nε})
+               n<)))))))
+
+
+  p : ∀ n → s' n ≤ᵣ geometricProgression (s (m ℕ.+ N)) (fst ½ᵣ) n
+  p zero =
+     isTrans≤ᵣ _ _ _ ((f' (m ℕ.+ N) (ℕ.≤SumRight {N} {m}) ))
+             (subst ((s (m ℕ.+ N) ·ᵣ rat [ ℤ.pos 1 / 1+ 1 ]) ≤ᵣ_)
+                (·IdR _)
+                 (≤ᵣ-o·ᵣ (fst ½ᵣ) 1 (s (m ℕ.+ N))
+                   (<ᵣWeaken≤ᵣ _ _ (sPos _))
+                  (≤ℚ→≤ᵣ _ _ ((𝟚.toWitness {Q = ℚ.≤Dec ([ 1 / 2 ]) 1} _)))))
+
+  p (suc n) =
+    isTrans≤ᵣ _ _ _ (f' _
+      (subst (N ℕ.≤_) (sym (ℕ.+-assoc n (1 ℕ.+ m) N))
+        ℕ.≤SumRight))
+      (≤ᵣ-·o _ _ ([ 1 / 2 ]) ((𝟚.toWitness {Q = ℚ.≤Dec 0 ([ 1 / 2 ])} _)) (p n))
+
+  p' : ∀ n → seqSumUpTo' s' n ≤ᵣ seqSumUpTo' (geometricProgression (s (m ℕ.+ N)) (fst ½ᵣ)) n
+  p' = Seq'≤→Σ≤ s' (geometricProgression (s (m ℕ.+ N)) (fst ½ᵣ))
+        p
+
+  s<ε : (s (m ℕ.+ N)) <ᵣ rat (fst ε/2)
+  s<ε = subst (_<ᵣ rat (fst ε/2)) (+IdR _)
+           ((isTrans≤<ᵣ _ _ _
+          (isTrans≡≤ᵣ _ _ _ ℝ! (≤absᵣ ((s (m ℕ.+ N)) +ᵣ (-ᵣ 0)))) (snd Nε _
+           (ℕ.≤<-trans (ℕ.right-≤-max  {(fst (l' ε/2))} {(suc (fst (l ([ 1 / 2 ]₊))))})
+            ℕ.≤SumRight))))
+
+  pp : (seqΣ (λ x → s (x ℕ.+ (m ℕ.+ suc N))) n) <ᵣ (rat ε)
+  pp =
+      subst {x = ℕ._+ suc (m ℕ.+ N) } {y = λ z → z ℕ.+ (m ℕ.+ suc N)}
+           (λ h → seqΣ (s ∘S h) n <ᵣ rat ε)
+
+          (funExt (λ x → cong (x ℕ.+_) (sym (ℕ.+-suc _ _)) ))
+           
+          (isTrans≤<ᵣ (seqSumUpTo' s' n) _ _ (p' n)
+            (isTrans≤<ᵣ (seqSumUpTo' (geometricProgression (s (m ℕ.+ N)) (fst ½ᵣ)) n) _ _
+              (≡ᵣWeaken≤ᵣ _ _ ((seqSumUpTo≡seqSumUpTo'
+               (geometricProgression (s (m ℕ.+ N)) (fst ½ᵣ)) n)))
+                (isTrans<≤ᵣ (Sₙ (s (m ℕ.+ N)) (fst ½ᵣ) n) _ _
+                 (Sₙ-sup (s (m ℕ.+ N)) (fst ½ᵣ)
+                   n (sPos _) (snd ½ᵣ)
+                    (<ℚ→<ᵣ _ _ ((𝟚.toWitness {Q = ℚ.<Dec [ 1 / 2 ] 1} tt))))
+                    
+                    (isTrans≤ᵣ (s (m ℕ.+ N) ·ᵣ
+                                invℝ (1 +ᵣ -ᵣ fst ½ᵣ)
+                                (inl (x<y→0<y-x (fst ½ᵣ) 1
+                                (<ℚ→<ᵣ [ 1 / 2 ] 1 (ℚ.inj (ℤ.pos<pos tt)))))) _ _
+                     (≤ᵣ₊Monotone·ᵣ (s (m ℕ.+ N)) _
+                       (invℝ (1 +ᵣ -ᵣ fst ½ᵣ)
+                        (inl (x<y→0<y-x (fst ½ᵣ) 1 (<ℚ→<ᵣ [ 1 / 2 ] 1 (ℚ.inj (ℤ.pos<pos tt)))))) 2
+                        ((<ᵣWeaken≤ᵣ 0 _ (<ℚ→<ᵣ 0 (fst ε/2) (snd ε/2))))
+                        (((<ᵣWeaken≤ᵣ 0 _
+                             ((0<1/x' _ _)))))
+                        
+                        (<ᵣWeaken≤ᵣ (s (m ℕ.+ N)) _ s<ε)
+                        ((≡ᵣWeaken≤ᵣ _ _
+                       (cong₂ invℝ ℝ! (toPathP refl) ∙ (invℝ-rat _ _
+                        (inl ((𝟚.toWitness {Q = ℚ.<Dec 0 [ 1 / 2 ]} tt)))))
+                        )))
+                         (≡ᵣWeaken≤ᵣ (rat (fst ε/2) ·ᵣ 2) _
+                           (sym (rat·ᵣrat _  _) ∙ cong rat ℚ!)))
+                        )))
   opaque
-   unfolding -ᵣ_ _+ᵣ_  -- NonExpanding₂.go
-
-   s' : Seq
-   s' = s ∘ (ℕ._+ (suc (m ℕ.+ N)))
-
-
-   f' : ((n : ℕ) →  N ℕ.≤ n →
-          (s (suc n)) ≤ᵣ
-          s n ·ᵣ rat [ 1 / 2 ])
-   f' n n< =
-      subst2 {x = ((s (suc n) ／ᵣ[ s n , inl (sPos n) ])
-                     +ᵣ 0 ) ·ᵣ s n }
-         _≤ᵣ_ (congS (_·ᵣ s n) (+IdR _) ∙
-           [x/y]·yᵣ _ _ _) (·ᵣComm _ _)
-        ((<ᵣWeaken≤ᵣ _ _
-           (<ᵣ-·ᵣo _ _ (s n , sPos _)
-            (isTrans≤<ᵣ _ _ _ (≤absᵣ _)
-              (snd N½ n (
-               ℕ.<-trans (ℕ.left-≤-max {suc (fst N½)} {fst Nε})
-                n<))))))
-
-
-   p : ∀ n → s' n ≤ᵣ geometricProgression (s (m ℕ.+ N)) (fst ½ᵣ) n
-   p zero =
-      isTrans≤ᵣ _ _ _ ((f' (m ℕ.+ N) (ℕ.≤SumRight {N} {m}) ))
-              (subst ((s (m ℕ.+ N) ·ᵣ rat [ ℤ.pos 1 / 1+ 1 ]) ≤ᵣ_)
-                 (·IdR _)
-                  (≤ᵣ-o·ᵣ (fst ½ᵣ) 1 (s (m ℕ.+ N))
-                    (<ᵣWeaken≤ᵣ _ _ (sPos _))
-                   (≤ℚ→≤ᵣ _ _ ((𝟚.toWitness {Q = ℚ.≤Dec ([ 1 / 2 ]) 1} _)))))
-
-   p (suc n) =
-     isTrans≤ᵣ _ _ _ (f' _
-       (subst (N ℕ.≤_) (sym (ℕ.+-assoc n (1 ℕ.+ m) N))
-         ℕ.≤SumRight))
-       (≤ᵣ-·o _ _ ([ 1 / 2 ]) ((𝟚.toWitness {Q = ℚ.≤Dec 0 ([ 1 / 2 ])} _)) (p n))
-
-   p' : ∀ n → seqSumUpTo' s' n ≤ᵣ seqSumUpTo' (geometricProgression (s (m ℕ.+ N)) (fst ½ᵣ)) n
-   p' = Seq'≤→Σ≤ s' (geometricProgression (s (m ℕ.+ N)) (fst ½ᵣ))
-         p
-
-   s<ε : (s (m ℕ.+ N)) <ᵣ rat (fst ε/2)
-   s<ε = subst (_<ᵣ rat (fst ε/2)) (+IdR _)
-            ((isTrans≤<ᵣ _ _ _
-           (≤absᵣ ((s (m ℕ.+ N)) +ᵣ (-ᵣ 0))) (snd Nε _
-            (ℕ.≤<-trans (ℕ.right-≤-max  {(fst (l' ε/2))} {(suc (fst (l ([ 1 / 2 ]₊))))})
-             ℕ.≤SumRight))))
-
-   opaque
-    unfolding NonExpanding₂.go
-    pp : (seqΣ (λ x → s (x ℕ.+ (m ℕ.+ suc N))) n) <ᵣ (rat ε)
-    pp =
-        subst {x = ℕ._+ suc (m ℕ.+ N) } {y = λ z → z ℕ.+ (m ℕ.+ suc N)}
-             (λ h → seqΣ (s ∘S h) n <ᵣ rat ε)
-
-            (funExt (λ x → cong (x ℕ.+_) (sym (ℕ.+-suc _ _)) ))
-            (isTrans≤<ᵣ (seqSumUpTo' s' n) _ _ (p' n)
-              (isTrans≤<ᵣ (seqSumUpTo' (geometricProgression (s (m ℕ.+ N)) (fst ½ᵣ)) n) _ _
-                (≡ᵣWeaken≤ᵣ _ _ ((seqSumUpTo≡seqSumUpTo'
-                 (geometricProgression (s (m ℕ.+ N)) (fst ½ᵣ)) n)))
-                  (isTrans<≤ᵣ (Sₙ (s (m ℕ.+ N)) (fst ½ᵣ) n) _ _
-                   (Sₙ-sup (s (m ℕ.+ N)) (fst ½ᵣ)
-                     n (sPos _) (snd ½ᵣ)
-                      (<ℚ→<ᵣ _ _ ((𝟚.toWitness {Q = ℚ.<Dec [ 1 / 2 ] 1} tt))))
-                      (isTrans≤ᵣ (s (m ℕ.+ N) ·ᵣ
-                                  invℝ (1 +ᵣ -ᵣ fst ½ᵣ)
-                                  (inl (x<y→0<y-x (fst ½ᵣ) 1
-                                  (<ℚ→<ᵣ [ 1 / 2 ] 1 (ℚ.inj (ℤ.pos<pos tt)))))) _ _
-                       (≤ᵣ₊Monotone·ᵣ (s (m ℕ.+ N)) _
-                         (invℝ (1 +ᵣ -ᵣ fst ½ᵣ)
-                          (inl (x<y→0<y-x (fst ½ᵣ) 1 (<ℚ→<ᵣ [ 1 / 2 ] 1 (ℚ.inj (ℤ.pos<pos tt)))))) 2
-                          ((<ᵣWeaken≤ᵣ 0 _ (<ℚ→<ᵣ 0 (fst ε/2) (snd ε/2))))
-                          ((<ᵣWeaken≤ᵣ 0 _
-                               ((0<1/x _ _ (
-                          <ℚ→<ᵣ [ pos 0 , 1 ] _ (ℚ.inj (ℤ.pos<pos tt)))))))
-                          (<ᵣWeaken≤ᵣ (s (m ℕ.+ N)) _ s<ε)
-                          ((≡ᵣWeaken≤ᵣ _ _
-                         (invℝ-rat _ _
-                          (inl ((𝟚.toWitness {Q = ℚ.<Dec 0 [ 1 / 2 ]} tt)))))))
-                           (≡ᵣWeaken≤ᵣ (rat (fst ε/2) ·ᵣ 2) _
-                             (sym (rat·ᵣrat _  _) ∙ cong rat ℚ!!)))
-                          )))
-
-
-  ww : absᵣ (seqΣ (λ x → s (x ℕ.+ (m ℕ.+ suc N))) n) <ᵣ (rat ε)
-  ww  = isTrans≤<ᵣ _ _ _
-    (≡ᵣWeaken≤ᵣ _ _
-      (absᵣNonNeg (seqΣ (λ x → s (x ℕ.+ (m ℕ.+ suc N))) n)
-      (0≤seqΣ _ (λ n → <ᵣWeaken≤ᵣ _ _ (sPos (n ℕ.+ (m ℕ.+ suc N)))) n))) pp
+   ww : absᵣ (seqΣ (λ x → s (x ℕ.+ (m ℕ.+ suc N))) n) <ᵣ (rat ε)
+   ww  = isTrans≤<ᵣ _ _ _
+     (≡ᵣWeaken≤ᵣ _ _
+       (absᵣNonNeg (seqΣ (λ x → s (x ℕ.+ (m ℕ.+ suc N))) n)
+       (0≤seqΣ _ (λ n → <ᵣWeaken≤ᵣ _ _ (sPos (n ℕ.+ (m ℕ.+ suc N)))) n))) pp
 
 
  ratioTest₊ : 

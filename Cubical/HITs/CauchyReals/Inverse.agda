@@ -1225,6 +1225,10 @@ _₊^ⁿ_ : ℝ₊ → ℕ → ℝ₊
   (_ , 0<signᵣ x 0＃x 0<x)
   (_ , invℝ'-pos (absᵣ x) (0＃→0<abs x 0＃x)))
 
+
+0<1/x' : ∀ x (0<x : 0 <ᵣ x) → 0 <ᵣ invℝ x (inl 0<x)
+0<1/x' x 0<x = 0<1/x x (inl 0<x) 0<x
+
 <ᵣ-·ᵣo : ∀ m n (o : ℝ₊) →  m <ᵣ n → (m ·ᵣ (fst o)) <ᵣ (n ·ᵣ (fst o))
 <ᵣ-·ᵣo m n (o , 0<o) p =
   let z = subst (0 <ᵣ_) (·DistR+ n (-ᵣ m) o ∙

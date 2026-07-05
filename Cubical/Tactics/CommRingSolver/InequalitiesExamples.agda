@@ -65,7 +65,7 @@ module RatExamples where
           (a b c d e : ℚ.ℚ)
           (b<a : 2 ℚ.· b ℚ.< 2 ℚ.· a)   
           (d≤e : d ℚ.≤ e) 
-          (0≤e : 0 ℚ.≤ e)
+          (0≤e : ℚ.- e ℚ.≤ 0)
           (0≤d : 0 ℚ.≤ d)
           where
  

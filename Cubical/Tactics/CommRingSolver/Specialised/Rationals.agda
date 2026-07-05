@@ -134,7 +134,7 @@ mbNegℚ x with <Dec x 0
 
 basicℚDNUFs = (quoteDefsfNames (min ω∷ max ω∷ _·_ ω∷ _+_ ω∷ (-_) ω∷ ω[] ))
 
-open Discrete ℚCommRing discreteℚ ℚCommRingIsNotZeroRing
+open Discrete (debugPrint "commRingSolver" 100) ℚCommRing discreteℚ ℚCommRingIsNotZeroRing
               (just mbNegℚ) nothing nothing
 
               basicℚDNUFs

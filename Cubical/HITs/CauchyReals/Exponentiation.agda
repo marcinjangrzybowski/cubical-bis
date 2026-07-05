@@ -40,13 +40,13 @@ open import Cubical.Data.Rationals.Order.Algebra as ℚ
 open import Cubical.Data.Rationals.Inverse as ℚ
  using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
 
-open import Cubical.Algebra.CommRing.Properties using (Exponentiation)
+import Cubical.Algebra.CommRing.Properties as CRP
 open import Cubical.Algebra.CommRing.Instances.Rationals using (ℚCommRing)
-open import Cubical.Algebra.OrderedCommRing using (OrderedCommRingTheory)
+import Cubical.Algebra.OrderedCommRing.Properties as OCRP
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals using (ℚOrderedCommRing)
 
-module ℚO = OrderedCommRingTheory ℚOrderedCommRing
-module ℚExponentiation = Exponentiation ℚCommRing
+module ℚO = OCRP.OrderedCommRingTheory ℚOrderedCommRing
+module ℚExponentiation = CRP.Exponentiation ℚCommRing
 
 
 open import Cubical.HITs.CauchyReals.Base
