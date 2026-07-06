@@ -640,15 +640,14 @@ foldFin-sum-concat n m f =
 Fin^2· : ∀ n m → (Fin (2^ n) × Fin (2^ m))
                       → (Fin (2^ (n ℕ.+ m)))
 Fin^2· n m ((l , l<) , k , k<) .fst = (((2^ m) ℕ.· l) ℕ.+ k)
-Fin^2· n m ((l , l<) , k , k<) .snd = {!!}
- -- (((2^ m) ℕ.· l) ℕ.+ k) ,
- --  (2^ m ℕ.· l ℕ.+ k
- --      <≤⟨ ℕ.<-k+ {k = 2^ m ℕ.· l} ? ⟩ -- k< ⟩
- --     _ ≡≤⟨ (λ i → ℕ.+-comm (ℕ.·-comm (2^ m) l i) (2^ m) i) ⟩
- --    _ ≤≡⟨ ℕ.≤-·k {k = 2^ m} ? ⟩ -- l< ⟩
- --         sym (2^+ n m))
-
- -- where open ℕ.<-Reasoning
+Fin^2· n m ((l , l<) , k , k<) .snd =
+  ℕ.<→<ᵗ (ℕ.<≤-trans
+    (ℕ.<-k+ {k = 2^ m ℕ.· l} (ℕ.<ᵗ→< k<))
+    (subst2 ℕ._≤_
+      (·-suc (2^ m) l ∙ ℕ.+-comm (2^ m) (2^ m ℕ.· l))
+      (ℕ.·-comm (2^ m) (2^ n) ∙ sym (2^+ n m))
+      (ℕ.≤-k· {m = suc l} {n = 2^ n} {k = 2^ m}
+        (ℕ.<ᵗ→< l<))))
 
 Fin^2·-injectFin+' : ∀ n m x y →
   (injectFin+' {2^ (n ℕ.+ m) } {2^ (n ℕ.+ m) } (Fin^2· n m (x , y))) ≡
@@ -691,13 +690,17 @@ foldFin·2^ (suc n) m f b V =
  where
  ff' = (foldlFin {n = 2^ m} f)
 
+bounded∸-reflect : ∀ m n → m ℕ.≤ n → m ≡ n ∸ (n ∸ m)
+bounded∸-reflect m n m≤n =
+  ℕ.inj-+m
+    (ℕ.+-comm m (n ∸ m)
+      ∙ ℕ.[n-m]+m m n m≤n
+      ∙ sym (ℕ.[n-m]+m (n ∸ m) n (ℕ.∸-≤ n m)))
+
 lemFin[2+n-k] : ∀ n (k : Fin (2 ℕ.+ n)) → fst k ≡ (suc (suc n) ∸ (suc (suc n) ∸ fst k))
-lemFin[2+n-k] zero (zero , snd₁) = refl
-lemFin[2+n-k] zero (suc zero , snd₁) = refl
-lemFin[2+n-k] (suc n) (zero , snd₁) = (sym (n∸n n))
-lemFin[2+n-k] (suc zero) (suc k , snd₁) = {!!}
-lemFin[2+n-k] (suc (suc n)) (suc k , snd₁) =
- cong suc (lemFin[2+n-k] (suc n) (k , {!!})) ∙ {!!}
+lemFin[2+n-k] n k =
+  bounded∸-reflect (fst k) (suc (suc n))
+    (ℕ.<-weaken (ℕ.<ᵗ→< (snd k)))
  
 
 module _ (A : Type) where
@@ -714,12 +717,20 @@ module _ (A : Type) where
   pre-go : (k : Fin (2 ℕ.+ n)) → ∀ N-k → (fst k) ≡ᵗ (n ∸ suc N-k)  → A
   pre-go  (zero , _) _ _ = a₀
   pre-go  (suc fst₁ , _) zero _ = aₙ
-  pre-go  (suc k , 0<k) (suc x₁) z = f (k , {!!})
+  pre-go  (suc k , 0<k) (suc x₁) z =
+    f (k , ℕ.<→<ᵗ
+      (subst (λ u → u ℕ.≤ n) (sym (ℕ.≡ᵇ→≡ z))
+        (ℕ.∸-≤ n (suc (suc x₁)))))
 
+  go-tail : ∀ n → (Fin n → A) → A → Fin (suc n) → A
+  go-tail zero f a (zero , _) = a
+  go-tail zero f a (suc k , ())
+  go-tail (suc n) f a (zero , _) = f fzero
+  go-tail (suc n) f a (suc k , p) = go-tail n (f ∘ fsuc) a (k , p)
 
-  
   go : Fin (2 ℕ.+ n) → A
-  go k = pre-go k (suc (suc n) ∸ fst k) {!!}
+  go (zero , _) = a₀
+  go (suc k , p) = go-tail n f aₙ (k , p)
   -- go (suc k , zero , p) = aₙ
   -- go (suc k , suc l , p) =
   --   f (k , l , cong (predℕ ∘ predℕ) (sym (ℕ.+-suc (suc l) (suc k)) ∙ p))
