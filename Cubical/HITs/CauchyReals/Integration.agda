@@ -141,10 +141,10 @@ integral'-transl a b Δ f s X ε =
       isTrans≡<ᵣ _ _ _
        (cong (λ rs → absᵣ (rs -ᵣ s))
         (riemannSum'-alt-lem tp f ∙∙
-          cong (λ (gg : Fin (suc (suc (len p))) → ℝ) → foldlFin {n = 2 ℕ.+ len p}
+          cong (λ (gg : Fin (suc (len p)) → ℝ) → foldlFin {n = 1 ℕ.+ len p}
               (λ S k →
                S +ᵣ gg k ) 0
-               (idfun (Fin (2 ℕ.+ len p))))
+               (idfun (Fin (1 ℕ.+ len p))))
             (funExt
              (λ x → cong₂ _·ᵣ_
                 (sym (Partition-pre+.partition-pre+-lem
@@ -160,7 +160,7 @@ integral'-transl a b Δ f s X ε =
                      (finj x) (finj x) refl)) )
                (cong f ((sym (Rℝ.minusPlus _ Δ)
                  ∙ cong ((_+ᵣ Δ) ∘ (_+ᵣ (-ᵣ Δ)))
-                  (cong (samples tp) (toℕ-injective {k = 2 ℕ.+ len p} refl))) ∙ +ᵣComm _ _ ))))
+                  (cong (samples tp) (toℕ-injective {k = 1 ℕ.+ len p} refl))) ∙ +ᵣComm _ _ ))))
          ∙∙ sym (riemannSum'-alt-lem
            (fst
              (subst2
@@ -239,12 +239,12 @@ module _ (a b : ℝ) (α : ℝ) (0<α : 0 <ᵣ α) where
                     (cong absᵣ
                       (cong (_-ᵣ s ·ᵣ α)
                         ( riemannSum'-alt-lem tg f
-                         ∙∙ (cong (λ (f : Fin (2 ℕ.+ len (fst (fst ZZ))) → ℝ) →
-                              foldlFin {n = 2 ℕ.+ len (fst (fst ZZ))}
+                         ∙∙ (cong (λ (f : Fin (1 ℕ.+ len (fst (fst ZZ))) → ℝ) →
+                              foldlFin {n = 1 ℕ.+ len (fst (fst ZZ))}
                               (λ S k → S +ᵣ f k) 0
-                              (idfun (Fin (2 ℕ.+ len (fst (fst ZZ))))))
+                              (idfun (Fin (1 ℕ.+ len (fst (fst ZZ))))))
                               (funExt
-                                λ (k : Fin (2 ℕ.+ len (fst (fst ZZ)))) →
+                                λ (k : Fin (1 ℕ.+ len (fst (fst ZZ)))) →
                                  cong₂ _·ᵣ_
                                    (x/₊y≡z→x≡z·y _ _ (α , 0<α)
                                      (Rℝ.·DistL- _ _ _
@@ -266,9 +266,9 @@ module _ (a b : ℝ) (α : ℝ) (0<α : 0 <ᵣ α) where
                                       (cong
                                         (λ k
                                          → (fst (samplesΣ tg k) ／ᵣ₊ (α , 0<α)))
-                                        (toℕ-injective {k = 2 ℕ.+ len p} refl)))) ∙
+                                        (toℕ-injective {k = 1 ℕ.+ len p} refl)))) ∙
                                   sym (·ᵣAssoc _ _ _))
-                          ∙ foldFin·DistL' (2 ℕ.+ len (fst (fst ZZ)))
+                          ∙ foldFin·DistL' (1 ℕ.+ len (fst (fst ZZ)))
                              _
                               α (idfun _))
                            ∙ ·ᵣComm _ _ ∙∙

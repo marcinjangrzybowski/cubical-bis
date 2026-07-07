@@ -55,43 +55,67 @@ open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 open import Cubical.HITs.CauchyReals.LiftingExpr
 
 
+finj-pred : ∀ {n} → Fin (predℕ n) → Fin n
+finj-pred {zero} ()
+finj-pred {suc n} k = finj k
+
+fsuc-pred : ∀ {n} → Fin (predℕ n) → Fin n
+fsuc-pred {zero} ()
+fsuc-pred {suc n} k = fsuc k
+
+toℕ-finj-pred : ∀ {n} (k : Fin (predℕ n)) →
+  fst (finj-pred {n = n} k) ≡ fst k
+toℕ-finj-pred {zero} ()
+toℕ-finj-pred {suc n} k = refl
+
+toℕ-fsuc-pred : ∀ {n} (k : Fin (predℕ n)) →
+  fst (fsuc-pred {n = n} k) ≡ suc (fst k)
+toℕ-fsuc-pred {zero} ()
+toℕ-fsuc-pred {suc n} k = refl
+
+split<ᵗ-pred-elim : ∀ {ℓ} {k len} {C : Type ℓ} →
+  k ℕᵗ.<ᵗ len →
+  (k ℕᵗ.<ᵗ predℕ len → C) →
+  (suc k ≡ len → C) →
+  C
+split<ᵗ-pred-elim {len = zero} ()
+split<ᵗ-pred-elim {k = k} {len = suc n} p ltCase lastCase =
+  ℕᵗ.split<ᵗ-suc-elim {k = k} {len = n} p ltCase
+    (lastCase ∘ cong suc)
+
 
 record Partition[_,_] (a b : ℝ) : Type₀ where
  field
   len : ℕ
-  pts : Fin (1 ℕ.+ len) → ℝ
+  pts : Fin len → ℝ
+  endpoints≤ : a ≤ᵣ b
   a≤pts : ∀ k → a ≤ᵣ pts k
   pts≤b : ∀ k → pts k ≤ᵣ b
-  pts≤pts : (k : Fin len) → pts (finj k) ≤ᵣ pts (fsuc k)
-
- diffs : Fin len → Σ ℝ (0 ≤ᵣ_)
- diffs k = _ , x≤y→0≤y-x (pts (finj k)) _ (pts≤pts k)
-
- mesh : ℝ
- mesh = foldlFin {n = len} maxᵣ 0 (fst ∘ diffs)
+  pts≤pts : (k : Fin (predℕ len)) →
+    pts (finj-pred {n = len} k) ≤ᵣ pts (fsuc-pred {n = len} k)
 
  a≤b : a ≤ᵣ b
- a≤b = isTrans≤ᵣ a _ _ (a≤pts fzero) (pts≤b fzero)
+ a≤b = endpoints≤
 
- pts'Σ-R : ElimFinSS (Σ _ (_∈ intervalℙ a b))  (suc len)
+ pts'Σ-R : ElimFinSS (Σ _ (_∈ intervalℙ a b)) len
  pts'Σ-R .ElimFinSS.a₀ = a , ≤ᵣ-refl a , a≤b
  pts'Σ-R .ElimFinSS.f k = pts k , a≤pts _ , pts≤b _
  pts'Σ-R .ElimFinSS.aₙ = b , a≤b , ≤ᵣ-refl b
 
- pts'Σ : Fin (3 ℕ.+ len) → (Σ _ (_∈ intervalℙ a b))
+ pts'Σ : Fin (2 ℕ.+ len) → (Σ _ (_∈ intervalℙ a b))
  pts'Σ = ElimFinSS.go pts'Σ-R
 
- pts' : Fin (3 ℕ.+ len) → ℝ
+ pts' : Fin (2 ℕ.+ len) → ℝ
  pts' = fst ∘ pts'Σ
 
- pts'-mid : (j : Fin (1 ℕ.+ len)) → pts' (fsuc (finj j)) ≡ pts j
+ pts'-mid : (j : Fin len) → pts' (fsuc (finj j)) ≡ pts j
  pts'-mid j =
-   cong fst (go-tail-finj pts'Σ-R (1 ℕ.+ len)
+   cong fst (go-tail-finj pts'Σ-R len
      (ElimFinSS.f pts'Σ-R) (ElimFinSS.aₙ pts'Σ-R) j)
 
- pts'-last : pts' (flast {k = 2 ℕ.+ len}) ≡ b
+ pts'-last : pts' (flast {k = 1 ℕ.+ len}) ≡ b
  pts'-last =
-   cong fst (go-tail-flast pts'Σ-R (1 ℕ.+ len)
+   cong fst (go-tail-flast pts'Σ-R len
      (ElimFinSS.f pts'Σ-R) (ElimFinSS.aₙ pts'Σ-R))
 
  a≤pts' : ∀ k → a ≤ᵣ pts' k
@@ -103,31 +127,39 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
  pts'≤pts' : ∀ k → pts' (finj k) ≤ᵣ pts' (fsuc k)
  pts'≤pts' k'@(zero , _) = a≤pts' (fsuc k')
  pts'≤pts' k'@(suc k , p) =
-   ℕᵗ.split<ᵗ-suc-elim {len = len} p
+   split<ᵗ-pred-elim {len = len} p
      (λ k<len →
-       let j : Fin len
+       let j : Fin (predℕ len)
            j = k , k<len
-           pL : finj k' ≡ fsuc (finj (finj j))
-           pL = toℕ-injective {k = 3 ℕ.+ len} refl
-           pR : fsuc k' ≡ fsuc (finj (fsuc j))
-           pR = toℕ-injective {k = 3 ℕ.+ len} refl
-           lEq : pts' (finj k') ≡ pts (finj j)
-           lEq = cong pts' pL ∙ pts'-mid (finj j)
-           rEq : pts' (fsuc k') ≡ pts (fsuc j)
-           rEq = cong pts' pR ∙ pts'-mid (fsuc j)
+           pL : finj k' ≡ fsuc (finj (finj-pred {n = len} j))
+           pL = toℕ-injective {k = 2 ℕ.+ len}
+             (cong suc (sym (toℕ-finj-pred {n = len} j)))
+           pR : fsuc k' ≡ fsuc (finj (fsuc-pred {n = len} j))
+           pR = toℕ-injective {k = 2 ℕ.+ len}
+             (cong suc (sym (toℕ-fsuc-pred {n = len} j)))
+           lEq : pts' (finj k') ≡ pts (finj-pred {n = len} j)
+           lEq = cong pts' pL ∙ pts'-mid (finj-pred {n = len} j)
+           rEq : pts' (fsuc k') ≡ pts (fsuc-pred {n = len} j)
+           rEq = cong pts' pR ∙ pts'-mid (fsuc-pred {n = len} j)
        in subst2 _≤ᵣ_ (sym lEq) (sym rEq) (pts≤pts j))
-     (λ k≡len →
-       let j : Fin (1 ℕ.+ len)
-           j = flast {k = len}
+     (λ sk≡len →
+       let j : Fin len
+           j = k , p
            pL : finj k' ≡ fsuc (finj j)
-           pL = toℕ-injective {k = 3 ℕ.+ len} (cong suc k≡len)
-           pR : fsuc k' ≡ flast {k = 2 ℕ.+ len}
-           pR = toℕ-injective {k = 3 ℕ.+ len} (cong (suc ∘ suc) k≡len)
+           pL = toℕ-injective {k = 2 ℕ.+ len} refl
+           pR : fsuc k' ≡ flast {k = 1 ℕ.+ len}
+           pR = toℕ-injective {k = 2 ℕ.+ len} (cong suc sk≡len)
            lEq : pts' (finj k') ≡ pts j
            lEq = cong pts' pL ∙ pts'-mid j
            rEq : pts' (fsuc k') ≡ b
            rEq = cong pts' pR ∙ pts'-last
        in subst2 _≤ᵣ_ (sym lEq) (sym rEq) (pts≤b j))
+
+ diffs : Fin (1 ℕ.+ len) → Σ ℝ (0 ≤ᵣ_)
+ diffs k = _ , x≤y→0≤y-x (pts' (finj k)) _ (pts'≤pts' k)
+
+ mesh : ℝ
+ mesh = foldlFin {n = 1 ℕ.+ len} maxᵣ 0 (fst ∘ diffs)
 
  isStrictPartition : Type
  isStrictPartition = ∀ k → pts' (finj k) <ᵣ pts' (fsuc k)
@@ -137,9 +169,9 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
 
  record Sample : Type₀ where
   field
-   samples : Fin (2 ℕ.+ len) → ℝ
-   pts'≤samples : (k : Fin (2 ℕ.+ len)) → pts' (finj k) ≤ᵣ samples k
-   samples≤pts' : (k : Fin (2 ℕ.+ len)) → samples k ≤ᵣ pts' (fsuc k)
+   samples : Fin (1 ℕ.+ len) → ℝ
+   pts'≤samples : (k : Fin (1 ℕ.+ len)) → pts' (finj k) ≤ᵣ samples k
+   samples≤pts' : (k : Fin (1 ℕ.+ len)) → samples k ≤ᵣ pts' (fsuc k)
 
 
   a≤samples : ∀ k → a  ≤ᵣ samples k
@@ -148,23 +180,23 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
   samples≤b : ∀ k → samples k ≤ᵣ b
   samples≤b k = isTrans≤ᵣ (samples k) _ b (samples≤pts' k) (pts'≤b (fsuc k))
 
-  samplesΣ : Fin (2 ℕ.+ len) → Σ[ t ∈ ℝ ] (a ≤ᵣ t ) × (t ≤ᵣ b)
+  samplesΣ : Fin (1 ℕ.+ len) → Σ[ t ∈ ℝ ] (a ≤ᵣ t ) × (t ≤ᵣ b)
   samplesΣ k = samples k , a≤samples k , samples≤b k
 
   riemannSum : (∀ r → a ≤ᵣ r → r ≤ᵣ b → ℝ) → ℝ
-  riemannSum f = foldlFin {n = 2 ℕ.+ len}
+  riemannSum f = foldlFin {n = 1 ℕ.+ len}
     (λ S ((t , a≤t , t≤b) , b-a) → S +ᵣ b-a ·ᵣ (f t a≤t t≤b) ) 0
      (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k))
 
   riemannSum' : (ℝ → ℝ) → ℝ
-  riemannSum' f = foldlFin {n = 2 ℕ.+ len}
+  riemannSum' f = foldlFin {n = 1 ℕ.+ len}
     (λ S ((t , a≤t , t≤b) , b-a) → S +ᵣ b-a ·ᵣ (f t) ) 0
      (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k))
 
   riemannSum'≡ : (f g : ℝ → ℝ) → (∀ x → x ∈ intervalℙ a b → f x ≡ g x) →
                      riemannSum' f ≡ riemannSum' g
   riemannSum'≡ f g f≡g =
-    cong (λ g → foldlFin {n = 2 ℕ.+ len}
+    cong (λ g → foldlFin {n = 1 ℕ.+ len}
         g 0)
         (funExt₂ (λ S ((t , a≤t , t≤b) , b-a) →
            cong ((S +ᵣ_) ∘ (b-a ·ᵣ_))
@@ -176,7 +208,7 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
       riemannSum'
       (λ x₁ →  f (clampᵣ a b x₁) (clampᵣ∈ℚintervalℙ a b a≤b x₁))
   riemannSum-clamp f =
-    cong (λ g → foldlFin {n = 2 ℕ.+ len}
+    cong (λ g → foldlFin {n = 1 ℕ.+ len}
         g 0)
         (funExt₂ (λ S ((t , a≤t , t≤b) , b-a) →
            cong ((S +ᵣ_) ∘ (b-a ·ᵣ_))
@@ -188,10 +220,10 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
   riemannSum'+ : (f g : ℝ → ℝ) →
     riemannSum' f +ᵣ riemannSum' g
       ≡ riemannSum' (λ x → f x +ᵣ g x)
-  riemannSum'+ f g = zip-foldFin+ᵣ' (2 ℕ.+ len)
+  riemannSum'+ f g = zip-foldFin+ᵣ' (1 ℕ.+ len)
     (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k))
     _ _ 0 0
-   ∙ (cong₂ (foldlFin {n = 2 ℕ.+ len}) (funExt₂
+   ∙ (cong₂ (foldlFin {n = 1 ℕ.+ len}) (funExt₂
     λ S y → cong (S +ᵣ_) (sym (·DistL+ _ _ _)))
    (+ᵣ-rat 0 0)
     ≡$ (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k)))
@@ -200,10 +232,10 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
   riemannSum+ : ∀ f g →
     riemannSum f +ᵣ riemannSum g
       ≡ riemannSum (λ x ≤x x≤  → f x ≤x x≤ +ᵣ g x ≤x x≤)
-  riemannSum+ f g = zip-foldFin+ᵣ' (2 ℕ.+ len)
+  riemannSum+ f g = zip-foldFin+ᵣ' (1 ℕ.+ len)
     (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k))
     _ _ 0 0
-   ∙ (cong₂ (foldlFin {n = 2 ℕ.+ len}) (funExt₂
+   ∙ (cong₂ (foldlFin {n = 1 ℕ.+ len}) (funExt₂
     λ S y → cong (S +ᵣ_) (sym (·DistL+ _ _ _)))
    (+ᵣ-rat 0 0)
     ≡$ (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k)))
@@ -213,7 +245,7 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
     riemannSum' f ≤ᵣ riemannSum' g
 
   riemannSum'≤ f g f≤g =
-     foldFin+≤ (2 ℕ.+ len) _ _ _  _
+     foldFin+≤ (1 ℕ.+ len) _ _ _  _
        (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k))
        (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k))
        (≤ᵣ-refl 0) λ x → ≤ᵣ-o·ᵣ _ _ _ (x≤y→0≤y-x _ _ (pts'≤pts' x))
@@ -225,26 +257,26 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
     riemannSum' (λ x → C ·ᵣ f x)
      ≡ C ·ᵣ riemannSum' f
   riemannSum'C· C f =
-    (cong (foldlFin {n = 2 ℕ.+ len}) (funExt₂
+    (cong (foldlFin {n = 1 ℕ.+ len}) (funExt₂
     λ S y → cong (S +ᵣ_)
       (·ᵣAssoc _ _ _ ∙∙ cong (_·ᵣ f (y .fst .fst)) (·ᵣComm _ _)
        ∙∙ sym (·ᵣAssoc _ _ _)))
     ≡$ 0
     ≡$ (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k)))
-    ∙ foldFin·DistL' (2 ℕ.+ len) _ _
+    ∙ foldFin·DistL' (1 ℕ.+ len) _ _
     (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k))
 
   riemannSumC· : ∀ C f →
     riemannSum (λ x ≤x x≤ → C ·ᵣ f x ≤x x≤)
      ≡ C ·ᵣ riemannSum f
   riemannSumC· C f =
-    (cong (foldlFin {n = 2 ℕ.+ len}) (funExt₂
+    (cong (foldlFin {n = 1 ℕ.+ len}) (funExt₂
     λ S y → cong (S +ᵣ_)
       (·ᵣAssoc _ _ _ ∙∙ cong (_·ᵣ f (y .fst .fst) _ _) (·ᵣComm _ _)
        ∙∙ sym (·ᵣAssoc _ _ _)))
     ≡$ 0
     ≡$ (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k)))
-    ∙ foldFin·DistL' (2 ℕ.+ len) _ _
+    ∙ foldFin·DistL' (1 ℕ.+ len) _ _
     (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k))
 
 
@@ -272,14 +304,14 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
 
 
   riemannSum'-alt : (ℝ → ℝ) → ℝ
-  riemannSum'-alt f = foldlFin {n = 2 ℕ.+ len}
+  riemannSum'-alt f = foldlFin {n = 1 ℕ.+ len}
     (λ S k →
      S +ᵣ (pts' (fsuc k) -ᵣ pts' (finj k)) ·ᵣ (f (fst (samplesΣ k))) ) 0
      (idfun _)
 
   riemannSum'-alt-lem : ∀ f → riemannSum' f ≡ riemannSum'-alt f
   riemannSum'-alt-lem f =
-   foldFin+map (2 ℕ.+ len) 0 _
+   foldFin+map (1 ℕ.+ len) 0 _
     (λ k →  samplesΣ k , pts' (fsuc k) -ᵣ pts' (finj k))
     (idfun _)
 
@@ -290,8 +322,8 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
 
   riemannSum-empty f a≡b =
       sym (Rℝ.0RightAnnihilates _)
-    ∙ sym (foldFin+Const (2 ℕ.+ len) 0 (idfun _))
-    ∙ (cong (foldlFin {n = 2 ℕ.+ len}) (funExt₂
+    ∙ sym (foldFin+Const (1 ℕ.+ len) 0 (idfun _))
+    ∙ (cong (foldlFin {n = 1 ℕ.+ len}) (funExt₂
       (λ S y → cong (S +ᵣ_) ((sym (Rℝ.0LeftAnnihilates' _ _
         (Rℝ.+InvR' _ _ (
          cong fst (isContr→isProp (pointIntervalℙ a b a≡b)
@@ -307,7 +339,7 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
     subst2 _≤ᵣ_
       (cong absᵣ (sym (riemannSum'-alt-lem f)))
       (sym (riemannSum'-alt-lem (absᵣ ∘ f)))
-      (foldFin+≤-abs (2 ℕ.+ len) 0 0 _ _
+      (foldFin+≤-abs (1 ℕ.+ len) 0 0 _ _
         (idfun _) (idfun _)
         (isTrans≡≤ᵣ _ _ _ absᵣ0 (≤ᵣ-refl 0))
         λ k →
@@ -321,12 +353,12 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
 
   riemannSum'Const : ∀ C → riemannSum' (const C) ≡ C ·ᵣ (b -ᵣ a)
   riemannSum'Const C = riemannSum'-alt-lem (const C)
-   ∙ (λ i → foldlFin {n = 2 ℕ.+ len}
+   ∙ (λ i → foldlFin {n = 1 ℕ.+ len}
     (λ S k →
      S +ᵣ ·ᵣComm (pts' (fsuc k) -ᵣ pts' (finj k)) C i ) 0
      (idfun _))
-   ∙ foldFin·DistL' (2 ℕ.+ len) _ C (idfun _)
-   ∙ cong (C ·ᵣ_) (deltas-sum (2 ℕ.+ len) pts' ∙ cong₂ _-ᵣ_ pts'-last refl)
+   ∙ foldFin·DistL' (1 ℕ.+ len) _ C (idfun _)
+   ∙ cong (C ·ᵣ_) (deltas-sum (1 ℕ.+ len) pts' ∙ cong₂ _-ᵣ_ pts'-last refl)
 
 
  open Sample public
@@ -450,27 +482,28 @@ module EqualPartition a b (a≤b : a ≤ᵣ b) where
  module _ (n : ℕ) where
 
   t : ℕ → ℚ
-  t k = [ pos (suc k) / 2+ n  ]
+  t k = [ pos (suc k) / 1+ n  ]
 
   0≤t : ∀ k → 0 ≤ᵣ rat (t k)
-  0≤t k = ≤ℚ→≤ᵣ 0 (t k) (0≤pos/ {suc k} {2+ n})
+  0≤t k = ≤ℚ→≤ᵣ 0 (t k) (0≤pos/ {suc k} {1+ n})
 
-  t≤1 : ∀ (k : Fin (1 ℕ.+ n)) → rat (t (fst k)) ≤ᵣ 1
+  t≤1 : ∀ (k : Fin n) → rat (t (fst k)) ≤ᵣ 1
   t≤1 k = ≤ℚ→≤ᵣ (t (fst k)) 1 (ℚ.inj w)
    where
-   w : pos (suc (k .fst)) ℤ.· ℤ.ℕ₊₁→ℤ 1 ℤ.≤ pos 1 ℤ.· ℤ.ℕ₊₁→ℤ (2+ n)
+   w : pos (suc (k .fst)) ℤ.· ℤ.ℕ₊₁→ℤ 1 ℤ.≤ pos 1 ℤ.· ℤ.ℕ₊₁→ℤ (1+ n)
    w = subst2 ℤ._≤_ (sym (ℤ.·IdR _)) (sym (ℤ.·IdL _))
          (ℤ.ℕ≤→pos-≤-pos (suc (fst k))
           _ (ℕ.≤-suc (ℕᵗ.<ᵗ→< (snd k))))
 
   tIncr : ∀ k → t k ℚ.≤ t (suc k)
   tIncr k = ℚ.inj
-    (ℤ.≤-·o {m = pos (suc k)} {n = pos (suc (suc k))} {k = suc (suc n)}
+    (ℤ.≤-·o {m = pos (suc k)} {n = pos (suc (suc k))} {k = suc n}
       (ℤ.ℕ≤→pos-≤-pos _ _ ℕ.≤-sucℕ))
 
   equalPartition : Partition[ a , b ]
   equalPartition .len = n
   equalPartition .pts k = a +ᵣ Δ ·ᵣ (rat (t (fst k)))
+  equalPartition .endpoints≤ = a≤b
   equalPartition .a≤pts k =
     isTrans≡≤ᵣ a (a +ᵣ Δ ·ᵣ 0) _
       (sym (Rℝ.+IdR' _ _ (Rℝ.0RightAnnihilates _)))
@@ -483,34 +516,40 @@ module EqualPartition a b (a≤b : a ≤ᵣ b) where
       (≤ᵣ-o·ᵣ (rat (t (fst k))) 1 Δ  0≤Δ (t≤1 k)) (·IdR Δ)))
       (ℝ!)
   equalPartition .pts≤pts k =
-     ≤ᵣ-o+ _ _ a (≤ᵣ-o·ᵣ (rat (t ( (fst k)))) (rat (t (suc (fst k)))) Δ  0≤Δ
-      (≤ℚ→≤ᵣ (t (fst k)) _ (tIncr (fst k))))
+     subst2 _≤ᵣ_
+       (sym (cong (λ j → a +ᵣ Δ ·ᵣ rat (t j))
+         (toℕ-finj-pred {n = n} k)))
+       (sym (cong (λ j → a +ᵣ Δ ·ᵣ rat (t j))
+         (toℕ-fsuc-pred {n = n} k)))
+       (≤ᵣ-o+ _ _ a
+         (≤ᵣ-o·ᵣ (rat (t (fst k))) (rat (t (suc (fst k)))) Δ 0≤Δ
+           (≤ℚ→≤ᵣ (t (fst k)) _ (tIncr (fst k)))))
 
 
   equalPartitionPts' : ∀ k → pts' equalPartition k ≡
-        a +ᵣ Δ ·ᵣ rat [ pos (fst k) / 2+ n  ]
+        a +ᵣ Δ ·ᵣ rat [ pos (fst k) / 1+ n  ]
   equalPartitionPts' (zero , p) =
    sym (Rℝ.+IdR' _ _ (Rℝ.0RightAnnihilates' _ _ (cong rat (ℚ.[0/n]≡[0/m] _ _))))
   equalPartitionPts' k'@(suc k , p) =
-    ℕᵗ.split<ᵗ-suc-elim {k = k} {len = suc n}
+    ℕᵗ.split<ᵗ-suc-elim {k = k} {len = n}
       {C = pts' equalPartition k' ≡
-           a +ᵣ Δ ·ᵣ rat [ pos (fst k') / 2+ n ]}
+           a +ᵣ Δ ·ᵣ rat [ pos (fst k') / 1+ n ]}
       p
-      (λ k<sn →
-        let j : Fin (1 ℕ.+ n)
-            j = k , k<sn
+      (λ k<n →
+        let j : Fin n
+            j = k , k<n
             k'≡mid : k' ≡ fsuc (finj j)
-            k'≡mid = toℕ-injective {k = 3 ℕ.+ n} refl
+            k'≡mid = toℕ-injective {k = 2 ℕ.+ n} refl
         in cong (pts' equalPartition) k'≡mid
            ∙ pts'-mid equalPartition j)
-      (λ k≡sn →
-        let k'≡last : k' ≡ flast {k = 2 ℕ.+ n}
-            k'≡last = toℕ-injective {k = 3 ℕ.+ n} (cong suc k≡sn)
-            frac≡1 : rat [ pos (suc k) / 2+ n ] ≡ 1
+      (λ k≡n →
+        let k'≡last : k' ≡ flast {k = 1 ℕ.+ n}
+            k'≡last = toℕ-injective {k = 2 ℕ.+ n} (cong suc k≡n)
+            frac≡1 : rat [ pos (suc k) / 1+ n ] ≡ 1
             frac≡1 =
-              cong (rat ∘ [_/ 2+ n ]) (cong (pos ∘ suc) k≡sn)
-              ∙ cong rat (ℚ.[n/n]≡[m/m] (suc n) 0)
-            lastEq : b ≡ a +ᵣ Δ ·ᵣ rat [ pos (suc k) / 2+ n ]
+              cong (rat ∘ [_/ 1+ n ]) (cong (pos ∘ suc) k≡n)
+              ∙ cong rat (ℚ.[n/n]≡[m/m] n 0)
+            lastEq : b ≡ a +ᵣ Δ ·ᵣ rat [ pos (suc k) / 1+ n ]
             lastEq =
               sym (cong (a +ᵣ_) (cong (Δ ·ᵣ_) frac≡1 ∙ ·IdR Δ)
                    ∙ u+[v-u]≡v a b)
@@ -520,20 +559,20 @@ module EqualPartition a b (a≤b : a ≤ᵣ b) where
 
   equalPartitionΔ : ∀ k →
     pts' equalPartition (fsuc k) -ᵣ pts' equalPartition (finj k)
-    ≡ Δ ·ᵣ rat [ 1 / 2+ n ]
+    ≡ Δ ·ᵣ rat [ 1 / 1+ n ]
   equalPartitionΔ k =
     cong₂ _-ᵣ_ (equalPartitionPts' (fsuc k)) (equalPartitionPts' (finj k))
     ∙ ℝ!
     ∙ sym (Rℝ.·DistR- _ _ _)
     ∙ cong (Δ ·ᵣ_) zz
     where
-    zz : rat [ pos (suc (fst k)) / 2+ n ] -ᵣ rat [ pos (fst k) / 2+ n ]
-       ≡ rat [ 1 / 2+ n ]
+    zz : rat [ pos (suc (fst k)) / 1+ n ] -ᵣ rat [ pos (fst k) / 1+ n ]
+       ≡ rat [ 1 / 1+ n ]
     zz =
-      -ᵣ-rat₂ ([ pos (suc (fst k)) / 2+ n ]) ([ pos (fst k) / 2+ n ])
+      -ᵣ-rat₂ ([ pos (suc (fst k)) / 1+ n ]) ([ pos (fst k) / 1+ n ])
       ∙ cong rat
-          (sameDenomSubSucc (fst k) (2+ n) ∙
-            cong [_/ 2+ n ]
+          (sameDenomSubSucc (fst k) (1+ n) ∙
+            cong [_/ 1+ n ]
               (cong (ℤ._- pos (fst k)) (ℤ.pos+ 1 (fst k))
                ∙ ℤ.plusMinus (pos (fst k)) 1))
 
@@ -546,15 +585,15 @@ module EqualPartition a b (a≤b : a ≤ᵣ b) where
        (<ᵣ-o·ᵣ _ _
          (Δ , x<y→0<y-x _ _ a<b)
          (<ℚ→<ᵣ _ _ (([k/n]<[k'/n]
-          (pos (fst k)) (pos (suc (fst k))) (2+ n)
+          (pos (fst k)) (pos (suc (fst k))) (1+ n)
             (ℤ.ℕ<→pos-<-pos (fst k) (suc (fst k)) ℕ.<-suc))))))
 
  equalPartition-2ⁿ : ℕ → Partition[ a , b ]
- equalPartition-2ⁿ n = equalPartition (predℕ (predℕ (2^ (suc n))))
+ equalPartition-2ⁿ n = equalPartition (predℕ (2^ (suc n)))
 
  equalPartition-mesh : ∀ n →
   mesh≤ᵣ (equalPartition n)
-   ((b -ᵣ a) ·ᵣ (rat [ 1 / 2+ n  ]) )
+   ((b -ᵣ a) ·ᵣ (rat [ 1 / 1+ n  ]) )
  equalPartition-mesh n k = ≡ᵣWeaken≤ᵣ _ _
   (equalPartitionΔ n k)
 
@@ -567,30 +606,26 @@ module EqualPartition a b (a≤b : a ≤ᵣ b) where
                 (<ᵣ→<ℚ 0 x' (isTrans≤<ᵣ 0 (b -ᵣ a) (rat x')
                   (x≤y→0≤y-x a b a≤b) b-a<x')))
           (1+ N , p) = ℚ.ceilℚ₊ (invℚ₊ ε ℚ₊· x'₊)
-          ww : fst (x'₊ ℚ₊· invℚ₊ ε) ℚ.≤ fromNat (suc (suc N))
-          ww = ℚ.isTrans≤ (fst (x'₊ ℚ₊· invℚ₊ ε)) (fromNat (suc N))
-                (fromNat (suc (suc N)))
-              (ℚ.<Weaken≤ _ _
-                (subst (ℚ._< fromNat (suc N))
-                  (ℚ.·Comm (fst (invℚ₊ ε)) x') p))
-                ((≤ℤ→≤ℚ _ _ (ℤ.ℕ≤→pos-≤-pos (suc N) (suc (suc N))
-                 ℕ.≤-sucℕ)))
+          ww : fst (x'₊ ℚ₊· invℚ₊ ε) ℚ.≤ fromNat (suc N)
+          ww = ℚ.<Weaken≤ _ _
+            (subst (ℚ._< fromNat (suc N))
+              (ℚ.·Comm (fst (invℚ₊ ε)) x') p)
 
       in (_ , leftSample (∫ab.equalPartition N)) ,
           λ k → isTrans≤ᵣ _ _ _ (∫ab.equalPartition-mesh N k)
             (isTrans≤ᵣ _ _ _
-              (isTrans≤≡ᵣ _ _ _ (≤ᵣ-·ᵣo _ _ _ (≤ℚ→≤ᵣ _ _ (ℚ.0≤pos 1 (2+ N)))
+              (isTrans≤≡ᵣ _ _ _ (≤ᵣ-·ᵣo _ _ _ (≤ℚ→≤ᵣ _ _ (ℚ.0≤pos 1 (1+ N)))
                 (<ᵣWeaken≤ᵣ _ _ b-a<x'))
                 (sym (rat·ᵣrat x' _)))
               (let N₂ : ℚ₊
-                   N₂ = fromNat (suc (suc N))
+                   N₂ = fromNat (suc N)
                    x'≤ε·N₂ : x' ℚ.≤ fst ε ℚ.· fst N₂
                    x'≤ε·N₂ = x·invℚ₊y≤z→x≤y·z x' (fst N₂) ε ww
                    x'·invN₂≤ε : x' ℚ.· fst (invℚ₊ N₂) ℚ.≤ fst ε
                    x'·invN₂≤ε = x≤y·z→x·invℚ₊y≤z x' N₂ (fst ε) x'≤ε·N₂
                in ≤ℚ→≤ᵣ _ _
                  (subst (λ q → x' ℚ.· q ℚ.≤ fst ε)
-                   (invℚ₊-fromNat (suc N))
+                   (invℚ₊-fromNat N)
                    x'·invN₂≤ε)))
       )
     (denseℚinℝ (b -ᵣ a) ((b -ᵣ a) +ᵣ 1)
@@ -603,24 +638,26 @@ module Partition-pre+ (a b : ℝ) (α : ℝ) where
  partition-pre+P : Partition[ a , b ] → Partition[ a +ᵣ α , b +ᵣ α ]
  partition-pre+P x .len = x .len
  partition-pre+P x .pts = (_+ᵣ α) ∘ x .pts
+ partition-pre+P x .endpoints≤ =
+   ≤ᵣ-+o _ _ _ (Partition[_,_].endpoints≤ x)
  partition-pre+P x .a≤pts =
    ≤ᵣ-+o _ _ _ ∘ x .a≤pts
  partition-pre+P x .pts≤b =
     ≤ᵣ-+o _ _ _ ∘ x .pts≤b
- partition-pre+P x .pts≤pts =
-     ≤ᵣ-+o _ _ _ ∘ x .pts≤pts
+ partition-pre+P x .pts≤pts k =
+     ≤ᵣ-+o _ _ _ (x .pts≤pts k)
 
  partition-pre+-pts' : ∀ p k → pts' (partition-pre+P p) k ≡ pts' p k +ᵣ α
  partition-pre+-pts' p (zero , _) = refl
  partition-pre+-pts' p k'@(suc k , q) =
-   ℕᵗ.split<ᵗ-suc-elim {k = k} {len = suc (p .len)}
+   ℕᵗ.split<ᵗ-suc-elim {k = k} {len = p .len}
      {C = pts' (partition-pre+P p) k' ≡ pts' p k' +ᵣ α}
      q
      (λ k<slen →
-       let j : Fin (1 ℕ.+ p .len)
+       let j : Fin (p .len)
            j = k , k<slen
            k'≡mid : k' ≡ fsuc (finj j)
-           k'≡mid = toℕ-injective {k = 3 ℕ.+ p .len} refl
+           k'≡mid = toℕ-injective {k = 2 ℕ.+ p .len} refl
            preMid : pts' (partition-pre+P p) k' ≡ pts (partition-pre+P p) j
            preMid = cong (pts' (partition-pre+P p)) k'≡mid
                     ∙ pts'-mid (partition-pre+P p) j
@@ -628,8 +665,8 @@ module Partition-pre+ (a b : ℝ) (α : ℝ) where
            pMid = cong (pts' p) k'≡mid ∙ pts'-mid p j
        in preMid ∙ cong (_+ᵣ α) (sym pMid))
      (λ k≡slen →
-       let k'≡last : k' ≡ flast {k = 2 ℕ.+ p .len}
-           k'≡last = toℕ-injective {k = 3 ℕ.+ p .len} (cong suc k≡slen)
+       let k'≡last : k' ≡ flast {k = 1 ℕ.+ p .len}
+           k'≡last = toℕ-injective {k = 2 ℕ.+ p .len} (cong suc k≡slen)
            preLast : pts' (partition-pre+P p) k' ≡ b +ᵣ α
            preLast = cong (pts' (partition-pre+P p)) k'≡last
                      ∙ pts'-last (partition-pre+P p)
@@ -686,7 +723,7 @@ pts'-tranp {a} {a'} {b} {b'} p p' =
             pts' (fst (subst2 TaggedPartition[_,_] p p' (pa , tg))) k' )
          (λ (pa , tg) k k' pp i →
            fst (pts'Σ (transportRefl pa (~ i))
-             (toℕ-injective {suc (suc (suc (len pa)))}
+             (toℕ-injective {suc (suc (len pa))}
                {k} {k'} pp i)))
            {a'} p {b'} p'
 
@@ -694,24 +731,26 @@ module Partition-pre· (a b : ℝ) (α : ℝ) (0≤α : 0 ≤ᵣ α) where
  partition-pre·P : Partition[ a , b ] → Partition[ a ·ᵣ α , b ·ᵣ α ]
  partition-pre·P x .len = x .len
  partition-pre·P x .pts = (_·ᵣ α) ∘ x .pts
+ partition-pre·P x .endpoints≤ =
+   ≤ᵣ-·ᵣo _ _ _ 0≤α (Partition[_,_].endpoints≤ x)
  partition-pre·P x .a≤pts =
    ≤ᵣ-·ᵣo _ _ _ 0≤α ∘ x .a≤pts
  partition-pre·P x .pts≤b =
     ≤ᵣ-·ᵣo _ _ _ 0≤α ∘ x .pts≤b
- partition-pre·P x .pts≤pts =
-     ≤ᵣ-·ᵣo _ _ _ 0≤α ∘ x .pts≤pts
+ partition-pre·P x .pts≤pts k =
+     ≤ᵣ-·ᵣo _ _ _ 0≤α (x .pts≤pts k)
 
  partition-pre·P-pts' : ∀ p k → pts' (partition-pre·P p) k ≡ pts' p k ·ᵣ α
  partition-pre·P-pts' p (zero , _) = refl
  partition-pre·P-pts' p k'@(suc k , q) =
-   ℕᵗ.split<ᵗ-suc-elim {k = k} {len = suc (p .len)}
+   ℕᵗ.split<ᵗ-suc-elim {k = k} {len = p .len}
      {C = pts' (partition-pre·P p) k' ≡ pts' p k' ·ᵣ α}
      q
      (λ k<slen →
-       let j : Fin (1 ℕ.+ p .len)
+       let j : Fin (p .len)
            j = k , k<slen
            k'≡mid : k' ≡ fsuc (finj j)
-           k'≡mid = toℕ-injective {k = 3 ℕ.+ p .len} refl
+           k'≡mid = toℕ-injective {k = 2 ℕ.+ p .len} refl
            preMid : pts' (partition-pre·P p) k' ≡ pts (partition-pre·P p) j
            preMid = cong (pts' (partition-pre·P p)) k'≡mid
                     ∙ pts'-mid (partition-pre·P p) j
@@ -719,8 +758,8 @@ module Partition-pre· (a b : ℝ) (α : ℝ) (0≤α : 0 ≤ᵣ α) where
            pMid = cong (pts' p) k'≡mid ∙ pts'-mid p j
        in preMid ∙ cong (_·ᵣ α) (sym pMid))
      (λ k≡slen →
-       let k'≡last : k' ≡ flast {k = 2 ℕ.+ p .len}
-           k'≡last = toℕ-injective {k = 3 ℕ.+ p .len} (cong suc k≡slen)
+       let k'≡last : k' ≡ flast {k = 1 ℕ.+ p .len}
+           k'≡last = toℕ-injective {k = 2 ℕ.+ p .len} (cong suc k≡slen)
            preLast : pts' (partition-pre·P p) k' ≡ b ·ᵣ α
            preLast = cong (pts' (partition-pre·P p)) k'≡last
                      ∙ pts'-last (partition-pre·P p)
@@ -1322,9 +1361,8 @@ llll = ≡ᵣWeaken≤ᵣ _ _
 2^-mon zero = ℕ.≤-solver 2 2
 2^-mon (suc n) = ℕ.<-+-< (2^-mon n) (2^-mon n)
 
-lemXX : ∀ n → 2 ℕ.+ predℕ (predℕ (2^ (suc n))) ≡ 2^ (suc n)
-lemXX n = ℕ.k+predℕₖ {2} {2^ (suc n)} (ℕ.≤-+-≤ {1} {2^ n} {1} {2^ n}
- (0<2^ n) (0<2^ n))
+lemXX : ∀ n → 1 ℕ.+ predℕ (2^ (suc n)) ≡ 2^ (suc n)
+lemXX n = ℕ.k+predℕₖ {1} {2^ (suc n)} (0<2^ (suc n))
 
 invℚ₊-inj : ∀ a b → fst (invℚ₊ a) ≡ fst (invℚ₊ b) → fst a ≡ fst b
 invℚ₊-inj a b x =
@@ -1339,12 +1377,12 @@ module Resample where
  --   → (pa pa' : Partition[ a , b ])
  --    (s : Sample pa) → ℝ
  -- resampledRiemannSum a b a≤b f pa pa' sa =
- --   foldlFin {n = 2 ℕ.+ P'.len}
+ --   foldlFin {n = 1 ℕ.+ P'.len}
  --      (λ s  k →
  --        let  a' = P'.pts' (finj k)
  --             b' = P'.pts' (fsuc k)
  --        in s +ᵣ
- --            foldlFin {n = 2 ℕ.+ P.len}
+ --            foldlFin {n = 1 ℕ.+ P.len}
  --            (λ s ((t , a≤t , t≤b) , b-a) → s +ᵣ
  --              b-a ·ᵣ (f (clampᵣ a' b' t)
  --                (isTrans≤ᵣ _ _ _ (P'.a≤pts' (finj k))
@@ -1356,7 +1394,7 @@ module Resample where
  --      (idfun _)
 
  --      -- (λ k →  k (P'.pts' (fsuc k) , P'.pts' (finj k)))
- --  -- foldlFin {n = 2 ℕ.+ P.len}
+ --  -- foldlFin {n = 1 ℕ.+ P.len}
  --  --    (λ s ((t , a≤t , t≤b) , b-a) → s +ᵣ
  --  --      b-a ·ᵣ (f t a≤t t≤b) ) 0
  --  --        (λ k →  S.samplesΣ k , P.pts' (fsuc k) -ᵣ P.pts' (finj k))
@@ -1370,12 +1408,12 @@ module Resample where
    → (pa pa' : Partition[ a , b ])
     (s : Sample pa) → ℝ
  resampledRiemannSum' a b f pa pa' sa =
-   foldlFin {n = 2 ℕ.+ P'.len}
+   foldlFin {n = 1 ℕ.+ P'.len}
       (λ s  k →
         let  a' = P'.pts' (finj k)
              b' = P'.pts' (fsuc k)
         in s +ᵣ
-            foldlFin {n = 2 ℕ.+ P.len}
+            foldlFin {n = 1 ℕ.+ P.len}
             (λ s ((t , a≤t , t≤b) , b-a) → s +ᵣ
               b-a ·ᵣ (f t) ) 0
                 (λ k →  S.samplesΣ k ,
@@ -1393,7 +1431,7 @@ module Resample where
    → a ≤ᵣ a' →  b' ≤ᵣ b →
    (pa : Partition[ a , b ]) →
     b' -ᵣ a' ≡
-         foldlFin {n = 2 ℕ.+ len pa}
+         foldlFin {n = 1 ℕ.+ len pa}
       (λ s  k →
         let  a* = pts' pa (finj k)
              b* = pts' pa (fsuc k)
@@ -1408,7 +1446,7 @@ module Resample where
        (subst (b' ≤ᵣ_) (sym (pts'-last pa)) b'≤b)))
      (sym (x≤→clampᵣ≡ a' b' (pts' pa fzero)
        a'≤b' a≤a'))
-    ∙ sym (deltas-sum (2 ℕ.+ len pa)
+    ∙ sym (deltas-sum (1 ℕ.+ len pa)
       (clampᵣ a' b' ∘ pts' pa ))
 
 
@@ -1418,27 +1456,27 @@ module Resample where
     → resampledRiemannSum' a b f pa pa' sa
        ≡ riemannSum' sa f
  resample a b a≤b pa pa' sa f =
-    ((cong (foldlFin {n = 2 ℕ.+ P'.len})
+    ((cong (foldlFin {n = 1 ℕ.+ P'.len})
      (funExt₂ (λ s k' →
        cong (s +ᵣ_)
-        (foldFin+map (2 ℕ.+ P.len) 0 _
+        (foldFin+map (1 ℕ.+ P.len) 0 _
          (λ k →  S.samplesΣ k ,
                  clampᵣ (P'.pts' (finj k')) (P'.pts' (fsuc k'))
                   (P.pts' (fsuc k))
                   -ᵣ clampᵣ (P'.pts' (finj k')) (P'.pts' (fsuc k'))
                    (P.pts' (finj k))) (idfun _) )))
      ≡$ 0) ≡$ (idfun _))
-     ∙ foldFin+transpose (2 ℕ.+ P'.len) (2 ℕ.+ P.len) _ 0
-     ∙ ((cong (foldlFin {n = 2 ℕ.+ P.len})
+     ∙ foldFin+transpose (1 ℕ.+ P'.len) (1 ℕ.+ P.len) _ 0
+     ∙ ((cong (foldlFin {n = 1 ℕ.+ P.len})
           (funExt₂ (λ s k →
             cong (s +ᵣ_)
-             (  (cong (foldlFin {n = 2 ℕ.+ P'.len})
+             (  (cong (foldlFin {n = 1 ℕ.+ P'.len})
                (funExt₂ (λ s k' → cong (s +ᵣ_)
                  (·ᵣComm _ _)))
                ≡$ 0 ≡$ (idfun _))
-              ∙ foldFin·DistL' (2 ℕ.+ P'.len) _ (f (fst (S.samplesΣ k))) (idfun _)
+              ∙ foldFin·DistL' (1 ℕ.+ P'.len) _ (f (fst (S.samplesΣ k))) (idfun _)
               ∙ cong (f (fst (S.samplesΣ k)) ·ᵣ_)
-                  (((cong (foldlFin {n = 2 ℕ.+ P'.len})
+                  (((cong (foldlFin {n = 1 ℕ.+ P'.len})
                      (funExt₂ (λ s k' → cong (s +ᵣ_)
                          ((clamp-interval-Δ-swap
                           (P'.pts' (finj k')) (P'.pts' (fsuc k'))
@@ -1453,7 +1491,7 @@ module Resample where
              )
                         ))
           ≡$ 0) ≡$ (idfun _))
-     ∙ sym (foldFin+map (2 ℕ.+ P.len) 0 _
+     ∙ sym (foldFin+map (1 ℕ.+ P.len) 0 _
        (λ k →  S.samplesΣ k , P.pts' (fsuc k) -ᵣ P.pts' (finj k)) (idfun _))
 
 
@@ -1502,7 +1540,7 @@ module Resample where
     module S = Sample sa
     module S' = Sample sa'
 
-    ruc'Δ : Fin (suc (suc P.len)) → Fin (suc (suc P'.len)) → ℝ
+    ruc'Δ : Fin (suc P.len) → Fin (suc P'.len) → ℝ
     ruc'Δ k k' = (clampᵣ (P.pts' (finj k)) (P.pts' (fsuc k)) (P'.pts' (fsuc k'))
          -ᵣ
         clampᵣ (P.pts' (finj k)) (P.pts' (fsuc k)) (P'.pts' (finj k')))
@@ -1513,31 +1551,31 @@ module Resample where
     weightedValue : WeightedSample → ℝ
     weightedValue ((t , _ , _) , Δ) = Δ ·ᵣ f t
 
-    PΔ : Fin (2 ℕ.+ len pa) → ℝ
+    PΔ : Fin (1 ℕ.+ len pa) → ℝ
     PΔ k = P.pts' (fsuc k) -ᵣ P.pts' (finj k)
 
-    sampleFiber : Fin (2 ℕ.+ len pa) → Fin (2 ℕ.+ len pa') → WeightedSample
+    sampleFiber : Fin (1 ℕ.+ len pa) → Fin (1 ℕ.+ len pa') → WeightedSample
     sampleFiber k k' = S'.samplesΣ k' , ruc'Δ k k'
 
-    resampledFiber : Fin (2 ℕ.+ len pa) → ℝ
+    resampledFiber : Fin (1 ℕ.+ len pa) → ℝ
     resampledFiber k =
-      foldlFin {n = 2 ℕ.+ len pa'}
+      foldlFin {n = 1 ℕ.+ len pa'}
         (λ s y → s +ᵣ weightedValue y) 0
         (sampleFiber k)
 
-    outerDiffTerm : WeightedSample × Fin (2 ℕ.+ len pa) → ℝ
+    outerDiffTerm : WeightedSample × Fin (1 ℕ.+ len pa) → ℝ
     outerDiffTerm (y , k) = weightedValue y -ᵣ resampledFiber k
 
-    outerBound : Fin (2 ℕ.+ len pa) → ℝ
+    outerBound : Fin (1 ℕ.+ len pa) → ℝ
     outerBound k = fst η ·ᵣ P.pts' (fsuc k) -ᵣ fst η ·ᵣ P.pts' (finj k)
 
-    scaledTerm : (k : Fin (2 ℕ.+ len pa)) → Fin (2 ℕ.+ len pa') → ℝ
+    scaledTerm : (k : Fin (1 ℕ.+ len pa)) → Fin (1 ℕ.+ len pa') → ℝ
     scaledTerm k k' = f (S.samplesΣ k .fst) ·ᵣ ruc'Δ k k'
 
-    innerDiffTerm : (k : Fin (2 ℕ.+ len pa)) → Fin (2 ℕ.+ len pa') × WeightedSample → ℝ
+    innerDiffTerm : (k : Fin (1 ℕ.+ len pa)) → Fin (1 ℕ.+ len pa') × WeightedSample → ℝ
     innerDiffTerm k (k' , y) = scaledTerm k k' -ᵣ weightedValue y
 
-    innerBound : (k : Fin (2 ℕ.+ len pa)) → Fin (2 ℕ.+ len pa') → ℝ
+    innerBound : (k : Fin (1 ℕ.+ len pa)) → Fin (1 ℕ.+ len pa') → ℝ
     innerBound k k' = fst η ·ᵣ ruc'Δ k k'
 
 
@@ -1553,22 +1591,22 @@ module Resample where
          (cong absᵣ
           (cong (_-ᵣ_ (S.riemannSum' f))
             (sym (resample a b a≤b pa' pa sa' f))
-            ∙ zip-foldFin-ᵣ (2 ℕ.+ len pa)
+            ∙ zip-foldFin-ᵣ (1 ℕ.+ len pa)
 
               (λ k → S.samplesΣ k , PΔ k)
-              (idfun (Fin (2 ℕ.+ len pa)))
+              (idfun (Fin (1 ℕ.+ len pa)))
               weightedValue resampledFiber 0 0))
          (isTrans≤ᵣ _ _ _ (isTrans≤≡ᵣ _ _ _
 
-           (foldFin+≤-abs (2 ℕ.+ len pa) (0 -ᵣ 0) 0
+           (foldFin+≤-abs (1 ℕ.+ len pa) (0 -ᵣ 0) 0
              outerDiffTerm outerBound
                            (λ k →
                              (S.samplesΣ k , PΔ k) , k)
-                           (idfun (Fin (2 ℕ.+ len pa)))
+                           (idfun (Fin (1 ℕ.+ len pa)))
             llll
             ruc
             )
-           (deltas-sum (2 ℕ.+ len pa) ((fst η ·ᵣ_) ∘ pts' pa)
+           (deltas-sum (1 ℕ.+ len pa) ((fst η ·ᵣ_) ∘ pts' pa)
             ∙ cong₂ _-ᵣ_ (cong (fst η ·ᵣ_) P.pts'-last) refl
             ∙ sym (Rℝ.·DistR- _ _ _)))
              (isTrans≤≡ᵣ _ _ _
@@ -1721,7 +1759,7 @@ module Resample where
        ruc : ∀ k →
            absᵣ
          ((P.pts' (fsuc k) -ᵣ P.pts' (finj k)) ·ᵣ f (S.samplesΣ k .fst) -ᵣ
-          foldlFin {n = 2 ℕ.+ len pa'}
+          foldlFin {n = 1 ℕ.+ len pa'}
           (λ s ((t , a≤t , t≤b) , b-a) → s +ᵣ b-a ·ᵣ f t) 0
           (λ k₁ →
              P'.samplesΣ sa' k₁ ,
@@ -1732,7 +1770,7 @@ module Resample where
 
        ruc k =
          isTrans≡≤ᵣ _ _ _
-           (cong (absᵣ ∘ (_-ᵣ (foldlFin {n = 2 ℕ.+ len pa'}
+           (cong (absᵣ ∘ (_-ᵣ (foldlFin {n = 1 ℕ.+ len pa'}
           (λ s ((t , a≤t , t≤b) , b-a) → s +ᵣ b-a ·ᵣ f t) 0
           (λ k₁ →
              P'.samplesΣ sa' k₁ ,
@@ -1746,27 +1784,27 @@ module Resample where
                    (P.pts'≤pts' k)
                   (P.a≤pts' (finj k)) (P.pts'≤b (fsuc k)) pa'
                   ) ∙ ·ᵣComm _ _ ∙
-                   sym (foldFin·DistL (2 ℕ.+ len pa') _ _ _
-                    (idfun (Fin (2 ℕ.+ len pa'))))) ∙
+                   sym (foldFin·DistL (1 ℕ.+ len pa') _ _ _
+                    (idfun (Fin (1 ℕ.+ len pa'))))) ∙
                    cong absᵣ
-                    (zip-foldFin-ᵣ (2 ℕ.+ len pa')
-                    (idfun (Fin (2 ℕ.+ len pa')))
+                    (zip-foldFin-ᵣ (1 ℕ.+ len pa')
+                    (idfun (Fin (1 ℕ.+ len pa')))
                      (sampleFiber k)
                        (scaledTerm k) weightedValue
                        (f (S.samplesΣ k .fst) ·ᵣ 0)
                      0))
               (isTrans≤≡ᵣ _ _ _
-               (foldFin+≤-abs (2 ℕ.+ len pa')
+               (foldFin+≤-abs (1 ℕ.+ len pa')
                   ((f (S.samplesΣ k .fst) ·ᵣ 0) -ᵣ 0) 0
                    (innerDiffTerm k) (innerBound k)
                    (λ k₁ → k₁ , sampleFiber k k₁)
-                   (idfun (Fin (2 ℕ.+ len pa')))
+                   (idfun (Fin (1 ℕ.+ len pa')))
                    (isTrans≡≤ᵣ _ _ _
                       (cong absᵣ (cong (_-ᵣ 0) (Rℝ.0RightAnnihilates _)))
                       llll)
                  (ruc' k))
-               ((foldFin·DistL' (2 ℕ.+ len pa') _ _ (idfun (Fin (2 ℕ.+ len pa'))) ∙
-                cong (fst η ·ᵣ_) (deltas-sum (2 ℕ.+ P'.len )
+               ((foldFin·DistL' (1 ℕ.+ len pa') _ _ (idfun (Fin (1 ℕ.+ len pa'))) ∙
+                cong (fst η ·ᵣ_) (deltas-sum (1 ℕ.+ P'.len )
                   (clampᵣ (P.pts' (finj k)) (P.pts' (fsuc k)) ∘ (P'.pts'))
                   ∙ cong₂ _-ᵣ_
                     (≤x→clampᵣ≡ (P.pts' (finj k)) (P.pts' (fsuc k)) (P'.pts' flast)
@@ -1810,6 +1848,7 @@ clamp-TaggedPartition A B A≤B a b a≤b tp = w
  w : TaggedPartition[ a , b ]
  w .fst .len = fst (tp) .len
  w .fst .pts = clampᵣ a b ∘ (fst (tp) .pts)
+ w .fst .endpoints≤ = a≤b
  w .fst .a≤pts k = ≤clampᵣ a b _ a≤b
  w .fst .pts≤b k = clamp≤ᵣ a b _
  w .fst .pts≤pts k = clamp-monotone-≤ᵣ a b _ _
@@ -1818,10 +1857,10 @@ clamp-TaggedPartition A B A≤B a b a≤b tp = w
  w .snd .pts'≤samples j@(zero , _) =
    ≤clampᵣ a b  _ a≤b
  w .snd .pts'≤samples j@(suc k , p) =
-   let jm : Fin (1 ℕ.+ tp .fst .len)
+   let jm : Fin (tp .fst .len)
        jm = k , p
        finj≡mid : finj j ≡ fsuc (finj jm)
-       finj≡mid = toℕ-injective {k = 3 ℕ.+ tp .fst .len} refl
+       finj≡mid = toℕ-injective {k = 2 ℕ.+ tp .fst .len} refl
        lhsMid : pts' (w .fst) (finj j) ≡ pts (w .fst) jm
        lhsMid = cong (pts' (w .fst)) finj≡mid ∙ pts'-mid (w .fst) jm
        rhsMid : clampᵣ a b (pts' (tp .fst) (finj j))
@@ -1833,13 +1872,13 @@ clamp-TaggedPartition A B A≤B a b a≤b tp = w
    in subst2 _≤ᵣ_ (sym lhsEq) refl
        (clamp-monotone-≤ᵣ a b _ _ (tp .snd .pts'≤samples j))
  w .snd .samples≤pts' j@(k , p) =
-   ℕᵗ.split<ᵗ-suc-elim {k = k} {len = suc (tp .fst .len)}
+   ℕᵗ.split<ᵗ-suc-elim {k = k} {len = tp .fst .len}
      p
      (λ k<slen →
-       let jm : Fin (1 ℕ.+ tp .fst .len)
+       let jm : Fin (tp .fst .len)
            jm = k , k<slen
            fsucj≡mid : fsuc j ≡ fsuc (finj jm)
-           fsucj≡mid = toℕ-injective {k = 3 ℕ.+ tp .fst .len} refl
+           fsucj≡mid = toℕ-injective {k = 2 ℕ.+ tp .fst .len} refl
            lhsMid : pts' (w .fst) (fsuc j) ≡ pts (w .fst) jm
            lhsMid = cong (pts' (w .fst)) fsucj≡mid ∙ pts'-mid (w .fst) jm
            rhsMid : clampᵣ a b (pts' (tp .fst) (fsuc j))
@@ -1851,9 +1890,9 @@ clamp-TaggedPartition A B A≤B a b a≤b tp = w
        in subst2 _≤ᵣ_ refl (sym rhsEq)
            (clamp-monotone-≤ᵣ a b _ _ (tp .snd .samples≤pts' j)))
      (λ k≡last →
-       let fsucj≡last : fsuc j ≡ flast {k = 2 ℕ.+ w .fst .len}
+       let fsucj≡last : fsuc j ≡ flast {k = 1 ℕ.+ w .fst .len}
            fsucj≡last =
-             toℕ-injective {k = 3 ℕ.+ w .fst .len} (cong suc k≡last)
+             toℕ-injective {k = 2 ℕ.+ w .fst .len} (cong suc k≡last)
            rhsEq : pts' (w .fst) (fsuc j) ≡ b
            rhsEq = cong (pts' (w .fst)) fsucj≡last ∙ pts'-last (w .fst)
        in subst ((w .snd .samples j) ≤ᵣ_) (sym rhsEq) (clamp≤ᵣ a b _))
@@ -1894,20 +1933,20 @@ clamp-TaggedPartition-mesh A B A≤B a b a≤b (≤a , a≤) (≤b , b≤) tp δ
   clampᵣ a b (pts' (fst tp) k)
  w-pts (zero , _) = sym (x≤→clampᵣ≡ a b A a≤b ≤a)
  w-pts j'@(suc k , p) =
-   ℕᵗ.split<ᵗ-suc-elim {len = suc (len P)} p
+   ℕᵗ.split<ᵗ-suc-elim {len = len P} p
      (λ k<slen →
-       let j : Fin (1 ℕ.+ len P)
+       let j : Fin (len P)
            j = k , k<slen
            j'≡mid : j' ≡ fsuc (finj j)
-           j'≡mid = toℕ-injective {k = 3 ℕ.+ len P} refl
+           j'≡mid = toℕ-injective {k = 2 ℕ.+ len P} refl
            lhsMid : pts' Q j' ≡ pts Q j
            lhsMid = cong (pts' Q) j'≡mid ∙ pts'-mid Q j
            rhsMid : clampᵣ a b (pts' P j') ≡ clampᵣ a b (pts P j)
            rhsMid = cong (clampᵣ a b) (cong (pts' P) j'≡mid ∙ pts'-mid P j)
        in lhsMid ∙ sym rhsMid)
      (λ k≡slen →
-       let j'≡last : j' ≡ flast {k = 2 ℕ.+ len P}
-           j'≡last = toℕ-injective {k = 3 ℕ.+ len P} (cong suc k≡slen)
+       let j'≡last : j' ≡ flast {k = 1 ℕ.+ len P}
+           j'≡last = toℕ-injective {k = 2 ℕ.+ len P} (cong suc k≡slen)
            lhsLast : pts' Q j' ≡ b
            lhsLast = cong (pts' Q) j'≡last ∙ pts'-last Q
            rhsLast : clampᵣ a b (pts' P j') ≡ clampᵣ a b B
@@ -1940,20 +1979,20 @@ clamp-RefinableTaggedPartition A B a b a≤b (≤a , a≤) (≤b , b≤) rfp = w
   clampᵣ a b (pts' (fst (rfp .tpSeq n)) k)
  w-pts n (zero , _) = sym (x≤→clampᵣ≡ a b A a≤b ≤a)
  w-pts n j'@(suc k , p) =
-   ℕᵗ.split<ᵗ-suc-elim {len = suc (len (P n))} p
+   ℕᵗ.split<ᵗ-suc-elim {len = len (P n)} p
      (λ k<slen →
-       let j : Fin (1 ℕ.+ len (P n))
+       let j : Fin (len (P n))
            j = k , k<slen
            j'≡mid : j' ≡ fsuc (finj j)
-           j'≡mid = toℕ-injective {k = 3 ℕ.+ len (P n)} refl
+           j'≡mid = toℕ-injective {k = 2 ℕ.+ len (P n)} refl
            lhsMid : pts' (Q n) j' ≡ pts (Q n) j
            lhsMid = cong (pts' (Q n)) j'≡mid ∙ pts'-mid (Q n) j
            rhsMid : clampᵣ a b (pts' (P n) j') ≡ clampᵣ a b (pts (P n) j)
            rhsMid = cong (clampᵣ a b) (cong (pts' (P n)) j'≡mid ∙ pts'-mid (P n) j)
        in lhsMid ∙ sym rhsMid)
      (λ k≡slen →
-       let j'≡last : j' ≡ flast {k = 2 ℕ.+ len (P n)}
-           j'≡last = toℕ-injective {k = 3 ℕ.+ len (P n)} (cong suc k≡slen)
+       let j'≡last : j' ≡ flast {k = 1 ℕ.+ len (P n)}
+           j'≡last = toℕ-injective {k = 2 ℕ.+ len (P n)} (cong suc k≡slen)
            lhsLast : pts' (Q n) j' ≡ b
            lhsLast = cong (pts' (Q n)) j'≡last ∙ pts'-last (Q n)
            rhsLast : clampᵣ a b (pts' (P n) j') ≡ clampᵣ a b B
@@ -1993,27 +2032,27 @@ rtp-1/n A B A≤B .RefinableTaggedPartition[_,_].tpRef ε =
       (1+ N , p)  = ℚ.ceilℚ₊ (Δ₊ ℚ₊· invℚ₊ ε)
       in N , λ n N<n k →
        let z = subst (ℚ.max (B ℚ.- A) [ pos 1 / 1+ 0 ] ℚ.≤_)
-             (ℚ.·Comm (fst ε) [ pos (suc (suc n)) / 1+ 0 ])
+             (ℚ.·Comm (fst ε) [ pos (suc n) / 1+ 0 ])
               ((x·invℚ₊y≤z→x≤y·z (ℚ.max (B ℚ.- A) [ pos 1 / 1+ 0 ])
                    _ ε
-                (ℚ.<Weaken≤ (fst (Δ₊ ℚ₊· invℚ₊ ε)) (fromNat (suc (suc n)))
-                 (ℚ.isTrans< (fst (Δ₊ ℚ₊· invℚ₊ ε)) _ (fromNat (suc (suc n))) p
+                (ℚ.<Weaken≤ (fst (Δ₊ ℚ₊· invℚ₊ ε)) (fromNat (suc n))
+                 (ℚ.isTrans< (fst (Δ₊ ℚ₊· invℚ₊ ε)) _ (fromNat (suc n)) p
                  (<ℤ→<ℚ
-                   (ℤ.pos (suc N)) (ℤ.pos (suc (suc n)))
-                     (ℤ.ℕ<→pos-<-pos (suc N) (suc (suc n))
-                        (ℕ.suc-≤-suc (ℕ.≤-suc N<n))))))))
+                   (ℤ.pos (suc N)) (ℤ.pos (suc n))
+                     (ℤ.ℕ<→pos-<-pos (suc N) (suc n)
+                       (ℕ.suc-≤-suc N<n)))))))
        in isTrans≡≤ᵣ _ _ _
           (EqualPartition.equalPartitionΔ (rat A) (rat B) (≤ℚ→≤ᵣ A B A≤B) n k ∙
-            cong (_·ᵣ rat [ pos 1 / 2+ n ]) (-ᵣ-rat₂ _ _) ∙
+            cong (_·ᵣ rat [ pos 1 / 1+ n ]) (-ᵣ-rat₂ _ _) ∙
              sym (rat·ᵣrat _ _))
               (≤ℚ→≤ᵣ _ _
-                (ℚ.isTrans≤ ((B ℚ.- A) ℚ.· [ pos 1 / 2+ n ])
+                (ℚ.isTrans≤ ((B ℚ.- A) ℚ.· [ pos 1 / 1+ n ])
                    _ (fst ε)
-                  ((ℚ.≤-·o (B ℚ.- A) (ℚ.max (B ℚ.- A) 1) ([ pos 1 / 2+ n ])
-                  (ℚ.0≤pos 1 (2+ n))
+                  ((ℚ.≤-·o (B ℚ.- A) (ℚ.max (B ℚ.- A) 1) ([ pos 1 / 1+ n ])
+                  (ℚ.0≤pos 1 (1+ n))
                   (ℚ.≤max (B ℚ.- A) 1)))
                   (let N₂ : ℚ₊
-                       N₂ = fromNat (suc (suc n))
+                       N₂ = fromNat (suc n)
                        Δ≤N₂·ε : ℚ.max (B ℚ.- A) 1 ℚ.≤ fst N₂ ℚ.· fst ε
                        Δ≤N₂·ε = z
                        Δ≤ε·N₂ : ℚ.max (B ℚ.- A) 1 ℚ.≤ fst ε ℚ.· fst N₂
@@ -2025,7 +2064,7 @@ rtp-1/n A B A≤B .RefinableTaggedPartition[_,_].tpRef ε =
                        Δ·invN₂≤ε =
                          x≤y·z→x·invℚ₊y≤z (ℚ.max (B ℚ.- A) 1) N₂ (fst ε) Δ≤ε·N₂
                    in subst (λ q → ℚ.max (B ℚ.- A) 1 ℚ.· q ℚ.≤ fst ε)
-                        (invℚ₊-fromNat (suc n))
+                        (invℚ₊-fromNat n)
                         Δ·invN₂≤ε)))
 
 ∃RefinableTaggedPartition : (∀ (A B : ℚ) → A ℚ.≤ B → RefinableTaggedPartition[ rat A , rat B ])
