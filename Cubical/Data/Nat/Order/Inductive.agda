@@ -8,6 +8,7 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum as ⊎
 
 open import Cubical.Data.Bool.Base hiding (_≟_)
 
@@ -95,6 +96,20 @@ isProp<ᵗ {n = suc n} {suc m} = isProp<ᵗ {n = n} {m = m}
 
 ¬squeeze : {n m : ℕ} → ¬ ((n <ᵗ m) × (m <ᵗ suc n))
 ¬squeeze {n = suc n} {suc m} = ¬squeeze {n = n} {m = m}
+
+split<ᵗ-suc-elim : ∀ {ℓ} {k len} {C : Type ℓ} →
+  k <ᵗ suc len →
+  (k <ᵗ len → C) →
+  (k ≡ len → C) →
+  C
+split<ᵗ-suc-elim {k = k} {len} k<slen ltCase eqCase =
+  case k ≟ᵗ len of λ where
+    (lt k<len) → ltCase k<len
+    (eq k≡len) → eqCase k≡len
+    (gt len<k) → ⊥.rec (¬squeeze {n = len} {m = k} (len<k , k<slen))
+
+split<ᵗ-suc : ∀ {k len} → k <ᵗ suc len → (k <ᵗ len) ⊎ (k ≡ len)
+split<ᵗ-suc k<slen = split<ᵗ-suc-elim k<slen ⊎.inl ⊎.inr
 
 <ᵗ→< : {n m : ℕ} → n <ᵗ m → n < m
 <ᵗ→< {n = zero} {suc m} p = m , +-comm m 1

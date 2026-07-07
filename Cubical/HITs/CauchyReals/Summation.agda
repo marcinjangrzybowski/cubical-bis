@@ -734,3 +734,15 @@ module _ (A : Type) where
   -- go (suc k , zero , p) = aₙ
   -- go (suc k , suc l , p) =
   --   f (k , l , cong (predℕ ∘ predℕ) (sym (ℕ.+-suc (suc l) (suc k)) ∙ p))
+
+go-tail-finj : ∀ {A n₀} (R : ElimFinSS A n₀) n (f : Fin n → A) a (j : Fin n) →
+  ElimFinSS.go-tail R n f a (finj j) ≡ f j
+go-tail-finj R zero f a ()
+go-tail-finj R (suc n) f a (zero , _) = refl
+go-tail-finj R (suc n) f a (suc k , p) =
+  go-tail-finj R n (f ∘ fsuc) a (k , p)
+
+go-tail-flast : ∀ {A n₀} (R : ElimFinSS A n₀) n (f : Fin n → A) a →
+  ElimFinSS.go-tail R n f a (flast {k = n}) ≡ a
+go-tail-flast R zero f a = refl
+go-tail-flast R (suc n) f a = go-tail-flast R n (f ∘ fsuc) a
