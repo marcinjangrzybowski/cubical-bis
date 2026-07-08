@@ -267,12 +267,11 @@ Rolle'sTheorem a b a<b a∈ b∈ f f' ucf udf fa≡fb ε =
  w : (Σ[ δ ∈ ℚ₊ ]
         (∀ u v u∈ v∈ → u ∼[ δ ] v → f' u u∈ ∼[ ε ] f' v v∈))
    → (Σ[ δ' ∈ ℚ₊ ]
-        ((x : ℝ) (x∈ : x ∈ intervalℙ a b) (h : ℝ)
-         (h∈ : x +ᵣ h ∈ intervalℙ a b)
-         (0＃h : rat [ pos 0 / 1+ 0 ] ＃ h) →
-         absᵣ h <ᵣ rat (fst δ') →
-         absᵣ (f' x x∈ -ᵣ differenceAtℙ (intervalℙ a b) f x h 0＃h x∈ h∈)
-           <ᵣ rat (fst (ε /2₊))))
+        ((x : ℝ) (x∈ : x ∈ intervalℙ a b) (y : ℝ)
+         (y∈ : y ∈ intervalℙ a b) →
+         absᵣ (y -ᵣ x) ≤ᵣ rat (fst δ') →
+         absᵣ (derivativeErrorℙ (intervalℙ a b) f f' x x∈ y y∈)
+           ≤ᵣ rat (fst (ε /2₊)) ·ᵣ absᵣ (y -ᵣ x)))
    → ∃[ (x₀ , x∈) ∈ Σ ℝ (_∈ intervalℙ a b) ]
         absᵣ (f' x₀ x∈) <ᵣ rat (fst ε)
  w (δ , X) (δ' , X') = PT.rec squash₁ ww
@@ -310,11 +309,11 @@ Rolle'sTheorem a b a<b a∈ b∈ f f' ucf udf fa≡fb ε =
 
 
    z : ∀ f f' → f a a∈ ≡ f b b∈ →
-          ((x : ℝ) (x∈ : x ∈ intervalℙ a b) (h : ℝ)
-           (h∈ : x +ᵣ h ∈ intervalℙ a b) (0＃h : rat [ pos 0 / 1+ 0 ] ＃ h) →
-           absᵣ h <ᵣ rat (fst δ') →
-           absᵣ (f' x x∈ -ᵣ differenceAtℙ (intervalℙ a b) f x h 0＃h x∈ h∈) <ᵣ
-           rat (fst (ε /2₊)))
+          ((x : ℝ) (x∈ : x ∈ intervalℙ a b) (y : ℝ)
+           (y∈ : y ∈ intervalℙ a b) →
+           absᵣ (y -ᵣ x) ≤ᵣ rat (fst δ') →
+           absᵣ (derivativeErrorℙ (intervalℙ a b) f f' x x∈ y y∈)
+             ≤ᵣ rat (fst (ε /2₊)) ·ᵣ absᵣ (y -ᵣ x))
         → ∃-syntax (Fin (suc Pa.len))
         (λ k → (-ᵣ rat (fst ε))
           <ᵣ f' (Pa.pts' (finj k)) (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k)))
@@ -354,62 +353,76 @@ Rolle'sTheorem a b a<b a∈ b∈ f f' ucf udf fa≡fb ε =
             +ᵣ rat (fst ε))
           ·ᵣ
           (Pa.pts' (fsuc k) -ᵣ Pa.pts' (finj k))
-    <f k = isTrans<ᵣ _ _ _ (isTrans<≡ᵣ _ _ _
-      (fst (z/y<x₊≃z<y₊·x
-        (f' (Pa.pts' (finj k))
-          (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k))
-          +ᵣ rat (fst (ε /2₊)))
-        (f (Pa.pts' (fsuc k))
-          (Pa.a≤pts' (fsuc k) , Pa.pts'≤b (fsuc k))
-          -ᵣ f (Pa.pts' (finj k))
-          (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k)))
-        (Pa.pts' (fsuc k) -ᵣ Pa.pts' (finj k) ,
-          x<y→0<y-x _ _ (str-pa k)))
-        fromX') (·ᵣComm _ _))
-           (<ᵣ-·ᵣo _ _
-             (_ , x<y→0<y-x _ _ (str-pa k))
-            (<ᵣ-o+ _ _ _ (<ℚ→<ᵣ _ _ (x/2<x ε))))
+    <f k = isTrans≤<ᵣ _ _ _
+      fromX'
+      (<ᵣ-·ᵣo _ _
+        (_ , x<y→0<y-x _ _ (str-pa k))
+        (<ᵣ-o+ _ _ _ (<ℚ→<ᵣ _ _ (x/2<x ε))))
      where
      fromX' :
        (f (Pa.pts' (fsuc k))
          (Pa.a≤pts' (fsuc k) , Pa.pts'≤b (fsuc k))
         -ᵣ f (Pa.pts' (finj k))
          (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k)))
-       ·ᵣ fst (invℝ₊
-         (Pa.pts' (fsuc k) -ᵣ Pa.pts' (finj k) ,
-          x<y→0<y-x _ _ (str-pa k)))
-       <ᵣ
-       f' (Pa.pts' (finj k))
+       ≤ᵣ
+       (f' (Pa.pts' (finj k))
          (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k))
-       +ᵣ rat (fst (ε /2₊))
-     fromX' = (isTrans≡<ᵣ _ _ _
-       (cong₂ _·ᵣ_
-         (cong₂ _-ᵣ_
-           (cong (uncurry f)
-             (Σ≡Prop (∈-isProp (intervalℙ a b))
-               (sym (u+[v-u]≡v (Pa.pts' (finj k)) (Pa.pts' (fsuc k))))) )
-           refl)
-        (invℝ₊≡invℝ (_ , x<y→0<y-x _ _ (str-pa k)) _))
-       (isTrans<≡ᵣ _ _ _ (a-b<c⇒a<c+b _ _ _
-        (isTrans≤<ᵣ _ _ _
-         (≤absᵣ _)
-         (isTrans≡<ᵣ _ _ _
-          (minusComm-absᵣ _ _)
-            (X' (Pa.pts' (finj k)) (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k))
-        (Pa.pts' (fsuc k) -ᵣ Pa.pts' (finj k))
-        (subst-∈ (intervalℙ a b)
-          (sym (u+[v-u]≡v (Pa.pts' (finj k)) (Pa.pts' (fsuc k))))
-           (Pa.a≤pts' (fsuc k) , Pa.pts'≤b (fsuc k)))
-        (invEq (＃Δ _ _) (inl (str-pa k)))
-        (isTrans≡<ᵣ _ _ _
-          (absᵣNonNeg _ (x≤y→0≤y-x _ _ (Pa.pts'≤pts' k)))
-          (isTrans≤<ᵣ _ _ _
-            (isTrans≤ᵣ _ _ _
-              (mesh-pa k)
-              (≤ℚ→≤ᵣ (fst δ⊓δ')  (fst (δ' /2₊))
-                (ℚ.min≤' (fst (δ /2₊)) (fst (δ' /2₊)))))
-            (<ℚ→<ᵣ _ _ (x/2<x δ'))))))))
-            (+ᵣComm _ _)))
+         +ᵣ rat (fst (ε /2₊)))
+       ·ᵣ
+       (Pa.pts' (fsuc k) -ᵣ Pa.pts' (finj k))
+     fromX' =
+       isTrans≤≡ᵣ _ _ _
+         (a-b≤c⇒a≤c+b _ _ _ err≤)
+         
+         (+ᵣComm
+           (rat (fst (ε /2₊))
+            ·ᵣ (Pa.pts' (fsuc k) -ᵣ Pa.pts' (finj k)))
+           (f' (Pa.pts' (finj k))
+             (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k))
+            ·ᵣ (Pa.pts' (fsuc k) -ᵣ Pa.pts' (finj k)))
+          ∙ sym (·DistR+
+             (f' (Pa.pts' (finj k))
+               (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k)))
+             (rat (fst (ε /2₊)))
+             (Pa.pts' (fsuc k) -ᵣ Pa.pts' (finj k))))
+       where
+       h≤δ' :
+         absᵣ (Pa.pts' (fsuc k) -ᵣ Pa.pts' (finj k)) ≤ᵣ rat (fst δ')
+       h≤δ' =
+         <ᵣWeaken≤ᵣ _ _
+           (isTrans≡<ᵣ _ _ _
+             (absᵣNonNeg _ (x≤y→0≤y-x _ _ (Pa.pts'≤pts' k)))
+             (isTrans≤<ᵣ _ _ _
+               (isTrans≤ᵣ _ _ _
+                 (mesh-pa k)
+                 (≤ℚ→≤ᵣ (fst δ⊓δ')  (fst (δ' /2₊))
+                   (ℚ.min≤' (fst (δ /2₊)) (fst (δ' /2₊)))))
+               (<ℚ→<ᵣ _ _ (x/2<x δ'))))
+
+       err≤ :
+         (f (Pa.pts' (fsuc k))
+           (Pa.a≤pts' (fsuc k) , Pa.pts'≤b (fsuc k))
+          -ᵣ f (Pa.pts' (finj k))
+           (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k)))
+         -ᵣ
+         f' (Pa.pts' (finj k))
+           (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k))
+         ·ᵣ (Pa.pts' (fsuc k) -ᵣ Pa.pts' (finj k))
+         ≤ᵣ
+         rat (fst (ε /2₊))
+         ·ᵣ (Pa.pts' (fsuc k) -ᵣ Pa.pts' (finj k))
+       err≤ =
+         isTrans≤ᵣ _ _ _
+           (≤absᵣ _)
+           (isTrans≤≡ᵣ _ _ _
+             (X' (Pa.pts' (finj k))
+               (Pa.a≤pts' (finj k) , Pa.pts'≤b (finj k))
+               (Pa.pts' (fsuc k))
+               (Pa.a≤pts' (fsuc k) , Pa.pts'≤b (fsuc k))
+               h≤δ')
+             (cong (rat (fst (ε /2₊)) ·ᵣ_)
+               (absᵣNonNeg _
+                 (x≤y→0≤y-x _ _ (Pa.pts'≤pts' k)))))
 
     Δ : Fin (suc Pa.len) → ℝ
     Δ k =
@@ -462,15 +475,10 @@ Rolle'sTheorem a b a<b a∈ b∈ f f' ucf udf fa≡fb ε =
           (z (λ x x∈ → -ᵣ (f x x∈))
                (λ x x∈ → -ᵣ (f' x x∈))
                 (cong -ᵣ_ fa≡fb)
-                 λ x x∈ h h∈ 0＃h h<δ' →
-                  isTrans≡<ᵣ _ _ _
-                     (cong absᵣ (sym (-ᵣDistr _ _)) ∙
-                      sym (-absᵣ _)
-                        ∙ cong (absᵣ ∘ (f' x x∈ +ᵣ_))
-                          (cong (_·ᵣ invℝ h 0＃h)
-                            (sym (-ᵣDistr _ _))
-                            ∙ -ᵣ· _ _) )
-                     (X' x x∈ h h∈ 0＃h h<δ'))
+                 λ x x∈ y y∈ y-x≤δ' →
+                  isTrans≡≤ᵣ _ _ _
+                     (cong absᵣ ℝ! ∙ sym (-absᵣ _))
+                     (X' x x∈ y y∈ y-x≤δ'))
 
 
    ∀case : ((a₁ : Fin (suc (suc Pa.len))) →
@@ -538,13 +546,13 @@ Rolle'sTheorem a b a<b a∈ b∈ f f' ucf udf fa≡fb ε =
               (isTrans≡<ᵣ _ _ _ (sym (rat·ᵣrat (fst ε) _)))
          ∘_)
 
-meanValue : ∀ a b → a <ᵣ b → ∀ a∈ b∈ f f'
+meanValue' : ∀ a b → a <ᵣ b → ∀ a∈ b∈ f f'
        →  IsUContinuousℙ (intervalℙ a b) f'
        →  uDerivativeOfℙ (intervalℙ a b) , f is f'
        → (ε : ℚ₊) →
           ∃[ (x₀ , x∈) ∈ Σ ℝ (_∈ intervalℙ a b) ]
            absᵣ ((f b b∈ -ᵣ f a a∈)  -ᵣ f' x₀ x∈ ·ᵣ (b -ᵣ a)) <ᵣ rat (fst ε)
-meanValue a b a<b a∈ b∈ f f' ucf udf =
+meanValue' a b a<b a∈ b∈ f f' ucf udf =
   PT.rec (isPropΠ λ _ → squash₁) (λ uch' → Rolle'sTheorem a b a<b a∈ b∈
      h h' uch' udh ha≡hb)
       uch
@@ -611,19 +619,102 @@ meanValue a b a<b a∈ b∈ f f' ucf udf =
     ∙ Rℝ.·DistL- (f b b∈ -ᵣ f a a∈) (f b b∈) (b -ᵣ a)
     ∙ cong₂ _-ᵣ_ (·ᵣComm _ _) refl
 
-nullDerivative→const : ∀ a b a∈ b∈ → a <ᵣ b → ∀ f
+meanValue : ∀ a b → a ≤ᵣ b → ∀ a∈ b∈ f f'
+       →  IsUContinuousℙ (intervalℙ a b) f'
+       →  uDerivativeOfℙ (intervalℙ a b) , f is f'
+       → (ε : ℚ₊) →
+          ∃[ (x₀ , x∈) ∈ Σ ℝ (_∈ intervalℙ a b) ]
+           absᵣ ((f b b∈ -ᵣ f a a∈)  -ᵣ f' x₀ x∈ ·ᵣ (b -ᵣ a)) <ᵣ rat (fst ε)
+meanValue a b a≤b a∈ b∈ f f' ucf udf ε =
+  PT.rec squash₁
+    (λ (η , 0<η , η<ε/σ) →
+      let η₊ = η , ℚ<→0< η (<ᵣ→<ℚ 0 η 0<η)
+      in PT.rec squash₁
+        (λ (δ , X) →
+          PT.rec squash₁
+            (⊎.rec
+              (λ ∣b-a∣<δ → ∣ small η₊ η<ε/σ δ X ∣b-a∣<δ ∣₁)
+              large)
+            (Dichotomyℝ' 0 (absᵣ (b -ᵣ a)) (rat (fst δ))
+              (<ℚ→<ᵣ _ _ (snd δ))))
+        (udf η₊))
+    (denseℚinℝ 0 (fst ε/σ) (snd ε/σ))
+ where
+  σ : ℝ₊
+  σ =
+    absᵣ (b -ᵣ a) +ᵣ 1 ,
+    isTrans≡<ᵣ _ _ _
+      (sym (+ᵣ-rat 0 0))
+      (≤<ᵣMonotone+ᵣ _ _ _ _
+        (0≤absᵣ (b -ᵣ a)) (decℚ<ᵣ? {0} {1}))
+
+  ε/σ : ℝ₊
+  ε/σ = ℚ₊→ℝ₊ ε ₊·ᵣ invℝ₊ σ
+
+  ∣b-a∣≤σ : absᵣ (b -ᵣ a) ≤ᵣ fst σ
+  ∣b-a∣≤σ =
+    isTrans≡≤ᵣ _ _ _
+      (sym (+IdR (absᵣ (b -ᵣ a))))
+      (≤ᵣ-o+ 0 1 (absᵣ (b -ᵣ a)) (decℚ≤ᵣ? {0} {1}))
+
+  small : (η : ℚ₊)
+        → rat (fst η) <ᵣ fst ε/σ
+        → (δ : ℚ₊)
+        → ((x : ℝ) (x∈ : x ∈ intervalℙ a b) (y : ℝ)
+            (y∈ : y ∈ intervalℙ a b) →
+            absᵣ (y -ᵣ x) ≤ᵣ rat (fst δ) →
+            absᵣ (derivativeErrorℙ (intervalℙ a b) f f' x x∈ y y∈)
+              ≤ᵣ rat (fst η) ·ᵣ absᵣ (y -ᵣ x))
+        → absᵣ (b -ᵣ a) <ᵣ rat (fst δ)
+        → Σ (Σ ℝ (_∈ intervalℙ a b))
+            (λ v → absᵣ ((f b b∈ -ᵣ f a a∈)
+              -ᵣ f' (v .fst) (v .snd) ·ᵣ (b -ᵣ a))
+              <ᵣ rat (fst ε)
+            )
+  small η η<ε/σ δ X ∣b-a∣<δ =
+    (a , a∈) ,
+    isTrans≤<ᵣ _ _ _
+      (X a a∈ b b∈ (<ᵣWeaken≤ᵣ _ _ ∣b-a∣<δ))
+      η·∣b-a∣<ε
+   where
+    η·∣b-a∣<ε :
+      rat (fst η) ·ᵣ absᵣ (b -ᵣ a) <ᵣ rat (fst ε)
+    η·∣b-a∣<ε =
+      isTrans≤<ᵣ _ _ _
+        (≤ᵣ-o·ᵣ (absᵣ (b -ᵣ a)) (fst σ) (rat (fst η))
+          (<ᵣWeaken≤ᵣ 0 (rat (fst η)) (snd (ℚ₊→ℝ₊ η)))
+          ∣b-a∣≤σ)
+        (isTrans≡<ᵣ _ _ _
+          (·ᵣComm (rat (fst η)) (fst σ))
+          (fst (z<x/y₊≃y₊·z<x (rat (fst ε)) (rat (fst η)) σ)
+            η<ε/σ))
+
+  large : 0 <ᵣ absᵣ (b -ᵣ a)
+        → ∃[ (x₀ , x∈) ∈ Σ ℝ (_∈ intervalℙ a b) ]
+            absᵣ ((f b b∈ -ᵣ f a a∈) -ᵣ f' x₀ x∈ ·ᵣ (b -ᵣ a))
+              <ᵣ rat (fst ε)
+  large 0<∣b-a∣ =
+    meanValue' a b a<b a∈ b∈ f f' ucf udf ε
+   where
+    0<b-a : 0 <ᵣ b -ᵣ a
+    0<b-a =
+      isTrans<≡ᵣ _ _ _
+        0<∣b-a∣
+        (absᵣNonNeg (b -ᵣ a) (x≤y→0≤y-x a b a≤b))
+
+    a<b : a <ᵣ b
+    a<b = 0<y-x→x<y a b 0<b-a
+ 
+nullDerivative→const : ∀ a b a∈ b∈ → a ≤ᵣ b → ∀ f
        → uDerivativeOfℙ (intervalℙ a b) , f is (λ _ _ → 0)
        → f a a∈ ≡ f b b∈
-nullDerivative→const a b a∈ b∈ a<b f udf  =
+nullDerivative→const a b a∈ b∈ a≤b f udf  =
   eqℝ _ _ λ ε →
     PT.rec (isProp∼ _ _ _)
       (λ (_ , X) →
-        sym∼ _ _ _ (invEq (∼≃abs<ε _ _ ε)
+        sym∼ _ _ _ (invEq (∼≃abs<ε _ _ _)
           (isTrans≡<ᵣ _ _ _
-            (cong absᵣ
-              (sym (Rℝ.+IdR' _ _
-                (cong -ᵣ_ (Rℝ.0LeftAnnihilates (b -ᵣ a))
-                 ∙ -ᵣ-rat 0))))
+            (cong absᵣ ℝ!)
             X)))
-      (meanValue a b a<b a∈ b∈ f
-        (λ _ _ → 0) (λ ε₁ → 1 , λ _ _ _ _ _ → refl∼ 0 ε₁) udf ε)
+      (meanValue a b a≤b a∈ b∈ f
+        (λ _ _ → 0) (λ ε₁ → 1 , λ _ _ _ _ _ → refl∼ _ _) udf ε)
