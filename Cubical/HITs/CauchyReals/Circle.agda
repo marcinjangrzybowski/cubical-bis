@@ -52,6 +52,7 @@ open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
 open import Cubical.HITs.CauchyReals.Continuous
 open import Cubical.HITs.CauchyReals.Multiplication
+open import Cubical.HITs.CauchyReals.Power
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
 open import Cubical.HITs.CauchyReals.Derivative
@@ -826,4 +827,3 @@ cDist = SQ.Rec2.go w
          ∙∙ cong₂ _·ᵣ_ (sym (-[x-y]≡y-x _ _)) refl ∙ -ᵣ· _ _
          ∙∙ cong -ᵣ_ (·ᵣAssoc _ _ _))
            ∙ sym (cos-even _)))
-

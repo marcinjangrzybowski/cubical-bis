@@ -481,6 +481,78 @@ opaque
         (ℚ.- q' , ℚ.- q) , -ᵣ≤ᵣ (rat q') _ z'' , ((ℚ.minus-< _ _ z') , -ᵣ≤ᵣ x _ z)
 
 
+reverseHalfLineStrict : ∀ x₀ → Iso (Σ _ (x₀ <ᵣ_)) (Σ _ (_<ᵣ -ᵣ x₀))
+reverseHalfLineStrict x₀ .Iso.fun (x , x₀<) =
+  -ᵣ x , -ᵣ<ᵣ _ _ x₀<
+reverseHalfLineStrict x₀ .Iso.inv (x , <-x₀) =
+  -ᵣ x , isTrans≡<ᵣ _ _ _ (sym (-ᵣInvol _)) (-ᵣ<ᵣ _ _ <-x₀)
+reverseHalfLineStrict x₀ .Iso.sec _ =
+  Σ≡Prop (λ _ → isProp<ᵣ _ _) (-ᵣInvol _)
+reverseHalfLineStrict x₀ .Iso.ret _ =
+  Σ≡Prop (λ _ → isProp<ᵣ _ _) (-ᵣInvol _)
+
+
+reverseHalfLine : ∀ x₀ → Iso (Σ _ (x₀ ≤ᵣ_)) (Σ _ (_≤ᵣ -ᵣ x₀))
+reverseHalfLine x₀ .Iso.fun (x , x₀≤) =
+  -ᵣ x , -ᵣ≤ᵣ _ _ x₀≤
+reverseHalfLine x₀ .Iso.inv (x , ≤-x₀) =
+  -ᵣ x , isTrans≡≤ᵣ _ _ _ (sym (-ᵣInvol _)) (-ᵣ≤ᵣ _ _ ≤-x₀)
+reverseHalfLine x₀ .Iso.sec _ =
+  Σ≡Prop (λ _ → isProp≤ᵣ _ _) (-ᵣInvol _)
+reverseHalfLine x₀ .Iso.ret _ =
+  Σ≡Prop (λ _ → isProp≤ᵣ _ _) (-ᵣInvol _)
+
+
+reverseHalfLineStrict' : ∀ x₀ → Iso (Σ _ ((-ᵣ x₀) <ᵣ_)) (Σ _ (_<ᵣ x₀))
+reverseHalfLineStrict' x₀ .Iso.fun (x , x₀<) =
+  -ᵣ x , isTrans<≡ᵣ _ _ _ (-ᵣ<ᵣ _ _ x₀<) (-ᵣInvol _)
+reverseHalfLineStrict' x₀ .Iso.inv (x , <-x₀) =
+  -ᵣ x , -ᵣ<ᵣ _ _ <-x₀
+reverseHalfLineStrict' x₀ .Iso.sec _ =
+  Σ≡Prop (λ _ → isProp<ᵣ _ _) (-ᵣInvol _)
+reverseHalfLineStrict' x₀ .Iso.ret _ =
+  Σ≡Prop (λ _ → isProp<ᵣ _ _) (-ᵣInvol _)
+
+
+reverseHalfLine' : ∀ x₀ → Iso (Σ _ ((-ᵣ x₀) ≤ᵣ_)) (Σ _ (_≤ᵣ x₀))
+reverseHalfLine' x₀ .Iso.fun (x , x₀≤) =
+  -ᵣ x , isTrans≤≡ᵣ _ _ _ (-ᵣ≤ᵣ _ _ x₀≤) (-ᵣInvol _)
+reverseHalfLine' x₀ .Iso.inv (x , ≤-x₀) =
+  -ᵣ x , -ᵣ≤ᵣ _ _ ≤-x₀
+reverseHalfLine' x₀ .Iso.sec _ =
+  Σ≡Prop (λ _ → isProp≤ᵣ _ _) (-ᵣInvol _)
+reverseHalfLine' x₀ .Iso.ret _ =
+  Σ≡Prop (λ _ → isProp≤ᵣ _ _) (-ᵣInvol _)
+
+
+reverseHalfLineFn : ∀ x₀ y₀ →
+  Iso ((Σ _ (x₀ ≤ᵣ_)) → (Σ _ (y₀ ≤ᵣ_)))
+      ((Σ _ (_≤ᵣ (-ᵣ x₀))) → (Σ _ (_≤ᵣ (-ᵣ y₀))))
+reverseHalfLineFn x₀ y₀ =
+  compIso (codomainIso (reverseHalfLine y₀)) (domIso (reverseHalfLine x₀))
+
+
+reverseHalfLineFnStrict : ∀ x₀ y₀ →
+  Iso ((Σ _ (x₀ <ᵣ_)) → (Σ _ (y₀ <ᵣ_)))
+      ((Σ _ (_<ᵣ (-ᵣ x₀))) → (Σ _ (_<ᵣ (-ᵣ y₀))))
+reverseHalfLineFnStrict x₀ y₀ =
+  compIso (codomainIso (reverseHalfLineStrict y₀)) (domIso (reverseHalfLineStrict x₀))
+
+
+reverseHalfLineFn' : ∀ x₀ y₀ →
+  Iso ((Σ _ ((-ᵣ x₀) ≤ᵣ_)) → (Σ _ ((-ᵣ y₀) ≤ᵣ_)))
+      ((Σ _ (_≤ᵣ x₀)) → (Σ _ (_≤ᵣ y₀)))
+reverseHalfLineFn' x₀ y₀ =
+  compIso (codomainIso (reverseHalfLine' y₀)) (domIso (reverseHalfLine' x₀))
+
+
+reverseHalfLineFnStrict' : ∀ x₀ y₀ →
+  Iso ((Σ _ ((-ᵣ x₀) <ᵣ_)) → (Σ _ ((-ᵣ y₀) <ᵣ_)))
+      ((Σ _ (_<ᵣ x₀)) → (Σ _ (_<ᵣ y₀)))
+reverseHalfLineFnStrict' x₀ y₀ =
+  compIso (codomainIso (reverseHalfLineStrict' y₀)) (domIso (reverseHalfLineStrict' x₀))
+
+
 
 𝕣-lim-dist : ∀ x y ε → absᵣ ((x ( ε /2₊)) +ᵣ (-ᵣ lim x y)) <ᵣ rat (fst ε)
 𝕣-lim-dist x y ε =

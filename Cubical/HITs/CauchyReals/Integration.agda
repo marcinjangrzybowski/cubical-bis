@@ -120,6 +120,17 @@ IntegralUniq a b a≤b f s s' S S' =
        (S (half₊ ε)) (S' (half₊ ε))
 
 
+Integral'≡ : ∀ a b → (a ≤ᵣ b) → ∀ f g s
+  → (∀ x → x ∈ intervalℙ a b → f x ≡ g x)
+  → on[ a , b ]IntegralOf f is' s
+  → on[ a , b ]IntegralOf g is' s
+Integral'≡ a b a≤b f g s p =
+  (λ {ε} → PT.map (map-snd λ X tp msh≤ →
+    isTrans≡<ᵣ _ _ _ (cong (absᵣ ∘ (_-ᵣ s))
+      (sym (riemannSum'≡ (snd tp) f g p)))
+     (X tp msh≤))) ∘_
+
+
 IntegratedProp : ∀ a b → a ≤ᵣ b → ∀ f → isProp (Σ _ on[ a , b ]IntegralOf f is'_)
 IntegratedProp a b a≤b f (s , S) (s' , S')  =
   Σ≡Prop (λ _ → isPropΠ λ _ → squash₁ )

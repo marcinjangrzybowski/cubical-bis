@@ -1191,4 +1191,3 @@ ontervalℙ⊂intervalℙ x (a<x , x<b) =
    <ᵣWeaken≤ᵣ _ _ x<b
 
 
-

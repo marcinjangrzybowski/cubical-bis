@@ -611,14 +611,10 @@ module IntegrationUC
        ≡ fst (Integrate-UContinuous a b a≤b g gc)
  Integrate-UContinuous-≡-∈ a b a≤b f g fc gc x =
    Integral'Uniq a b a≤b _ _ _
-     (PT.map (map-snd (λ {δ} X tp msh< →
-      isTrans≡<ᵣ _ _ _
-        (cong (λ rs → absᵣ
-         (rs -ᵣ
-          Integrate-UContinuous a b a≤b f fc .fst))
-             (sym (riemannSum'≡ (snd tp) _ _ x)))
-        (X tp msh<)))
-       ∘ (snd (Integrate-UContinuous a b a≤b f fc)))
+     (Integral'≡ a b a≤b f g
+       (fst (Integrate-UContinuous a b a≤b f fc))
+       x
+       (snd (Integrate-UContinuous a b a≤b f fc)))
      (snd (Integrate-UContinuous a b a≤b g gc))
 
  Integral- : ∀ a b (a≤b : a ≤ᵣ b) f g fc gc

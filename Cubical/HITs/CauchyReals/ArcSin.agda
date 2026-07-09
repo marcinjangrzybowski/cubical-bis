@@ -50,8 +50,10 @@ open import Cubical.HITs.CauchyReals.Lems
 open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
+open import Cubical.HITs.CauchyReals.OrderBounds
 open import Cubical.HITs.CauchyReals.Continuous
 open import Cubical.HITs.CauchyReals.Multiplication
+open import Cubical.HITs.CauchyReals.Power
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
 open import Cubical.HITs.CauchyReals.Derivative
