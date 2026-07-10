@@ -8,6 +8,7 @@ open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Nat as ℕ hiding (_+_; _·_)
 import Cubical.Data.Nat.Order as ℕ
+open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 
@@ -45,6 +46,54 @@ clampᵣ∈intervalℙ : ∀ L U → L ≤ᵣ U → ∀ x →
   clampᵣ L U x ∈ intervalℙ L U
 clampᵣ∈intervalℙ L U L≤U x =
   ≤clampᵣ L U x L≤U , clamp≤ᵣ L U x
+
+Lipschitz-ℚ→ℚℙ : ℚ₊ → (P : ℙ ℚ) → (ℚ → ℚ) → Type
+Lipschitz-ℚ→ℚℙ L P f =
+  ∀ q → q ∈ P → ∀ r → r ∈ P → (ε : ℚ₊) →
+    abs (q ℚ.- r) ℚ.< fst ε →
+    abs (f q ℚ.- f r) ℚ.< fst (L ·₊ ε)
+
+Lipschitz-ℚ→ℚℙ< : ℚ₊ → (P : ℙ ℚ) → (ℚ → ℚ) → Type
+Lipschitz-ℚ→ℚℙ< L P f =
+  ∀ q → q ∈ P → ∀ r → r ∈ P → r ℚ.< q →
+    abs (f q ℚ.- f r) ℚ.≤ fst L ℚ.· (q ℚ.- r)
+
+Lipschitz-ℚ→ℚℙ<→Lipschitz-ℚ→ℚℙ :
+  ∀ L P f → Lipschitz-ℚ→ℚℙ< L P f → Lipschitz-ℚ→ℚℙ L P f
+Lipschitz-ℚ→ℚℙ<→Lipschitz-ℚ→ℚℙ L P f X q q∈ r r∈ ε u
+  with ℚ.Dichotomyℚ q r
+... | inr r<q =
+  ℚ.isTrans≤< _ _ _
+    (X q q∈ r r∈ r<q)
+    (ℚ.<-o· _ _ (fst L) (snd L)
+      (subst (ℚ._< fst ε)
+        (0<→abs≡id (q ℚ.- r) (ℚ.-< r q r<q))
+        u))
+... | inl q≤r with ℚ.≤→≡⊎< q r q≤r
+... | inl q≡r =
+  subst (λ z → abs (f z ℚ.- f r) ℚ.< fst (L ·₊ ε)) (sym q≡r)
+    (subst (ℚ._< fst (L ·₊ ε))
+      (cong abs (sym (ℚ.+InvR (f r))))
+      (snd (L ·₊ ε)))
+... | inr q<r =
+  subst (ℚ._< fst (L ·₊ ε))
+    (sym (abs-Comm (f q) (f r)))
+    (ℚ.isTrans≤< _ _ _
+      (X r r∈ q q∈ q<r)
+      (ℚ.<-o· _ _ (fst L) (snd L)
+        (subst (ℚ._< fst ε)
+          (0<→abs≡id (r ℚ.- q) (ℚ.-< q r q<r))
+          (subst (ℚ._< fst ε) (abs-Comm q r) u))))
+
+Lipschitz-ℚ→ℚℙ→Lipschitz-ℚ→ℝℙ :
+  ∀ L a b f → Lipschitz-ℚ→ℚℙ L (ℚ.ℚintervalℙ a b) f →
+  Lipschitz-ℚ→ℝℙ L (intervalℙ (rat a) (rat b)) (λ q _ → rat (f q))
+Lipschitz-ℚ→ℚℙ→Lipschitz-ℚ→ℝℙ L a b f fLip q q∈ r r∈ ε q-r<ε =
+  isTrans≡<ᵣ _ _ _
+    (cong absᵣ (-ᵣ-rat₂ _ _) ∙ absᵣ-rat _)
+    (<ℚ→<ᵣ _ _
+      (fLip q (∈intervalℙ→∈ℚintervalℙ a b q q∈)
+        r (∈intervalℙ→∈ℚintervalℙ a b r r∈) ε q-r<ε))
 
 opaque
  unfolding minᵣ
@@ -309,10 +358,36 @@ module InverseBisection
     inverseℝ-lip : Lipschitz-ℝ→ℝ (2 ·₊ (L ⁻¹₊)) inverseℝ
     inverseℝ-lip = snd inverseℝ-L
 
+    inverseℝ-cont : IsContinuous inverseℝ
+    inverseℝ-cont =
+      Lipschitz→IsContinuous (2 ·₊ (L ⁻¹₊)) inverseℝ inverseℝ-lip
+
     inverseℝ-rat :
       ∀ y y∈ → inverseℝ (rat y) ≡ inverseℚ y
     inverseℝ-rat y y∈ =
       fromLipschitz-rat ∙ snd (snd inverseℚExtended) y y∈
+
+    inverseℝ∈ :
+      ∀ y → y ∈ TargetIntervalℙ → inverseℝ y ∈ intervalℙ (rat a) (rat b)
+    inverseℝ∈ =
+      continuousMapsInterval inverseℝ inverseℝ-cont
+        targetLower targetUpper targetLower≤targetUpper
+        (rat a) (rat b) (≤ℚ→≤ᵣ a b (ℚ.<Weaken≤ a b a<b))
+        λ q q∈ →
+          subst-∈ (intervalℙ (rat a) (rat b)) (sym (inverseℝ-rat q q∈))
+            (inverseℚ∈ q)
+
+    inverseℝ-ℚApproxℙ :
+      ℚApproxℙ' TargetIntervalℙ (intervalℙ (rat a) (rat b))
+        (λ y y∈ → inverseℝ y , inverseℝ∈ y y∈)
+    inverseℝ-ℚApproxℙ y y∈ =
+        (λ ε → QB.bs y (suc (fst (inverseSeqCauchy y ε))))
+      , (λ ε →
+          ∈ℚintervalℙ→∈intervalℙ a b _
+            (QB.a≤bs y (suc (fst (inverseSeqCauchy y ε))) ,
+             QB.bs≤b y (suc (fst (inverseSeqCauchy y ε)))))
+      , fromCauchySequence'-isCA (inverseSeq y) (inverseSeqCauchy y)
+      , sym (inverseℝ-rat y y∈)
 
     private
       pointInOwnBisectionBracket :
@@ -408,17 +483,13 @@ module InverseBisection
       (M : ℚ₊)
       (F : ℝ → ℝ)
       (F-lip : Lipschitz-ℝ→ℝ M F)
-      (fℚ-lip : Lipschitz-ℚ→ℚ M fℚ)
+      (fℚ-lip : Lipschitz-ℚ→ℚℙ M (ℚ.ℚintervalℙ a b) fℚ)
       (F-rat : ∀ x → rat x ∈ intervalℙ (rat a) (rat b) →
         F (rat x) ≡ rat (fℚ x))
       where
 
       F-cont : IsContinuous F
       F-cont = Lipschitz→IsContinuous M F F-lip
-
-      inverseℝ-cont : IsContinuous inverseℝ
-      inverseℝ-cont =
-        Lipschitz→IsContinuous (2 ·₊ (L ⁻¹₊)) inverseℝ inverseℝ-lip
 
       F∈ : ∀ x → x ∈ intervalℙ (rat a) (rat b) → F x ∈ TargetIntervalℙ
       F∈ =
@@ -471,7 +542,10 @@ module InverseBisection
         imageWidthSmall y n ε width< =
           subst (abs (fℚ (QB.bs↑ y n) ℚ.- fℚ (QB.bs y n)) ℚ.<_)
             (ℚ.y·[x/y] M (fst ε))
-            (fℚ-lip (QB.bs↑ y n) (QB.bs y n) ((M ⁻¹₊) ·₊ ε)
+            (fℚ-lip
+              (QB.bs↑ y n) (QB.a≤bs↑ y n , QB.bs↑≤b y n)
+              (QB.bs y n) (QB.a≤bs y n , QB.bs≤b y n)
+              ((M ⁻¹₊) ·₊ ε)
               (subst (λ z → z ℚ.< fst ((M ⁻¹₊) ·₊ ε))
                 (sym (0≤→abs≡id (QB.bs↑ y n ℚ.- QB.bs y n)
                   (QB.widthNonNeg y n)))
@@ -576,16 +650,6 @@ module InverseBisection
         ∀ x → x ∈ intervalℙ (rat a) (rat b) → inverseℝ (F x) ≡ x
       inverseℝ-F =
         elimInClampsᵣ (rat a) (rat b) inverseℝ-F-clamp
-
-      inverseℝ∈ :
-        ∀ y → y ∈ TargetIntervalℙ → inverseℝ y ∈ intervalℙ (rat a) (rat b)
-      inverseℝ∈ =
-        continuousMapsInterval inverseℝ inverseℝ-cont
-          targetLower targetUpper targetLower≤targetUpper
-          (rat a) (rat b) (≤ℚ→≤ᵣ a b (ℚ.<Weaken≤ a b a<b))
-          λ q q∈ →
-            subst-∈ (intervalℙ (rat a) (rat b)) (sym (inverseℝ-rat q q∈))
-              (inverseℚ∈ q)
 
       intervalIso :
         Iso (Σ ℝ (_∈ intervalℙ (rat a) (rat b)))

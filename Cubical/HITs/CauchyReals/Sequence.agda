@@ -1081,6 +1081,32 @@ x/y<1 x y 0<x 0<y =
       (isTrans≤ᵣ _ _ _ 0≤x x≤y) (0≤x^ⁿ _ n 0≤x) 
      x≤y (^ⁿ-Monotone n 0≤x x≤y)
 
+ℚ^ⁿ-Monotone : ∀ {x y : ℚ} (n : ℕ) →
+  0 ℚ.≤ x → 0 ℚ.≤ y → x ℚ.≤ y →
+  ℚ._^ⁿ_ x n ℚ.≤ ℚ._^ⁿ_ y n
+ℚ^ⁿ-Monotone zero 0≤x 0≤y x≤y = ℚ.isRefl≤ 1
+ℚ^ⁿ-Monotone {x} {y} (suc n) 0≤x 0≤y x≤y =
+  ℚ.≤Monotone·-onNonNeg x y (ℚ._^ⁿ_ x n) (ℚ._^ⁿ_ y n)
+    x≤y
+    (ℚ^ⁿ-Monotone n 0≤x 0≤y x≤y)
+    0≤x
+    (ℚ.0≤ℚ^ⁿ x 0≤x n)
+
+ℚ^ⁿ-StrictMonotone : ∀ {x y : ℚ} (n : ℕ) → (0 ℕ.< n) →
+  0 ℚ.≤ x → 0 ℚ.≤ y → x ℚ.< y →
+  ℚ._^ⁿ_ x n ℚ.< ℚ._^ⁿ_ y n
+ℚ^ⁿ-StrictMonotone zero 0<n 0≤x 0≤y x<y =
+  ⊥.rec (ℕ.¬-<-zero 0<n)
+ℚ^ⁿ-StrictMonotone {x} {y} (suc zero) 0<n 0≤x 0≤y x<y =
+  subst2 ℚ._<_ ℚ! ℚ! x<y
+ℚ^ⁿ-StrictMonotone {x} {y} (suc (suc n)) 0<n 0≤x 0≤y x<y =
+  ℚ.<Monotone·-onPos x y (ℚ._^ⁿ_ x (suc n)) (ℚ._^ⁿ_ y (suc n))
+    x<y
+    (ℚ^ⁿ-StrictMonotone (suc n)
+      (ℕ.suc-≤-suc (ℕ.zero-≤ {n})) 0≤x 0≤y x<y)
+    0≤x
+    (ℚ.0≤ℚ^ⁿ x 0≤x (suc n))
+
 
 
 -- -- ℚ^ⁿ-Monotone : ∀ {x y : ℚ} (n : ℕ) → 0 ℚ.≤ x → 0 ℚ.≤ y → x ℚ.≤ y
@@ -1237,21 +1263,21 @@ module bⁿ-aⁿ n'  where
  open factor public
 
 
--- ^ⁿMonotone⁻¹ : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n) → 0 <ᵣ x → 0 <ᵣ y
---  → (x ^ⁿ n) ≤ᵣ (y ^ⁿ n) → x ≤ᵣ y
--- ^ⁿMonotone⁻¹ zero 0<n 0≤x 0≤y xⁿ≤yⁿ = ⊥.rec (ℕ.¬-<-zero 0<n)
--- ^ⁿMonotone⁻¹ (suc zero) 0<n 0≤x 0≤y xⁿ≤yⁿ =
---   subst2 _≤ᵣ_ (·IdL _) (·IdL _) xⁿ≤yⁿ
--- ^ⁿMonotone⁻¹ {x} {y} (suc (suc n)) 0<n 0<x 0<y xⁿ<yⁿ =
---  let z = isTrans≤≡ᵣ _ _ _ (x≤y→0≤y-x _ _ xⁿ<yⁿ)
---           (sym $ bⁿ-aⁿ.[b-a]·S≡bⁿ-aⁿ n x y 0<x 0<y)
---  in invEq (x≤y≃0≤y-x x y)
---       ((invEq (z≤x≃y₊·z≤y₊·x (y -ᵣ x) 0
---           ((bⁿ-aⁿ.S n x y 0<x 0<y ,
---                   bⁿ-aⁿ.0<S n x y 0<x 0<y)))
---          (subst2 _≤ᵣ_
---            (sym (Rℝ.0RightAnnihilates (bⁿ-aⁿ.S n x y 0<x 0<y)))
---             (·ᵣComm (y -ᵣ x) _) z)))
+^ⁿMonotone⁻¹ : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n) → 0 <ᵣ x → 0 <ᵣ y
+ → (x ^ⁿ n) ≤ᵣ (y ^ⁿ n) → x ≤ᵣ y
+^ⁿMonotone⁻¹ zero 0<n 0≤x 0≤y xⁿ≤yⁿ = ⊥.rec (ℕ.¬-<-zero 0<n)
+^ⁿMonotone⁻¹ (suc zero) 0<n 0≤x 0≤y xⁿ≤yⁿ =
+  subst2 _≤ᵣ_ (·IdR _) (·IdR _) xⁿ≤yⁿ
+^ⁿMonotone⁻¹ {x} {y} (suc (suc n)) 0<n 0<x 0<y xⁿ≤yⁿ =
+ let z = isTrans≤≡ᵣ _ _ _ (x≤y→0≤y-x _ _ xⁿ≤yⁿ)
+          (sym $ bⁿ-aⁿ.[b-a]·S≡bⁿ-aⁿ n x y 0<x 0<y)
+ in invEq (x≤y≃0≤y-x x y)
+      ((invEq (z≤x≃y₊·z≤y₊·x (y -ᵣ x) 0
+          ((bⁿ-aⁿ.S n x y 0<x 0<y ,
+                  bⁿ-aⁿ.0<S n x y 0<x 0<y)))
+         (subst2 _≤ᵣ_
+           (sym (Rℝ.0RightAnnihilates (bⁿ-aⁿ.S n x y 0<x 0<y)))
+            (·ᵣComm (y -ᵣ x) _) z)))
 
 
 -- ^ⁿMonotone⁻¹-with0 : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n) → 0 ≤ᵣ x → 0 <ᵣ y
