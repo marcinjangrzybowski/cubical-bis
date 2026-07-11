@@ -675,6 +675,10 @@ nth-pow-root-iso one .Iso.ret _ = ℝ₊≡ (·IdR _)
 nth-pow-root-iso (2+ n) .Iso.ret = Iso.ret
   (NthRoot.nth-pow-root-iso₊₂ n)
 
+opaque
+  ^ⁿ∘root : ∀ n x → fst (root n x) ^ⁿ ℕ₊₁→ℕ n ≡ fst x
+  ^ⁿ∘root n x = cong fst (Iso.sec (nth-pow-root-iso n) x)
+
 
 isEquiv-₊^ⁿ : ∀ n → isEquiv (_₊^ⁿ ℕ₊₁→ℕ n)
 isEquiv-₊^ⁿ n = isoToIsEquiv (nth-pow-root-iso n)

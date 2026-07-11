@@ -1332,19 +1332,19 @@ module bⁿ-aⁿ n'  where
            (sym (Rℝ.0RightAnnihilates (bⁿ-aⁿ.S n x y 0<x 0<y)))
             (·ᵣComm (y -ᵣ x) _) z))
 
-
--- ^ⁿMonotone⁻¹-with0 : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n) → 0 ≤ᵣ x → 0 <ᵣ y
---  → (x ^ⁿ n) ≤ᵣ (y ^ⁿ n) → x ≤ᵣ y
--- ^ⁿMonotone⁻¹-with0 {x} {y} n 0<n 0≤x 0<y xⁿ≤yⁿ =
---   PT.rec (isProp≤ᵣ _ _)
---     (⊎.rec
---       (<ᵣWeaken≤ᵣ _ _ )
---       (λ y/2<x →
---         ^ⁿMonotone⁻¹ {x} {y} n 0<n
---          (isTrans<ᵣ _ _ _ (snd ((y , 0<y) ₊·ᵣ ℚ₊→ℝ₊ [ 1 / 2 ]₊))
---            y/2<x) 0<y xⁿ≤yⁿ))
---     (Dichotomyℝ' (y ·ᵣ rat [ 1 / 2 ]) x y
---       (isTrans<≡ᵣ _ _ _ (<ᵣ-o·ᵣ _ _ (_ , 0<y) decℚ<ᵣ?) (·IdR _) ))
+opaque
+  ^ⁿMonotone⁻¹-with0 : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n) → 0 ≤ᵣ x → 0 <ᵣ y
+   → (x ^ⁿ n) ≤ᵣ (y ^ⁿ n) → x ≤ᵣ y
+  ^ⁿMonotone⁻¹-with0 {x} {y} n 0<n 0≤x 0<y xⁿ≤yⁿ =
+    PT.rec (isProp≤ᵣ _ _)
+      (⊎.rec
+        (<ᵣWeaken≤ᵣ _ _ )
+        (λ y/2<x →
+          ^ⁿMonotone⁻¹ {x} {y} n 0<n
+           (isTrans<ᵣ _ _ _ (snd ((y , 0<y) ₊·ᵣ ℚ₊→ℝ₊ [ 1 / 2 ]₊))
+             y/2<x) 0<y xⁿ≤yⁿ))
+      (Dichotomyℝ' (y ·ᵣ rat [ 1 / 2 ]) x y
+        (isTrans<≡ᵣ _ _ _ (<ᵣ-o·ᵣ _ _ (_ , 0<y) decℚ<ᵣ?) (·IdR _) ))
 
 
 -- ^ⁿStrictMonotone⁻¹ : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n) → 0 <ᵣ x → 0 <ᵣ y

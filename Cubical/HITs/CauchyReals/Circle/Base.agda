@@ -29,7 +29,7 @@ open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
 open import Cubical.HITs.CauchyReals.Exponentiation
 open import Cubical.HITs.CauchyReals.NthRoot
-open import Cubical.HITs.CauchyReals.RationalsImports using (ℚ₊ ; <≤ℚ!)
+open import Cubical.HITs.CauchyReals.RationalsImports using (ℚ₊ ; <≤ℚ! ; [_/_]₊)
 open import Cubical.HITs.CauchyReals.LiftingExpr
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
@@ -58,7 +58,7 @@ isSetDistCircle =
   isSetΣ (isSet× isSetℝ isSetℝ) (isProp→isSet ∘ λ _ → isSetℝ _ _ )
 
 √½ : ℝ₊
-√½ = root 2 (ℚ₊→ℝ₊ ([ 1 / 2 ] , <≤ℚ!))
+√½ = root 2 (ℚ₊→ℝ₊ ([ 1 / 2 ]₊))
 
 √½<3/4 : fst √½ <ᵣ rat [ 3 / 4 ]
 √½<3/4 = isTrans<≡ᵣ _ _ _

@@ -6,6 +6,7 @@ open import Cubical.Foundations.Powerset
 
 
 open import Cubical.Data.Int as ℤ using (pos)
+open import Cubical.Data.NatPlusOne
 open import Cubical.Data.Sigma
 
 open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
@@ -109,10 +110,10 @@ opaque
         (Σ≡Prop (∈-isProp (pred≤< 0 1))
           {u = clampᵣ 0 1 (-ᵣ 0) , _}
           {rat [ pos 0 / 1 ] , ≤ᵣ-refl 0 , decℚ<ᵣ?}
-          (cong (clampᵣ 0 1) (-ᵣ-rat 0)))
+          (cong (clampᵣ 0 1) (-ᵣ-rat 0) ∙ clampᵣ-rat 0 1 0))
          ∙ arcSin[0]≡0 (≤ᵣ-refl 0 , (decℚ<ᵣ? {0} {1})))
          ∙ -ᵣ-rat 0)
        (cong (uncurry arcSin)
-        (Σ≡Prop (∈-isProp (pred≤< 0 1)) refl) ∙
+        (Σ≡Prop (∈-isProp (pred≤< 0 1)) (clampᵣ-rat 0 1 0)) ∙
     arcSin[0]≡0 (≤ᵣ-refl 0 , (decℚ<ᵣ? {0} {1})))
     ∙ +ᵣ-rat 0 0

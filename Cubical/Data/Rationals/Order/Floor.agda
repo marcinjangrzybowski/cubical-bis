@@ -187,6 +187,17 @@ floorℚ = ElimProp.go w
  w .ElimProp.isPropB = isPropFloor
  w .ElimProp.f (p , q) = pqFloor p q  
 
+floor-frac : ∀ x → Σ (ℤ × ℚ) λ (k , q) →
+                       ([ k / 1 ] + q ≡ x) × ((0 ≤ q) × (q < 1))
+floor-frac x =
+ let fx = floorℚ x
+ in (fx .Floor.integralPart , fst (fx .Floor.fractionalPart)) ,
+    cong (_+ fst (fx .Floor.fractionalPart))
+      (sym (fromℤ≡[_/1] (fx .Floor.integralPart)))
+    ∙ sym (fx .Floor.x≡ip+fp) ,
+    snd (fx .Floor.fractionalPart) ,
+    fx .Floor.fp<1
+
 floor-fracℚ₊ : ∀ (x : ℚ₊) → Σ (ℕ × ℚ) λ (k , q) →
                        (fromNat k + q ≡ fst x ) × ((0 ≤ q)  × (q < 1))
 floor-fracℚ₊ (x , 0<x) =

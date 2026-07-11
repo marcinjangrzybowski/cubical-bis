@@ -580,6 +580,24 @@ Integral-additive a b c a≤b b≤c f s s' s+s' ∫ab ∫bc ∫ac =
     (invEq (clampᵣ-IntegralOf' a c (isTrans≤ᵣ _ _ _ a≤b b≤c)
      (uncurry ∘ f) s+s') ∫ac)
 
+Integral-additive* : ∀ (P : ℙ ℝ ) a b c → a ≤ᵣ b →  b ≤ᵣ c
+  → ∀ (f : ∀ x → x ∈ P → ℝ)
+  → {ab⊂P : intervalℙ a b ⊆ P}
+  → {bc⊂P : intervalℙ b c ⊆ P}
+  → {ac⊂P : intervalℙ a c ⊆ P}
+  → ∀ {s s' s+s'} →
+  on[ a , b ]IntegralOf (λ x ≤x x≤ → f x (ab⊂P x (≤x , x≤))) is s →
+  on[ b , c ]IntegralOf (λ x ≤x x≤ → f x (bc⊂P x (≤x , x≤))) is s' →
+  on[ a , c ]IntegralOf (λ x ≤x x≤ → f x (ac⊂P x (≤x , x≤))) is s+s' →
+  s +ᵣ s' ≡ s+s'
+Integral-additive* P a b c a≤b b≤c f {s = s} {s'} s∫ s'∫ s+s'∫ =
+ Integral-additive a b c a≤b b≤c _ _ _ _
+   (subst (on[ a , b ]IntegralOf_is s)
+    (funExt₃ λ x _ _ → cong (f x) (snd (P _) _ _)) s∫)
+   (subst (on[ b , c ]IntegralOf_is s')
+    (funExt₃ λ x _ _ → cong (f x) (snd (P _) _ _)) s'∫)
+   s+s'∫
+
 FTOC⇐'' : ∀ a b (a<b : a <ᵣ b) (f F : ∀ x → x ∈ intervalℙ a b → ℝ)
           → (ucf : IsUContinuousℙ (intervalℙ a b) f)
           → uDerivativeOfℙ (intervalℙ a b) , F is f

@@ -3,28 +3,17 @@ module Cubical.HITs.CauchyReals.Circle.Core where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset
-open import Cubical.Foundations.Path
 
-import Cubical.Functions.Logic as L
-open import Cubical.Functions.FunExtEquiv
 open import Cubical.Functions.Surjection
-open import Cubical.Functions.Embedding
 
 
-open import Cubical.Data.Bool as 𝟚 hiding (_≤_)
 open import Cubical.Data.Nat as ℕ hiding (_·_;_+_)
-import Cubical.Data.Nat.Mod as ℕ
-import Cubical.Data.Nat.Order as ℕ
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎
-open import Cubical.Data.Int as ℤ using (pos)
-import Cubical.Data.Int.Order as ℤ
+open import Cubical.Data.Int.Fast as ℤ using (pos ; ℤ)
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -34,52 +23,52 @@ open import Cubical.HITs.PropositionalTruncation.Monad
 open import Cubical.Data.NatPlusOne
 
 open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Order as ℚ using
-  ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
-open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ
+import Cubical.Data.Rationals.Order as ℚ
+open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ hiding (x+x≡2x)
 open import Cubical.Data.Rationals.Order.Floor as ℚ
 open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (_^ⁿ_)
-open import Cubical.Data.Rationals.Inverse as ℚ
- using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
 
 
+open import Cubical.HITs.CauchyReals.RationalsImports using (ℚ₊ ; [_/_]₊)
 open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Closeness
-open import Cubical.HITs.CauchyReals.Lipschitz
+open import Cubical.HITs.CauchyReals.Closeness using (isSetℝ)
 open import Cubical.HITs.CauchyReals.Order
 open import Cubical.HITs.CauchyReals.Continuous
 open import Cubical.HITs.CauchyReals.Multiplication
 open import Cubical.HITs.CauchyReals.Power
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
-open import Cubical.HITs.CauchyReals.Derivative
-open import Cubical.HITs.CauchyReals.Integration
-open import Cubical.HITs.CauchyReals.IntegrationMore
-open import Cubical.HITs.CauchyReals.MeanValue
-open import Cubical.HITs.CauchyReals.Exponentiation
-open import Cubical.HITs.CauchyReals.ExponentiationMore
-open import Cubical.HITs.CauchyReals.Uniform
 open import Cubical.HITs.CauchyReals.PiNumber
-open import Cubical.HITs.CauchyReals.NthRoot
-open import Cubical.HITs.CauchyReals.Summation
 
-open import Cubical.Algebra.Ring.BigOps
-
-
-open import Cubical.Algebra.CommRing.Properties
-open import Cubical.Algebra.CommRing.Base
-import Cubical.Data.FinData as FD
-
+open import Cubical.HITs.CauchyReals.TrigBase using
+  ( sin
+  ; cos
+  ; sin·sin+cos·cos=1
+  ; sin·sin=1-cos·cos
+  ; sin²+cos²=1
+  ; cos0=1
+  ; sin0=0
+  ; cos-even
+  )
 open import Cubical.HITs.CauchyReals.TrigonometricIdentities
-open import Cubical.HITs.CauchyReals.ArcSin
-open import Cubical.HITs.CauchyReals.LiftingExpr
+open import Cubical.HITs.CauchyReals.ArcSin.Symmetric.Properties.Inverse using
+  ( equivSin⟨⟩
+  ; ⟨-π/2,π/2⟩→sin∈⟨-1,1⟩
+  ; ointerval→abs<
+  )
 
 open import Cubical.HITs.SetQuotients as SQ renaming ([_] to [_]/)
 open import Cubical.Relation.Binary.Base
-open import Cubical.Tactics.CommRingSolver
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
-open import Cubical.HITs.CauchyReals.Circle.Angle public
+open import Cubical.HITs.CauchyReals.Circle.Base public
+open import Cubical.HITs.CauchyReals.Circle.Angle.CaseSplit public using (distCircle→angle)
+
+private
+ pos-suc-minus-one : ∀ n → pos (suc n) ℤ.- pos 1 ≡ pos n
+ pos-suc-minus-one zero = refl
+ pos-suc-minus-one (suc n) = refl
+
 sin-k-period-pos : (a a' : ℝ) → ∀ n → a -ᵣ a' ≡ rat [ pos n / 1 ] →
  sin (a ·ᵣ (2 ·ᵣ π-number)) ≡ sin (a' ·ᵣ (2 ·ᵣ π-number))
 sin-k-period-pos a a' zero p =
@@ -94,7 +83,8 @@ sin-k-period-pos a a' (suc n) p =
      cong (a +ᵣ_) (+ᵣComm _ _)
      ∙∙ +ᵣAssoc _ _ _) ∙∙ cong (_-ᵣ 1) p ∙∙
      (-ᵣ-rat₂ _ _ ∙ cong rat
-     (ℚ.ℤ-→ℚ- (pos (suc n)) (pos 1)))))
+     (ℚ.ℤ-→ℚ- (pos (suc n)) (pos 1)
+      ∙ cong [_/ 1 ] (pos-suc-minus-one n)))))
 
 
 circle-rel : ℝ → ℝ → Type
@@ -108,7 +98,7 @@ sin-k-period a a' (pos n , p) = sin-k-period-pos a a' n p
 sin-k-period a a' (ℤ.negsuc n , p) =
  sym (sin-k-period-pos a' a (suc n)
   (sym (-[x-y]≡y-x _ _) ∙∙ cong -ᵣ_ p
-    ∙∙ -ᵣ-rat _))
+    ∙∙ (-ᵣ-rat _ ∙ cong rat (sym (ℚ.-[/] 1 (ℤ.negsuc n))))))
 
 cos-k-period : (a a' : ℝ) → circle-rel a a' →
   cos (a ·ᵣ (2 ·ᵣ π-number)) ≡ cos (a' ·ᵣ (2 ·ᵣ π-number))
@@ -139,7 +129,8 @@ isPropCircle-rel a b (k , p) (k' , p') =
 
 isSymCircleRel : BinaryRelation.isSym circle-rel
 isSymCircleRel x y (n , p) =
- ℤ.- n , (sym (-[x-y]≡y-x _ _) ∙∙ cong -ᵣ_ p ∙∙ -ᵣ-rat _)
+ ℤ.- n , (sym (-[x-y]≡y-x _ _) ∙∙ cong -ᵣ_ p
+   ∙∙ (-ᵣ-rat _ ∙ cong rat (sym (ℚ.-[/] 1 n))))
 
 isEquivRelCircleRel : BinaryRelation.isEquivRel circle-rel
 isEquivRelCircleRel .BinaryRelation.isEquivRel.reflexive x =
@@ -234,10 +225,9 @@ Circle→[cos,sin]-surj ((x , y) , x²+y²≡1) =
 cosx≡1→sinx≡0 : ∀ x → cos x ≡ 1 → sin x ≡ 0
 cosx≡1→sinx≡0 x cosx=1 =
   x²≡0→x≡0 (sin x)
-    (((cong₂ _·ᵣ_ (sym (Rℝ.·IdL _)) refl
-     ∙ sym (𝐑'.+IdR' _ _
-      (𝐑'.+InvR' _ _ (cong (_^ⁿ 2) cosx=1 ∙ 1^ⁿ 2))))
-      ∙ +ᵣAssoc _ _ _) ∙ cong (_-ᵣ 1) (sin²+cos²=1 x) ∙ +-ᵣ 1)
+    (sin·sin=1-cos·cos x
+     ∙ cong (λ z → 1 -ᵣ z) (cong₂ _·ᵣ_ cosx=1 cosx=1 ∙ Rℝ.·IdR 1)
+     ∙ +-ᵣ 1)
 
 
 opaque
@@ -251,7 +241,7 @@ opaque
 
 ⟨0,2π⟩→cos<1 : ∀ x → x ∈ ointervalℙ 0 (2 ·ᵣ π-number) → cos x <ᵣ 1
 ⟨0,2π⟩→cos<1 x (x<0 , x<2π) =
- let x/2 = ℚ₊→ℝ₊ ([ 1 / 2 ] , _ ) ₊·ᵣ (_ , x<0)
+ let x/2 = ℚ₊→ℝ₊ ([ 1 / 2 ]₊) ₊·ᵣ (x , x<0)
  in isTrans≡<ᵣ _ _ _
     (cong cos (sym (𝐑'.·IdL' _ _ (sym (rat·ᵣrat _ _) ∙ decℚ≡ᵣ?))
       ∙ sym (·ᵣAssoc _ _ _))
@@ -272,7 +262,7 @@ opaque
                        ,
                           isTrans<≡ᵣ _ _ _
                           (<ᵣ-+o _ _ (-ᵣ π-number/2)
-                            (<ᵣ-o·ᵣ _ _ (ℚ₊→ℝ₊ ([ 1 / 2 ] , _ )) x<2π))
+                            (<ᵣ-o·ᵣ _ _ (ℚ₊→ℝ₊ ([ 1 / 2 ]₊)) x<2π))
                             (cong₂ _-ᵣ_
                               (((·ᵣAssoc _ _ _) ∙
                               𝐑'.·IdL' _ _ (sym (rat·ᵣrat  _ _) ∙
@@ -372,7 +362,7 @@ cos=1⇒ x p = PT.rec
 
  where
  ε : ℚ₊
- ε = [ 1 / 4 ] , _
+ ε = [ 1 / 4 ]₊
 
 
 cDist : Circle → Circle → ℝ
@@ -387,7 +377,8 @@ cDist = SQ.Rec2.go w
      cong cos (sym (·ᵣAssoc _ _ _))
    ∙∙ cos-k-period _ _ (ℤ.- n ,
      ℝ!
-      ∙ sym (-[x-y]≡y-x _ _) ∙ cong -ᵣ_ p ∙ -ᵣ-rat _)
+      ∙ sym (-[x-y]≡y-x _ _) ∙ cong -ᵣ_ p
+      ∙ (-ᵣ-rat _ ∙ cong rat (sym (ℚ.-[/] 1 n))))
   ∙∙ cong cos (·ᵣAssoc _ _ _)
 
  w : Rec2 ℝ

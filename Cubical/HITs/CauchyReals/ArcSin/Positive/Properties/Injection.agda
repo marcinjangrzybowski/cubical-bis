@@ -34,13 +34,9 @@ open import Cubical.HITs.PropositionalTruncation.Monad
 open import Cubical.Data.NatPlusOne
 
 open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Order as ℚ using
-  ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
 open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ hiding (x+x≡2x)
 open import Cubical.Data.Rationals.Order.Floor as ℚ
 open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (_^ⁿ_)
-open import Cubical.Data.Rationals.Inverse as ℚ
- using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
 
 
 open import Cubical.HITs.CauchyReals.Base

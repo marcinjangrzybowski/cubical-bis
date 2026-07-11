@@ -26,6 +26,12 @@ open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (_^ⁿ_)
 open import Cubical.HITs.CauchyReals.Base
 open import Cubical.HITs.CauchyReals.Order
 open import Cubical.HITs.CauchyReals.OrderBounds
+open import Cubical.HITs.CauchyReals.Continuous using
+  ( sym-intervalℙ⊆ointervalℙ
+  ; absᵣPos
+  ; <ᵣ-o+
+  ; -ᵣ<ᵣ
+  )
 open import Cubical.HITs.CauchyReals.Multiplication
 open import Cubical.HITs.CauchyReals.Power
 open import Cubical.HITs.CauchyReals.Inverse
@@ -34,7 +40,16 @@ open import Cubical.HITs.CauchyReals.Exponentiation
 open import Cubical.HITs.CauchyReals.PiNumber
 open import Cubical.HITs.CauchyReals.NthRoot
 
+open import Cubical.HITs.CauchyReals.TrigBase using
+  ( sin
+  ; cos
+  ; sin²+cos²=1
+  ; sin-odd
+  ; cos-even
+  )
 open import Cubical.HITs.CauchyReals.TrigonometricIdentities
+open import Cubical.HITs.CauchyReals.ArcSin.Prelim.Basic using
+  ( ∣x∣<π/2→0<cos[x] )
 open import Cubical.HITs.CauchyReals.ArcSin.Symmetric
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
@@ -57,7 +72,7 @@ pre-distCircle→angle x y x²+y²=1 ∣x∣≤3/4 =
      0<y² : 0 <ᵣ y ^ⁿ 2
      0<y² = <-o+-cancel _ _ _
               (isTrans<≡ᵣ _ _ _
-                (isTrans≡<ᵣ _ _ _ (+IdR _) x²<1)
+                (isTrans≡<ᵣ _ _ _ (Rℝ.+IdR _) x²<1)
                 (sym x²+y²=1))
      0<∣y∣ : 0 <ᵣ absᵣ y
      0<∣y∣ = 0<x²→0<abs[x] y 0<y²
