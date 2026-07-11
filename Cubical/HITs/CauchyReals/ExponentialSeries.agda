@@ -9,6 +9,7 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Nat as ℕ hiding (_·_; _+_)
 import Cubical.Data.Nat.Order as ℕ
 open import Cubical.Data.Int as ℤ using (pos)
+open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -27,6 +28,7 @@ open import Cubical.HITs.CauchyReals.Power
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
 open import Cubical.HITs.CauchyReals.Derivative
+open import Cubical.HITs.CauchyReals.Partition using (ℚ<→0<)
 open import Cubical.HITs.CauchyReals.Uniform using
   ( x∈interval-bound
   ; IsUContinuousℙC·ᵣ
@@ -35,11 +37,15 @@ open import Cubical.HITs.CauchyReals.Uniform using
   ; IsUConvSeries'SubSeq
   ; IsUContFSequence
   ; IsUContFSequenceΣSeq
+  ; fromCauchySequence'₁-≡-lem
   )
 open import Cubical.HITs.CauchyReals.LiftingExpr
 open import Cubical.HITs.CauchyReals.RationalsImports
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
+
+expℝ : ℝ → ℝ
+expℝ r = fromCauchySequence'₁ (seqΣ (expSeq r)) (expℝ-cauchySeq r)
 
 expSeq' : ℝ → Seq
 expSeq' x n = (x ^ⁿ n) ／ᵣ₊ ℚ₊→ℝ₊ (!₊ n)
@@ -97,32 +103,6 @@ absᵣ∘expSeq≡expSeq∘absᵣ n x =
                   (ℚ₊→ℝ₊
                   ((!₊ n))))))
          ∙∙ expSeq'≡expSeq (absᵣ x) n
-
-expSeq'der : ∀ n x →
-           derivativeOf flip expSeq' (suc n) at x is
-             expSeq' x n
-expSeq'der n x =
-  let z = C·Derivative (fst 1/n!) x (_^ⁿ suc n) _ (derivative-^ⁿ n x)
-  in substDer₂ (λ x → ·ᵣComm _ (x ^ⁿ suc n))
-     (·ᵣAssoc _ _ _  ∙ ·ᵣComm _ _ ∙
-       cong₂ _·ᵣ_ refl
-        (cong₂ _·ᵣ_ (cong (fst ∘ invℝ₊)
-           ((ℝ₊≡ (cong rat (sym (ℚ.ℕ·→ℚ· (suc n) (n !)))
-             ∙ rat·ᵣrat _ _)))
-           ∙ cong fst (invℝ₊· (ℚ₊→ℝ₊ [ (1+ n) / 1 ]₊)
-             (ℚ₊→ℝ₊ (!₊ n)))
-                ∙ ·ᵣComm _ _) refl
-         ∙ [x/₊y]·yᵣ _ _)) z
- where
- 1/n! = invℝ₊ $ ℚ₊→ℝ₊ (!₊ (suc n))
-
-expSerDer : ∀ n x →
-    derivativeOf (λ x → expSeq x (suc n))
-               at x is (expSeq x      n)
-expSerDer n x = substDer₂
-  (λ x → expSeq'≡expSeq x (suc n))
-  (expSeq'≡expSeq x n)
-  (expSeq'der n x)
 
 uConvExpSer : ∀ a b → a <ᵣ b →
   ∥ IsUConvSeries' (intervalℙ a b) (λ n x _ → expSeq x n) ∥₁
@@ -210,3 +190,85 @@ isUContFSequenceExp : ∀ a b → rat a ≤ᵣ rat b →
       (λ z x _ → seqΣ (expSeq x) z)
 isUContFSequenceExp a b a≤b = IsUContFSequenceΣSeq
  (intervalℙ (rat a) (rat b)) (λ z x _ → expSeq x z) (isUContFSequenceExpSer a b a≤b)
+
+expℝ0=1 : expℝ 0 ≡ 1
+expℝ0=1 = fromCauchySequence'₁≡
+  (seqΣ (expSeq 0)) (expℝ-cauchySeq 0) 1
+   λ ε → ∣ 0 , (λ n (n' , p) →
+    isTrans≡<ᵣ _ _ _
+     (cong absᵣ (Rℝ.+InvR' _ _
+       ((cong (seqΣ (expSeq 0)) (sym p ∙ ℕ.+-suc n' 0))
+          ∙ sym (1+expSeq (n' ℕ.+ 0) 0)  ∙
+          Rℝ.+IdR' _ _
+            (seqSumUpTo≡seqSumUpTo' (expSeq 0 ∘ suc) (n' ℕ.+ 0) ∙
+              (cong seqΣ' (funExt λ k → sym (expSeq'≡expSeq 0 (suc k)) ∙
+                Rℝ.0LeftAnnihilates' _ _ (0^ⁿ k))
+               ≡$ (n' ℕ.+ 0)) ∙ seqSumUpToConst 0 (n' ℕ.+ 0) ∙
+                Rℝ.0LeftAnnihilates _) )) ∙ absᵣ0)
+     (snd (ℚ₊→ℝ₊ ε))) ∣₁
+
+expℚ-bound : ∀ (x : ℚ) → 0 ℚ.≤ x → Σ[ q ∈ ℚ₊ ] expℝ (rat x) <ᵣ rat (fst q)
+expℚ-bound x = ⊎.rec
+   (λ 0=x → 2 , isTrans≡<ᵣ _ _ _
+     (cong (expℝ ∘ rat) (sym 0=x) ∙ expℝ0=1)
+       (decℚ<ᵣ? {1} {2}))
+   (λ 0<x →
+     let s = seqΣ (expSeq (rat x))
+         ics = fst (IsConvSeries'≃IsCauchySequence'Sum (expSeq (rat x)))
+               (expSeriesConvergesAtℚ₊ x 0<x)
+         N , X = fromCauchySequence'-lim s ics 1
+
+         q , p = expSeries-rat x (suc N)
+         Z : ℚ.0< (1 ℚ.+ abs q)
+         Z = ℚ<→0< (1 ℚ.+ abs q) (ℚ.<≤Monotone+ 0 _ 0 _
+            (ℚ.decℚ<? {0} {1}) (0≤abs q))
+         ZZ = isTrans<≡ᵣ _ _ _
+
+                 (isTrans<≤ᵣ _ _ _(a-b<c⇒a<c+b _ _ _ (isTrans≤<ᵣ _ _ _ (≤absᵣ _)
+                  (isTrans≡<ᵣ _ _ _ (minusComm-absᵣ _ _)
+                   (X (suc N) (ℕ.≤-refl {suc N}))
+                   )))
+                   (≤ᵣ-o+ _ _ _ (≤absᵣ _)))
+                   (cong (1 +ᵣ_) (cong absᵣ p ∙
+                     absᵣ-rat _)
+                   ∙ +ᵣ-rat _ _ )
+     in (_ , Z) ,
+         isTrans≡<ᵣ _ _ _
+          (fromCauchySequence'₁-≡-lem s (expℝ-cauchySeq (rat x)) ∣ ics ∣₁) ZZ)
+   ∘ (ℚ.≤→<⊎≡ 0 x)
+
+monotone-expℝ : ∀ a b → 0 ≤ᵣ a → a ≤ᵣ b → expℝ a ≤ᵣ expℝ b
+monotone-expℝ a b 0≤a a≤b =
+  fromCauchySequence'₁≤
+   (seqΣ (expSeq a))
+   (seqΣ (expSeq b))
+   (expℝ-cauchySeq a)
+   (expℝ-cauchySeq b)
+   λ n → subst2 _≤ᵣ_
+      (λ i → seqSumUpTo≡seqSumUpTo' (λ n → expSeq'≡expSeq a n i) n (~ i))
+      (λ i → seqSumUpTo≡seqSumUpTo' (λ n → expSeq'≡expSeq b n i) n (~ i))
+      (seqSumUpTo≤ _ _
+       (λ n →
+         ≤ᵣ-·ᵣo _ _ _ (<ᵣWeaken≤ᵣ _ _ (snd (invℝ₊ _)))
+          (^ⁿ-Monotone n 0≤a a≤b))
+       n)
+
+1≤expℝ[pos] : ∀ x → 0 ≤ᵣ x → 1 ≤ᵣ expℝ x
+1≤expℝ[pos] x 0≤x =
+  isTrans≡≤ᵣ _ _ _
+    (sym expℝ0=1) (monotone-expℝ 0 x (≤ᵣ-refl 0) 0≤x)
+
+expℝ-pos : ∀ x → 0 ≤ᵣ x → 0 <ᵣ expℝ x
+expℝ-pos x 0≤x = isTrans<≤ᵣ _ _ _
+  (decℚ<ᵣ? {0} {1}) (1≤expℝ[pos] x 0≤x)
+
+expBounded : ∀ a b → 0 ≤ᵣ rat a → rat a ≤ᵣ rat b →
+  Bounded (intervalℙ (rat a) (rat b)) (λ x _  → expℝ x)
+expBounded a b 0≤a a≤b =
+  let q₊ , X = expℚ-bound b (≤ᵣ→≤ℚ _ _ (isTrans≤ᵣ _ _ _ 0≤a a≤b))
+  in q₊ , λ x x∈ → isTrans≤ᵣ _ _ _
+        (isTrans≡≤ᵣ _ _ _
+          (absᵣPos _ (expℝ-pos x (isTrans≤ᵣ _ _ _ 0≤a (fst x∈))))
+          (monotone-expℝ _ _ (isTrans≤ᵣ _ _ _ 0≤a (fst x∈))
+            (snd x∈)))
+        (<ᵣWeaken≤ᵣ _ _ X)

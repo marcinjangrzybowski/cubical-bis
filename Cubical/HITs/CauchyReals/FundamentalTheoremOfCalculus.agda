@@ -8,10 +8,14 @@ open import Cubical.Foundations.Powerset
 open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Bool as 𝟚 hiding (_≤_)
+open import Cubical.Data.Nat as ℕ hiding (_·_; _+_)
+import Cubical.Data.Nat.Order as ℕ
 open import Cubical.Data.Int.Fast.Base as ℤ using (pos; negsuc)
+open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.PropositionalTruncation.Monad
 
 open import Cubical.Data.NatPlusOne
 
@@ -19,6 +23,7 @@ open import Cubical.HITs.CauchyReals.Base
 open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
+open import Cubical.HITs.CauchyReals.OrderBounds
 open import Cubical.HITs.CauchyReals.Continuous
 open import Cubical.HITs.CauchyReals.Multiplication
 open import Cubical.HITs.CauchyReals.Inverse
@@ -28,6 +33,19 @@ open import Cubical.HITs.CauchyReals.Integration
 open import Cubical.HITs.CauchyReals.IntegrationMore
 open import Cubical.HITs.CauchyReals.Partition
 open import Cubical.HITs.CauchyReals.MeanValue
+open import Cubical.HITs.CauchyReals.Uniform using
+  ( IsUContinuousℙ+ᵣ₂
+  ; IsUContinuousℙ-const
+  ; IsUCauchyFSequence
+  ; IsUContFSequence
+  ; fromUCauchyFSequence
+  ; fromCauchySequence'₁≡fromUCauchyFSequence
+  ; IsUCauchyFSequence-lim
+  ; fromUCauchyFSequence-+
+  ; isCauchyFSequenceAt
+  ; isUCauchyFSequence-ᵣ
+  ; isUCauchyFSequence+ᵣ
+  )
 open import Cubical.HITs.CauchyReals.LiftingExpr
 open import Cubical.HITs.CauchyReals.RationalsImports
 
@@ -272,6 +290,108 @@ FTOC⇒ x₀ f ucf ε =
         (<ᵣWeaken≤ᵣ _ _ (snd (ℚ₊→ℝ₊ ε₂₊)))
         (min-point-width≤abs x y x m≤x x≤M)
 
+FTOC⇒' : ∀ a b → a ≤ᵣ b
+          → (f : ∀ x → x ∈ intervalℙ a b → ℝ)
+          → (ucf : IsUContinuousℙ (intervalℙ a b) f)
+          → (uDerivativeOfℙ (intervalℙ a b) ,
+                        (λ x (a≤x , x≤b) →
+                          fst (Integrate-UContinuousℙ a x a≤x
+                             (λ x x∈ → f x (fst x∈ , isTrans≤ᵣ _ _ _
+                               (snd x∈) x≤b))
+                           (map-snd
+                             (λ X → λ u v u∈ v∈ u∼v →
+                              X u v ((fst u∈ , isTrans≤ᵣ _ _ _
+                               (snd u∈) x≤b))
+                               (((fst v∈ , isTrans≤ᵣ _ _ _
+                               (snd v∈) x≤b))) u∼v)
+                             ∘ ucf)))
+                        is f)
+FTOC⇒' a b a≤b f ucf ε = do
+ (δ , X) ← FTOC⇒ a (λ x → f (clampᵣ a b x)
+       (clampᵣ∈ℚintervalℙ a b a≤b x))
+       (map-snd (λ X u v u∼v →
+        X _ _ (clampᵣ∈ℚintervalℙ a b a≤b u)
+              (clampᵣ∈ℚintervalℙ a b a≤b v)
+               (clampᵣ∼ u∼v)) ∘ ucf) ε
+ ∣ δ , (λ x x∈ h h∈ ∣h-x∣≤δ →
+    let z = X x (fst x∈) h (fst h∈)
+            ∣h-x∣≤δ
+     in isTrans≡≤ᵣ _ _ _
+         (cong absᵣ
+            (cong₂ _-ᵣ_
+               (cong₂ _-ᵣ_
+                 (Integrate-UContinuous-≡-∈ a _ _ _ _ _ _
+                   λ x' x'∈ → cong (uncurry f)
+                       (Σ≡Prop (∈-isProp (intervalℙ a b))
+                         (sym (∈ℚintervalℙ→clampᵣ≡  a _ x' x'∈)
+                           ∙ ∈ℚintervalℙ→clampᵣ≡  a b x' (fst x'∈ ,
+                             isTrans≤ᵣ _ _ _ (snd x'∈) (snd h∈)))))
+
+                        ((Integrate-UContinuous-≡-∈ a _ _ _ _ _ _
+                   λ x' x'∈ → cong (uncurry f)
+                       (Σ≡Prop (∈-isProp (intervalℙ a b))
+                         (sym (∈ℚintervalℙ→clampᵣ≡  a _ x' x'∈)
+                           ∙ ∈ℚintervalℙ→clampᵣ≡  a b x' (fst x'∈ ,
+                             isTrans≤ᵣ _ _ _ (snd x'∈) (snd x∈)))))))
+              (cong₂ _·ᵣ_
+                (cong (uncurry f)
+                  (Σ≡Prop (∈-isProp (intervalℙ a b))
+                    (∈ℚintervalℙ→clampᵣ≡  a b x x∈)))
+                refl)))
+         z) ∣₁
+
+FTOC⇒* : ∀ a b → a ≤ᵣ b
+          → (f F : ∀ x → x ∈ intervalℙ a b → ℝ)
+          → (ax⊆ab : ∀ x → (x∈ : x ∈ intervalℙ a b) →
+                 ∀ y → y ∈ intervalℙ a x
+                     → y ∈ intervalℙ a b)
+          → (∀ x → (x∈ : x ∈ intervalℙ a b) →
+                on[ a , x ]IntegralOf (λ y ≤y y≤ →
+                  f y (ax⊆ab x x∈ y (≤y , y≤)))
+                 is (F x x∈))
+          → (ucf : IsUContinuousℙ (intervalℙ a b) f)
+          → uDerivativeOfℙ (intervalℙ a b) , F is f
+FTOC⇒* a b a≤b f F ax⊆ab X ucf  =
+  subst
+    (λ F → uDerivativeOfℙ (intervalℙ a b) , F is f)
+    (funExt₂ (λ y y∈ →
+      let
+        f≤y : ∀ x → x ∈ intervalℙ a y → ℝ
+        f≤y x x∈ =
+          f x (fst x∈ , isTrans≤ᵣ x y b (snd x∈) (snd y∈))
+
+        f≤y-cont : IsUContinuousℙ (intervalℙ a y) f≤y
+        f≤y-cont =
+          map-snd
+            (λ X → λ u v u∈ v∈ u∼v →
+              X u v
+                (fst u∈ , isTrans≤ᵣ u y b (snd u∈) (snd y∈))
+                (fst v∈ , isTrans≤ᵣ v y b (snd v∈) (snd y∈))
+                u∼v)
+            ∘ ucf
+
+        fy : ∀ x → x ∈ intervalℙ a y → ℝ
+        fy x x∈ = f x (ax⊆ab y y∈ x x∈)
+
+        fy-cont : IsUContinuousℙ (intervalℙ a y) fy
+        fy-cont =
+          map-snd
+            (λ X → λ u v u∈ v∈ u∼v →
+              X u v (ax⊆ab y y∈ u u∈) (ax⊆ab y y∈ v v∈) u∼v)
+            ∘ ucf
+
+        p : ∀ x x∈ → f≤y x x∈ ≡ fy x x∈
+        p x x∈ = cong (f x) (∈-isProp (intervalℙ a b) _ _ _)
+      in Integrate-UContinuousℙ-≡ a y (fst y∈)
+              f≤y fy f≤y-cont fy-cont p
+            ∙ IntegralUniq a y (fst y∈)
+                (λ z a≤z z≤y → fy z (a≤z , z≤y))
+                (fst (Integrate-UContinuousℙ a y (fst y∈) fy fy-cont))
+                (F y y∈)
+                (snd (Integrate-UContinuousℙ a y (fst y∈) fy fy-cont))
+                (X y y∈)))
+    (FTOC⇒' a b a≤b f ucf)
+
 FTOC⇐' : ∀ a b (a≤b : a ≤ᵣ b) (f F : ∀ x → x ∈ intervalℙ a b → ℝ)
           → ∀ (ucf : IsUContinuousℙ (intervalℙ a b) f)
           → uDerivativeOfℙ (intervalℙ a b) , F is f
@@ -365,3 +485,296 @@ FTOC⇐ a b a≤b f F ucf udc =
     subst (on[ a , b ]IntegralOf curry ∘ f is_)
     (FTOC⇐' a b a≤b _ _ ucf udc)
     (snd (Integrate-UContinuousℙ a b a≤b f ucf))
+
+uCauchy∫ : ∀ a b → a ≤ᵣ b →
+              (fₙ Fₙ : ℕ → ∀ x → x ∈ intervalℙ a b → ℝ)
+            → (∀ n x x∈ →
+                on[ a , x ]IntegralOf (λ x ≤x x≤ → fₙ n x (≤x ,
+                  isTrans≤ᵣ _ _ _ x≤ (snd x∈)))
+                  is (Fₙ n) x x∈)
+            → (icf : IsUCauchyFSequence (intervalℙ a b) fₙ)
+            → ∀ ucf
+            → ∀ iucF ucF → ∀ x x∈
+            → on[ a , x ]IntegralOf
+                    (λ x ≤x x≤ →
+                       fst (fromUCauchyFSequence (intervalℙ a b) fₙ icf ucf) x
+                        (≤x , isTrans≤ᵣ _ _ _ x≤ (snd x∈)))
+                   is
+                 (fst (fromUCauchyFSequence (intervalℙ a b) Fₙ iucF ucF) x x∈)
+
+uCauchy∫ a b a≤b fₙ Fₙ fₙ≡∫Fₙ icf ucf iucF uF x x∈ ε = do
+  (η₊ , b-a<η₊) ← ∃ℚ₊LargerThanℝ₀₊ ((b -ᵣ a) , x≤y→0≤y-x _ _ a≤b)
+  let Nf , Xf = IsUCauchyFSequence-lim (intervalℙ a b)
+              fₙ icf ucf
+        (((ε /2₊) /2₊) ℚ₊· invℚ₊ η₊)
+      NF , XF = IsUCauchyFSequence-lim (intervalℙ a b) _
+                 iucF uF ((ε /2₊) /2₊)
+      Nf⊔NF = ℕ.max Nf NF
+  (δ , Xδ) ← fₙ≡∫Fₙ (suc Nf⊔NF) x x∈ (ε /2₊)
+  return
+    (δ , λ tp msh≤ →
+          fst (∼≃abs<ε _ _ ε)
+              (subst∼ ℚ!!
+                (triangle∼
+                  {ε = (((ε /2₊) /2₊) +₊ (ε /2₊))}
+                  {η = ((ε /2₊) /2₊)}
+                  (triangle∼ {ε = ((ε /2₊) /2₊)} {η = ε /2₊}
+                     (sym∼ _ _ _ $ invEq (∼≃abs<ε _ _ ((ε /2₊) /2₊))
+                        (isTrans≡<ᵣ _ _ _
+                          (cong absᵣ (riemannSum- (snd tp) _ _
+                           ∙ riemannSum-clamp (snd tp) _))
+                          (isTrans≤<ᵣ _ _ _
+                            (isTrans≤ᵣ _ _ _
+                             (riemannSum'-absᵣ≤ (snd tp) _)
+                             (riemannSum'≤ (snd tp) _ _
+                               λ r ≤x x≤ →
+                                <ᵣWeaken≤ᵣ _ _
+                                  (Xf _ _ (suc Nf⊔NF)
+                                  (ℕ.suc-≤-suc  (ℕ.left-≤-max {Nf} {NF})))))
+                            (isTrans≡<ᵣ _ _ _
+                              (riemannSum'Const (snd tp) _
+                               ∙ cong₂ _·ᵣ_ (rat·ᵣrat _ _) refl
+                               ∙ sym (·ᵣAssoc _ _ _)
+                               ∙ cong₂ _·ᵣ_ refl (·ᵣComm _ _))
+                              (isTrans<≡ᵣ _ _ _
+                                 (<ᵣ-o·ᵣ _ _ (ℚ₊→ℝ₊ ((ε /2₊) /2₊))
+                                  (isTrans≡<ᵣ _ _ _
+                                    (cong₂ _·ᵣ_ refl (sym (invℝ₊-rat η₊)))
+                                    (invEq (z/y<x₊≃z<y₊·x _ _ _)
+                                     (isTrans<≡ᵣ _ _ _
+                                       (isTrans≤<ᵣ _ _ _
+                                         (≤ᵣ-+o _ _ (-ᵣ a) (snd x∈)) b-a<η₊)
+                                       (sym (·IdR _))))))
+                                 (·IdR _))))))
+                    (invEq (∼≃abs<ε _ _ (ε /2₊)) (Xδ tp msh≤)))
+                  (invEq (∼≃abs<ε _ _ ((ε /2₊) /2₊)) (XF x x∈ (suc Nf⊔NF)
+                    (ℕ.suc-≤-suc (ℕ.right-≤-max {NF} {Nf})))))))
+
+Integral-additive : ∀ a b c a≤b b≤c → ∀ f s s' s+s' →
+  on[ a , b ]IntegralOf (λ x ≤x x≤ → f x ≤x (isTrans≤ᵣ _ _ _ x≤ b≤c)) is s →
+  on[ b , c ]IntegralOf (λ x ≤x x≤ → f x (isTrans≤ᵣ _ _ _ a≤b ≤x ) x≤) is s' →
+  on[ a , c ]IntegralOf f is s+s' →
+  s +ᵣ s' ≡ s+s'
+Integral-additive a b c a≤b b≤c f s s' s+s' ∫ab ∫bc ∫ac =
+  Integral'-additive a b c a≤b b≤c
+   (λ x → f (clampᵣ a c x)
+     (≤clampᵣ a c x (isTrans≤ᵣ _ _ _ a≤b b≤c))
+     (clamp≤ᵣ a c x))
+   s s' s+s'
+     (Integral'≡ _ _ a≤b  _ _
+         s (λ x x∈@(≤x , x≤) →
+              cong (uncurry (uncurry ∘ f))
+         (Σ≡Prop (∈-isProp (intervalℙ a c))
+           (sym (∈ℚintervalℙ→clampᵣ≡  a b x x∈) ∙
+             ∈ℚintervalℙ→clampᵣ≡  a c x
+               (≤x , isTrans≤ᵣ _ _ _ x≤ b≤c))))
+         (invEq (clampᵣ-IntegralOf' a b a≤b _ s) ∫ab))
+        (Integral'≡ _ _ b≤c  _ _
+         s' (λ x x∈@(≤x , x≤) →
+              cong (uncurry (uncurry ∘ f))
+         (Σ≡Prop (∈-isProp (intervalℙ a c))
+           ((sym (∈ℚintervalℙ→clampᵣ≡  b c x x∈) ∙
+             ∈ℚintervalℙ→clampᵣ≡  a c x
+               (isTrans≤ᵣ _ _ _ a≤b ≤x , x≤ )))))
+          (invEq (clampᵣ-IntegralOf' b c b≤c _ s') ∫bc))
+    (invEq (clampᵣ-IntegralOf' a c (isTrans≤ᵣ _ _ _ a≤b b≤c)
+     (uncurry ∘ f) s+s') ∫ac)
+
+FTOC⇐'' : ∀ a b (a<b : a <ᵣ b) (f F : ∀ x → x ∈ intervalℙ a b → ℝ)
+          → (ucf : IsUContinuousℙ (intervalℙ a b) f)
+          → uDerivativeOfℙ (intervalℙ a b) , F is f
+          → ∀ x x∈
+          → on[ a , x ]IntegralOf
+              (λ x₁ ≤x x≤ → f x₁ (≤x , isTrans≤ᵣ x₁ x b x≤ (snd x∈))) is
+              (F x x∈ -ᵣ F a (≤ᵣ-refl a , <ᵣWeaken≤ᵣ _ _ a<b ))
+FTOC⇐'' a b a<b f F ucf fd x x∈ =
+  PT.rec (isPropΠ λ _ → squash₁)
+    (⊎.rec
+     (λ x<b →
+       let zz = FTOC⇐ x b (<ᵣWeaken≤ᵣ _ _ x<b)
+                (λ x₁ (≤x , x≤)
+                  → f x₁ (isTrans≤ᵣ _ _ _  (fst x∈) ≤x , x≤))
+                (λ x₁ (≤x , x≤)
+                  → F x₁ (isTrans≤ᵣ _ _ _  (fst x∈) ≤x , x≤))
+                  (IsUContinuousℙ-restr
+                    (intervalℙ a b)
+                    (intervalℙ x b)
+                    f
+                    (λ x (≤x , x≤) → isTrans≤ᵣ _ _ _  (fst x∈) ≤x , x≤) ucf)
+                   (uDerivativeOfℙ-restr
+                    (intervalℙ a b)
+                    (intervalℙ x b)
+                    F
+                    f
+                    (λ x (≤x , x≤) → isTrans≤ᵣ _ _ _  (fst x∈) ≤x , x≤) fd)
+           zzzW = (snd (Integrate-UContinuousℙ a x (fst x∈) _
+                           ((IsUContinuousℙ-restr
+                        (intervalℙ a b)
+                        (intervalℙ a x)
+                        f
+                        (λ x (≤x , x≤) →
+                         ≤x , isTrans≤ᵣ _ _ _ x≤ (snd x∈)) ucf))))
+           zzz = Integral-additive a x b (fst x∈) (snd x∈)
+                        _ _ _ _
+                        zzzW
+                        zz
+                        (FTOC⇐ a b (<ᵣWeaken≤ᵣ _ _ a<b) _ _ ucf fd)
+       in subst (on[ a , x ]IntegralOf
+              (λ x₁ ≤x x≤ → f x₁ (≤x , isTrans≤ᵣ x₁ x b x≤ (snd x∈))) is_)
+               (sym (Rℝ.plusMinus _ _)
+                ∙∙ cong₂ _-ᵣ_ zzz
+                   (cong₂ _-ᵣ_
+                     ((cong (uncurry F)
+                        (Σ≡Prop (∈-isProp (intervalℙ a b))
+                         refl)))
+                     ((cong (uncurry F)
+                        (Σ≡Prop (∈-isProp (intervalℙ a b))
+                         refl))))
+                ∙∙ [x-y]-[x-z]≡z-y _ _ _)
+               zzzW)
+      λ a<x →
+       subst (on[ a , x ]IntegralOf _ is_)
+        (cong₂ _-ᵣ_
+         (cong (uncurry F)
+                (Σ≡Prop (∈-isProp (intervalℙ a b))
+                 refl))
+        (cong (uncurry F)
+                (Σ≡Prop (∈-isProp (intervalℙ a b))
+                 refl)))
+        (FTOC⇐ a x (<ᵣWeaken≤ᵣ _ _ a<x)
+         (λ x₁ (≤x , x≤)
+           → f x₁ (≤x , isTrans≤ᵣ x₁ x b x≤ (snd x∈)))
+         (λ x₁ (≤x , x≤)
+           → F x₁ (≤x , isTrans≤ᵣ x₁ x b x≤ (snd x∈)))
+           (IsUContinuousℙ-restr
+             (intervalℙ a b)
+             (intervalℙ a x)
+             f
+             (λ x (≤x , x≤) → ≤x , isTrans≤ᵣ _ _ _ x≤ (snd x∈)) ucf)
+            (uDerivativeOfℙ-restr
+             (intervalℙ a b)
+             (intervalℙ a x)
+             F
+             f
+             (λ x (≤x , x≤) → ≤x , isTrans≤ᵣ _ _ _ x≤ (snd x∈)) fd)))
+    (Dichotomyℝ' a x b a<b)
+
+uCauchyDer : ∀ a b → a <ᵣ b → ∀ fₙ Fₙ →
+             ∀ (icf : IsUCauchyFSequence (intervalℙ a b) fₙ)
+
+             uf uF
+             (icF : IsUCauchyFSequence (intervalℙ a b) Fₙ)
+             → (∀ n → uDerivativeOfℙ (intervalℙ a b) , Fₙ n is fₙ n)
+             → uDerivativeOfℙ (intervalℙ a b) ,
+                  (fst (fromUCauchyFSequence (intervalℙ a b) Fₙ icF uF))
+                  is
+                  (fst (fromUCauchyFSequence (intervalℙ a b) fₙ icf uf))
+uCauchyDer a b a<b fₙ Fₙ  icf uf uF icF Fₙ'=fₙ =
+   uDerivativeℙ-cancelConst
+   (intervalℙ a b) C
+   (fst (fromUCauchyFSequence (intervalℙ a b) Fₙ icF uF))
+   (fst (fromUCauchyFSequence (intervalℙ a b) fₙ icf uf))
+   uzu2
+ where
+ a≤b : a ≤ᵣ b
+ a≤b = <ᵣWeaken≤ᵣ a b a<b
+
+ F-F-ucfs : IsUContFSequence (intervalℙ a b)
+      (λ n x₁ x∈₁ → Fₙ n x₁ x∈₁ -ᵣ Fₙ n a (≤ᵣ-refl a , a≤b))
+ F-F-ucfs n = IsUContinuousℙ+ᵣ₂
+    (intervalℙ a b)
+    (Fₙ n)
+    (λ x₁ x∈₁ → -ᵣ Fₙ n a (≤ᵣ-refl a , a≤b))
+    (uF n)
+    (IsUContinuousℙ-const (intervalℙ a b) (-ᵣ Fₙ n a (≤ᵣ-refl a , a≤b)))
+
+ icf-a :
+   IsUCauchyFSequence (intervalℙ a b)
+     (λ n x₁ x∈₁ → -ᵣ Fₙ n a (≤ᵣ-refl a , a≤b))
+ icf-a = isUCauchyFSequence-ᵣ
+                   (intervalℙ a b)
+                   (λ n x₁ x∈₁ → Fₙ n a (≤ᵣ-refl a , a≤b))
+                   (map-snd (λ X _ _ m n x₃ x₄ →
+                     X _ _ m n x₃ x₄)
+                     ∘ icF)
+
+ F-F-uchfs : IsUCauchyFSequence (intervalℙ a b)
+      (λ n x₁ x∈₁ → Fₙ n x₁ x∈₁ -ᵣ Fₙ n a (≤ᵣ-refl a , a≤b))
+ F-F-uchfs = isUCauchyFSequence+ᵣ
+    (intervalℙ a b)
+    Fₙ
+    (λ n x₁ x∈₁ → -ᵣ Fₙ n a (≤ᵣ-refl a , a≤b))
+    icF icf-a
+
+ icaFa :
+      IsCauchySequence' (λ z → -ᵣ Fₙ z a (≤ᵣ-refl a , a≤b))
+ C : ℝ
+ C = fromCauchySequence'₁
+      (λ z → -ᵣ Fₙ z a (≤ᵣ-refl a , a≤b))
+      ∣ icaFa ∣₁
+
+ icaFa =
+   fst (map-fromCauchySequence'
+  1 (λ z → Fₙ z a (≤ᵣ-refl a , a≤b))
+    (isCauchyFSequenceAt
+      (intervalℙ a b)
+      Fₙ
+      icF
+      a
+      (≤ᵣ-refl a , a≤b))
+   -ᵣ_ -ᵣ-lip)
+
+ uzu2 : uDerivativeOfℙ intervalℙ a b ,
+        (λ r z → fst
+           (fromUCauchyFSequence (intervalℙ a b)
+            Fₙ icF uF)
+           r z +ᵣ C)
+        is
+        (fromUCauchyFSequence (intervalℙ a b) fₙ icf uf .fst)
+ uzu2 = subst2 (uDerivativeOfℙ (intervalℙ a b) ,_is_)
+           (funExt₂ λ x x∈@(≤x , x≤) →
+              IntegralUniq a x (≤x) _ _ _
+             (snd ((Integrate-UContinuousℙ a x ≤x
+              (λ x₁ x∈₁ →
+                 fromUCauchyFSequence (intervalℙ a b) fₙ icf uf .fst x₁
+                 (fst x∈₁ , isTrans≤ᵣ x₁ x b (snd x∈₁) x≤))
+              (map-snd
+               (λ X u v u∈ v∈ →
+                  X u v (fst u∈ , isTrans≤ᵣ u x b (snd u∈) x≤)
+                  (fst v∈ , isTrans≤ᵣ v x b (snd v∈) (x∈ .snd)))
+               ∘ snd (fromUCauchyFSequence (intervalℙ a b) fₙ icf uf)))))
+             (uCauchy∫ _ _ a≤b fₙ
+                     (λ n x x∈ → Fₙ n x x∈ -ᵣ Fₙ n a (≤ᵣ-refl _ , a≤b))
+                    (λ n x x∈ →
+                       FTOC⇐'' a b a<b (fₙ n) (Fₙ n) (uf n)
+                     (Fₙ'=fₙ n) x x∈)
+                      icf uf
+                      F-F-uchfs
+                      F-F-ucfs
+                      x x∈)
+               ∙ sym (fromUCauchyFSequence-+ (intervalℙ a b)
+                 Fₙ
+                 icF
+                 uF
+                 (λ n x x∈ → -ᵣ Fₙ n a (≤ᵣ-refl a , a≤b))
+                 icf-a
+                 (λ n → IsUContinuousℙ-const
+                   (intervalℙ a b)
+                   (-ᵣ Fₙ n a (≤ᵣ-refl a , a≤b)))
+                 F-F-uchfs
+                 F-F-ucfs
+                 x x∈)
+                 ∙ cong₂ _+ᵣ_ refl
+                  (sym
+                   (fromCauchySequence'₁≡fromUCauchyFSequence
+                    (intervalℙ a b)
+                    (λ n x x∈ → -ᵣ Fₙ n a (≤ᵣ-refl a , a≤b))
+                    x x∈
+                    icf-a
+                    (λ n → IsUContinuousℙ-const
+                        (intervalℙ a b)
+                        (-ᵣ Fₙ n a (≤ᵣ-refl a , a≤b)))
+                    ∣ icaFa ∣₁)))
+           refl
+           (FTOC⇒' a b a≤b _
+            (snd (fromUCauchyFSequence (intervalℙ a b) fₙ icf uf)))

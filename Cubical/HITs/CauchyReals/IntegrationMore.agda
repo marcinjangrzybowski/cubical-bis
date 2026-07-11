@@ -465,6 +465,9 @@ Integral'-empty a f s ∫f =
 x-[x+-y]≡y : ∀ (x y : ℝ) → x -ᵣ (x +ᵣ -ᵣ y) ≡ y
 x-[x+-y]≡y x y = v-[v-u]≡u y x
 
+[x-y]-[x-z]≡z-y : ∀ (x y z : ℝ) → (x -ᵣ y) -ᵣ (x -ᵣ z) ≡ z -ᵣ y
+[x-y]-[x-z]≡z-y x y z = ℝ!
+
 module IntegrationUC
  (rtpℚ : ∀ (A B : ℚ) → A ℚ.≤ B
     → RefinableTaggedPartition[ rat A , rat B ] ) where

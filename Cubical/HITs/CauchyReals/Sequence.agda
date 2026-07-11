@@ -1279,6 +1279,22 @@ module bⁿ-aⁿ n'  where
            (sym (Rℝ.0RightAnnihilates (bⁿ-aⁿ.S n x y 0<x 0<y)))
             (·ᵣComm (y -ᵣ x) _) z)))
 
+^ⁿStrictMonotone⁻¹ : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n) → 0 <ᵣ x → 0 <ᵣ y
+ → (x ^ⁿ n) <ᵣ (y ^ⁿ n) → x <ᵣ y
+^ⁿStrictMonotone⁻¹ zero 0<n 0<x 0<y xⁿ<yⁿ = ⊥.rec (ℕ.¬-<-zero 0<n)
+^ⁿStrictMonotone⁻¹ (suc zero) 0<n 0<x 0<y xⁿ<yⁿ =
+  subst2 _<ᵣ_ (·IdR _) (·IdR _) xⁿ<yⁿ
+^ⁿStrictMonotone⁻¹ {x} {y} (suc (suc n)) 0<n 0<x 0<y xⁿ<yⁿ =
+ let z = isTrans<≡ᵣ _ _ _ (x<y→0<y-x _ _ xⁿ<yⁿ)
+          (sym $ bⁿ-aⁿ.[b-a]·S≡bⁿ-aⁿ n x y 0<x 0<y)
+ in 0<y-x→x<y _ _
+      (invEq (z<x≃y₊·z<y₊·x (y -ᵣ x) 0
+          ((bⁿ-aⁿ.S n x y 0<x 0<y ,
+                  bⁿ-aⁿ.0<S n x y 0<x 0<y)))
+         (subst2 _<ᵣ_
+           (sym (Rℝ.0RightAnnihilates (bⁿ-aⁿ.S n x y 0<x 0<y)))
+            (·ᵣComm (y -ᵣ x) _) z))
+
 
 -- ^ⁿMonotone⁻¹-with0 : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n) → 0 ≤ᵣ x → 0 <ᵣ y
 --  → (x ^ⁿ n) ≤ᵣ (y ^ⁿ n) → x ≤ᵣ y

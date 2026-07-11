@@ -728,6 +728,15 @@ opaque
  invℝ₊-impl : ∀ y  → invℝ₊ y ≡ (fst invℝ' (fst y) (snd y) , invℝ'-pos (fst y) (snd y))
  invℝ₊-impl _ = refl
 
+-- Previous location: Exponentiation.Core.IsContinuousWithPred-invℝ₊.
+IsContinuousWithPred-invℝ₊ :
+  IsContinuousWithPred pred0< λ x x∈ → fst (invℝ₊ (x , x∈))
+IsContinuousWithPred-invℝ₊ =
+  subst (IsContinuousWithPred pred0<)
+    (funExt λ x → funExt λ x∈ →
+      sym (cong fst (invℝ₊-impl (x , x∈))))
+    (snd invℝ')
+
 signᵣ : ∀ r → 0 ＃ r → ℝ
 signᵣ _ = ⊎.rec (λ _ → rat 1) (λ _ → rat -1)
 

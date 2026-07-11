@@ -1,6 +1,7 @@
 module Cubical.HITs.CauchyReals.Bisection where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
@@ -53,6 +54,20 @@ Lipschitz-ℚ→ℚℙ L P f =
     abs (q ℚ.- r) ℚ.< fst ε →
     abs (f q ℚ.- f r) ℚ.< fst (L ·₊ ε)
 
+-- Previously in Cubical.HITs.CauchyReals.Bisect.
+Lipschitz-ℚ→ℝ' : ℚ₊ → (ℚ → ℝ) → Type
+Lipschitz-ℚ→ℝ' L f =
+  ∀ q r → absᵣ (f q -ᵣ f r) ≤ᵣ rat (fst L ℚ.· abs (q ℚ.- r))
+
+Lipschitz-ℚ→ℝ'→Lipschitz-ℚ→ℝ :
+  ∀ L f → Lipschitz-ℚ→ℝ' L f → Lipschitz-ℚ→ℝ L f
+Lipschitz-ℚ→ℝ'→Lipschitz-ℚ→ℝ L f lf q r ε -ε<q-r q-r<ε =
+  invEq (∼≃abs<ε _ _ _)
+    (isTrans≤<ᵣ _ _ _ (lf q r)
+      (<ℚ→<ᵣ _ _
+        (ℚ.<-o· _ _ (fst L) (snd L)
+          (absFrom<×< (fst ε) (q ℚ.- r) -ε<q-r q-r<ε))))
+
 Lipschitz-ℚ→ℚℙ< : ℚ₊ → (P : ℙ ℚ) → (ℚ → ℚ) → Type
 Lipschitz-ℚ→ℚℙ< L P f =
   ∀ q → q ∈ P → ∀ r → r ∈ P → r ℚ.< q →
@@ -94,6 +109,12 @@ Lipschitz-ℚ→ℚℙ→Lipschitz-ℚ→ℝℙ L a b f fLip q q∈ r r∈ ε q-
     (<ℚ→<ᵣ _ _
       (fLip q (∈intervalℙ→∈ℚintervalℙ a b q q∈)
         r (∈intervalℙ→∈ℚintervalℙ a b r r∈) ε q-r<ε))
+
+-- Previously in Cubical.HITs.CauchyReals.Bisect.
+Invlipschitz-ℝ→ℝℙ : ℚ₊ → (P : ℙ ℝ) → (∀ x → x ∈ P → ℝ) → Type
+Invlipschitz-ℝ→ℝℙ K P f =
+  ∀ u u∈ v v∈ → (ε : ℚ₊) →
+    f u u∈ ∼[ ε ] f v v∈ → u ∼[ K ·₊ ε ] v
 
 opaque
  unfolding minᵣ

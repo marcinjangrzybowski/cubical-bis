@@ -543,12 +543,12 @@ IsCommRingℝ = CR.makeIsCommRing
 ℝcommRing = (_ , CR.commringstr 0 1 _+ᵣ_ _·ᵣ_ -ᵣ_ IsCommRingℝ)
 
 
--- x+x≡2x : ∀ x → x +ᵣ x ≡ 2 ·ᵣ x
--- x+x≡2x x = cong₂ _+ᵣ_
---     (sym (·IdL x))
---     (sym (·IdL x))
---     ∙ sym (·DistR+ 1 1 x)
---     ∙ cong (_·ᵣ x) (+ᵣ-rat _ _)
+x+x≡2x : ∀ x → x +ᵣ x ≡ 2 ·ᵣ x
+x+x≡2x x = cong₂ _+ᵣ_
+    (sym (·IdLᵣ x))
+    (sym (·IdLᵣ x))
+    ∙ sym (·DistR+ 1 1 x)
+    ∙ cong (_·ᵣ x) (+ᵣ-rat _ _)
 
 opaque
 

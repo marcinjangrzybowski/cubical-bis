@@ -23,8 +23,8 @@ import Cubical.Data.Nat.Mod as ℕ
 import Cubical.Data.Nat.Order as ℕ
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎
-open import Cubical.Data.Int as ℤ using (pos; ℤ)
-import Cubical.Data.Int.Order as ℤ
+open import Cubical.Data.Int.Fast as ℤ using (pos; ℤ)
+import Cubical.Data.Int.Fast.Order as ℤ
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
@@ -35,17 +35,14 @@ open import Cubical.HITs.SetQuotients as SQ hiding (_/_)
 open import Cubical.Data.NatPlusOne
 
 open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Order as ℚ using
-  ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
+open import Cubical.Data.Rationals.Order as ℚ using (0<_)
 open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ
 open import Cubical.Data.Rationals.Order.Floor as ℚ
 open import Cubical.Data.Rationals.Order.Algebra as ℚ
-open import Cubical.Data.Rationals.Inverse as ℚ
- using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
+open import Cubical.Data.Rationals.Inverse as ℚ using (invℚ)
 
 
 open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Lems
 open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
@@ -53,16 +50,24 @@ open import Cubical.HITs.CauchyReals.Continuous
 open import Cubical.HITs.CauchyReals.Multiplication
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
-open import Cubical.HITs.CauchyReals.Bisect
--- open import Cubical.HITs.CauchyReals.BisectApprox
+open import Cubical.HITs.CauchyReals.Bisection
 open import Cubical.HITs.CauchyReals.NthRoot
-open import Cubical.HITs.CauchyReals.Derivative
+open import Cubical.HITs.CauchyReals.Derivative hiding (invℚ₊)
+open import Cubical.HITs.CauchyReals.InverseDerivative
+open import Cubical.HITs.CauchyReals.RationalsImports hiding (_^_)
+open import Cubical.HITs.CauchyReals.LiftingExpr
 
 open import Cubical.HITs.CauchyReals.Exponentiation
-open import Cubical.HITs.CauchyReals.ExponentiationDer
 open import Cubical.HITs.CauchyReals.ExponentiationMore
+open import Cubical.HITs.CauchyReals.Exponentiation.RealPowerBase using
+  ( +Groupℝ
+  ; ·₊Groupℝ
+  ; ℝ₋₊
+  ; Aut[_]ᵣ
+  ; module +GrAutomorphism
+  )
 
-import Cubical.Algebra.CommRing.Instances.Int as ℤCRing
+import Cubical.Algebra.CommRing.Instances.Int.Fast as ℤCRing
 open import Cubical.Algebra.Group.Instances.Bool
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Properties
@@ -98,7 +103,7 @@ module 𝒆-number a (1<a : 1 <ᵣ fst a) where
   ln-𝒆'≡1 = ln[a^b₊]≡b₊·ln[a] _ (invℝ₊ _) ∙ ·ᵣComm _ _ ∙ x·invℝ₊[x] (ln a , 1<a→0<ln[a] a 1<a)
 
   ln[𝒆'^x]≡x : ∀ (x : ℝ) → (ln (𝒆' ^ᵣ x)) ≡  x
-  ln[𝒆'^x]≡x x = ln[a^b]≡b·ln[a] _ x ∙ 𝐑'.·IdR' _ _  ln-𝒆'≡1
+  ln[𝒆'^x]≡x x = ln[a^b]≡b·ln[a] _ x ∙ Rℝ.·IdR' _ _  ln-𝒆'≡1
 
   𝒆'^ln[x]≡x : ∀ (x : ℝ₊) → (𝒆' ^ᵣ (ln x)) ≡  x
   𝒆'^ln[x]≡x x = inj-ln (𝒆' ^ᵣ ln x) x (ln[𝒆'^x]≡x (ln x))
@@ -106,8 +111,8 @@ module 𝒆-number a (1<a : 1 <ᵣ fst a) where
   exp-ln-Iso : Iso ℝ ℝ₊
   exp-ln-Iso .Iso.fun = 𝒆' ^ᵣ_
   exp-ln-Iso .Iso.inv = ln
-  exp-ln-Iso .Iso.rightInv = 𝒆'^ln[x]≡x
-  exp-ln-Iso .Iso.leftInv = ln[𝒆'^x]≡x
+  exp-ln-Iso .Iso.sec = 𝒆'^ln[x]≡x
+  exp-ln-Iso .Iso.ret = ln[𝒆'^x]≡x
 
   ln-+ : ∀ x x' → ln x +ᵣ ln x' ≡ ln (x ₊·ᵣ x')
   ln-+ x x' =
@@ -129,7 +134,7 @@ module 𝒆-number a (1<a : 1 <ᵣ fst a) where
 
   𝒆'^-der : ∀ y → derivativeOf (fst ∘ 𝒆' ^ᵣ_) at y is (fst (𝒆' ^ᵣ y))
   𝒆'^-der y = subst (derivativeOf (λ r → fst r) ∘ _^ᵣ_ 𝒆' at y is_)
-     (𝐑'.·IdR' _ _ ln-𝒆'≡1) (^-der 𝒆' y)
+     (Rℝ.·IdR' _ _ ln-𝒆'≡1) (^-der 𝒆' y)
 
 
   1<𝒆' : 1 <ᵣ fst 𝒆'
@@ -183,8 +188,8 @@ module 𝒆-number a (1<a : 1 <ᵣ fst a) where
   i : Iso _ _
   i .Iso.fun = _·ᵣ α
   i .Iso.inv = _·ᵣ invℝ α 0＃α
-  i .Iso.rightInv _ = [x/y]·yᵣ _ _ _
-  i .Iso.leftInv _ = [x·y]/yᵣ _ _ _
+  i .Iso.sec _ = [x/y]·yᵣ _ _ _
+  i .Iso.ret _ = [x·y]/yᵣ _ _ _
 
 grpIso→α : Aut[ snd +Groupℝ ]ᵣ .fst → ℝ
 grpIso→α x = Iso.fun (fst (fst x)) 1

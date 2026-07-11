@@ -33,17 +33,18 @@ open import Cubical.HITs.SetQuotients as SQ hiding (_/_)
 open import Cubical.Data.NatPlusOne
 
 open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Order as ℚ using
-  ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
+open import Cubical.Data.Rationals.Order as ℚ using (0<_)
 open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ
 open import Cubical.Data.Rationals.Order.Floor as ℚ
-open import Cubical.Data.Rationals.Order.Algebra as ℚ
-open import Cubical.Data.Rationals.Inverse as ℚ
- using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
+open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (seqΣ ; seqΣ' ; _^ⁿ_ ; _ℚ₊^ⁿ_)
+open import Cubical.Data.Rationals.Inverse as ℚ using
+  ( invℚ
+  ; _⁻¹₊
+  ; x/y<z→x<y·z
+  )
 
 
 open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Lems
 open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
@@ -51,11 +52,16 @@ open import Cubical.HITs.CauchyReals.Continuous
 open import Cubical.HITs.CauchyReals.Multiplication
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
-open import Cubical.HITs.CauchyReals.Bisect
+open import Cubical.HITs.CauchyReals.Bisection
 open import Cubical.HITs.CauchyReals.NthRoot
-open import Cubical.HITs.CauchyReals.Derivative
+open import Cubical.HITs.CauchyReals.Derivative hiding (invℚ₊)
+open import Cubical.HITs.CauchyReals.Partition using (ℚ<→0< ; _ℚ₊·_)
 
 open import Cubical.HITs.CauchyReals.Exponentiation
+open import Cubical.HITs.CauchyReals.RationalsImports
+open import Cubical.HITs.CauchyReals.LiftingExpr
+
+open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 import Cubical.Algebra.CommRing.Instances.Int as ℤCRing
 open import Cubical.Algebra.Ring.Properties
@@ -65,93 +71,20 @@ open import Cubical.Algebra.Group.MorphismProperties
 import Cubical.Algebra.CommRing as CR
 import Cubical.Algebra.CommRing.Properties as CR
 
-module L𝐙 = Lems ℤCRing.ℤCommRing
 module 𝐙' = RingTheory (CR.CommRing→Ring ℤCRing.ℤCommRing )
 
+ℚ≤→<+₊ : ∀ x y (ε : ℚ₊) → x ℚ.≤ y → x ℚ.< y ℚ.+ fst ε
+ℚ≤→<+₊ x y ε x≤y =
+  subst (λ z → z ℚ.< y ℚ.+ fst ε) (ℚ.+IdR x)
+    (ℚ.≤<Monotone+ x y 0 (fst ε) x≤y (snd ε))
 
-
-slopeMonotone^ : (n : ℕ) (a b a' b' : ℝ₊)
-  → (a<b : fst a <ᵣ fst b) → (a'<b' : fst a' <ᵣ fst b')
-  → (a≤a' : fst a ≤ᵣ fst a') →  (b≤b' : fst b ≤ᵣ fst b') →
-  (((fst b ^ⁿ n) -ᵣ (fst a ^ⁿ n))
-    ／ᵣ₊ (_ , x<y→0<y-x _ _ a<b ))
-      ≤ᵣ
-  (((fst b' ^ⁿ n) -ᵣ (fst a' ^ⁿ n))
-    ／ᵣ₊ (_ , x<y→0<y-x _ _ a'<b' ))
-slopeMonotone^ zero a b a' b' a<b a'<b' a≤a' b≤b' =
-  ≡ᵣWeaken≤ᵣ _ _
-    ((𝐑'.0LeftAnnihilates' _ _ (+-ᵣ _))
-    ∙ sym (𝐑'.0LeftAnnihilates' _ _ (+-ᵣ _)))
-slopeMonotone^ (suc zero) a b a' b' a<b a'<b' a≤a' b≤b' =
-  ≡ᵣWeaken≤ᵣ _ _
-    ((cong (_／ᵣ₊ (_ , x<y→0<y-x _ _ a<b )) (cong₂ _-ᵣ_ (·IdL _) (·IdL _))
-      ∙ x·invℝ₊[x] _)
-     ∙ sym (x·invℝ₊[x] _) ∙ (cong (_／ᵣ₊ (_ , x<y→0<y-x _ _ a'<b' ))
-       (sym ((cong₂ _-ᵣ_ (·IdL _) (·IdL _))))))
-slopeMonotone^ (suc (suc N)) a b a' b' a<b a'<b' a≤a' b≤b' =
-   subst2 _≤ᵣ_
-     (sym ([x·yᵣ]/₊y _ (_ , x<y→0<y-x _ _ a<b ))
-       ∙ cong (_／ᵣ₊ (_ , x<y→0<y-x _ _ a<b )) (·ᵣComm _ _ ∙ fa.[b-a]·S≡bⁿ-aⁿ))
-     (sym ([x·yᵣ]/₊y _ (_ , x<y→0<y-x _ _ a'<b'))
-       ∙ cong (_／ᵣ₊ (_ , x<y→0<y-x _ _ a'<b' )) (·ᵣComm _ _ ∙ fa'.[b-a]·S≡bⁿ-aⁿ))
-     (Seq≤→Σ≤-upto
-       (geometricProgression _ fa.r)
-       (geometricProgression _ fa'.r)
-       (suc (suc N))
-       w)
- where
- open bⁿ-aⁿ N
- module fa = factor (fst a) (fst b) (snd a) (snd b)
- module fa' = factor (fst a') (fst b') (snd a') (snd b')
-
- w : (n₁ : ℕ) → n₁ ℕ.< suc (suc N) →
-      geometricProgression (fst b ^ⁿ (suc N)) (fst a ／ᵣ[ fst b , _ ]) n₁ ≤ᵣ
-      geometricProgression (fst b' ^ⁿ (suc N)) (fst a' ／ᵣ[ fst b' , _ ]) n₁
- w n x =
-  let (m , p) = ℕ.predℕ-≤-predℕ x
-  in subst2 _≤ᵣ_ -- ^ℕ-+
-    ((cong₂ _·ᵣ_ refl (sym ([x/y]·yᵣ _ _ (inl (0<x^ⁿ _ _ (snd b))))
-     ∙ ·ᵣComm _ _) ∙ ·ᵣAssoc _ _ _)
-      ∙ cong₂ _·ᵣ_
-          ((cong fst (^ℕ-+ b _ _) ∙ cong ((fst b) ^ⁿ_) (p)))
-          (／^ⁿ _ _ _ _ _)
-      ∙ sym (geometricProgressionClosed _ _ _))
-    ((cong₂ _·ᵣ_ refl (sym ([x/y]·yᵣ _ _ (inl (0<x^ⁿ _ _ (snd b'))))
-     ∙ ·ᵣComm _ _) ∙ ·ᵣAssoc _ _ _)
-      ∙ cong₂ _·ᵣ_
-          ((cong fst (^ℕ-+ b' _ _) ∙ cong ((fst b') ^ⁿ_) (p)))
-          (／^ⁿ _ _ _ _ _)
-      ∙ sym (geometricProgressionClosed _ _ _))
-    (≤ᵣ₊Monotone·ᵣ _ _ _ _
-      (<ᵣWeaken≤ᵣ _ _ (0<x^ⁿ _ _ (snd b')))
-      (<ᵣWeaken≤ᵣ _ _ (0<x^ⁿ _ _ (snd a)))
-      (^ⁿ-Monotone _ (<ᵣWeaken≤ᵣ _ _ (snd b)) b≤b')
-       (^ⁿ-Monotone _ (<ᵣWeaken≤ᵣ _ _ (snd a)) a≤a') )
-
-slope-monotone-ₙ√ : (n : ℕ) (a b a' b' : ℝ₊)
-  → (a<b : fst a <ᵣ fst b) → (a'<b' : fst a' <ᵣ fst b')
-  → (a≤a' : fst a ≤ᵣ fst a') →  (b≤b' : fst b ≤ᵣ fst b') →
-  ((fst (root (1+ n) b') -ᵣ fst (root (1+ n) a'))
-    ／ᵣ₊ (_ , x<y→0<y-x _ _ a'<b' ))
-      ≤ᵣ
-  ((fst (root (1+ n) b) -ᵣ fst (root (1+ n) a))
-    ／ᵣ₊ (_ , x<y→0<y-x _ _ a<b ))
-slope-monotone-ₙ√ n a b a' b' a<b a'<b' a≤a' b≤b' =
-  fst (x/y≤x'/y'≃y'/x'≤y/x _ _ _ _) $
-   subst2 _≤ᵣ_
-    ((cong₂ _·ᵣ_ (cong₂ _-ᵣ_
-      (cong fst (Iso.rightInv (nth-pow-root-iso (1+ n)) _))
-     (cong fst (Iso.rightInv (nth-pow-root-iso (1+ n)) _))) refl))
-    (cong₂ _·ᵣ_ (cong₂ _-ᵣ_
-     (cong fst (Iso.rightInv (nth-pow-root-iso (1+ n)) _))
-     (cong fst (Iso.rightInv (nth-pow-root-iso (1+ n)) _))) refl)
-    $ slopeMonotone^ (suc n)
-     ((root (1+ n) a)) ((root (1+ n) b)) ((root (1+ n) a')) ((root (1+ n) b'))
-    (ₙ√-StrictMonotone (1+ n) a<b)
-      (ₙ√-StrictMonotone (1+ n) a'<b')
-       (ₙ√-Monotone {a} {a'} (1+ n) a≤a')
-       ((ₙ√-Monotone {b} {b'} (1+ n) b≤b'))
-
+IsContinuousWithPred-invℝ₊ :
+  IsContinuousWithPred pred0< λ x x∈ → fst (invℝ₊ (x , x∈))
+IsContinuousWithPred-invℝ₊ =
+  subst (IsContinuousWithPred pred0<)
+    (funExt λ x → funExt λ x∈ →
+      sym (cong fst (invℝ₊-impl (x , x∈))))
+    (snd invℝ')
 
 ·-limℙ : ∀ P x f g F G
         → at x limitOfℙ P , f is F
@@ -186,7 +119,7 @@ slope-monotone-ₙ√ n a b a' b' a<b a'<b' a≤a' b≤b' =
           absᵣ (x -ᵣ r) <ᵣ fst δ* →
           absᵣ (F ·ᵣ G -ᵣ (f·g) r r∈ x＃r) <ᵣ fst ε
    ww r r∈ x＃r x₁ = subst2 _<ᵣ_
-        (cong absᵣ (sym L𝐑.lem--065))
+        (cong absᵣ (sym ℝ!))
         yy
         (isTrans≤<ᵣ _ _ _
           ((absᵣ-triangle _ _) )
@@ -215,7 +148,7 @@ slope-monotone-ₙ√ n a b a' b' a<b a'<b' a≤a' b≤b' =
       gx< : absᵣ (g r r∈ x＃r) <ᵣ 1 +ᵣ absᵣ G
       gx< =
          subst (_<ᵣ (1 +ᵣ absᵣ G))
-            (cong absᵣ (sym (L𝐑.lem--035)))
+            (cong absᵣ (sym (ℝ!)))
 
            (isTrans≤<ᵣ _ _ _
              (absᵣ-triangle ((g r r∈ x＃r) -ᵣ G) G)
@@ -312,7 +245,7 @@ chainRuleIncrℙ x₊@(x , 0<x) f f'gx g g'x gPos incrG gC gD fD =
                      (cong absᵣ (+IdL _ ∙ -[x-y]≡y-x _ _))
                     (X* r r∈ ＃r <a)
                   z = X ((g (x +ᵣ r) r∈ -ᵣ g x 0<x))
-                      (subst-∈ pred0< (sym L𝐑.lem--05 ) (gPos _ _))
+                      (subst-∈ pred0< (sym ℝ! ) (gPos _ _))
                        (0#g _ _ ＃r) Δg<δ
               in isTrans≡<ᵣ _ _ _
                    (cong (λ xx →
@@ -321,7 +254,7 @@ chainRuleIncrℙ x₊@(x , 0<x) f f'gx g g'x gPos incrG gC gD fD =
                           ／ᵣ[ g (x +ᵣ r) r∈ -ᵣ g x 0<x , 0#g r r∈ ＃r ])
                        ))
                      (cong (uncurry f)
-                       (Σ≡Prop (snd ∘ pred0<) (sym L𝐑.lem--05))) )
+                       (Σ≡Prop (snd ∘ pred0<) (sym ℝ!))) )
                    z)
            (IsContinuousLimΔℙ _ _ x 0<x gC δ))
 
@@ -354,7 +287,7 @@ mapLimitPos' : ∀ x P Q f g y y∈ → (f∈ : ∀ r r∈ x＃ → f r r∈ x�
 mapLimitPos' x P Q f g y y∈ f∈ gC fL (ε , 0<ε) =
     PT.rec squash₁
     (λ (q , 0<q , q<ε) →
-     let q₊ = (q , ℚ.<→0< _ (<ᵣ→<ℚ _ _ 0<q))
+     let q₊ = (q , ℚ<→0< _ (<ᵣ→<ℚ _ _ 0<q))
      in PT.rec squash₁
          (λ (δ' , D') →
             PT.rec squash₁
@@ -432,7 +365,7 @@ invDerivativeℙPos-temp x f f' f'Pos fPos isEquivF incrG incrF  fC gC dF =
          (cong fst (retEq e _)))) )
 
   h-lim : at 0 limitOfℙ (λ x₁ → pred0< (y +ᵣ x₁)) , (λ h h∈ _ → h'' h h∈) is 0
-  h-lim = subst (at _ limitOfℙ _ , h' is_) (𝐑'.+InvR' _ _
+  h-lim = subst (at _ limitOfℙ _ , h' is_) (Rℝ.+InvR' _ _
       (cong (fst ∘ invEq e) (ℝ₊≡ (+IdR y)) ∙ cong fst (retEq e _)))
     (IsContinuousLimℙ (λ x₁ → pred0< (y +ᵣ x₁)) h'' 0
       (isTrans<≡ᵣ _ _ _ (fPos (fst x) (snd x)) (sym (+IdR _)))
@@ -467,15 +400,15 @@ invDerivativeℙPos-temp x f f' f'Pos fPos isEquivF incrG incrF  fC gC dF =
   d'' :
    at 0 limitOfℙ pred0< ∘S (y +ᵣ_) ,
        (λ r z z₁ →
-          invℝ' .fst
-          (differenceAtℙ ⊤Pred f (x .fst) (h' r z z₁) _ (x .snd) _)
-          (h''-pos r z z₁))
+          fst (invℝ₊
+            (differenceAtℙ ⊤Pred f (x .fst) (h' r z z₁) _ (x .snd) _ ,
+             h''-pos r z z₁)))
          is (fst (invℝ₊ (f' , f'Pos)) )
   d'' = mapLimitPos' _ _ _ _ _ f'
-        f'Pos
-        h''-pos
-        (snd invℝ')
-        d'
+          f'Pos
+          h''-pos
+          IsContinuousWithPred-invℝ₊
+          d'
 
 
   pp : ∀ x' u v → fst (invℝ₊ (_ , _))
@@ -500,13 +433,13 @@ invDerivativeℙPos-temp x f f' f'Pos fPos isEquivF incrG incrF  fC gC dF =
    uuu = _
 
    qq : f (x .fst +ᵣ h' x' u v) (uu x' u v) ≡ y +ᵣ x'
-   qq = cong₂ f (L𝐑.lem--05) (toPathP refl)
+   qq = cong₂ f (ℝ!) (toPathP refl)
          ∙ cong fst (secEq e _)
 
 
    zzz : f (x .fst +ᵣ h' x' u v) (uu x' u v) -ᵣ f (x .fst) (x .snd)
               ≡ x'
-   zzz = cong (_-ᵣ f (x .fst) (x .snd)) qq ∙ L𝐑.lem--063
+   zzz = cong (_-ᵣ f (x .fst) (x .snd)) qq ∙ ℝ!
 
 
    zz : 0 ＃ ((f (x .fst +ᵣ h' x' u v) (uu x' u v)) -ᵣ f (x .fst) (x .snd))
@@ -584,7 +517,7 @@ invDerivativeℙPos x f f' f'Pos fPos isEquivF incrG incrF  fC gC dF =
         h' r r∈ ＃r ∈ (λ x₂ → pred0< (x .fst +ᵣ x₂))
   uu _ r∈ _ =
    isTrans<≡ᵣ _ _ _ (snd (g (_ , r∈)))
-     (sym L𝐑.lem--05)
+     (sym ℝ!)
 
   vv : (r : ℝ) (r∈ : r ∈ (λ x₂ → pred0< (y +ᵣ x₂))) (＃r : 0 ＃ r) →
         0 ＃ h' r r∈ ＃r
@@ -600,7 +533,7 @@ invDerivativeℙPos x f f' f'Pos fPos isEquivF incrG incrF  fC gC dF =
 
 
   h-lim : at 0 limitOfℙ (λ x₁ → pred0< (y +ᵣ x₁)) , (λ h h∈ _ → h'' h h∈) is 0
-  h-lim = subst (at _ limitOfℙ _ , h' is_) (𝐑'.+InvR' _ _
+  h-lim = subst (at _ limitOfℙ _ , h' is_) (Rℝ.+InvR' _ _
       (cong (fst ∘ invEq e) (ℝ₊≡ (+IdR y)) ∙ cong fst (retEq e _)))
     (IsContinuousLimℙ (λ x₁ → pred0< (y +ᵣ x₁)) h'' 0
       (isTrans<≡ᵣ _ _ _ (fPos (fst x) (snd x)) (sym (+IdR _)))
@@ -635,15 +568,15 @@ invDerivativeℙPos x f f' f'Pos fPos isEquivF incrG incrF  fC gC dF =
   d'' :
    at 0 limitOfℙ pred0< ∘S (y +ᵣ_) ,
        (λ r z z₁ →
-          invℝ' .fst
-          (differenceAtℙ pred0< f (x .fst) (h' r z z₁) _ (x .snd) _)
-          (h''-pos r z z₁))
+          fst (invℝ₊
+            (differenceAtℙ pred0< f (x .fst) (h' r z z₁) _ (x .snd) _ ,
+             h''-pos r z z₁)))
          is (fst (invℝ₊ (f' , f'Pos)) )
   d'' = mapLimitPos' _ _ _ _ _ f'
-        f'Pos
-        h''-pos
-        (snd invℝ')
-        d'
+          f'Pos
+          h''-pos
+          IsContinuousWithPred-invℝ₊
+          d'
 
 
   pp : ∀ x' u v → fst (invℝ₊ (_ , _))
@@ -668,13 +601,13 @@ invDerivativeℙPos x f f' f'Pos fPos isEquivF incrG incrF  fC gC dF =
    uuu = _
 
    qq : f (x .fst +ᵣ h' x' u v) (uu x' u v) ≡ y +ᵣ x'
-   qq = cong₂ f (L𝐑.lem--05) (toPathP (isProp<ᵣ _ _ _ _))
+   qq = cong₂ f (ℝ!) (toPathP (isProp<ᵣ _ _ _ _))
          ∙ cong fst (secEq e _)
 
 
    zzz : f (x .fst +ᵣ h' x' u v) (uu x' u v) -ᵣ f (x .fst) (x .snd)
               ≡ x'
-   zzz = cong (_-ᵣ f (x .fst) (x .snd)) qq ∙ L𝐑.lem--063
+   zzz = cong (_-ᵣ f (x .fst) (x .snd)) qq ∙ ℝ!
 
 
    zz : 0 ＃ ((f (x .fst +ᵣ h' x' u v) (uu x' u v)) -ᵣ f (x .fst) (x .snd))
@@ -744,7 +677,7 @@ reciporalDerivative (x , x∈) f f' fPos fC d =
                 (IsContinuousWP∘ ⊤Pred _ _ _ _
                   (AsContinuousWithPred _ _ IsContinuous-ᵣ)
                     (IsContinuousWP∘ _ _ _ _ _
-                       (snd invℝ')
+                       IsContinuousWithPred-invℝ₊
                         (IsContinuousWP∘ ⊤Pred _ _ _ _
                           (AsContinuousWithPred _ _ (IsContinuous·ᵣL _))
                            (IsContinuousWP∘ _ _ _ _ _
@@ -754,11 +687,11 @@ reciporalDerivative (x , x∈) f f' fPos fC d =
  pp₁ = _
 
  pp : pp₀ ≡ pp₁
- pp = funExt₃ λ _ _ _ → 𝐑.·CommAssocr _ _ _ ∙
+ pp = funExt₃ λ _ _ _ → Rℝ.·CommAssocr _ _ _ ∙
    cong (_·ᵣ invℝ _ _) ((·-ᵣ _ _ ∙
      cong (-ᵣ_)
        (cong₂ _·ᵣ_ refl (cong fst (invℝ₊· _ _))
-        ∙ 𝐑'.·DistL- (f (x +ᵣ _) _) (f x x∈) _ ∙
+        ∙ Rℝ.·DistL- (f (x +ᵣ _) _) (f x x∈) _ ∙
         cong₂ _-ᵣ_ (·ᵣComm _ _ ∙ [x/₊y]·yᵣ _ _)
          (·ᵣComm _ _ ∙ cong (_·ᵣ f x x∈) (·ᵣComm _ _) ∙
            [x/₊y]·yᵣ _ _)) )
@@ -792,7 +725,7 @@ derivative-^ℤ x₊@(x , 0<x) (ℤ.negsuc n) _ =
            (cong fst (cong invℝ₊ (ℝ₊≡ (sym (·ᵣAssoc _ _ _) ∙
              cong ((x ^ⁿ n) ·ᵣ_) (·ᵣComm _ _)))
               ∙ invℝ₊·  (x₊ ₊^ⁿ n) (x₊ ₊^ⁿ (suc (suc n)))))
-           ∙ ·ᵣAssoc _ _ _ ∙ 𝐑'.·IdL' _ _ (x·invℝ₊[x] _)
+           ∙ ·ᵣAssoc _ _ _ ∙ Rℝ.·IdL' _ _ (x·invℝ₊[x] _)
          )) h
 
 [0/n]=[0/m] : ∀ n m → [ 0 / n ] ≡ [ 0 / m ]
@@ -815,7 +748,7 @@ derivative-^ℚ x = SQ.ElimProp.go w
   w .ElimProp.f ( n , (1+ m) ) 0#q =
     subst (derivativeOfℙ pred0< , _ at x is_)
         (cong₂ (_·ᵣ_) refl (cong fst (invℝ₊· _ _))
-          ∙ L𝐑.lem--086
+          ∙ ℝ!
           ∙ cong₂ (_·ᵣ_) (cong (rat [ n / 1 ] ·ᵣ_)
              (cong
                {x = fromNat (suc m)}
@@ -826,12 +759,7 @@ derivative-^ℚ x = SQ.ElimProp.go w
             (cong₂ (_·ᵣ_) refl (cong fst (sym (invℝ₊^ℚ _ [ pos m / 1+ m ]))
                ∙ cong fst (sym (^ℚ-minus' x _)))
              ∙ cong fst (^ℚ-+ _ [ _ / 1+ m ] _
-              ∙ cong (x ^ℚ_) (
-                ℚ.n/k-m/k _ _ _ ∙
-                  cong [_/ 1+ m ] (sym (ℤ.+Assoc _ _ _)
-                    ∙ cong {y = ℤ.- pos (suc m)} (n ℤ.+_)
-                     (sym (ℤ.negsuc+ 0 m))) ∙ sym (ℚ.n/k-m/k n (pos (suc m)) (1+ m))
-                   ∙ cong (ℚ._-_ [ n / 1+ m ] ) (ℚ.k/k _)))))
+              ∙ cong (x ^ℚ_) ℚ!)))
         ww -- sym (^ℚ-minus' x [ pos m / 1+ m ])
    where
    ww : derivativeOfℙ pred0< , curry (fst ∘S (_^ℚ [ n / (1+ m) ])) at x is
@@ -856,9 +784,9 @@ opaque
     (subst2 _<ᵣ_
       (cong (1 +ᵣ_) (sym (rat·ᵣrat _ _)) ∙  +ᵣComm _ _) (^ⁿ-ℚ^ⁿ _ _)
       (bernoulli's-ineq-^ℚ (ℚ₊→ℝ₊ (x ,
-        ℚ.<→0< _ (ℚ.isTrans< 0 1 _ (ℚ.0<pos  _ _) 1<x)))
+        ℚ<→0< _ (ℚ.isTrans< 0 1 _ (ℚ.0<pos  _ _) 1<x)))
         (fromNat (suc (suc n))) (<ℚ→<ᵣ _ _ 1<x)
-           (ℚ.<ℤ→<ℚ _ _ (invEq (ℤ.pos-<-pos≃ℕ< _ _)
+           (<ℤ→<ℚ _ _ (invEq (ℤ.pos-<-pos≃ℕ< _ _)
              (ℕ.suc-≤-suc (ℕ.zero-<-suc {n}))))))
 
 
@@ -896,10 +824,10 @@ opaque
        (-[x-y]≡y-x _ _)
        (a≤c+b⇒a-c≤b _ _ _
        (isTrans≤≡ᵣ _ _ _ (invEq (z/y≤x₊≃z≤y₊·x _ _ _) (invEq (x≤y≃0≤y-x _ _)
-         (isTrans≤≡ᵣ _ _ _ h L𝐑.lem--085))) (+ᵣComm _ _)))))
+         (isTrans≤≡ᵣ _ _ _ h ℝ!))) (+ᵣComm _ _)))))
 
   where
-  h :  0  ≤ᵣ (fst x -ᵣ 1) ·ᵣ (fst x -ᵣ 1) ·ᵣ ((L𝐑.[ 2 ]r ·ᵣ x .fst) -ᵣ 1)
+  h :  0  ≤ᵣ (fst x -ᵣ 1) ·ᵣ (fst x -ᵣ 1) ·ᵣ ((2 ·ᵣ x .fst) -ᵣ 1)
   h = isTrans≡≤ᵣ _ _ _ (rat·ᵣrat 0 0)
       (≤ᵣ₊Monotone·ᵣ 0 _ 0 _
         (0≤x·ᵣx _) (≤ᵣ-refl 0)
@@ -978,22 +906,22 @@ x^→∞ m ε =
        ℚ.isTrans< (fromNat m) _ _
          (subst (fromNat m ℚ.<_)
            (ℚ.·Comm _ _)
-           (ℚ.isTrans< _ (fromNat (suc m)) _
-             (ℚ.<ℤ→<ℚ _ _ ((ℤ.isRefl≤ {pos (suc m)})))
-              (ℚ.x·invℚ₊y<z→x<y·z _ _ _ X)))
-         (ℚ.isTrans< _ _ _ (ℚ.<-·o
+              (ℚ.isTrans< _ (fromNat (suc m)) _
+             (<ℤ→<ℚ _ _ ((ℤ.isRefl≤ {pos (suc m)})))
+              (ℚ.x/y<z→x<y·z _ ε _ X)))
+           (ℚ.isTrans< _ _ _ (ℚ.<-·o
            (fromNat (suc N))
-           (fromNat (suc (suc n))) _ (ℚ.0<ℚ₊ ε)
-           (ℚ.<ℤ→<ℚ _ _  (invEq (ℤ.pos-<-pos≃ℕ< (suc N) (suc (suc n))) <ssn)))
+           (fromNat (suc (suc n))) _ (snd ε)
+           (<ℤ→<ℚ _ _  (invEq (ℤ.pos-<-pos≃ℕ< (suc N) (suc (suc n))) <ssn)))
           (ℚ.isTrans< _ _ _ (
            ℚ.isTrans≤< _ _ _
             (ℚ.≡Weaken≤ _ _
              (cong ((fromNat (suc (suc n))) ℚ.·_)
-              lem--034))
-            (ℚ.<+ℚ₊' _ _ 1 (ℚ.isRefl≤ _)))
+              ℝ!))
+            (ℚ≤→<+₊ _ _ 1 (ℚ.isRefl≤ _)))
           (bernoulli's-ineq-^ℚⁿ ((fst ε) ℚ.+ 1) n
            (subst (1 ℚ.<_) (ℚ.+Comm _ _)
-            (ℚ.<+ℚ₊' 1 1 ε (ℚ.isRefl≤ 1))))))}
+            (ℚ≤→<+₊ 1 1 ε (ℚ.isRefl≤ 1))))))}
 
 
 -- bernoulli's-ineq-^ℚ-r<1 : ∀ x r → 1 <ᵣ fst x → 0 ℚ.< r → r ℚ.< 1 → fst (x ^ℚ r) <ᵣ 1 +ᵣ rat r ·ᵣ (fst x -ᵣ 1)
@@ -1005,7 +933,7 @@ module _ (z : ℝ₊) where
                 fst (z ^ℚ 0)) ／ᵣ[ rat [ 1 / (2+ n)] , inl (snd (ℚ₊→ℝ₊ ([ 1 / 2+ n ] , _))) ])
                  ≡ lnSeq z n
  lnSeq=diff n = cong₂ _·ᵣ_ (cong₂ _-ᵣ_ (cong (fst ∘ (z ^ℚ_)) (ℚ.+IdL _)) refl )
-  (invℝ-rat _ _ (inl (ℚ.0<→< _ tt)))
+  (invℝ-rat _ _ (inl (ℚ.0<pos _ _)))
 
  lnSeq≤ : ∀ n → lnSeq z n ≤ᵣ fst z -ᵣ 1
  lnSeq≤ n = subst2 _≤ᵣ_
@@ -1013,12 +941,12 @@ module _ (z : ℝ₊) where
       (invℝ₊-rat _ ∙ cong rat (cong (fst ∘ invℚ₊)
     (ℚ₊≡ (ℚ.+IdR _)) ∙ ℚ.invℚ₊-invol _)))
 
-   (𝐑'.·IdR' _ _
+   (Rℝ.·IdR' _ _
      (cong fst invℝ₊1) ∙ cong (_-ᵣ 1) (cong fst (^ℚ-1 _)))
    (slope-incr z 0 [ 1 / 2+ n ] 1
       (ℚ.0<pos _ _)
-      ((fst (ℚ.invℚ₊-≤-invℚ₊ 1 (fromNat (suc (suc n))))
-        (ℚ.≤ℤ→≤ℚ 1 (pos (suc (suc n)))
+      ((ℚ.invℚ₊≤invℚ₊ 1 (fromNat (suc (suc n)))
+        (≤ℤ→≤ℚ 1 (pos (suc (suc n)))
           (ℤ.suc-≤-suc {0} {pos (suc n)}
             ((ℤ.≤-suc {0} {pos n} (ℤ.zero-≤pos {n} )))))))
 
@@ -1037,8 +965,8 @@ module _ (z : ℝ₊) where
       (ℚ₊≡ (ℚ.+IdR _)) ∙ ℚ.invℚ₊-invol _)))
      (slope-monotone z 0 [ 1 / 2+ n ] 0 [ 1 / 2+ m ]
             (ℚ.0<pos _ _) (ℚ.0<pos _ _) (ℚ.0≤pos _ _)
-             (fst (ℚ.invℚ₊-≤-invℚ₊ (fromNat (suc (suc m))) (fromNat (suc (suc n))))
-               (ℚ.≤ℤ→≤ℚ _ _ (invEq (ℤ.pos-≤-pos≃ℕ≤ _ _) (ℕ.≤-k+ {k = 2} m≤n)))))
+             (ℚ.invℚ₊≤invℚ₊ (fromNat (suc (suc m))) (fromNat (suc (suc n)))
+               (≤ℤ→≤ℚ _ _ (invEq (ℤ.pos-≤-pos≃ℕ≤ _ _) (ℕ.≤-k+ {k = 2} m≤n)))))
 
  lnSeq'≤lnSeq' : ∀ m n → m ℕ.≤ n → lnSeq' z m ≤ᵣ lnSeq' z n
  lnSeq'≤lnSeq' m n m<n =
@@ -1056,8 +984,8 @@ module _ (z : ℝ₊) where
              (ℚ.minus-< 0 [ 1 / 2+ _ ] ((ℚ.0<pos 0 (1+ _))))
 
              (ℚ.minus-≤ [ 1 / 2+ _ ] [ 1 / 2+ _ ]
-                (fst (ℚ.invℚ₊-≤-invℚ₊ (fromNat (suc (suc m))) ((fromNat (suc (suc n)))))
-                       ((ℚ.≤ℤ→≤ℚ _ _ (invEq (ℤ.pos-≤-pos≃ℕ≤ _ _) (ℕ.≤-k+ {k = 2} m<n))))))
+                (ℚ.invℚ₊≤invℚ₊ (fromNat (suc (suc m))) ((fromNat (suc (suc n))))
+                       ((≤ℤ→≤ℚ _ _ (invEq (ℤ.pos-≤-pos≃ℕ≤ _ _) (ℕ.≤-k+ {k = 2} m<n))))))
               (ℚ.isRefl≤ 0))
 
 
@@ -1111,7 +1039,7 @@ opaque
          X'' = isTrans<≡ᵣ _ _ _ (a<c+b⇒a-b<c _ _ _
              (isTrans<≡ᵣ _ _ _ (^ℚ-StrictMonotone {fromNat (suc (suc Z)) }
                 {ℚ₊→ℝ₊
-                  (((ε ℚ₊· invℚ₊ (([ pos (suc Z) / 1 ] , tt) ℚ₊· 2)) ℚ₊+ 1)
+                  (((ε ℚ₊· invℚ₊ (([ pos (suc Z) / 1 ] , tt) ℚ₊· 2)) +₊ 1)
                    ℚ₊^ⁿ (suc (suc n)))}
                  ([ 1 / 1+ (suc n) ] , _)
                  (<ℚ→<ᵣ _ _ X'))
@@ -1119,11 +1047,11 @@ opaque
                    (ℝ₊≡ (sym (^ⁿ-ℚ^ⁿ _ _)))
                   ∙  cong fst (^ℚ-·
                       (ℚ₊→ℝ₊
-                       ((ε ℚ₊· invℚ₊ (([ pos (suc Z) / 1 ] , tt) ℚ₊· 2)) ℚ₊+ 1))
+                       ((ε ℚ₊· invℚ₊ (([ pos (suc Z) / 1 ] , tt) ℚ₊· 2)) +₊ 1))
                        (fromNat (suc (suc n))) [ pos 1 / 1+ (suc n) ])
                        ∙ cong (fst ∘
                           (ℚ₊→ℝ₊ ((ε ℚ₊· invℚ₊ (([ pos (suc Z) / 1 ] , _) ℚ₊· 2))
-                            ℚ₊+ 1) ^ℚ_)) (ℚ.x·invℚ₊[x] (fromNat _))
+                            +₊ 1) ^ℚ_)) (ℚ.x·invℚ₊[x] (fromNat _))
                        ∙ cong fst (^ℚ-1 _) ∙ cong (_+ᵣ 1) (rat·ᵣrat _ _))))
                        (cong (rat (fst ε) ·ᵣ_)
                          (sym (invℝ₊-rat _)))
@@ -1138,7 +1066,7 @@ opaque
        (cong (λ y → lnSeq z n -ᵣ  (1 -ᵣ y) ·ᵣ fromNat (suc (suc n)) )
          (cong fst (^ℚ-minus' z _) ∙
            cong fst (invℝ₊^ℚ _ _))
-        ∙ sym (𝐑'.·DistL- _ _ _))
+        ∙ sym (Rℝ.·DistL- _ _ _))
        (isTrans≤<ᵣ _ _ _
          (isTrans≤≡ᵣ _ _ _ (≤ᵣ-·ᵣo _ _ (fromNat (suc (suc n)))
           (≤ℚ→≤ᵣ _ _ (ℚ.0≤pos _ _))
@@ -1152,7 +1080,7 @@ opaque
           (isTrans≤<ᵣ _ _ _
            (≤ᵣ₊Monotone·ᵣ _ _ _ _
            (let w = fst (x≤y≃0≤y-x _ _) (1≤^ℚ z ([ 1 / 2+ n ] , _) 1≤z)
-            in isTrans≡≤ᵣ _ _ _ (sym (𝐑'.0RightAnnihilates 2) ) (≤ᵣ-o·ᵣ _ _ 2 decℚ≤ᵣ?
+            in isTrans≡≤ᵣ _ _ _ (sym (Rℝ.0RightAnnihilates 2) ) (≤ᵣ-o·ᵣ _ _ 2 decℚ≤ᵣ?
                    (x≤y→0≤y-x 1 _ (1≤^ℚ _ _
                     (isTrans≤ᵣ _ _ _ 1≤z z≤Z)))))
 
@@ -1194,8 +1122,8 @@ opaque
    (λ u 0<u →
      ⊎.rec (λ 1≤u → isTrans≤ᵣ _ _ _ (≤ℚ→≤ᵣ _ _ 1≤u) (≤maxᵣ _ _))
            (λ u≤1 → isTrans≤ᵣ _ _ _
-                      (≤ℚ→≤ᵣ _ (fst (invℚ₊ (u , ℚ.<→0< _ (<ᵣ→<ℚ _ _ 0<u))))
-             (fst (ℚ.invℚ₊-≤-invℚ₊ _ _) u≤1))
+                      (≤ℚ→≤ᵣ _ (fst (invℚ₊ (u , ℚ<→0< _ (<ᵣ→<ℚ _ _ 0<u))))
+             (ℚ.invℚ₊≤invℚ₊ _ _ u≤1))
             (isTrans≤≡ᵣ _ _ _
              (≤maxᵣ _ (rat u))
               ( maxᵣComm _ _ ∙ cong (maxᵣ (rat u)) (sym (invℝ₊-rat _)
@@ -1210,7 +1138,7 @@ Lipschitz-·R : ∀ q a → absᵣ a ≤ᵣ rat (fst q) → Lipschitz-ℝ→ℝ 
 Lipschitz-·R q a a<q u v ε u∼v =
    invEq (∼≃abs<ε _ _ _) (
     subst2 _<ᵣ_
-     (sym (·absᵣ _ _) ∙ cong absᵣ (𝐑'.·DistL- _ _ _))
+     (sym (·absᵣ _ _) ∙ cong absᵣ (Rℝ.·DistL- _ _ _))
      (·ᵣComm _ _ ∙ sym (rat·ᵣrat _ _))
      (isTrans≤<ᵣ _ _ _
        (≤ᵣ-o·ᵣ _ _ _ (0≤absᵣ _) a<q)
@@ -1219,7 +1147,7 @@ Lipschitz-·R q a a<q u v ε u∼v =
 ∃Lipschitz-·R : ∀ a → ∃[ L ∈ ℚ₊ ] Lipschitz-ℝ→ℝ L (_·ᵣ a)
 ∃Lipschitz-·R a =
   PT.map (λ (q , (<q , _)) →
-    (q , (ℚ.<→0< _ $ <ᵣ→<ℚ _ _ (isTrans≤<ᵣ _ _ _ (0≤absᵣ _) <q)))
+    (q , (ℚ<→0< _ $ <ᵣ→<ℚ _ _ (isTrans≤<ᵣ _ _ _ (0≤absᵣ _) <q)))
       , Lipschitz-·R _ a (<ᵣWeaken≤ᵣ _ _ <q) )
    (denseℚinℝ _ _
     (isTrans≡<ᵣ _ _ _ (sym (+IdR _)) (<ᵣ-o+ 0 1 (absᵣ a) decℚ<ᵣ?)))
@@ -1304,12 +1232,12 @@ module expPreDer (Z : ℕ) where
                     (AsContinuousWithPred _ _ (IsContinuousId))
                       (snd invℝ'))))
                   (λ r r∈ r∈' → cong (flip diff n) (ℝ₊≡ refl)
-                       ∙ w-r n r (ℚ.<→0< _ (<ᵣ→<ℚ _ _ r∈'))
+                       ∙ w-r n r (ℚ<→0< _ (<ᵣ→<ℚ _ _ r∈'))
                    ∙ cong (flip diff n)
                     (cong₂ maxᵣ₊
                       (ℝ₊≡ refl)
                       (ℝ₊≡ {_} {_ , snd ((invℝ₊ (fst (ℚ₊→ℝ₊
-                       (r , ℚ.<→0< r (<ᵣ→<ℚ [ pos 0 / 1 ] r r∈'))) , r∈')))}
+                       (r , ℚ<→0< r (<ᵣ→<ℚ [ pos 0 / 1 ] r r∈'))) , r∈')))}
                        (sym (invℝ₊-rat _) ∙ cong (fst ∘ invℝ₊)
                         (ℝ₊≡ refl) ))) )
                   z 0<z 0<z
@@ -1397,8 +1325,8 @@ module expPreDer (Z : ℕ) where
            (≤1 : rat [ pos 1 / 2+ Z ] ≤ᵣ 1)
            → 0 ≡ preLn 1 1≤ ≤1
  0=preLn 1≤ ≤1 = sym (limConstRat 0 λ _ _ → refl∼ _ _)
-  ∙ congLim _ _ _ _ λ q → sym (𝐑'.0LeftAnnihilates' _ _
-     (𝐑'.+InvR' (fst (1 ^ℚ [ 1 / 2+ _ ])) 1 (cong fst (1^ℚ≡1 _))))
+  ∙ congLim _ _ _ _ λ q → sym (Rℝ.0LeftAnnihilates' _ _
+     (Rℝ.+InvR' (fst (1 ^ℚ [ 1 / 2+ _ ])) 1 (cong fst (1^ℚ≡1 _))))
 
  preLn-inv : (z : ℝ₊)
           (z≤Z : fst z ≤ᵣ fromNat (suc (suc Z)))
@@ -1413,7 +1341,7 @@ module expPreDer (Z : ℕ) where
             isTrans≡<ᵣ _ (preLn z z≤Z 1/Z≤z -ᵣ lnSeq' z n) _
               (cong (λ xx → absᵣ (xx -ᵣ -ᵣ preLn z z≤Z 1/Z≤z))
                   (sym (lnSeq'[z]≡lnSeq[1/x] n z))
-                ∙ cong absᵣ (sym (L𝐑.lem--083 {preLn z z≤Z 1/Z≤z} {lnSeq' z n}))
+                ∙ cong absᵣ (sym (ℝ! {preLn z z≤Z 1/Z≤z} {lnSeq' z n}))
                 ∙ absᵣNonNeg _ (x≤y→0≤y-x _ _ (lnSeq'≤preLn _ _ _ n )))
               (isTrans≤<ᵣ _ _ _
                 (≤ᵣ-+o (preLn z z≤Z 1/Z≤z) _ (-ᵣ lnSeq' z n)
@@ -1499,13 +1427,12 @@ module expPreDer (Z : ℕ) where
               (·ᵣAssoc _ _ _
                  ∙ cong (_／ᵣ₊ b'-a')
                   ((cong (fromNat (suc (suc n)) ·ᵣ_)
-                   (cong₂ _-ᵣ_ (sym (·IdL _)) (sym (·IdL _)) ∙ sym ( L𝐑.lem--075))
-                      ∙ ·ᵣComm _ _  ∙ 𝐑'.·DistL- _ _ _)))
+                   (cong₂ _-ᵣ_ (sym (·IdL _)) (sym (·IdL _)) ∙ sym ( ℝ!))
+                      ∙ ·ᵣComm _ _  ∙ Rℝ.·DistL- _ _ _)))
               (·ᵣAssoc _ _ _
                   ∙ cong (_／ᵣ₊ b-a) ((cong (fromNat (suc (suc n)) ·ᵣ_)
-                    (cong₂ _-ᵣ_ (sym (·IdL _)) (sym (·IdL _)) ∙ sym (L𝐑.lem--075))
-                      ∙ ·ᵣComm _ _ ∙ 𝐑'.·DistL- _ _ _)))
+                    (cong₂ _-ᵣ_ (sym (·IdL _)) (sym (·IdL _)) ∙ sym (ℝ!))
+                      ∙ ·ᵣComm _ _ ∙ Rℝ.·DistL- _ _ _)))
               (≤ᵣ-o·ᵣ _ _ _ (≤ℚ→≤ᵣ _ _ (ℚ.0≤pos _ _))
                 (slope-monotone-ₙ√ (suc n) _ _ _ _
                   a<b a'<b' a≤a' b≤b'))
-

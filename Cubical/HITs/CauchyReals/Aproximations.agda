@@ -165,7 +165,6 @@ module WithConvexParam (α β : ℚ₊) (is-convex : ⟨ α ⟩₊ ℚ.+ ⟨ β 
      (isHomogeneousDiscrete (discreteΣ 𝟚._≟_ λ _ → discreteℚ)) using () renaming
     (RecoveredFrom to RecoveredApprox⊎ ; recover to recover⊎)
 
-
   getApproxVal'⊎ : ∀ x ε → 
      RecoveredApprox⊎ (colapseApprox x ε (∃[rat⊎approx] x))
   getApproxVal'⊎ x ε = recover⊎ (colapseApprox x ε (∃[rat⊎approx] x))
@@ -196,90 +195,90 @@ open WithConvexParam [ 1 / 2 ]₊ [ 1 / 2 ]₊ (eq/ _ _ refl) using ()
 --   -- _ : ℝ
 --   -- _ = {!lim x y ·ᵣ lim x' y'!}
 
-multByℚ : ∀ q x y → singl (rat q ·ᵣ lim x y)
-multByℚ q x y = 
-  lim x' y' , x=x'
+-- multByℚ : ∀ q x y → singl (rat q ·ᵣ lim x y)
+-- multByℚ q x y = 
+--   lim x' y' , x=x'
 
-  where
-   L : ℚ
-   L = ℚ.max 1 (abs q)
+--   where
+--    L : ℚ
+--    L = ℚ.max 1 (abs q)
    
-   opaque
-    1≤L : 1 ℚ.≤ L
-    1≤L = ℚ.≤max 1 (abs q)
-    0<L : 0 ℚ.< L
-    0<L = ℚ.isTrans<≤ 0 _ _ (ℚ.pos<pos tt) 1≤L
+--    opaque
+--     1≤L : 1 ℚ.≤ L
+--     1≤L = ℚ.≤max 1 (abs q)
+--     0<L : 0 ℚ.< L
+--     0<L = ℚ.isTrans<≤ 0 _ _ (ℚ.pos<pos tt) 1≤L
 
-   1/L : ℚ₊
-   1/L = (L , 0<L) ℚ.⁻¹₊
+--    1/L : ℚ₊
+--    1/L = (L , 0<L) ℚ.⁻¹₊
 
-   x' : ℚ₊ → ℝ
-   x' ε = x (ε ℚ.₊／₊ (L , 0<L))
-   opaque
-    y' : (δ ε : ℚ₊) → x' δ ∼[ δ +₊ ε ] x' ε
-    y' δ ε = 
-      ∼-monotone≤ ( subst2 ℚ._≤_ ℚ!! (
-           ℚ!!
-         ∙ (Rℚ.·IdR' ((δ +₊ ε) .fst) _ (ℚ.⁻¹inverse (L , 0<L))))
-                 (ℚ.≤-o· _ _ (fst 1/L)
-                  (ℚ.<Weaken≤ _ _ (snd 1/L)) h) )
-        (y (δ ℚ.₊／₊ (L , 0<L)) (ε ℚ.₊／₊ (L , 0<L)))
-     where
-      h :  (fst δ ℚ.+ fst ε) ℚ.· 1 ℚ.≤
-              (fst δ ℚ.+ fst ε) ℚ.· L
-      h = ℚ.≤-o· 1 L (fst δ ℚ.+ fst ε) (ℚ.0≤ℚ₊ (δ +₊ ε)) 1≤L
+--    x' : ℚ₊ → ℝ
+--    x' ε = x (ε ℚ.₊／₊ (L , 0<L))
+--    opaque
+--     y' : (δ ε : ℚ₊) → x' δ ∼[ δ +₊ ε ] x' ε
+--     y' δ ε = 
+--       ∼-monotone≤ ( subst2 ℚ._≤_ ℚ!! (
+--            ℚ!!
+--          ∙ (Rℚ.·IdR' ((δ +₊ ε) .fst) _ (ℚ.⁻¹inverse (L , 0<L))))
+--                  (ℚ.≤-o· _ _ (fst 1/L)
+--                   (ℚ.<Weaken≤ _ _ (snd 1/L)) h) )
+--         (y (δ ℚ.₊／₊ (L , 0<L)) (ε ℚ.₊／₊ (L , 0<L)))
+--      where
+--       h :  (fst δ ℚ.+ fst ε) ℚ.· 1 ℚ.≤
+--               (fst δ ℚ.+ fst ε) ℚ.· L
+--       h = ℚ.≤-o· 1 L (fst δ ℚ.+ fst ε) (ℚ.0≤ℚ₊ (δ +₊ ε)) 1≤L
 
-    -- fromC· : Unit
-    -- fromC· = {!!}
-    -- -- 
+--     -- fromC· : Unit
+--     -- fromC· = {!!}
+--     -- -- 
    
-    x=x' : rat q ·ᵣ lim x y ≡ lim x' y'
-    x=x' = eqℝ _ _ $ λ ε → PT.rec (isProp∼ _ _ _) (idfun _)
-       do (δ , Δ) ← IsContinuous·ᵣL (rat q) (lim x y) (ε /4₊)
-          (δ' , Δ') ← IsContinuous·ᵣL (rat q) (lim x' y') (ε /4₊)
-          ∣ subst∼ {!!}
-            (triangle∼  (Δ (x (δ /2₊))
-               (subst∼ ℚ!! $
-                sym∼ _ _ _ (𝕣-lim-self x y (δ /2₊) (δ /2₊))))
-                 (triangle∼ {ε = {!!}} 
-                   {!Δ' ? ?!}
-                   (𝕣-lim-self x' y' (ε /2₊ /4₊) (ε /2₊ /4₊))
-                   -- (sym∼ _ _ _ $
-                   --   Δ' (x' (δ' /2₊)) (subst∼ {!!} $
-                   --  (sym∼ _ _ _ $
-                   --    𝕣-lim-self x' y' (δ' /2₊) (δ' /2₊))))
-                      )) ∣₁
-      -- λ ε → PT.rec {!!} {!!}
-      --   {!!}
-      --   -- let _ = 
-      --   -- in {!∼1!}
+--     x=x' : rat q ·ᵣ lim x y ≡ lim x' y'
+--     x=x' = eqℝ _ _ $ λ ε → PT.rec (isProp∼ _ _ _) (idfun _)
+--        do (δ , Δ) ← IsContinuous·ᵣL (rat q) (lim x y) (ε /4₊)
+--           (δ' , Δ') ← IsContinuous·ᵣL (rat q) (lim x' y') (ε /4₊)
+--           ∣ subst∼ {!!}
+--             (triangle∼  (Δ (x (δ /2₊))
+--                (subst∼ ℚ!! $
+--                 sym∼ _ _ _ (𝕣-lim-self x y (δ /2₊) (δ /2₊))))
+--                  (triangle∼ {ε = {!!}} 
+--                    {!Δ' ? ?!}
+--                    (𝕣-lim-self x' y' (ε /2₊ /4₊) (ε /2₊ /4₊))
+--                    -- (sym∼ _ _ _ $
+--                    --   Δ' (x' (δ' /2₊)) (subst∼ {!!} $
+--                    --  (sym∼ _ _ _ $
+--                    --    𝕣-lim-self x' y' (δ' /2₊) (δ' /2₊))))
+--                       )) ∣₁
+--       -- λ ε → PT.rec {!!} {!!}
+--       --   {!!}
+--       --   -- let _ = 
+--       --   -- in {!∼1!}
      
 
--- multiplicationSingl : ∀ x y → singl (x ·ᵣ y)
--- multiplicationSingl = go w
---  where
---  open Elimℝ-Prop2
---  w : Elimℝ-Prop2 (λ z z₁ → singl (z ·ᵣ z₁))
---  w .rat-ratA r q = rat (r ℚ.· q) , ℚℝ!
---  w .rat-limA r x y _ = multByℚ r x y
---  w .lim-ratA x y r _ = map-snd (·ᵣComm _ _ ∙_) (multByℚ r x y)
---  w .lim-limA x y x' y' M = {!!} 
---   -- lim (fst ∘ x·x') {!!} , {!!}
---   --   where
---   --   X X' : ℚ₊
---   --   X = ?
---   --   X' = ?
---   --   <X : x <ᵣ (rat (fst X))
---   --   <X = ?
---   --   <X' : x' <ᵣ (rat (fst X'))
---   --   <X' = ?
+-- -- multiplicationSingl : ∀ x y → singl (x ·ᵣ y)
+-- -- multiplicationSingl = go w
+-- --  where
+-- --  open Elimℝ-Prop2
+-- --  w : Elimℝ-Prop2 (λ z z₁ → singl (z ·ᵣ z₁))
+-- --  w .rat-ratA r q = rat (r ℚ.· q) , ℚℝ!
+-- --  w .rat-limA r x y _ = multByℚ r x y
+-- --  w .lim-ratA x y r _ = map-snd (·ᵣComm _ _ ∙_) (multByℚ r x y)
+-- --  w .lim-limA x y x' y' M = {!!} 
+-- --   -- lim (fst ∘ x·x') {!!} , {!!}
+-- --   --   where
+-- --   --   X X' : ℚ₊
+-- --   --   X = ?
+-- --   --   X' = ?
+-- --   --   <X : x <ᵣ (rat (fst X))
+-- --   --   <X = ?
+-- --   --   <X' : x' <ᵣ (rat (fst X'))
+-- --   --   <X' = ?
 
---   --   x·x' : ∀ ε → singl (x (ε /2₊) ·ᵣ x' (ε /2₊))
---   --   x·x' ε =
---   --     M (ε /2₊) (ε /2₊)
---   --   x·x'∼ : (δ ε : ℚ₊) → fst (x·x' δ) ∼[ δ +₊ ε ] fst (x·x' ε)
---   --   x·x'∼ =
---   --    let z = {!_·ᵣ_!}
---   --    in {!!}
+-- --   --   x·x' : ∀ ε → singl (x (ε /2₊) ·ᵣ x' (ε /2₊))
+-- --   --   x·x' ε =
+-- --   --     M (ε /2₊) (ε /2₊)
+-- --   --   x·x'∼ : (δ ε : ℚ₊) → fst (x·x' δ) ∼[ δ +₊ ε ] fst (x·x' ε)
+-- --   --   x·x'∼ =
+-- --   --    let z = {!_·ᵣ_!}
+-- --   --    in {!!}
    
---  w .isPropA _ _ = isPropSingl
+-- --  w .isPropA _ _ = isPropSingl

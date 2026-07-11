@@ -839,6 +839,12 @@ pred≤< a b x = ((a ≤ᵣ x) × (x <ᵣ b)) , isProp× (isProp≤ᵣ _ _) (isP
 pred<≤ : ℝ → ℝ → ℙ ℝ
 pred<≤ a b x = ((a <ᵣ x) × (x ≤ᵣ b)) , isProp× (isProp<ᵣ _ _) (isProp≤ᵣ _ _)
 
+pred0< : ℙ ℝ
+pred0< = λ x → (0 <ᵣ x) , isProp<ᵣ _ _
+
+pred1< : ℙ ℝ
+pred1< = λ x → (1 <ᵣ x) , isProp<ᵣ _ _
+
 
 
 isPosetℝ : IsPoset _≤ᵣ_
@@ -1189,5 +1195,4 @@ ontervalℙ⊂intervalℙ : ∀ {a b}
 ontervalℙ⊂intervalℙ x (a<x , x<b) =
    <ᵣWeaken≤ᵣ _ _ a<x ,
    <ᵣWeaken≤ᵣ _ _ x<b
-
 

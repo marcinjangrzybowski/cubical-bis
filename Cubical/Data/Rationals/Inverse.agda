@@ -91,6 +91,17 @@ invℚ : ∀ q → 0 # q → ℚ
 invℚ q p = sign q · fst ((0#→ℚ₊ q p) ⁻¹₊)
 
 
+sign²≡1 : ∀ q → 0 # q → sign q · sign q ≡ 1
+sign²≡1 q 0#q =
+  sign·sign q q ∙
+    fst (fst (<≃sign (q · q)))
+      (⊎.rec
+        (λ 0<q → 0<-m·n q q 0<q 0<q)
+        (λ q<0 →
+          subst (0 <_) (-·- q q)
+            (0<-m·n (- q) (- q) (minus-< q 0 q<0) (minus-< q 0 q<0)))
+        0#q)
+
 invℚ₊≡invℚ : ∀ q p → invℚ (fst q) p ≡ fst (q ⁻¹₊)
 invℚ₊≡invℚ q p = cong₂ _·_ (fst (<→sign (fst q)) (snd q))
    (cong (fst ∘ _⁻¹₊) (ℚ₊≡ (sym (abs'≡abs (fst q)) ∙
@@ -165,6 +176,20 @@ invℚInvol q 0#q 0#invQ =
 _／ℚ[_,_] : ℚ → ∀ r → 0 # r  → ℚ
 q ／ℚ[ r , 0＃r ] = q · (invℚ r 0＃r)
 
+x·invℚ[x] : ∀ q → (0#q : 0 # q) → q ／ℚ[ q , 0#q ] ≡ 1
+x·invℚ[x] q 0#q =
+  cong (_· invℚ q 0#q) (sym (sign·abs q))
+  ∙ sym (·Assoc (abs q) (sign q)
+      (sign q · fst ((0#→ℚ₊ q 0#q) ⁻¹₊)))
+  ∙ cong {x = sign q · (sign q · fst ((0#→ℚ₊ q 0#q) ⁻¹₊))}
+          {y = fst ((0#→ℚ₊ q 0#q) ⁻¹₊)}
+          (abs q ·_)
+       (·Assoc (sign q) (sign q) (fst ((0#→ℚ₊ q 0#q) ⁻¹₊))
+       ∙∙ cong (_· fst ((0#→ℚ₊ q 0#q) ⁻¹₊)) (sign²≡1 q 0#q)
+       ∙∙ ℚR.·IdL (fst ((0#→ℚ₊ q 0#q) ⁻¹₊)))
+  ∙ cong (_· fst ((0#→ℚ₊ q 0#q) ⁻¹₊)) (abs'≡abs q)
+  ∙ x·invℚ₊[x] (0#→ℚ₊ q 0#q)
+
 x<z/₊y→y·x<z : ∀ x y z 
                → x < z ／₊ y
                → ((fst y) · x) < z
@@ -172,6 +197,20 @@ x<z/₊y→y·x<z x y z p =
  subst (_ <_) ℚ!
   (·MonoL< x (z ／₊ y) (fst y) (snd y) p)
 
+
+x/y<z→x<y·z : ∀ x y z
+              → x ／₊ y < z
+              → x < fst y · z
+x/y<z→x<y·z x y z p =
+  subst (_< fst y · z) ℚ!
+    (<-o· _ _ (fst y) (snd y) p)
+
+x<y·z→x/y<z : ∀ x y z
+              → x < fst y · z
+              → x ／₊ y < z
+x<y·z→x/y<z x y z p =
+  subst (x ／₊ y <_) ℚ!
+    (<-·o _ _ (fst (y ⁻¹₊)) (snd (y ⁻¹₊)) p)
 
 
 ℚ-x/y<z→x/z<y : ∀ x (q r : ℚ₊)
