@@ -452,6 +452,86 @@ module BDL (z : ℝ₊) (Z : ℕ)
 
  opaque
   unfolding _+ᵣ_
+
+  𝒇-diffQuot : ∀ r → 0 ＃ r → ℝ
+  𝒇-diffQuot r r＃0 = (𝒇 r -ᵣ 𝒇 0) ／ᵣ[ r , r＃0 ]
+
+  𝒇-diffQuot-cont : IsContinuousWithPred 0＃ₚ 𝒇-diffQuot
+  𝒇-diffQuot-cont =
+    cont₂·ᵣWP 0＃ₚ
+      (λ r _ → 𝒇 r -ᵣ 𝒇 0)
+      invℝ
+      (AsContinuousWithPred 0＃ₚ
+        (λ r → 𝒇 r -ᵣ 𝒇 0)
+        (IsContinuous∘ _ _ (IsContinuous+ᵣR (-ᵣ 𝒇 0)) 𝒇-cont))
+      IsContinuousWithPredInvℝ
+
+  𝒇-diffQuot≤lnSeq : ∀ n r (0＃r : 0 ＃ r)
+    → r ≤ᵣ rat [ 1 / 2+ n ]
+    → 𝒇-diffQuot r 0＃r ≤ᵣ lnSeq z n
+  𝒇-diffQuot≤lnSeq n =
+    ≤ContWP＃≤ [ 1 / 2+ n ] (0<pos 0 (2+ n))
+      𝒇-diffQuot-cont
+      (AsContinuousWithPred _ _ (IsContinuousConst (lnSeq z n)))
+      (λ u u∈ u≤ →
+        subst2 _≤ᵣ_
+          (cong₂ _·ᵣ_
+            (cong₂ _-ᵣ_
+              (sym (𝒇-rat u))
+              (sym (𝒇-rat 0)))
+            (cong₂ invℝ
+              (Rℝ.+IdR' _ _ (-ᵣ-rat 0))
+              (toPathP (isProp＃ _ _ _ _))))
+          (cong₂ _·ᵣ_
+            refl
+            (invℝ₊-rat (posStepWidth n)
+              ∙ cong rat
+                  (cong (fst ∘ invℚ₊)
+                    (ℚ₊≡ {x = posStepWidth n}
+                      {y = stepℚ₊ n}
+                      (ℚ.+IdR _)))))
+          (slope-monotone＃ z 0 u
+            0 [ 1 / 2+ n ]
+            u∈ (0<pos 0 _) (ℚ.isRefl≤ 0) u≤))
+
+  lnSeq'≤𝒇-diffQuot : ∀ n r (0＃r : 0 ＃ r)
+    → rat (ℚ.- [ 1 / 2+ n ]) ≤ᵣ r
+    → lnSeq' z n ≤ᵣ 𝒇-diffQuot r 0＃r
+  lnSeq'≤𝒇-diffQuot n =
+    ≤ContWP＃≤' (ℚ.- [ 1 / 2+ n ])
+      (ℚ.minus-< 0 [ 1 / 2+ n ] (0<pos 0 (2+ n)))
+      (AsContinuousWithPred _ _ (IsContinuousConst (lnSeq' z n)))
+      𝒇-diffQuot-cont
+      (λ u u∈ u≤ →
+        subst2 _≤ᵣ_
+          (cong₂ _·ᵣ_
+            refl
+            (invℝ₊-rat (negStepWidth n)
+              ∙ cong rat
+                  (cong (fst ∘ invℚ₊)
+                    (ℚ₊≡
+                      {x = negStepWidth n}
+                      {y = stepℚ₊ n}
+                      (ℚ.+IdL _ ∙ ℚ.-Invol _)))))
+          (sym (-ᵣ·-ᵣ _ _)
+            ∙ cong₂ _·ᵣ_
+                (-[x-y]≡y-x _ _
+                  ∙ cong₂ _-ᵣ_
+                      (sym (𝒇-rat u))
+                      (sym (𝒇-rat 0)))
+                (-invℝ _ _
+                  ∙ cong₂ invℝ
+                      (cong -ᵣ_ (+IdL _) ∙ -ᵣInvol _)
+                      (toPathP (isProp＃ _ _ _ _))))
+          (slope-monotone＃' z
+            (ℚ.- [ 1 / 2+ n ]) 0 u 0
+            (ℚ.minus-< 0 [ 1 / 2+ n ] (0<pos 0 (2+ n)))
+            (isSym＃ _ _ u∈) u≤ (ℚ.isRefl≤ 0)))
+
+  {-
+  Old quotient-slope derivative proof. Previous names:
+  expDerAt0, differenceAt𝒇-Δ, expDerA.
+
   expDerAt0 : derivativeOf 𝒇 at 0 is preLn
   expDerAt0 ε =
    PT.rec
@@ -534,6 +614,7 @@ module BDL (z : ℝ₊) (Z : ℕ)
 
                  ) ∣₁ )
      (denseℚinℝ 0 _ (snd ε))
+  -}
 
   𝒇· : ∀ x y → 𝒇 x ·ᵣ 𝒇 y ≡ 𝒇 (x +ᵣ y)
   𝒇· = ≡Cont₂
@@ -544,6 +625,8 @@ module BDL (z : ℝ₊) (Z : ℕ)
           ∙ sym (𝒇-rat (u ℚ.+ u'))
           ∙ cong 𝒇 (sym (+ᵣ-rat u u'))
 
+ {-
+ Previous names: differenceAt𝒇-Δ, expDerA.
 
  differenceAt𝒇-Δ : ∀ x r 0＃r → 𝒇 x ·ᵣ differenceAt 𝒇 0 r 0＃r ≡ (differenceAt 𝒇 x r 0＃r)
  differenceAt𝒇-Δ x r 0＃r = ·ᵣAssoc _ _ _ ∙
@@ -555,9 +638,10 @@ module BDL (z : ℝ₊) (Z : ℕ)
 
  expDerA : ∀ x → derivativeOf 𝒇 at x is (𝒇 x ·ᵣ preLn)
  expDerA x =
-  subst (at (rat [ pos zero / 1+ zero ]) limitOf_is (𝒇 x ·ᵣ preLn))
+ subst (at (rat [ pos zero / 1+ zero ]) limitOf_is (𝒇 x ·ᵣ preLn))
    (funExt₂ λ r 0＃r → differenceAt𝒇-Δ _ _ _ )
    (·-lim _ _ _ _ _ (const-lim (𝒇 x) 0) expDerAt0)
+ -}
 
 
 seq-^-intervals : Seq⊆

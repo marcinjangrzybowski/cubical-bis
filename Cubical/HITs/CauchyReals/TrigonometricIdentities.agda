@@ -1,5 +1,3 @@
-{-# OPTIONS --safe #-}
-
 module Cubical.HITs.CauchyReals.TrigonometricIdentities where
 
 open import Cubical.Foundations.Prelude
@@ -24,8 +22,7 @@ import Cubical.Data.Nat.Mod as ℕ
 import Cubical.Data.Nat.Order as ℕ
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎
-open import Cubical.Data.Int as ℤ using (pos)
-import Cubical.Data.Int.Order as ℤ
+import Cubical.Data.Int.Fast as ℤᶠ
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -33,23 +30,16 @@ open import Cubical.HITs.PropositionalTruncation.Monad
 
 open import Cubical.Data.NatPlusOne
 
-open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Order as ℚ using
-  ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
-open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ
-open import Cubical.Data.Rationals.Order.Floor as ℚ
-open import Cubical.Data.Rationals.Order.Algebra as ℚ
-open import Cubical.Data.Rationals.Inverse as ℚ
- using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
+open import Cubical.Data.Rationals as ℚ using ([_/_] ; eq/⁻¹)
 
 
 open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Lems
 open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
 open import Cubical.HITs.CauchyReals.Continuous
 open import Cubical.HITs.CauchyReals.Multiplication
+open import Cubical.HITs.CauchyReals.Power
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
 open import Cubical.HITs.CauchyReals.Derivative
@@ -58,6 +48,7 @@ open import Cubical.HITs.CauchyReals.IntegrationMore
 open import Cubical.HITs.CauchyReals.MeanValue
 open import Cubical.HITs.CauchyReals.Exponentiation
 open import Cubical.HITs.CauchyReals.Uniform
+open import Cubical.HITs.CauchyReals.TrigBase
 open import Cubical.HITs.CauchyReals.PiNumber
 open import Cubical.HITs.CauchyReals.NthRoot
 
@@ -77,10 +68,10 @@ open import Cubical.HITs.CauchyReals.NthRoot
 sin[π/2]≡1 : sin π-number/2 ≡ 1
 sin[π/2]≡1 =
  let z = sym (𝐑'.+IdR' _ _ (𝐑'.0RightAnnihilates' _ _ cos[π/2]≡0))
-        ∙ sin²+cos²=1 π-number/2
+        ∙ sin·sin+cos·cos=1 π-number/2
  in cong fst (invEq (congEquiv {x = _ , 0<sin[π/2]}
             {1} (_ , (isEquiv-₊^ⁿ 2)))
-      (ℝ₊≡ (z ∙ sym (·IdL _) ∙ sym (·IdR _)) ))
+      (ℝ₊≡ (x^²=x·x _ ∙ z ∙ sym (1^ⁿ 2))))
 
 sin[x+π/2]=cos[x] : ∀ x → sin (x +ᵣ π-number/2) ≡ cos x
 sin[x+π/2]=cos[x] x = (sinOfSum x π-number/2)
@@ -130,18 +121,30 @@ cos-period x =
 
 
 injFromNatℚ : ∀ k k' → [ k / 1 ] ≡ [ k' / 1 ] → k ≡ k'
-injFromNatℚ k k' p = sym (ℤ.·IdR _) ∙∙ ℚ.eq/⁻¹ _ _ p ∙∙ ℤ.·IdR _
+injFromNatℚ k k' p = sym (ℤᶠ.·IdR _) ∙∙ ℚ.eq/⁻¹ _ _ p ∙∙ ℤᶠ.·IdR _
 
 cos[2φ]=cos²[φ]-sin²[φ] : ∀ φ → cos (2 ·ᵣ φ) ≡  (cos φ) ^ⁿ 2 -ᵣ  (sin φ) ^ⁿ 2
 cos[2φ]=cos²[φ]-sin²[φ] φ = cong cos (sym (x+x≡2x φ)) ∙
-  cosOfSum _ _ ∙ cong₂ _-ᵣ_ (cong₂ _·ᵣ_ (sym (·IdL _)) refl)
-    (cong₂ _·ᵣ_ (sym (·IdL _)) refl)
+  cosOfSum _ _ ∙ cong₂ _-ᵣ_ (sym (x^²=x·x _)) (sym (x^²=x·x _))
 
 cos[2φ]=1-2sin²[φ] : ∀ φ → cos (2 ·ᵣ φ) ≡ 1 -ᵣ 2 ·ᵣ (sin φ) ^ⁿ 2
 cos[2φ]=1-2sin²[φ] φ = cos[2φ]=cos²[φ]-sin²[φ] φ ∙
- (sym L𝐑.lem--081) ∙ cong₂ _-ᵣ_ (sin²+cos²=1 φ) (x+x≡2x _)
+ cong₂ _-ᵣ_ (x^²=x·x (cos φ)) (x^²=x·x (sin φ)) ∙
+ cong (_-ᵣ (sin φ ·ᵣ sin φ)) (cos·cos=1-sin·sin φ) ∙
+ sym (+ᵣAssoc 1 (-ᵣ (sin φ ·ᵣ sin φ)) (-ᵣ (sin φ ·ᵣ sin φ))) ∙
+ cong (1 +ᵣ_) (sym (-ᵣDistr (sin φ ·ᵣ sin φ) (sin φ ·ᵣ sin φ))) ∙
+ cong (λ z → 1 -ᵣ z)
+   (x+x≡2x (sin φ ·ᵣ sin φ) ∙ cong (2 ·ᵣ_) (sym (x^²=x·x (sin φ))))
 
 cos[2φ]=2cos²[φ]-1 : ∀ φ → cos (2 ·ᵣ φ) ≡ 2 ·ᵣ (cos φ) ^ⁿ 2 -ᵣ 1
 cos[2φ]=2cos²[φ]-1 φ = cos[2φ]=cos²[φ]-sin²[φ] φ ∙
-  sym L𝐑.lem--081 ∙ cong₂ _-ᵣ_  (x+x≡2x _) (+ᵣComm _ _ ∙ sin²+cos²=1 φ)
-
+  cong₂ _-ᵣ_ (x^²=x·x (cos φ)) (x^²=x·x (sin φ)) ∙
+  cong (λ z → cos φ ·ᵣ cos φ -ᵣ z) (sin·sin=1-cos·cos φ) ∙
+  cong ((cos φ ·ᵣ cos φ) +ᵣ_)
+    (-ᵣDistr 1 (-ᵣ (cos φ ·ᵣ cos φ))
+      ∙ cong ((-ᵣ 1) +ᵣ_) (-ᵣInvol (cos φ ·ᵣ cos φ))) ∙
+  cong ((cos φ ·ᵣ cos φ) +ᵣ_)
+    (+ᵣComm (-ᵣ 1) (cos φ ·ᵣ cos φ)) ∙
+  +ᵣAssoc (cos φ ·ᵣ cos φ) (cos φ ·ᵣ cos φ) (-ᵣ 1) ∙
+  cong (λ z → z -ᵣ 1)
+    (x+x≡2x (cos φ ·ᵣ cos φ) ∙ cong (2 ·ᵣ_) (sym (x^²=x·x (cos φ))))

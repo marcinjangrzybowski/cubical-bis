@@ -1,77 +1,13 @@
-{-# OPTIONS --safe --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.ExponentiationDer where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.Properties
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Powerset
-open import Cubical.Foundations.Transport
+{-
+Legacy exponentiation derivative module.
 
-open import Cubical.Functions.FunExtEquiv
-
-open import Cubical.Relation.Nullary
-
-open import Cubical.Data.Bool as 𝟚 hiding (_≤_)
-open import Cubical.Data.Nat as ℕ hiding (_·_;_+_)
-import Cubical.Data.Nat.Mod as ℕ
-import Cubical.Data.Nat.Order as ℕ
-open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Sum as ⊎
-open import Cubical.Data.Int as ℤ using (pos; ℤ)
-import Cubical.Data.Int.Order as ℤ
-open import Cubical.Data.Sigma
-open import Cubical.Data.Unit
-
-open import Cubical.HITs.PropositionalTruncation as PT
-
-open import Cubical.HITs.SetQuotients as SQ hiding (_/_)
-
-open import Cubical.Data.NatPlusOne
-
-open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
-open import Cubical.Data.Rationals.Order as ℚ using (0<_)
-open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ
-open import Cubical.Data.Rationals.Order.Floor as ℚ
-open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (seqΣ ; seqΣ' ; _^ⁿ_ ; _ℚ₊^ⁿ_)
-open import Cubical.Data.Rationals.Inverse as ℚ using
-  ( invℚ
-  ; _⁻¹₊
-  ; x/y<z→x<y·z
-  )
-
-
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Closeness
-open import Cubical.HITs.CauchyReals.Lipschitz
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.Sequence
-open import Cubical.HITs.CauchyReals.Bisection
-open import Cubical.HITs.CauchyReals.NthRoot
-open import Cubical.HITs.CauchyReals.Derivative hiding (invℚ₊)
-open import Cubical.HITs.CauchyReals.Partition using (ℚ<→0< ; _ℚ₊·_)
-
-open import Cubical.HITs.CauchyReals.Exponentiation
-open import Cubical.HITs.CauchyReals.RationalsImports
-open import Cubical.HITs.CauchyReals.LiftingExpr
-
-open import Cubical.Tactics.CommRingSolver.Specialised.Reals
-
-import Cubical.Algebra.CommRing.Instances.Int as ℤCRing
-open import Cubical.Algebra.Ring.Properties
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.MorphismProperties
-import Cubical.Algebra.CommRing as CR
-import Cubical.Algebra.CommRing.Properties as CR
-
-module 𝐙' = RingTheory (CR.CommRing→Ring ℤCRing.ℤCommRing )
+This file used the old quotient-slope derivative API
+(derivativeOf/derivativeOfℙ/differenceAtℙ). Active exponentiation,
+log-sequence, bisection, and new-style derivative material has been moved into
+the split Exponentiation.* modules, PowerDerivative, and related modules.
+The old body is kept commented as a migration reference only.
 
 ℚ≤→<+₊ : ∀ x y (ε : ℚ₊) → x ℚ.≤ y → x ℚ.< y ℚ.+ fst ε
 ℚ≤→<+₊ x y ε x≤y =
@@ -1436,3 +1372,4 @@ module expPreDer (Z : ℕ) where
               (≤ᵣ-o·ᵣ _ _ _ (≤ℚ→≤ᵣ _ _ (ℚ.0≤pos _ _))
                 (slope-monotone-ₙ√ (suc n) _ _ _ _
                   a<b a'<b' a≤a' b≤b'))
+-}

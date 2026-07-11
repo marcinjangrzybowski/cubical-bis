@@ -28,6 +28,8 @@ open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ
 open import Cubical.Data.Rationals.Order.Algebra as ℚ
 open import Cubical.Data.Rationals.Inverse as ℚ using (_／₊_; _⁻¹₊)
 
+open import Cubical.HITs.CauchyReals.Aproximations
+
 open import Cubical.Tactics.CommRingSolver.Specialised.Rationals
 
 

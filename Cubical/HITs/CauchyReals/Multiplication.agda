@@ -663,6 +663,9 @@ module Exponentiationᵣ = CR.Exponentiation ℝcommRing
 
 open Exponentiationᵣ renaming (_^_ to _^ⁿ_;^-ldist-· to ^ⁿ-ldist-·) public
 
+x^²=x·x : ∀ x → x ^ⁿ 2 ≡ x ·ᵣ x
+x^²=x·x x = cong (x ·ᵣ_) (·IdR x)
+
 
 ^ⁿ-ℚ^ⁿ : ∀ n q → ((rat q) ^ⁿ n) ≡ rat (q ℚ.^ⁿ n)
 ^ⁿ-ℚ^ⁿ zero _ = refl

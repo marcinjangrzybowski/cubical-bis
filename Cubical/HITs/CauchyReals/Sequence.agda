@@ -47,6 +47,7 @@ open import Cubical.Algebra.CommRing.Properties
 open import Cubical.Algebra.CommRing.Base
 import Cubical.Algebra.Ring.BigOps
 import Cubical.Data.FinData as FD
+open import Cubical.Tactics.NatSolver
 
 
 open import Cubical.HITs.CauchyReals.RationalsImports 
@@ -313,119 +314,155 @@ foldlFin : ∀ {n} → (B → A → B) → B → (F.Fin n → A) → B
 foldlFin {n = zero} f b v = b
 foldlFin {n = suc n} f b v = foldlFin {n = n} f (f b (v F.fzero)) (v ∘ F.fsuc)
 
--- k·mᵏ<[m+sn]ᵏ : ∀ k m n → k ℕ.· (m ℕ.^ k) ℕ.< (m ℕ.+ suc n) ℕ.^ (suc k)
--- k·mᵏ<[m+sn]ᵏ zero m n = subst2 ℕ._<_ refl
---   (sym (ℕ.·-identityʳ _)) (ℕ.≤-+-< (ℕ.zero-≤ {m}) (ℕ.zero-<-suc {n}))
--- k·mᵏ<[m+sn]ᵏ (suc k) zero n =
---  subst2 ℕ._<_
---   (ℕ.0≡m·0 k)
---     refl (ℕ.monotone-^ 0 (suc n) (suc k) (ℕ.zero-<-suc {n}))
--- k·mᵏ<[m+sn]ᵏ (suc k) m@(suc m') n =
---   subst2 ℕ._<_
---     (ℕ.·-identityʳ _)
---     ( cong₂ ℕ._+_
---        (cong₂ ℕ._+_ (sym (ℕ.+-zero _) )
---          refl)
---        (cong₂ ℕ._·_ refl (cong suc (sym (ℕ.·-identityʳ _)))
---      ∙ (sym (ℕ.·-assoc (suc (suc k))
---         (suc m' ^ (suc k)) (suc n ^ 1))
---            ∙∙ cong₂ ℕ._·_ (sym (choose1 (suc (suc k)))) (ℕ.·-comm (suc m' ^ suc k) (suc n ^ 1))
---            ∙∙ ℕ.·-assoc _ _ _)) ∙ (sym (ℕ.+-assoc _ _ _)
---        ∙ cong₂ ℕ._+_ refl (ℕ.+-comm
---          _
---          ((suc (suc k) choose 1) ℕ.· (suc n ^ 1) ℕ.· (suc m' ^ suc k))))
---       ∙ sym (binomialℕ (suc (suc k)) (suc n) m)
---       ∙ cong (ℕ._^ (suc (suc k))) (ℕ.+-comm (suc n) m))
---     (ℕ.<-+-≤ {zero} {_}
---       (ℕ.<-+-≤ (ℕ.monotone-^ 0 (suc m') (suc k) (ℕ.zero-<-suc {m'})) ℕ.zero-≤)
---       (ℕ.≤monotone· (ℕ.≤-·k (ℕ.≤-sucℕ {suc k}))
---        (ℕ.suc-≤-suc (ℕ.zero-≤ {n})))
---       )
+k·mᵏ<[m+sn]ᵏ : ∀ k m n → k ℕ.· (m ℕ.^ k) ℕ.< (m ℕ.+ suc n) ℕ.^ (suc k)
+k·mᵏ<[m+sn]ᵏ zero m n = subst2 ℕ._<_ refl
+  (sym (ℕ.·-identityʳ _)) (ℕ.≤-+-< (ℕ.zero-≤ {m}) (ℕ.zero-<-suc {n}))
+k·mᵏ<[m+sn]ᵏ (suc k) zero n =
+ subst2 ℕ._<_
+  (ℕ.0≡m·0 k)
+    refl (ℕ.monotone-^ 0 (suc n) (suc k) (ℕ.zero-<-suc {n}))
+k·mᵏ<[m+sn]ᵏ (suc k) m@(suc m') n =
+  subst2 ℕ._<_
+    (ℕ.·-identityʳ _)
+    binomialHeadEq
+    (ℕ.<-+-≤ {zero} {_}
+      (ℕ.<-+-≤ (ℕ.monotone-^ 0 (suc m') (suc k) (ℕ.zero-<-suc {m'}))
+        (ℕ.zero-≤ {binomialTail}))
+      (ℕ.≤monotone· (ℕ.≤-·k {m = suc k} {n = suc (suc k)}
+        {k = suc m' ℕ.^ suc k} (ℕ.≤-sucℕ {suc k}))
+       (ℕ.suc-≤-suc (ℕ.zero-≤ {n}))))
 
+ where
+ open Cubical.Algebra.CommRing.BinomialThm.BinomialThm ℤCommRing
+  renaming (_choose_ to _ℤchoose_)
+ open Exponentiation ℤCommRing renaming (_^_ to _^ℤ_)
+ open Cubical.Algebra.Ring.BigOps.Sum (CommRing→Ring ℤCommRing)
 
---  where
---  open Cubical.Algebra.CommRing.BinomialThm.BinomialThm ℤCommRing
---   renaming (_choose_ to _ℤchoose_)
---  open Exponentiation ℤCommRing renaming (_^_ to _^ℤ_)
---  open Cubical.Algebra.Ring.BigOps.Sum (CommRing→Ring ℤCommRing)
+ choose1 : ∀ n → n choose 1 ≡ n
+ choose1 zero = refl
+ choose1 (suc n) = ℕ.+-comm (n choose 1) (n choose 0) ∙ cong suc (choose1 n)
 
---  choose1 : ∀ n → n choose 1 ≡  n
---  choose1 zero = refl
---  choose1 (suc n) = ℕ.+-comm (n choose 1) (n choose 0) ∙ cong suc (choose1 n)
+ binVecℕ : ∀ k n m → FD.Fin (suc k) → ℕ
+ binVecℕ k n m i = (k choose (FD.toℕ i)) ℕ.· n ℕ.^
+  (FD.toℕ i) ℕ.· m ℕ.^ (k ∸ (FD.toℕ i))
 
+ binomialTail : ℕ
+ binomialTail =
+   FD.foldrFin {n = suc k} ℕ._+_ zero
+     (λ x → binVecℕ (suc (suc k)) (suc n) m (FD.suc (FD.suc x)))
 
---  binVecℕ : ∀ k n m → FD.Fin (suc k) → ℕ
---  binVecℕ k n m i = (k choose (FD.toℕ i)) ℕ.· n ℕ.^
---   (FD.toℕ i) ℕ.· m ℕ.^ (k ∸ (FD.toℕ i))
+ linearTermHelper : ∀ C C' A N → C' ≡ C →
+   C ℕ.· A ℕ.· N ≡ C' ℕ.· (N ℕ.^ 1) ℕ.· A
+ linearTermHelper C C' A N C'≡C =
+   solveℕ!
+   ∙ cong (λ z → C ℕ.· z ℕ.· A) (sym (ℕ.·-identityʳ N))
+   ∙ cong (λ z → z ℕ.· (N ℕ.^ 1) ℕ.· A) (sym C'≡C)
 
---  choose≡ℤchoose : ∀ k l → pos (k choose l) ≡ (k ℤchoose l)
---  choose≡ℤchoose k zero = refl
---  choose≡ℤchoose zero (suc l) = refl
---  choose≡ℤchoose (suc k) (suc l) = ℤ.pos+ _ _ ∙
---   cong₂ ℤ._+_ (choose≡ℤchoose k (suc l))
---    (choose≡ℤchoose k l)
+ linearTermEq :
+   suc (suc k) ℕ.· (suc m' ℕ.^ suc k) ℕ.· suc n
+   ≡ (suc (suc k) choose 1) ℕ.· (suc n ℕ.^ 1) ℕ.·
+     (suc m' ℕ.^ suc k)
+ linearTermEq =
+   linearTermHelper
+     (suc (suc k))
+     (suc (suc k) choose 1)
+     (suc m' ℕ.^ suc k)
+     (suc n)
+     (choose1 (suc (suc k)))
 
+ 1·1· : ∀ A → 1 ℕ.· 1 ℕ.· A ≡ A
+ 1·1· A = solveℕ!
 
---  ^-lemma : ∀ a b → pos (a ℕ.^ b) ≡ (pos a) ^ℤ b
---  ^-lemma a zero = refl
---  ^-lemma a (suc b) = ℤ.pos·pos a (a ^ b)
---   ∙ cong₂ ℤ._·_ refl (^-lemma a b)
+ +-tail-swap : ∀ A T L → (A ℕ.+ T) ℕ.+ L ≡ A ℕ.+ (L ℕ.+ T)
+ +-tail-swap A T L = solveℕ!
 
+ choose≡ℤchoose : ∀ k l → pos (k choose l) ≡ (k ℤchoose l)
+ choose≡ℤchoose k zero = refl
+ choose≡ℤchoose zero (suc l) = refl
+ choose≡ℤchoose (suc k) (suc l) = ℤ.pos+ (k choose suc l) (k choose l) ∙
+  cong₂ ℤ._+_ (choose≡ℤchoose k (suc l))
+   (choose≡ℤchoose k l)
 
---  binVecℕ≡bvℤ : ∀ k n m f  →
---    pos (binVecℕ k n m f) ≡ BinomialVec k (pos n) (pos m) f
---  binVecℕ≡bvℤ k n m f =
---    ℤ.pos·pos _ _ ∙
---     cong₂ ℤ._·_
---      (ℤ.pos·pos _ _ ∙ cong₂ ℤ._·_
---        (choose≡ℤchoose _ _) (^-lemma _ _))
---      (^-lemma m (k ∸ FD.toℕ f))
+ ^-lemma : ∀ a b → pos (a ℕ.^ b) ≡ (pos a) ^ℤ b
+ ^-lemma a zero = refl
+ ^-lemma a (suc b) = ℤ.pos·pos a (a ℕ.^ b)
+  ∙ cong₂ ℤ._·_ refl (^-lemma a b)
 
+ binVecℕ≡bvℤ : ∀ k n m f →
+   pos (binVecℕ k n m f) ≡ BinomialVec k (pos n) (pos m) f
+ binVecℕ≡bvℤ k n m f =
+   ℤ.pos·pos ((k choose FD.toℕ f) ℕ.· (n ℕ.^ FD.toℕ f))
+     (m ℕ.^ (k ∸ FD.toℕ f)) ∙
+    cong₂ ℤ._·_
+     (ℤ.pos·pos (k choose FD.toℕ f) (n ℕ.^ FD.toℕ f) ∙ cong₂ ℤ._·_
+       (choose≡ℤchoose k (FD.toℕ f)) (^-lemma n (FD.toℕ f)))
+     (^-lemma m (k ∸ FD.toℕ f))
 
---  bnmℕ : ∀ k f → pos (FD.foldrFin {n = k} ℕ._+_ zero f)
---      ≡ (FD.foldrFin ℤ._+_ (pos zero) (pos ∘ f))
+ bnmℕ : ∀ k f → pos (FD.foldrFin {n = k} ℕ._+_ zero f)
+     ≡ (FD.foldrFin ℤ._+_ (pos zero) (pos ∘ f))
+ bnmℕ zero f = refl
+ bnmℕ (suc k) f =
+   let tailNat = FD.foldrFin {n = k} ℕ._+_ zero (λ x → f (FD.suc x))
+       headPos : pos (f FD.zero ℕ.+ tailNat) ≡ pos (f FD.zero) ℤ.+ pos tailNat
+       headPos = ℤ.pos+ (f FD.zero) tailNat
+   in headPos ∙ cong (pos (f FD.zero) ℤ.+_) (bnmℕ k (λ x → f (FD.suc x)))
 
---  bnmℕ zero f = refl
---  bnmℕ (suc k) f = ℤ.pos+ _ _ ∙
---    cong₂ ℤ._+_
---     refl (bnmℕ k _)
+ binomialℕ : ∀ k n m →
+     (n ℕ.+ m) ℕ.^ k ≡ FD.foldrFin ℕ._+_ zero (binVecℕ k n m)
+ binomialℕ k n m =
+    ℤ.injPos
+     ((^-lemma (n ℕ.+ m) k ∙
+      cong (_^ℤ k) (ℤ.pos+ n m))
+   ∙∙ BinomialThm k (pos n) (pos m)
+   ∙∙ (cong (FD.foldrFin ℤ._+_ (pos zero))
+     (funExt (sym ∘ binVecℕ≡bvℤ k n m))
+     ∙ sym (bnmℕ (suc k) (binVecℕ k n m))))
 
+ firstBinomialTermEq :
+   binVecℕ (suc (suc k)) (suc n) m FD.zero
+   ≡ suc m' ℕ.^ suc (suc k)
+ firstBinomialTermEq = 1·1· (suc m' ℕ.^ suc (suc k))
 
---  binomialℕ : ∀ k n m →
---      (n ℕ.+ m) ℕ.^ k ≡ FD.foldrFin ℕ._+_ zero (binVecℕ k n m)
---  binomialℕ k n m =
---     ℤ.injPos
---      ((^-lemma _ _  ∙
---       cong (_^ℤ k) (ℤ.pos+ n m))
---    ∙∙ BinomialThm k (pos n) (pos m)
---    ∙∙ (cong (FD.foldrFin ℤ._+_ (pos zero))
---      (funExt (sym ∘ binVecℕ≡bvℤ k n m))
---      ∙ sym (bnmℕ (suc k) (binVecℕ k n m))))
+ binomialFoldHeadEq :
+   FD.foldrFin ℕ._+_ zero (binVecℕ (suc (suc k)) (suc n) m)
+   ≡ (suc m' ℕ.^ suc (suc k)) ℕ.+
+      (((suc (suc k) choose 1) ℕ.· (suc n ℕ.^ 1) ℕ.·
+        (suc m' ℕ.^ suc k)) ℕ.+ binomialTail)
+ binomialFoldHeadEq = cong₂ ℕ._+_ firstBinomialTermEq refl
 
+ binomialHeadEq :
+   (suc m' ℕ.^ suc (suc k)) ℕ.+ binomialTail ℕ.+
+   (suc (suc k) ℕ.· (suc m' ℕ.^ suc k) ℕ.· suc n)
+   ≡ (suc m' ℕ.+ suc n) ℕ.^ suc (suc k)
+ binomialHeadEq =
+   cong₂ ℕ._+_ refl linearTermEq
+   ∙ +-tail-swap
+       (suc m' ℕ.^ suc (suc k))
+       binomialTail
+       ((suc (suc k) choose 1) ℕ.· (suc n ℕ.^ 1) ℕ.·
+        (suc m' ℕ.^ suc k))
+   ∙ sym binomialFoldHeadEq
+   ∙ sym (binomialℕ (suc (suc k)) (suc n) m)
+   ∙ cong (ℕ._^ (suc (suc k))) (ℕ.+-comm (suc n) m)
 
-
--- ℕkⁿ<ε : ∀ p q r s → 0 ℕ.< q →  s ℕ.< r → Σ[ n ∈ ℕ ]
---              p ℕ.· s ℕ.^ n ℕ.< q ℕ.· r ℕ.^ n
--- ℕkⁿ<ε p q zero s 0<q s<r = ⊥.rec (ℕ.¬-<-zero s<r)
--- ℕkⁿ<ε p zero _ s 0<q s<r = ⊥.rec (ℕ.¬-<-zero 0<q)
--- ℕkⁿ<ε p (suc q) (suc r) s 0<q (u , u+ss=sr) =
-
-
---  let n = p ℕ.· s
---  in suc n ,
---       subst (ℕ._< suc q ℕ.· (suc r ℕ.^ suc n))
---        (sym (ℕ.·-assoc p s (s ℕ.^ n))) (ℕ.<≤-trans {n ℕ.· (s ^ n)}
---           {(s ℕ.+ suc u) ℕ.^ suc n}
---           {suc q ℕ.· (suc r ℕ.^ suc n)}
---           (k·mᵏ<[m+sn]ᵏ n s u)
---           (subst2 (ℕ._≤_)
---              (+-zero _)
---              (cong (λ r → suc q ℕ.· (r ^ suc n))
---                ((+-suc s u ∙ +-comm (suc s) u) ∙ u+ss=sr))
---              (ℕ.≤-·k {1} {suc q} {k = (s ℕ.+ suc u) ^ suc n}
---                (ℕ.zero-<-suc {q}))))
-
-
+ℕkⁿ<ε : ∀ p q r s → 0 ℕ.< q → s ℕ.< r → Σ[ n ∈ ℕ ]
+             p ℕ.· s ℕ.^ n ℕ.< q ℕ.· r ℕ.^ n
+ℕkⁿ<ε p q zero s 0<q s<r = ⊥.rec (ℕ.¬-<-zero s<r)
+ℕkⁿ<ε p zero _ s 0<q s<r = ⊥.rec (ℕ.¬-<-zero 0<q)
+ℕkⁿ<ε p (suc q) (suc r) s 0<q (u , u+ss=sr) =
+ let n = p ℕ.· s
+ in suc n ,
+      subst (ℕ._< suc q ℕ.· (suc r ℕ.^ suc n))
+       (sym (ℕ.·-assoc p s (s ℕ.^ n))) (ℕ.<≤-trans {n ℕ.· (s ℕ.^ n)}
+          {(s ℕ.+ suc u) ℕ.^ suc n}
+          {suc q ℕ.· (suc r ℕ.^ suc n)}
+          (k·mᵏ<[m+sn]ᵏ n s u)
+          (subst2 (ℕ._≤_)
+             (+-zero _)
+             (cong (λ r → suc q ℕ.· (r ℕ.^ suc n))
+               ((+-suc s u ∙ +-comm (suc s) u) ∙ u+ss=sr))
+             (ℕ.≤-·k {1} {suc q} {k = (s ℕ.+ suc u) ℕ.^ suc n}
+               (ℕ.zero-<-suc {q}))))
 
 Lipschitz-ℚ→ℝℙ : ℚ₊ → (P : ℙ ℝ) → (∀ x → rat x ∈ P  → ℝ) → Type
 Lipschitz-ℚ→ℝℙ L P f =

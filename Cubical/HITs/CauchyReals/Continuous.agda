@@ -396,6 +396,13 @@ opaque
  absᵣPos : ∀ x → 0 <ᵣ x → absᵣ x ≡ x
  absᵣPos x = absᵣNonNeg x ∘ <ᵣWeaken≤ᵣ _ _
 
+ absᵣ≡0→≡0 : ∀ x → absᵣ x ≡ 0 → x ≡ 0
+ absᵣ≡0→≡0 x ∣x∣≡0 =
+   invEq (eqℝ≃< x 0) λ ε →
+     isTrans≡<ᵣ _ _ _
+       (cong absᵣ (cong (x +ᵣ_) (-ᵣ-rat 0) ∙ +IdR x) ∙ ∣x∣≡0)
+       (snd (ℚ₊→ℝ₊ ε))
+
 opaque
  unfolding maxᵣ
 

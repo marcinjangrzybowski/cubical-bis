@@ -53,7 +53,6 @@ open import Cubical.HITs.CauchyReals.Sequence
 open import Cubical.HITs.CauchyReals.Bisection
 open import Cubical.HITs.CauchyReals.NthRoot
 open import Cubical.HITs.CauchyReals.Derivative hiding (invℚ₊)
-open import Cubical.HITs.CauchyReals.InverseDerivative
 open import Cubical.HITs.CauchyReals.RationalsImports hiding (_^_)
 open import Cubical.HITs.CauchyReals.LiftingExpr
 
@@ -93,6 +92,12 @@ ln-mon-str-<1 y y' y'<1 y<y' =
     (isTrans≡<ᵣ _ _ _ (cong fst (invℝ₊Invol y')) y'<1))
        (invEq (invℝ₊-<-invℝ₊ _ _) y<y'))
 
+
+{-
+Legacy exp/log isomorphism and logarithm derivative block. It depended on
+the old quotient-slope derivative API through ln[a^b]≡b·ln[a],
+𝒆'^-der, and invDerivativeℙ. Previous exported names in this block include
+𝒆-number, ln-der, exp-log-group-hom, exp-log-group-iso, and 𝒆-≡.
 
 
 module 𝒆-number a (1<a : 1 <ᵣ fst a) where
@@ -178,6 +183,7 @@ module 𝒆-number a (1<a : 1 <ᵣ fst a) where
  where
  module A  = 𝒆-number a  1<a
  module A' = 𝒆-number a' 1<a'
+-}
 
 
 ·-+grpIso : ℝ₋₊ → Aut[ snd +Groupℝ ]ᵣ .fst

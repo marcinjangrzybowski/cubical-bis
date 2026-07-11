@@ -359,6 +359,8 @@ module Pos^ where
    --     (IsContinuous^ℚ (fromNeg (suc n)) u ε u∈P)
 
 
+ {-
+ Old quotient-slope derivative theorem. Previous name: ^-der.
 
  ^-der : ∀ x → ∀ y → derivativeOf (fst ∘ x ^ᵣ_) at y
                is (fst (x ^ᵣ y) ·ᵣ ln x)
@@ -374,6 +376,7 @@ module Pos^ where
                 (0<pos 0 (fromNat (suc (suc n)))))
               a)
            n b a)
+ -}
 
  ^ᵣ0 : ∀ x → fst (x ^ᵣ 0) ≡ 1
  ^ᵣ0 x = ^-rat x 0
@@ -1043,6 +1046,10 @@ inj-ln (x , 0<x) (y , 0<y) =
           p))
       (invLipPreLn Z)
 
+{-
+Old proof used quotient-slope derivative uniqueness through ^-der.
+Previous names: ln[a^b₊]≡b₊·ln[a], ln[a^b]≡b·ln[a].
+
 ln[a^b₊]≡b₊·ln[a] : ∀ a (b : ℝ₊) → ln (a ^ᵣ (fst b)) ≡ fst b ·ᵣ ln a
 ln[a^b₊]≡b₊·ln[a] a (b , 0<b) =
    limitUniq _ _ _ _ (zz b) (zz' b 0<b) ∙ ·ᵣComm _ _
@@ -1083,3 +1090,4 @@ ln[a^b]≡b·ln[a] a =
     ∙ sym (Rℝ.0LeftAnnihilates (ln a))
   ww .ℚ.TrichotomyRec.gt-case b 0<b =
     ln[a^b₊]≡b₊·ln[a] a (rat b , <ℚ→<ᵣ _ _ 0<b)
+-}

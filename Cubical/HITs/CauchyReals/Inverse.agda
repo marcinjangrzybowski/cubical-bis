@@ -1250,6 +1250,27 @@ _₊^ⁿ_ : ℝ₊ → ℕ → ℝ₊
   subst2 (_<ᵣ_)
     (·ᵣComm _ _) (·ᵣComm _ _) (<ᵣ-·ᵣo m n (o , 0<o) p)
 
+denseℝ : ∀ u v → u <ᵣ v → Σ[ r ∈ ℝ ] ((u <ᵣ r) × (r <ᵣ v))
+denseℝ u v u<v =
+  (u +ᵣ v) ·ᵣ rat [ 1 / 2 ]
+    , isTrans<≡ᵣ _ _ _
+      (isTrans≡<ᵣ _ _ _
+        (((sym (Rℝ.·IdR' _ _ (sym (rat·ᵣrat _ _) ∙ decℚ≡ᵣ?))
+         ∙ ·ᵣAssoc _ _ _ ) ∙ ·ᵣComm _ _ )
+         ∙ sym (x+x≡2x (u ·ᵣ rat [ 1 / 2 ])))
+        (<ᵣ-o+ _ _ _
+          (<ᵣ-·ᵣo _ _ (ℚ₊→ℝ₊ [ 1 / 2 ]₊) u<v)))
+        (sym (·DistR+ _ _ _))
+    , isTrans≡<ᵣ _ _ _ (·DistR+ _ _ _)
+      (isTrans<≡ᵣ _ _ _
+        (<ᵣ-+o _ _ _ (<ᵣ-·ᵣo _ _ (ℚ₊→ℝ₊ [ 1 / 2 ]₊) u<v))
+        ((x+x≡2x (v ·ᵣ rat [ 1 / 2 ]))
+         ∙ sym ((sym (Rℝ.·IdR' _ _ (sym (rat·ᵣrat _ _) ∙ decℚ≡ᵣ?))
+         ∙ ·ᵣAssoc _ _ _ ) ∙ ·ᵣComm _ _ )))
+
+absᵣx=0→x=0 : ∀ x → absᵣ x ≡ 0 → x ≡ 0
+absᵣx=0→x=0 x ∣x∣≡0 = eqℝ _ _ λ ε → invEq (∼≃abs<ε _ _ _)
+   (isTrans≡<ᵣ _ _ _ (cong absᵣ (Rℝ.+IdR' _ _ (-ᵣ-rat 0)) ∙ ∣x∣≡0) (snd (ℚ₊→ℝ₊ ε)))
 
 absᵣ-triangle-minus : (x y : ℝ) → absᵣ x -ᵣ absᵣ y ≤ᵣ absᵣ (x -ᵣ y)
 absᵣ-triangle-minus x y =
@@ -1428,6 +1449,17 @@ invℝ₊· x y =
        invℝ· _ _ _ _ _
        ∙∙ cong₂ _·ᵣ_
         (sym (invℝ₊≡invℝ x (inl (snd x)))) (sym (invℝ₊≡invℝ y (inl (snd y)))) )
+
+invℝ₊-diff : ∀ u₊ v₊ → fst (invℝ₊ v₊) -ᵣ fst (invℝ₊ u₊) ≡
+          ((fst u₊ -ᵣ fst v₊) ·ᵣ fst (invℝ₊ (u₊ ₊·ᵣ v₊)))
+invℝ₊-diff u₊@(u , _) v₊@(v , _) =
+  cong₂ _-ᵣ_
+    (sym ([x/₊y]·yᵣ _ u₊)
+      ∙ cong₂ _·ᵣ_ (·ᵣComm _ _) refl)
+    (sym ([x/₊y]·yᵣ _ v₊))
+  ∙ sym (Rℝ.·DistR- _ _ _)
+  ∙ ·ᵣComm _ _
+  ∙ cong₂ _·ᵣ_ refl (sym (cong fst (invℝ₊· u₊ v₊)))
 
 
 invℝ₊Invol : ∀ x → invℝ₊ (invℝ₊ x) ≡ x

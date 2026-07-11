@@ -767,3 +767,7 @@ sin·sin+cos·cos=1 x =
 cos·cos=1-sin·sin : ∀ x → ((cos x) ·ᵣ (cos x)) ≡ 1 -ᵣ ((sin x) ·ᵣ (sin x))
 cos·cos=1-sin·sin x = sym (Rℝ.plusMinus _ _)
   ∙ cong (_-ᵣ ((sin x) ·ᵣ (sin x))) (+ᵣComm _ _ ∙ sin·sin+cos·cos=1 x)
+
+sin·sin=1-cos·cos : ∀ x → ((sin x) ·ᵣ (sin x)) ≡ 1 -ᵣ ((cos x) ·ᵣ (cos x))
+sin·sin=1-cos·cos x = sym (Rℝ.plusMinus _ _)
+  ∙ cong (_-ᵣ ((cos x) ·ᵣ (cos x))) (sin·sin+cos·cos=1 x)

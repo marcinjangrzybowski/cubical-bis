@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.PiNumber where
 
 open import Cubical.Foundations.Prelude
@@ -19,10 +17,13 @@ open import Cubical.Data.Bool as 𝟚 hiding (_≤_)
 open import Cubical.Data.Nat as ℕ hiding (_·_;_+_)
 import Cubical.Data.Nat.Mod as ℕ
 import Cubical.Data.Nat.Order as ℕ
+import Cubical.Data.Nat.Order.Inductive as ℕᵗ
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Int as ℤ using (pos)
 import Cubical.Data.Int.Order as ℤ
+import Cubical.Data.Int.Fast as ℤᶠ
+import Cubical.Data.Int.Fast.Order as ℤᶠ
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -32,12 +33,14 @@ open import Cubical.Data.NatPlusOne
 
 open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
 open import Cubical.Data.Rationals.Order as ℚ using
-  ( _ℚ₊+_ ; 0<_ ; ℚ₊ ; _ℚ₊·_ ; ℚ₊≡)
+  ( 0<_ )
 open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ
 open import Cubical.Data.Rationals.Order.Floor as ℚ
 open import Cubical.Data.Rationals.Order.Algebra as ℚ
+  hiding (_^ⁿ_ ; seqΣ ; seqSumUpTo ; seqSumUpTo')
 open import Cubical.Data.Rationals.Inverse as ℚ
- using (invℚ₊;/2₊;/3₊;/4₊;x/2<x;invℚ;_ℚ^ⁿ_;_ℚ₊^ⁿ_)
+ using (invℚ ; x·invℚ[x])
+open import Cubical.HITs.CauchyReals.RationalsImports using (ℚ₊ ; ℚ₊≡ ; <ℤ→<ℚ ; ≤ℤ→≤ℚ ; min₊ ; _/2₊ ; _/4₊)
 
 import Cubical.Algebra.OrderedCommRing.Properties as OCRP
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals using (ℚOrderedCommRing)
@@ -45,21 +48,37 @@ open import Cubical.Algebra.OrderedCommRing.Instances.Rationals using (ℚOrdere
 module ℚO = OCRP.OrderedCommRingTheory ℚOrderedCommRing
 
 open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Lems
 open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
 open import Cubical.HITs.CauchyReals.Continuous
 open import Cubical.HITs.CauchyReals.Multiplication
 open import Cubical.HITs.CauchyReals.Power
+import Cubical.HITs.CauchyReals.Signs as ℝSigns
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
 open import Cubical.HITs.CauchyReals.Derivative
 open import Cubical.HITs.CauchyReals.Integration
+open import Cubical.HITs.CauchyReals.Partition
 open import Cubical.HITs.CauchyReals.IntegrationMore
+open import Cubical.HITs.CauchyReals.FundamentalTheoremOfCalculus
 open import Cubical.HITs.CauchyReals.MeanValue
 open import Cubical.HITs.CauchyReals.Exponentiation
+open import Cubical.HITs.CauchyReals.ExponentialSeries
 open import Cubical.HITs.CauchyReals.Uniform
+open import Cubical.HITs.CauchyReals.TrigBase
+open import Cubical.HITs.CauchyReals.LiftingExpr
+open import Cubical.Tactics.CommRingSolver.Specialised.Reals
+import Cubical.Tactics.CommRingSolver.Specialised.Rationals as ℚSolver
+
+module 𝐑' = Rℝ
+open IntegrationUC rtp-1/n
+
+posℚ₊ : ℕ → ℚ₊
+posℚ₊ n = [ pos (suc n) / 1 ] , ℚ.0<pos n 1
+
+one₊ : ℚ₊
+one₊ = posℚ₊ 0
 
 
 0≤ᵣx² : ∀ x → 0 ≤ᵣ (x ^ⁿ 2)
@@ -68,10 +87,7 @@ open import Cubical.HITs.CauchyReals.Uniform
  (IsContinuous^ⁿ 2)
  (λ q → isTrans≤≡ᵣ _ _ _
    (≤ℚ→≤ᵣ _ _ (ℚO.0≤² q))
-   (rat·ᵣrat _ _ ∙
-    cong₂ _·ᵣ_
-     (sym (·IdL _))
-     refl) )
+   (cong rat ℚSolver.ℚ! ∙ sym (^ⁿ-ℚ^ⁿ 2 q)) )
 
 x²≤1→∣x∣≤1 : ∀ x → x ^ⁿ 2 ≤ᵣ 1 → absᵣ x ≤ᵣ 1
 x²≤1→∣x∣≤1 x x²≤1 =
@@ -135,11 +151,18 @@ Lipschitz-ℝ→ℝ→IsUContinuousℙ L f fLip P ε =
    subst∼ (ℚ.y·[x/y] L (fst ε)) (fLip u v ( invℚ₊ L ℚ₊· ε ) x)
 
 
-ℚ^ⁿ-dist· : ∀ p q n → (p ℚ.· q) ℚ^ⁿ n ≡ (p ℚ^ⁿ n) ℚ.· (q ℚ^ⁿ n)
+ℚ^ⁿ-dist· : ∀ p q n → (p ℚ.· q) ℚ.^ⁿ n ≡ (p ℚ.^ⁿ n) ℚ.· (q ℚ.^ⁿ n)
 ℚ^ⁿ-dist· p q zero = refl
 ℚ^ⁿ-dist· p q (suc n) =
-  cong₂ ℚ._·_ (ℚ^ⁿ-dist· p q n) refl ∙
-    lem--086
+  let pn = p ℚ.^ⁿ n
+      qn = q ℚ.^ⁿ n
+  in cong ((p ℚ.· q) ℚ.·_) (ℚ^ⁿ-dist· p q n)
+     ∙ sym (ℚ.·Assoc p q (pn ℚ.· qn))
+     ∙ cong (p ℚ.·_)
+        (ℚ.·Assoc q pn qn
+         ∙ cong (λ z → z ℚ.· qn) (ℚ.·Comm q pn)
+         ∙ sym (ℚ.·Assoc pn q qn))
+     ∙ ℚ.·Assoc p pn (q ℚ.· qn)
 
 ^ⁿ-MonotoneR-inv
         : (x : ℝ) → 0 ≤ᵣ x → x ≤ᵣ 1 →  (m n : ℕ) →
@@ -148,14 +171,14 @@ Lipschitz-ℝ→ℝ→IsUContinuousℙ L f fLip P ε =
 ^ⁿ-MonotoneR-inv x 0≤x x≤1 zero zero _ = ≤ᵣ-refl _
 ^ⁿ-MonotoneR-inv x 0≤x x≤1 zero (suc n) _ =
   isTrans≤≡ᵣ _ _ _ (≤ᵣ₊Monotone·ᵣ _ _ _ _
-    (decℚ≤ᵣ? {0} {1}) 0≤x
-    (^ⁿ-MonotoneR-inv x 0≤x x≤1 zero n ℕ.zero-≤)
-    x≤1)
-     (sym (rat·ᵣrat 1 1))
+    (decℚ≤ᵣ? {0} {1}) (0≤x^ⁿ x n 0≤x)
+    x≤1
+    (^ⁿ-MonotoneR-inv x 0≤x x≤1 zero n ℕ.zero-≤))
+     ℝ!
 ^ⁿ-MonotoneR-inv x 0≤x x≤1 (suc m) zero m≤zero =
   ⊥.rec (ℕ.¬-<-zero m≤zero)
 ^ⁿ-MonotoneR-inv x 0≤x x≤1 (suc m) (suc n) sm≤sn =
-  ≤ᵣ-·ᵣo _ _ x
+  ≤ᵣ-o·ᵣ _ _ x
     0≤x
     (^ⁿ-MonotoneR-inv x 0≤x x≤1 m n (ℕ.pred-≤-pred sm≤sn))
 
@@ -176,41 +199,58 @@ opaque
       (p , sp=p') = w p' q (subst ℚ.0<_ (sym p/q≡r) (snd r))
       (𝒑' , 1+ 𝒒) , _ , 𝒑/𝒒≡ε = ℚ.reduced (fst ε)
       (𝒑 , s𝒑=𝒑') = w 𝒑' 𝒒 (subst ℚ.0<_ (sym 𝒑/𝒒≡ε) (snd ε))
-      uu = subst2 (ℤ._<_)
-         (ℤ.·IdR p' ∙ sym (sp=p')) refl
-          (subst (ℚ._< 1) (sym p/q≡r) r<1)
-      M , X = ℕkⁿ<ε (suc 𝒒) (suc 𝒑) (suc q) (suc p) (ℕ.zero-<-suc {𝒑})
-        (fst (ℤ.pos-<-pos≃ℕ<  _ _)
-         uu)
+      uu : ℤᶠ.pos (suc p) ℤᶠ.< ℤᶠ.pos (suc q)
+      uu = subst2 (ℤᶠ._<_)
+         (ℤᶠ.·IdR p' ∙ sym (sp=p'))
+         (ℤᶠ.·IdL (ℤᶠ.ℕ₊₁→ℤ (1+ q)))
+          (ℚ._<_.prf (subst (ℚ._< 1) (sym p/q≡r) r<1))
+      p<q : suc p ℕ.< suc q
+      p<q = pos<pos→ℕ< (suc p) (suc q) uu
+      p₊ : ℚ₊
+      p₊ = posℚ₊ p
+      q₊ : ℚ₊
+      q₊ = posℚ₊ q
+      𝒑₊ : ℚ₊
+      𝒑₊ = posℚ₊ 𝒑
+      𝒒₊ : ℚ₊
+      𝒒₊ = posℚ₊ 𝒒
+      M<X = ℕkⁿ<ε (suc 𝒒) (suc 𝒑) (suc q) (suc p) (ℕ.zero-<-suc {𝒑})
+        p<q
+      M = fst M<X
+      X = snd M<X
   in (suc N ℕ.+ M) , λ n (u , =n) →
      let z : rat (fst (r ℚ₊^ⁿ M) ) <ᵣ rat (fst (invℚ₊ b)) ·ᵣ rat (fst η)
          z = subst2 _<ᵣ_
-              (cong₂ _·ᵣ_ refl (invℝ₊-rat _) ∙
-                 sym (rat·ᵣrat _ _) ∙
-                  cong rat ((cong₂ ℚ._·_ refl (ℚ.invℚ₊-ℚ^ⁿ _ _))
-                       ∙ sym (ℚ^ⁿ-dist· _ _ M) ∙ cong (_ℚ^ⁿ M)
+              (cong₂ _·ᵣ_ refl (invℝ₊-rat (q₊ ℚ₊^ⁿ M)) ∙
+                 sym (rat·ᵣrat (fst p₊ ℚ.^ⁿ M) (fst (ℚ._⁻¹₊ (q₊ ℚ₊^ⁿ M)))) ∙
+                  cong rat ((cong (λ z → (fst p₊ ℚ.^ⁿ M) ℚ.· z) (ℚ.invℚ₊-ℚ^ⁿ q₊ M))
+                       ∙ sym (ℚ^ⁿ-dist· (fst p₊) (fst (ℚ._⁻¹₊ q₊)) M) ∙ cong (λ z → z ℚ.^ⁿ M)
                       (((invℚ₊-[/] (pos (suc p)) q
                    ∙ cong [_/ 1+ q ] sp=p') ∙ p/q≡r))) )
-              (((cong₂ _·ᵣ_ refl (invℝ₊-rat _) ∙
-                sym (rat·ᵣrat _ _) ∙
+              (((cong₂ _·ᵣ_ refl (invℝ₊-rat 𝒒₊) ∙
+                sym (rat·ᵣrat (fst 𝒑₊) (fst (ℚ._⁻¹₊ 𝒒₊))) ∙
                  cong rat ((invℚ₊-[/] (pos (suc 𝒑)) 𝒒
-                   ∙ cong [_/ 1+ 𝒒 ] s𝒑=𝒑') ∙ 𝒑/𝒒≡ε)) ∙ rat·ᵣrat _ _ ) ∙ ·ᵣComm _ _)
+                   ∙ cong [_/ 1+ 𝒒 ] s𝒑=𝒑') ∙ 𝒑/𝒒≡ε))
+                ∙ rat·ᵣrat (fst η) (fst (invℚ₊ b)) ) ∙ ·ᵣComm _ _)
             (invEq (z/y'<x/y≃y₊·z<y'₊·x
-                (rat [ pos (suc 𝒑) / 1 ])
-                (rat ([ pos (suc p) / 1 ] ℚ^ⁿ M))
-                     (ℚ₊→ℝ₊ ([ pos (suc 𝒒) / 1 ] , _))
-                     (ℚ₊→ℝ₊ (([ pos (suc q) / 1 ] , _) ℚ₊^ⁿ M)))
+                (rat (fst 𝒑₊))
+                (rat (fst p₊ ℚ.^ⁿ M))
+                     (ℚ₊→ℝ₊ 𝒒₊)
+                     (ℚ₊→ℝ₊ (q₊ ℚ₊^ⁿ M)))
                (subst2 _<ᵣ_
-                  (cong rat (sym (ℚ.ℕ·→ℚ· _ _)
-                     ∙ cong₂ ℚ._·_ refl (sym (ℚ.fromNat-^ (suc p) M) ))
-                      ∙ rat·ᵣrat _ _)
-                  (cong rat ((sym (ℚ.ℕ·→ℚ· _ _)
-                     ∙ ℚ.·Comm _ _
+                  (cong rat (sym (ℚ.ℕ·→ℚ· (suc 𝒒) (suc p ℕ.^ M))
+                     ∙ cong (fst 𝒒₊ ℚ.·_) (sym (ℚ.fromNat-^ (suc p) M) ))
+                      ∙ rat·ᵣrat (fst 𝒒₊) (fst p₊ ℚ.^ⁿ M))
+                  (cong rat ((sym (ℚ.ℕ·→ℚ· (suc 𝒑) (suc q ℕ.^ M))
+                     ∙ ℚ.·Comm (ℚ.fromNat (suc 𝒑)) (ℚ.fromNat (suc q ℕ.^ M))
                         ∙ cong₂ ℚ._·_ (sym (ℚ.fromNat-^ (suc q) M) ) refl))
-                       ∙ rat·ᵣrat _ _)
+                       ∙ rat·ᵣrat (fst q₊ ℚ.^ⁿ M) (fst 𝒑₊))
                  (<ℚ→<ᵣ _ _
-                   (ℚ.<ℤ→<ℚ _ _
-                     (invEq (ℤ.pos-<-pos≃ℕ< _ _) X)))))
+                   (<ℤ→<ℚ _ _
+                     (ℤᶠ.ℕ<→pos-<-pos
+                       (suc 𝒒 ℕ.· (suc p ℕ.^ M))
+                       (suc 𝒑 ℕ.· (suc q ℕ.^ M))
+                       X)))))
 
      in subst2 _<ᵣ_
              (cong absᵣ (sym (𝐑'.+IdR' _ _ (-ᵣ-rat 0))))
@@ -221,14 +261,14 @@ opaque
                    (isTrans≤ᵣ _ _ _
                      (isTrans≡≤ᵣ _ _ _
                        (cong (absᵣ ∘ s) (sym =n ∙
-                         ℕ.+-suc _ _ ∙ cong suc
-                          (cong₂ ℕ._+_ refl (ℕ.+-comm _ _)
-                           ∙ ℕ.+-assoc _ _ _)))
+                         ℕ.+-suc u (suc N ℕ.+ M) ∙ cong suc
+                          (cong (u ℕ.+_) (ℕ.+-comm (suc N) M)
+                           ∙ ℕ.+-assoc u M (suc N))))
                        (Y' (u ℕ.+ M)))
                      (≤ᵣ-·ᵣo (rat (fst (r ℚ₊^ⁿ (suc u ℕ.+ M)))) _ _ (0≤absᵣ _)
                        (subst2 _≤ᵣ_
-                         (^ⁿ-ℚ^ⁿ _ _)
-                         (^ⁿ-ℚ^ⁿ _ _)
+                         (^ⁿ-ℚ^ⁿ (suc u ℕ.+ M) (fst r))
+                         (^ⁿ-ℚ^ⁿ M (fst r))
                          (^ⁿ-MonotoneR-inv _
                            (<ᵣWeaken≤ᵣ _ _ (snd (ℚ₊→ℝ₊ r)))
                            (<ᵣWeaken≤ᵣ _ _ (<ℚ→<ᵣ _ _ r<1))
@@ -246,7 +286,11 @@ opaque
 
   where
    w : ∀ p' q → ℚ.0< [ p' / 1+ q ] → (Σ _ λ p → pos (suc p) ≡ p')
+   w (pos zero) q (ℚ.pos<pos ())
    w (pos (suc n)) q x = n , refl
+
+   pos<pos→ℕ< : ∀ p q → ℤᶠ.pos p ℤᶠ.< ℤᶠ.pos q → p ℕ.< q
+   pos<pos→ℕ< p q (ℤᶠ.pos<pos p<qᵗ) = ℕᵗ.<ᵗ→< {n = p} {m = q} p<qᵗ
 
    Y'' : ∀ M → absᵣ (s (suc M ℕ.+ suc N)) ≤ᵣ
       rat (r .fst) ·ᵣ absᵣ (s (M ℕ.+ suc N))
@@ -262,12 +306,12 @@ opaque
    Y' : ∀ M → absᵣ (s (suc M ℕ.+ (suc N))) ≤ᵣ
       rat (fst (r ℚ₊^ⁿ suc M)) ·ᵣ absᵣ (s (suc N))
    Y' zero = isTrans≤≡ᵣ _ _ _ (Y'' zero)
-    (cong₂ _·ᵣ_ (cong rat (sym (ℚ.·IdL _))) refl)
+    (cong₂ _·ᵣ_ (cong rat (sym (ℚ.·IdR _))) refl)
    Y' (suc M) = isTrans≤ᵣ _ _ _
        (Y'' (suc M))
        (isTrans≤≡ᵣ _ _ _
         (≤ᵣ-o· _ _ _ (ℚ.0≤ℚ₊ r) (Y' M))
-        (·ᵣAssoc _ _ _ ∙ cong₂ _·ᵣ_  (·ᵣComm _ _ ∙ sym (rat·ᵣrat _ _)) refl))
+        (·ᵣAssoc _ _ _ ∙ cong₂ _·ᵣ_ (sym (rat·ᵣrat _ _)) refl))
 
 IntegralOf-clamp : ∀ (a b : ℝ) → a ≤ᵣ b → ∀ f s →
     on[ a , b ]IntegralOf (f ∘ clampᵣ a b) is' s
@@ -317,7 +361,7 @@ ratioTest₊≤' : ∀ (s : Seq) (q : ℚ₊) → (q<1 : fst q ℚ.< 1)
 ratioTest₊≤' s q q<1 sPos l' N½ ε₊@(ε , 0<ε) =
   N , ww
 
- where
+  where
 
 
  ½ᵣ = (ℚ₊→ℝ₊ q)
@@ -338,7 +382,10 @@ ratioTest₊≤' s q q<1 sPos l' N½ ε₊@(ε , 0<ε) =
  ww m n = isTrans≤<ᵣ _ _ _
    (≡ᵣWeaken≤ᵣ _ _
      (absᵣNonNeg (seqΣ (λ x → s (x ℕ.+ (m ℕ.+ suc N))) n)
-     (0≤seqΣ _ (λ n → <ᵣWeaken≤ᵣ _ _ (sPos (n ℕ.+ (m ℕ.+ suc N)))) _))) pp
+     (0≤seqΣ
+       (λ x → s (x ℕ.+ (m ℕ.+ suc N)))
+       (λ n → <ᵣWeaken≤ᵣ _ _ (sPos (n ℕ.+ (m ℕ.+ suc N))))
+       n))) pp
 
   where
   opaque
@@ -384,12 +431,79 @@ ratioTest₊≤' s q q<1 sPos l' N½ ε₊@(ε , 0<ε) =
    p' = Seq'≤→Σ≤ s' (geometricProgression (s (m ℕ.+ N)) (fst ½ᵣ))
          p
 
+   Nε<N : fst Nε ℕ.< m ℕ.+ N
+   Nε<N =
+     let mx = ℕ.max (suc (fst N½)) (fst Nε)
+     in subst (fst Nε ℕ.<_) (sym (+-suc m mx))
+       (ℕ.≤<-trans
+         (ℕ.right-≤-max {fst Nε} {suc (fst N½)})
+         (ℕ.<SumRight {mx} {m}))
+
    s<ε : (s (m ℕ.+ N)) <ᵣ rat (fst ε/2')
    s<ε = subst (_<ᵣ rat (fst ε/2')) (+IdR _)
             ((isTrans≤<ᵣ _ _ _
-           (≤absᵣ ((s (m ℕ.+ N)) +ᵣ (-ᵣ 0))) (snd Nε _
-            (ℕ.≤<-trans ℕ.right-≤-max ℕ.≤SumRight))))
+           (≤absᵣ ((s (m ℕ.+ N)) +ᵣ (-ᵣ 0))) (snd Nε (m ℕ.+ N) Nε<N)))
 
+   1-qᵣ : ℝ
+   1-qᵣ = 1 +ᵣ -ᵣ fst ½ᵣ
+
+   0<1-qᵣ : 0 <ᵣ 1-qᵣ
+   0<1-qᵣ = x<y→0<y-x (fst ½ᵣ) 1 (<ℚ→<ᵣ _ _ q<1)
+
+   1-qᵣ≡rat : 1-qᵣ ≡ rat (fst 1-q₊)
+   1-qᵣ≡rat = cong₂ _+ᵣ_ refl (-ᵣ-rat (fst q)) ∙ +ᵣ-rat 1 (ℚ.- fst q)
+
+   inv1-q : ℚ
+   inv1-q = invℚ (fst 1-q₊) (inl (snd 1-q₊))
+
+
+   gp : Seq
+   gp = geometricProgression (s (m ℕ.+ N)) (fst ½ᵣ)
+
+   gp<sup : seqSumUpTo gp n
+      <ᵣ s (m ℕ.+ N) ·ᵣ invℝ 1-qᵣ (inl 0<1-qᵣ)
+   gp<sup =
+     Sₙ-sup (s (m ℕ.+ N)) (fst ½ᵣ) n
+       (sPos _) (snd ½ᵣ) (<ℚ→<ᵣ _ _ q<1)
+
+   sup≤ε : s (m ℕ.+ N) ·ᵣ invℝ 1-qᵣ (inl 0<1-qᵣ) ≤ᵣ rat ε
+   sup≤ε =
+     isTrans≤ᵣ _ _ _
+       (≤ᵣ₊Monotone·ᵣ _ _ _ (rat inv1-q)
+         (<ᵣWeaken≤ᵣ _ _ (<ℚ→<ᵣ _ _ (snd ε/2')))
+         (<ᵣWeaken≤ᵣ _ _ (0<1/x' _ 0<1-qᵣ))
+         (<ᵣWeaken≤ᵣ _ _ s<ε)
+         (≡ᵣWeaken≤ᵣ _ _
+          (cong₂ invℝ 1-qᵣ≡rat
+             (isProp→PathP
+               (λ i → isProp＃ 0 (1-qᵣ≡rat i))
+               (inl 0<1-qᵣ)
+               (inl (<ℚ→<ᵣ 0 (fst 1-q₊) (snd 1-q₊))))
+           ∙ invℝ-rat (fst 1-q₊) (inl (<ℚ→<ᵣ 0 (fst 1-q₊) (snd 1-q₊))) (inl (snd 1-q₊)))))
+       (≡ᵣWeaken≤ᵣ _ _
+         (sym (rat·ᵣrat _  _) ∙
+          cong rat (sym (ℚ.·Assoc ε (fst 1-q₊) inv1-q) ∙
+            cong (ε ℚ.·_)
+             (ℚ.x·invℚ[x] (fst 1-q₊) (inl (snd 1-q₊)))
+             ∙ ℚ.·IdR _)))
+
+   gp<ε : seqSumUpTo gp n <ᵣ rat ε
+   gp<ε =
+     isTrans<≤ᵣ
+       (seqSumUpTo gp n)
+       (s (m ℕ.+ N) ·ᵣ invℝ 1-qᵣ (inl 0<1-qᵣ))
+       (rat ε)
+       gp<sup
+       sup≤ε
+
+   gp'<ε : seqSumUpTo' gp n <ᵣ rat ε
+   gp'<ε =
+     isTrans≤<ᵣ
+       (seqSumUpTo' gp n)
+       (seqSumUpTo gp n)
+       (rat ε)
+       (≡ᵣWeaken≤ᵣ _ _ (seqSumUpTo≡seqSumUpTo' gp n))
+       gp<ε
 
    pp : (seqΣ (λ x → s (x ℕ.+ (m ℕ.+ suc N))) n) <ᵣ (rat ε)
    pp =
@@ -397,28 +511,12 @@ ratioTest₊≤' s q q<1 sPos l' N½ ε₊@(ε , 0<ε) =
             (λ h → seqΣ (s ∘S h) n <ᵣ rat ε)
 
            (funExt (λ x → cong (x ℕ.+_) (sym (ℕ.+-suc _ _)) ))
-           (isTrans≤<ᵣ _ _ _ (p' n)
-             (isTrans≤<ᵣ _ _ _
-               (≡ᵣWeaken≤ᵣ _ _ (seqSumUpTo≡seqSumUpTo' _ _))
-                 (isTrans<≤ᵣ _ _ _
-                  (Sₙ-sup (s (m ℕ.+ N)) (fst ½ᵣ)
-                    n (sPos _) (snd ½ᵣ)
-                     (<ℚ→<ᵣ _ _ q<1))
-
-                   ((isTrans≤ᵣ _ _ _
-                   (≤ᵣ₊Monotone·ᵣ _ _ _ (rat (invℚ (fst 1-q₊) _))
-                         (<ᵣWeaken≤ᵣ _ _ (<ℚ→<ᵣ _ _ (ℚ.0<ℚ₊ ε/2')))
-                           (<ᵣWeaken≤ᵣ _ _
-                              ((0<1/x _ _ (snd (ℚ₊→ℝ₊ 1-q₊)))))
-
-                     (<ᵣWeaken≤ᵣ _ _ s<ε)
-                     (≡ᵣWeaken≤ᵣ _ _
-                        (invℝ-rat _ _ (inl (ℚ.0<ℚ₊ 1-q₊)))))
-                         (≡ᵣWeaken≤ᵣ _ _ (sym (rat·ᵣrat _  _) ∙
-                           cong rat (sym (ℚ.·Assoc _ _ _) ∙
-                             cong (ε ℚ.·_)
-                              (ℚ.ℚ-y/y (fst 1-q₊) (inl (ℚ.0<ℚ₊ 1-q₊)))
-                              ∙ ℚ.·IdR _))))))))
+           (isTrans≤<ᵣ
+             (seqSumUpTo' s' n)
+             (seqSumUpTo' gp n)
+             (rat ε)
+             (p' n)
+             gp'<ε)
 
 
 ratioTest₊≤ : ∀ (s : Seq) (sBound : Σ[ b ∈ ℚ₊ ] ∀ n → absᵣ (s n)  ≤ᵣ rat (fst b))
@@ -446,7 +544,7 @@ Integral'Const1 : ∀ a b → a ≤ᵣ b →
       (b -ᵣ a)
 Integral'Const1 a b a≤b ε =
   ∣ 1 , (λ tp _ → isTrans≡<ᵣ _ _ _
-    (cong absᵣ (𝐑'.+InvR' _ _ (riemannSum'Const (snd tp) 1 ∙ ·IdL _))
+    (cong absᵣ (𝐑'.+InvR' _ _ (riemannSum'Const (snd tp) 1 ∙ ·IdLᵣ _))
      ∙ absᵣ0) (snd (ℚ₊→ℝ₊ ε))) ∣₁
 
 Integral'Const0 : ∀ a b → a ≤ᵣ b →
@@ -489,8 +587,6 @@ sin≤1 x = isTrans≤ᵣ _ _ _ (≤absᵣ _) (∣sin∣≤1 x)
   (sym (cong -ᵣ_ (sin-odd x)) ∙ -ᵣInvol _)
   (-ᵣ≤ᵣ _ _ (sin≤1 (-ᵣ x)))
 
-open ℚ.HLP
-
 Integral'-< : ∀ a b → a <ᵣ b → ∀ f f' s s'
             → (∀ x → x ∈ intervalℙ a b → f x ≤ᵣ f' x)
             → ∥ IsUContinuousℙ (intervalℙ a b) (λ x _ → f x) ∥₁
@@ -507,15 +603,21 @@ Integral'-< a b a<b f f' s s' f≤f' fUC₁ fUC'₁ ∫f=s ∫f'=s' fa<fa' =
 
    (ε₊@(ε , 0<ε) , ε<πn) ←
      lowerℚBound _ (x<y→0<y-x _ _ fa<fa')
-   let (δf , X) = fUC (/2₊ ε₊)
-       (δf' , X') = fUC' (/4₊ ε₊)
-       δ = (ℚ.min₊ δf δf')
-       δ' = minᵣ₊ (ℚ₊→ℝ₊ (/2₊ δ)) (_ , x<y→0<y-x _ _ a<b)
+   let fUCε/2 = fUC (ε₊ /2₊)
+       fUC'ε/4 = fUC' (ε₊ /4₊)
+       δf : ℚ₊
+       δf = fst fUCε/2
+       X = snd fUCε/2
+       δf' : ℚ₊
+       δf' = fst fUC'ε/4
+       X' = snd fUC'ε/4
+       δ = (min₊ δf δf')
+       δ' = minᵣ₊ (ℚ₊→ℝ₊ (δ /2₊)) (_ , x<y→0<y-x _ _ a<b)
        a' = a +ᵣ fst δ'
        a'≤b : a' ≤ᵣ b
        a'≤b = isTrans≤≡ᵣ _ _ _
-                (≤ᵣ-o+ _ _ a (min≤ᵣ' (rat (fst (/2₊ δ))) (b -ᵣ a)))
-                L𝐑.lem--05
+                (≤ᵣ-o+ _ _ a (min≤ᵣ' (rat (fst (δ /2₊))) (b -ᵣ a)))
+                ℝ!
        a<a' : a <ᵣ a'
        a<a' = isTrans≡<ᵣ _ _ _ (sym (+IdR _))
                  (<ᵣ-o+ _ _ a (snd δ'))
@@ -527,26 +629,30 @@ Integral'-< a b a<b f f' s s' f≤f' fUC₁ fUC'₁ ∫f=s ∫f'=s' fa<fa' =
          ((Integral'-additive a a' b (<ᵣWeaken≤ᵣ _ _ a<a') a'≤b
               f _ _ s
                 (snd (Integrate-UContinuous∈ a a' (<ᵣWeaken≤ᵣ _ _ a<a') f
-                  (IsUContinuousℙ-restr _ _ _ aa'⊆ab fUC)))
+                  (IsUContinuousℙ-restr (intervalℙ a b) (intervalℙ a a')
+                    (λ x _ → f x) aa'⊆ab fUC)))
                 (snd (Integrate-UContinuous∈ a' b a'≤b f
-                  (IsUContinuousℙ-restr _ _ _ a'b⊆ab fUC)))
+                  (IsUContinuousℙ-restr (intervalℙ a b) (intervalℙ a' b)
+                    (λ x _ → f x) a'b⊆ab fUC)))
                 ∫f=s))
          (Integral'-additive a a' b (<ᵣWeaken≤ᵣ _ _ a<a') a'≤b
               f' _ _ s'
                 (snd (Integrate-UContinuous∈ a a' (<ᵣWeaken≤ᵣ _ _ a<a') f'
-                  (IsUContinuousℙ-restr _ _ _ aa'⊆ab fUC')))
+                  (IsUContinuousℙ-restr (intervalℙ a b) (intervalℙ a a')
+                    (λ x _ → f' x) aa'⊆ab fUC')))
                 (snd (Integrate-UContinuous∈ a' b a'≤b f'
-                  (IsUContinuousℙ-restr _ _ _ a'b⊆ab fUC')))
+                  (IsUContinuousℙ-restr (intervalℙ a b) (intervalℙ a' b)
+                    (λ x _ → f' x) a'b⊆ab fUC')))
                 ∫f'=s')
          (<≤ᵣMonotone+ᵣ _ _ _ _
            (isTrans<≤ᵣ _ _ _
              (isTrans≡<ᵣ _ _ _
                 (sym (+IdR _))
                 (<ᵣ-o+ _ _ _
-                 (snd (ℚ₊→ℝ₊ (/4₊ (ε , 0<ε))
+                 (snd (ℚ₊→ℝ₊ ((ε , 0<ε) /4₊)
                       ₊·ᵣ (_ , x<y→0<y-x _ _ a<a')))))
              ((Integral'-≤ a a' (<ᵣWeaken≤ᵣ _ _ a<a')
-              (λ x → f x +ᵣ rat (fst (/4₊ ε₊)))
+              (λ x → f x +ᵣ rat (fst (ε₊ /4₊)))
               f' _ _
              (λ x x∈ →
                 let x∼a = (invEq (∼≃abs<ε _ _ δ)
@@ -557,7 +663,7 @@ Integral'-< a b a<b f f' s s' f≤f' fUC₁ fUC'₁ ∫f=s ∫f'=s' fa<fa' =
                                       (a≤c+b⇒a-c≤b _ _ _
                                         (snd x∈))
                                       (isTrans≤<ᵣ _ _ _
-                                        (min≤ᵣ (fst (ℚ₊→ℝ₊ (/2₊ δ))) (b -ᵣ a))
+                                        (min≤ᵣ (fst (ℚ₊→ℝ₊ (δ /2₊))) (b -ᵣ a))
                                          (<ℚ→<ᵣ _ _ (x/2<x δ) )))
                                     (isTrans≡<ᵣ _ _ _
                                      (-[x-y]≡y-x _ _)
@@ -569,21 +675,18 @@ Integral'-< a b a<b f f' s s' f≤f' fUC₁ fUC'₁ ∫f=s ∫f'=s' fa<fa' =
                              (X x a
                               (aa'⊆ab x x∈)
                               (≤ᵣ-refl a , <ᵣWeaken≤ᵣ _ _  a<b)
-                               (∼-monotone≤ (ℚ.min≤ _ _) x∼a))))
+                               (∼-monotone≤ (ℚ.min≤ (fst δf) (fst δf')) x∼a))))
                     zzz' = a-b≤c⇒a-c≤b _ _ _ $ isTrans≤ᵣ _ _ _
                             (≤absᵣ _) (<ᵣWeaken≤ᵣ _ _ (fst (∼≃abs<ε _ _ _)
                             (X' a x ((≤ᵣ-refl a , <ᵣWeaken≤ᵣ _ _  a<b))
                                (aa'⊆ab x x∈)
                                (sym∼ _ _ _
-                                (∼-monotone≤ (ℚ.min≤' _ _) x∼a)))))
+                                (∼-monotone≤ (ℚ.min≤' (fst δf) (fst δf')) x∼a)))))
                 in isTrans≤ᵣ _ _ _
                      (isTrans≡≤ᵣ _ _ _
                        (cong₂ _+ᵣ_ refl
                          (cong rat
-                    (distℚ! ε ·[
-                         (ge[ ℚ.[ 1 / 4 ] ])
-                       ≡  ((neg-ge ge[ ℚ.[ 1 / 2 ] ]) +ge ge1)
-                         +ge (neg-ge  ge[ ℚ.[ 1 / 4 ] ] ) ]) ∙ sym (+ᵣ-rat _ _)
+                    (ℚSolver.ℚ!) ∙ sym (+ᵣ-rat _ _)
                            ∙ cong₂ _+ᵣ_ (sym (+ᵣ-rat _ _)
                             ∙ cong₂ _+ᵣ_ (sym (-ᵣ-rat _)) refl)
                              (sym (-ᵣ-rat _))) ∙ +ᵣAssoc _ _ _)
@@ -595,18 +698,22 @@ Integral'-< a b a<b f f' s s' f≤f' fUC₁ fUC'₁ ∫f=s ∫f'=s' fa<fa' =
                      zzz')
              (Integral'-+ a a' (<ᵣWeaken≤ᵣ _ _ a<a') _ _ _ _
                 ((snd (Integrate-UContinuous∈ a a' (<ᵣWeaken≤ᵣ _ _ a<a') f
-                  (IsUContinuousℙ-restr _ _ _ aa'⊆ab fUC))))
+                  (IsUContinuousℙ-restr (intervalℙ a b) (intervalℙ a a')
+                    (λ x _ → f x) aa'⊆ab fUC))))
                 (Integral'Const a a' (<ᵣWeaken≤ᵣ _ _ a<a')
-                 (rat (fst (/4₊ (ε , 0<ε))))))
+                 (rat (fst ((ε , 0<ε) /4₊)))))
              (snd (Integrate-UContinuous∈ a a' (<ᵣWeaken≤ᵣ _ _ a<a') f'
-                  (IsUContinuousℙ-restr _ _ _ aa'⊆ab fUC'))))))
+                  (IsUContinuousℙ-restr (intervalℙ a b) (intervalℙ a a')
+                    (λ x _ → f' x) aa'⊆ab fUC'))))))
            (Integral'-≤ a' b a'≤b f f' _ _
              (λ x x∈ → f≤f' x
                (isTrans≤ᵣ _ _ _ (<ᵣWeaken≤ᵣ _ _ a<a') (fst x∈) , snd x∈))
              (snd (Integrate-UContinuous∈ a' b a'≤b f
-                  (IsUContinuousℙ-restr _ _ _ a'b⊆ab fUC)))
+                  (IsUContinuousℙ-restr (intervalℙ a b) (intervalℙ a' b)
+                    (λ x _ → f x) a'b⊆ab fUC)))
              (snd (Integrate-UContinuous∈ a' b a'≤b f'
-                  (IsUContinuousℙ-restr _ _ _ a'b⊆ab fUC'))))) ∣₁
+                  (IsUContinuousℙ-restr (intervalℙ a b) (intervalℙ a' b)
+                    (λ x _ → f' x) a'b⊆ab fUC'))))) ∣₁
 
 IsUContinuousℙ-from∀ℚinterval : ∀ (f : ℝ → ℝ) →
                 (∀ a b → rat a <ᵣ rat b →
@@ -639,7 +746,7 @@ IsUContinuousℙ-from∀ℚinterval f X a b a≤b =
     seqΣ (λ k → π-seq (suc k) -ᵣ π-seq k) n
 π-seq≡Σdiffs (zero) = refl
 π-seq≡Σdiffs (suc n) = cong₂ _+ᵣ_ (π-seq≡Σdiffs n)
-   (sym L𝐑.lem--063)
+   ℝ!
 
 ∫sin : ∀ a b → a ≤ᵣ b → on[ a , b ]IntegralOf (λ x _ _ → sin x) is
        (cos a -ᵣ cos b)
@@ -708,8 +815,9 @@ cosDiffBound a b = subst2 _≤ᵣ_
   zz' : absᵣ (cos (minᵣ a b) -ᵣ cos (maxᵣ a b)) ≤ᵣ maxᵣ a b -ᵣ minᵣ a b
   zz' = PT.rec (isProp≤ᵣ _ _)
          (λ iuc →
-            let intCos = ((Integrate-UContinuousℙ _ _ a⊓b≤a⊔b _
-                       (IsUContinuous∘ℙ _
+            let intCos = ((Integrate-UContinuousℙ (minᵣ a b) (maxᵣ a b) a⊓b≤a⊔b
+                       (λ x _ → absᵣ (sin x))
+                       (IsUContinuous∘ℙ (intervalℙ (minᵣ a b) (maxᵣ a b))
                          IsUContinuousAbsᵣ iuc)))
             in isTrans≤ᵣ _ _ _ (Integral'-abs≤ (minᵣ a b) (maxᵣ a b)
                 a⊓b≤a⊔b
@@ -765,8 +873,9 @@ sinDiffBound a b =
   zz' =
     PT.rec (isProp≤ᵣ _ _)
          (λ iuc →
-            let intSin = ((Integrate-UContinuousℙ _ _ a⊓b≤a⊔b _
-                       (IsUContinuous∘ℙ _
+            let intSin = ((Integrate-UContinuousℙ (minᵣ a b) (maxᵣ a b) a⊓b≤a⊔b
+                       (λ x _ → absᵣ (cos x))
+                       (IsUContinuous∘ℙ (intervalℙ (minᵣ a b) (maxᵣ a b))
                          IsUContinuousAbsᵣ iuc)))
             in isTrans≤ᵣ _ _ _ (Integral'-abs≤ (minᵣ a b) (maxᵣ a b)
                 a⊓b≤a⊔b
@@ -774,7 +883,6 @@ sinDiffBound a b =
                  _
                  _
                  ((∫cos _ _ ((isTrans≤ᵣ _ _ _ (min≤ᵣ _ _) (≤maxᵣ _ _)))))
-                  --
                  (snd intSin))
                     (Integral'-≤ (minᵣ a b) (maxᵣ a b)
                       ((isTrans≤ᵣ _ _ _ (min≤ᵣ _ _)
@@ -816,17 +924,26 @@ t<π-seq→0<cos[t] t zero 0≤t t≤0+1 =
         (fromCauchySequence'₁ (seqΣ (λ k → cosSeries k t)) ich)
         )
     (λ ich →
-      (isTrans<≤ᵣ _ (rat [ 1 / 2 ]) _
-          (decℚ<ᵣ? {0} {[ 1 / 2 ]})
-          (isTrans≡≤ᵣ _ _ _
-            (sym (fromCauchySequence'-const _ _))
+      let spd : ∀ n → Σ _ (n ℕ.≤_)
+          spd n = ((suc n) ℕ.· 2) ,
+            subst (ℕ._≤ ((suc n) ℕ.· 2)) (·-identityʳ n)
+              (ℕ.≤monotone· (ℕ.≤-sucℕ {n}) (ℕ.≤-sucℕ {1}))
+          fast = cauchySequenceFaster (seqΣ (λ k → cosSeries k t)) spd ich
+          halfCauchy : IsCauchySequence' (λ _ → rat [ 1 / 2 ])
+          halfCauchy = isCauchySequence'-const (rat [ 1 / 2 ])
+      in (isTrans<≤ᵣ _ (rat [ 1 / 2 ]) _
+            (decℚ<ᵣ? {0} {[ 1 / 2 ]})
+            (isTrans≡≤ᵣ _ _ _
+              (sym (fromCauchySequence'-const (rat [ 1 / 2 ]) halfCauchy))
 
-             (isTrans≤≡ᵣ _ _ _
-              (fromCauchySequence'≤ (λ _ → rat [ 1 / 2 ])
-                (isCauchySequence'-const _) _ _
-                 λ n →
-                  isTrans≤ᵣ _ _ _
-                    (isTrans≤≡ᵣ _ _ _
+               (isTrans≤≡ᵣ _ _ _
+                (fromCauchySequence'≤ (λ _ → rat [ 1 / 2 ])
+                  halfCauchy
+                  (λ z → seqΣ (λ k → cosSeries k t) (suc z ℕ.· 2))
+                  (fst fast)
+                   λ n →
+                    isTrans≤ᵣ _ _ _
+                      (isTrans≤≡ᵣ _ _ _
                       (a≤b-c⇒c≤b-a _ _ _
                        (isTrans≤≡ᵣ _ _ _
                         (isTrans≡≤ᵣ _ _ _
@@ -838,17 +955,12 @@ t<π-seq→0<cos[t] t zero 0≤t t≤0+1 =
                              ℚ.· ([ pos 1 / 1 ] ℚ.- [ 1 / 2 ])} ∙ rat·ᵣrat _ _))))
                         (sym (-ᵣ-rat₂ _ _))))
                       (sym (+IdL _)))
-                    (isTrans≤≡ᵣ _ _ _
-                      (seqΣ-truncateNonNeg _ w 1 (suc n)
-                       (ℕ.suc-≤-suc (ℕ.zero-≤ {n})))
-                      (sym (seqΣ∘·2 _ _)) ))
-             ((sym (snd (cauchySequenceFaster (seqΣ (λ k → cosSeries k t))
-          (λ n → ((suc n) ℕ.· 2) ,
-           subst (ℕ._≤ ((suc n) ℕ.· 2)) (·-identityʳ n)
-            (
-             ℕ.≤monotone· (ℕ.≤-sucℕ {n}) (ℕ.≤-sucℕ {1})
-            )) ich))))))
-          ))
+                      (isTrans≤≡ᵣ _ _ _
+                        (seqΣ-truncateNonNeg _ w 1 (suc n)
+                         (ℕ.suc-≤-suc (ℕ.zero-≤ {n})))
+                        (sym (seqΣ∘·2 (λ z → cosSeries z t) (suc n))) ))
+               ((sym (snd fast)))))
+            ))
     (cos-ch t)) (sym (cosImpl _))
 
   where
@@ -856,27 +968,38 @@ t<π-seq→0<cos[t] t zero 0≤t t≤0+1 =
                                 ( (+IdL _) ∙ cos0=1))
   w : (k : ℕ) →
       0 ≤ᵣ cosSeries (k ℕ.· 2) t +ᵣ cosSeries (suc (k ℕ.· 2)) t
-  w k = isTrans≤≡ᵣ _ _ _
-     (x≤y→0≤y-x _ _
-         (invEq (z/y'≤x/y≃y₊·z≤y'₊·x _ _ _ _)
-          (≤ᵣ₊Monotone·ᵣ _ _ _ _
-           (<ᵣWeaken≤ᵣ _ _
-            (snd (ℚ₊→ℝ₊
-       ([ pos (suc (k ℕ.· 2) ℕ.· 2 !) / 1 ] ,
-        ℚ.<→0< [ pos (suc (k ℕ.· 2) ℕ.· 2 !) / 1 ]
-        (ℚ.<ℤ→<ℚ 0 (pos (suc (k ℕ.· 2) ℕ.· 2 !))
-         (ℤ.ℕ≤→pos-≤-pos (suc 0) (suc (k ℕ.· 2) ℕ.· 2 !)
-          (ℕ.0<! (suc (k ℕ.· 2) ℕ.· 2))))))))
-            (0≤x^ⁿ t (suc (k ℕ.· 2) ℕ.· 2) 0≤t)
-            ((≤ℚ→≤ᵣ _ _
-             (ℚ.≤ℤ→≤ℚ _ _
-              (ℤ.ℕ≤→pos-≤-pos _ _
-               (ℕ.Monotone! (ℕ.≤SumRight {k = 2}))))))
-                (^ⁿ-MonotoneR-inv t 0≤t t≤1 _ _
-                  ((ℕ.≤SumRight {k ℕ.· 2 ℕ.· 2} {2}))))))
-     (cong₂ _+ᵣ_
-       (sym (-1ⁿ·-·2 k _) ∙ cong (-1ⁿ· _) (expSeq'≡expSeq _ _))
-       (cong -ᵣ_ (sym (-1ⁿ·-·2 k _))  ∙ sym (-1ⁿ·-suc _ _) ∙ cong (-1ⁿ· _) (expSeq'≡expSeq _ _)))
+  w k =
+    let n = k ℕ.· 2 ℕ.· 2
+        m = suc (k ℕ.· 2) ℕ.· 2
+        n≤m : n ℕ.≤ m
+        n≤m = ℕ.≤SumRight {k ℕ.· 2 ℕ.· 2} {2}
+        ratio≤ : expSeq' t m ≤ᵣ expSeq' t n
+        ratio≤ =
+          invEq (z/y'≤x/y≃y₊·z≤y'₊·x
+                   (t ^ⁿ n) (t ^ⁿ m) (ℚ₊→ℝ₊ (!₊ n)) (ℚ₊→ℝ₊ (!₊ m)))
+            (≤ᵣ₊Monotone·ᵣ _ _ _ _
+             (<ᵣWeaken≤ᵣ _ _
+              (snd (ℚ₊→ℝ₊ (!₊ m))))
+              (0≤x^ⁿ t m 0≤t)
+              ((≤ℚ→≤ᵣ _ _
+               (≤ℤ→≤ℚ _ _
+                (ℤᶠ.ℕ≤→pos-≤-pos _ _
+                 (ℕ.Monotone! n≤m)))))
+                  (^ⁿ-MonotoneR-inv t 0≤t t≤1 n m
+                    n≤m))
+        parity-path :
+          expSeq' t n +ᵣ -ᵣ expSeq' t m ≡
+          cosSeries (k ℕ.· 2) t +ᵣ cosSeries (suc (k ℕ.· 2)) t
+        parity-path =
+          cong₂ _+ᵣ_
+            (expSeq'≡expSeq t n
+             ∙ sym (ℝSigns.-1ⁿ·-·2 k (expSeq t n)))
+            (cong -ᵣ_ (expSeq'≡expSeq t m)
+             ∙ cong -ᵣ_ (sym (ℝSigns.-1ⁿ·-·2 k (expSeq t m)))
+             ∙ sym (ℝSigns.-1ⁿ·-suc (k ℕ.· 2) (expSeq t m)))
+    in isTrans≤≡ᵣ _ _ _
+      (x≤y→0≤y-x (expSeq' t m) (expSeq' t n) ratio≤)
+      parity-path
 
 t<π-seq→0<cos[t] t n@(suc n-1) 0≤t t≤ =
  fst (propTruncIdempotent≃ (isProp<ᵣ _ _)) $ do
@@ -918,7 +1041,7 @@ t<π-seq→0<cos[t] t n@(suc n-1) 0≤t t≤ =
             zz)
        (λ πn<t →
          return $ isTrans≡<ᵣ _ (-ᵣ (π-seq (suc n) -ᵣ π-seq n) +ᵣ cos (π-seq n )) _
-            (sym (𝐑'.+InvL' _ _ (sym (+ᵣAssoc _ _ _) ∙ L𝐑.lem--05)))
+            (sym (𝐑'.+InvL' _ _ (sym (+ᵣAssoc _ _ _) ∙ ℝ!)))
             (isTrans<≡ᵣ _ _ _ (<ᵣ-+o _ _ _ (-ᵣ<ᵣ _ _
               (isTrans<≤ᵣ _ _ _
 
@@ -927,7 +1050,7 @@ t<π-seq→0<cos[t] t n@(suc n-1) 0≤t t≤ =
                     (t -ᵣ π-seq (suc n-1) )  (λ x _ → sin≤1 x)
                     (IsUContinuousℙ-from∀ℚinterval _ pre-uContSin _ _
                       (<ᵣWeaken≤ᵣ _ _ πn<t))
-                    ∣ IsUContinuousℙ-const _ 1 ∣₁
+                    ∣ IsUContinuousℙ-const (intervalℙ (π-seq n) t) 1 ∣₁
                   (∫sin (π-seq n) t (<ᵣWeaken≤ᵣ _ _ πn<t))
                     (Integral'Const1 (π-seq n) t (<ᵣWeaken≤ᵣ _ _ πn<t))
                    ((isTrans≤<ᵣ _ _ _ (≤absᵣ _) (0＃∣cos∣→∣sin∣<1
@@ -989,7 +1112,7 @@ sin[1]≤sin[t] t zero x x₁ = ⊥.rec (≤ᵣ→≯ᵣ _ _ x₁
 sin[1]≤sin[t] t n@(suc n') 1<t t≤π-seq-sn =
   x<y+δ→x≤y _ _ λ ε → fst (propTruncIdempotent≃ (isProp<ᵣ _ _)) $ do
     cosC ← IsUContinuousℙ-from∀ℚinterval cos pre-uContCos 1 t (<ᵣWeaken≤ᵣ _ _ 1<t)
-    ((𝒕 , 𝒕∈) , T) ← meanValue 1 t 1<t
+    ((𝒕 , 𝒕∈) , T) ← meanValue 1 t (<ᵣWeaken≤ᵣ _ _ 1<t)
             (≤ᵣ-refl 1 , <ᵣWeaken≤ᵣ _ _ 1<t)
             (<ᵣWeaken≤ᵣ _ _ 1<t , ≤ᵣ-refl t)
             (λ x _ → sin x)
@@ -1033,20 +1156,16 @@ sin[1]≤sin[t] t n@(suc n') 1<t t≤π-seq-sn =
      fst (propTruncIdempotent≃ (isProp<ᵣ _ _)) $ do
       sinC ← IsUContinuousℙ-from∀ℚinterval sin pre-uContSin
            (π-seq n) (π-seq (suc n)) (<ᵣWeaken≤ᵣ _ _ (π-seq-incr n))
-      ((t , t∈) , T) ← meanValue (π-seq n) (π-seq (suc n)) (π-seq-incr n)
+      ((t , t∈) , T) ← meanValue (π-seq n) (π-seq (suc n)) (<ᵣWeaken≤ᵣ _ _ (π-seq-incr n))
          (≤ᵣ-refl _ , π-seq-monotone n (suc n) ℕ.≤-sucℕ)
          (π-seq-monotone n (suc n) ℕ.≤-sucℕ , ≤ᵣ-refl _)
           (λ x _ → cos x) (λ x _ → -ᵣ sin x)
-         (IsUContinuousℙ-ᵣ∘ _ (λ x _ → sin x) sinC)
+         (IsUContinuousℙ-ᵣ∘ (intervalℙ (π-seq n) (π-seq (suc n))) (λ x _ → sin x) sinC)
          (cos'=-sin-uder' (π-seq n) (π-seq (suc n)) (π-seq-incr n)) ε
       let zz =
              isTrans<≡ᵣ _ _ _
-               (a-b<c⇒a<c+b _ _ _ (isTrans≤<ᵣ _ _ _ (≤absᵣ _) (isTrans≡<ᵣ _ _ _
-             (cong absᵣ
-              (cong₂ _-ᵣ_ (L𝐑.lem--041 ∙ +ᵣComm _ _) (
-               (·DistR+ _ _ _
-                ∙ cong₂ _+ᵣ_  (·IdL _) refl) ∙ +ᵣComm _ _)
-                ∙ L𝐑.lem--075))
+             (a-b<c⇒a<c+b _ _ _ (isTrans≤<ᵣ _ _ _ (≤absᵣ _) (isTrans≡<ᵣ _ _ _
+             (cong absᵣ ℝ!)
              T))) (+ᵣComm _ _)
       ∣ isTrans<≤ᵣ _ _ _ zz
         (≤ᵣ-+o _ _ (rat (fst ε))
@@ -1078,7 +1197,7 @@ sin[1]≤sin[t] t n@(suc n') 1<t t≤π-seq-sn =
          0 (sin 1 -ᵣ sin 0)  (λ x x∈ → <ᵣWeaken≤ᵣ _ _
             (t<π-seq→0<cos[t] x 0 (fst x∈)
                (isTrans≤≡ᵣ _ _ _ (snd x∈) (sym π-seq1=1))))
-                 ∣ IsUContinuousℙ-const _ 0 ∣₁
+                 ∣ IsUContinuousℙ-const (intervalℙ 0 1) 0 ∣₁
                  (IsUContinuousℙ-from∀ℚinterval cos pre-uContCos 0 1
                   (decℚ≤ᵣ? {0} {1}))
            (Integral'Const0 0 1 (decℚ≤ᵣ? {0} {1}))
@@ -1092,7 +1211,7 @@ sin[1]≤sin[t] t n@(suc n') 1<t t≤π-seq-sn =
                       -ᵣ π-seq (suc (suc (m ℕ.+ n)))
                    ≤ᵣ (1 -ᵣ sin 1) ^ⁿ m ·ᵣ
                      (π-seq (suc (suc (suc n))) -ᵣ π-seq (suc (suc n)))
-π-seq-distⁿ n zero = ≡ᵣWeaken≤ᵣ _ _ (sym (·IdL _))
+π-seq-distⁿ n zero = ≡ᵣWeaken≤ᵣ _ _ (sym (·IdLᵣ _))
 π-seq-distⁿ n (suc m) =
   isTrans≤ᵣ _ _ _
    (π-seq-dist (m ℕ.+ n))
@@ -1100,7 +1219,7 @@ sin[1]≤sin[t] t n@(suc n') 1<t t≤π-seq-sn =
      (≤ᵣ-o·ᵣ _ _ (1 -ᵣ sin 1)
      (x≤y→0≤y-x _ _ (sin≤1 _))
      (π-seq-distⁿ n m))
-     ( (·ᵣAssoc _ _ _) ∙ cong₂ _·ᵣ_ (·ᵣComm _ _) refl))
+     (·ᵣAssoc _ _ _))
 
 isConvSeriesΣπ-seq-diffs : ∥ (IsConvSeries'
   λ n → (π-seq (suc n) -ᵣ π-seq n)) ∥₁
@@ -1109,9 +1228,9 @@ isConvSeriesΣπ-seq-diffs =
   (λ (η , 1-sin1<η , η<1) →
     ratioTest₊≤ (λ n → π-seq (suc n) -ᵣ π-seq n)
        (1 , (λ n → isTrans≡≤ᵣ _ _ _
-          (cong absᵣ L𝐑.lem--063)
+          (cong absᵣ ℝ!)
           (∣cos∣≤1 (π-seq n))))
-       (η , ℚ.<→0< _ (<ᵣ→<ℚ _ _ (isTrans≤<ᵣ _ _ _
+       (η , ℚ<→0< _ (<ᵣ→<ℚ _ _ (isTrans≤<ᵣ _ _ _
         (x≤y→0≤y-x _ _ (sin≤1 _))
         1-sin1<η)
          )) (<ᵣ→<ℚ _ _ η<1)
@@ -1169,19 +1288,23 @@ opaque
 π-number = 2 ·ᵣ π-number/2
 
 
-Lipschitz-cos : Lipschitz-ℝ→ℝ 1 cos
+Lipschitz-cos : Lipschitz-ℝ→ℝ one₊ cos
 Lipschitz-cos u v ε x =
-  invEq (∼≃abs<ε _ _ _)
+  invEq (∼≃abs<ε _ _ (one₊ ℚ₊· ε))
     ((isTrans≤<ᵣ _ _ _ (cosDiffBound u v)
 
-        (fst (∼≃abs<ε _ _ (1 ℚ₊· ε)) (subst∼ (sym (ℚ.·IdL _)) x))))
+        (fst (∼≃abs<ε _ _ (one₊ ℚ₊· ε))
+          (subst∼ {0<ε = snd ε} {0<ε' = snd (one₊ ℚ₊· ε)}
+            (sym (ℚ.·IdL (fst ε))) x))))
 
-Lipschitz-sin : Lipschitz-ℝ→ℝ 1 sin
+Lipschitz-sin : Lipschitz-ℝ→ℝ one₊ sin
 Lipschitz-sin u v ε x =
-  invEq (∼≃abs<ε _ _ _)
+  invEq (∼≃abs<ε _ _ (one₊ ℚ₊· ε))
     ((isTrans≤<ᵣ _ _ _ (sinDiffBound u v)
 
-        (fst (∼≃abs<ε _ _ (1 ℚ₊· ε)) (subst∼ (sym (ℚ.·IdL _)) x))))
+        (fst (∼≃abs<ε _ _ (one₊ ℚ₊· ε))
+          (subst∼ {0<ε = snd ε} {0<ε' = snd (one₊ ℚ₊· ε)}
+            (sym (ℚ.·IdL (fst ε))) x))))
 
 
 0≤η-seq[n] : ∀ n → 0 ≤ᵣ π-seq n
@@ -1192,20 +1315,26 @@ opaque
  unfolding π-number/2
 
  1<π-number/2 : 1 <ᵣ π-number/2
- 1<π-number/2 = isTrans<≤ᵣ _ (π-seq 2) _
-   (isTrans≡<ᵣ _ _ _ (sym (cos0=1) ∙ sym (+IdL _))
-    (π-seq-incr 1))
-
-  (isTrans≤≡ᵣ _ _ _
-    (isTrans≡≤ᵣ _ _ _ (sym (fromCauchySequence'-const (π-seq 2) _ ) )
-    (fromCauchySequence'₁≤ (λ _ → (π-seq 2)) (π-seq ∘ suc ∘ suc)
-      ∣ isCauchySequence'-const (π-seq 2) ∣₁
-         (PT.map (λ x → fst (cauchySequenceFaster
+ 1<π-number/2 =
+   let π-seq+2-cauchy : ∥ IsCauchySequence' (π-seq ∘ suc ∘ suc) ∥₁
+       π-seq+2-cauchy =
+         PT.map (λ x → fst (cauchySequenceFaster
            π-seq (λ k → suc (suc k) , ℕ.≤-+k {0} {2} {k} (ℕ.≤-solver 0 2)) x))
-            π-seq-cauchy)
+            π-seq-cauchy
+   in isTrans<≤ᵣ _ (π-seq 2) _
+     (isTrans≡<ᵣ _ _ _ (sym (cos0=1) ∙ sym (+IdL _))
+      (π-seq-incr 1))
+
+    (isTrans≤≡ᵣ _ _ _
+      (isTrans≡≤ᵣ _ _ _
+        (sym (fromCauchySequence'-const (π-seq 2)
+          (isCauchySequence'-const (π-seq 2))) )
+      (fromCauchySequence'₁≤ (λ _ → (π-seq 2)) (π-seq ∘ suc ∘ suc)
+        ∣ isCauchySequence'-const (π-seq 2) ∣₁
+        π-seq+2-cauchy
         λ n → π-seq-monotone 2 (suc (suc n))
          (ℕ.≤-k+ {0} {n} {2} (ℕ.zero-≤ {n}))))
-         (sym (fromCauchySequence'₁-∘+ π-seq 2 _ _)))
+         (sym (fromCauchySequence'₁-∘+ π-seq 2 π-seq-cauchy π-seq+2-cauchy)))
 
 
  0<π-number/2 : 0 <ᵣ π-number/2
@@ -1231,27 +1360,48 @@ x²≡0→x≡0 x x²=0 =
          +IdR _ ))
          let uu = isTrans<≡ᵣ _ _ _
                      (isTrans≡<ᵣ _ _ _ (sym (·absᵣ _ _)
-                    ∙ cong absᵣ (sym (cong₂ _+ᵣ_ refl (-ᵣ-rat 0) ∙
+                   ∙ cong absᵣ (sym (cong₂ _+ᵣ_ refl (-ᵣ-rat 0) ∙
                    +IdR _ ))) (fst ((∼≃abs<ε _ _ _)) ((invEq (∼≃≡ _ _) x²=0)
                    (ε ℚ₊· ε))))
-                   (rat·ᵣrat _ _)
+                   (rat·ᵣrat (fst ε) (fst ε))
          in PT.rec (isProp<ᵣ _ _)
              (⊎.rec (idfun _)
               λ ε/2<x → ⊥.rec
                 let zz = (<ᵣ₊Monotone·ᵣ _ _ _ _
-                           (<ᵣWeaken≤ᵣ _ _ (snd (ℚ₊→ℝ₊ (/2₊ ε))))
-                           (<ᵣWeaken≤ᵣ _ _ (snd (ℚ₊→ℝ₊ (/2₊ ε))))
+                           (<ᵣWeaken≤ᵣ _ _ (snd (ℚ₊→ℝ₊ (ε /2₊))))
+                           (<ᵣWeaken≤ᵣ _ _ (snd (ℚ₊→ℝ₊ (ε /2₊))))
                             ε/2<x ε/2<x)
                  in isAsym<ᵣ 0
-                     ((rat (fst (/2₊ ε))) ·ᵣ
-                       (rat (fst (/2₊ ε))))
-                        ((snd (ℚ₊→ℝ₊ (/2₊ ε) ₊·ᵣ ℚ₊→ℝ₊ (/2₊ ε))))
+                     ((rat (fst (ε /2₊))) ·ᵣ
+                       (rat (fst (ε /2₊))))
+                        ((snd (ℚ₊→ℝ₊ (ε /2₊) ₊·ᵣ ℚ₊→ℝ₊ (ε /2₊))))
                          (isTrans<≡ᵣ _ _ _ zz
                            (sym (·absᵣ _ _) ∙ cong absᵣ x²=0 ∙
                             absᵣ0)))
-             (Dichotomyℝ' (rat (fst (/2₊ ε))) (absᵣ x)
-               (rat (fst ε))
-               (<ℚ→<ᵣ _ _ (x/2<x ε)))))
+              (Dichotomyℝ' (rat (fst (ε /2₊))) (absᵣ x)
+                 (rat (fst ε))
+                 (<ℚ→<ᵣ _ _ (x/2<x ε)))))
+
+π-seq-cos-ratio≤1-sin1 : (n : ℕ) →
+       1 ℕ.< n →
+       absᵣ ((π-seq (suc (suc n)) -ᵣ π-seq (suc n)) ／ᵣ[
+        π-seq (suc n) -ᵣ π-seq n , inl
+          (x<y→0<y-x _ _ (π-seq-incr n)) ])
+          ≤ᵣ 1 -ᵣ sin 1
+π-seq-cos-ratio≤1-sin1 zero x = ⊥.rec (ℕ.¬-<-zero x)
+π-seq-cos-ratio≤1-sin1 (suc zero) x = ⊥.rec (ℕ.¬-<-zero (ℕ.pred-≤-pred x ))
+π-seq-cos-ratio≤1-sin1 (suc (suc n)) _ =
+  isTrans≡≤ᵣ _ _ _
+    (cong absᵣ (cong₂ _·ᵣ_ refl
+        (sym (invℝ₊≡invℝ (_ ,
+         (x<y→0<y-x _ _ (π-seq-incr (suc (suc n))))) _)) )
+      ∙ absᵣPos _ (snd
+        ((_ , (x<y→0<y-x _ _ (π-seq-incr (suc (suc (suc n))))))
+          ₊·ᵣ invℝ₊ (_ , (x<y→0<y-x _ _ (π-seq-incr (suc (suc n))))))))
+    (invEq (z/y≤x₊≃z≤y₊·x _ _ _)
+      (isTrans≤≡ᵣ _ _ _
+       (π-seq-dist n)
+       (·ᵣComm _ _)))
 
 opaque
  unfolding π-number/2
@@ -1259,13 +1409,16 @@ opaque
  cos[π/2]≡0 =
    PT.rec (isSetℝ _ _)
    (λ (η , 1-sin1<η , η<1) →
-     snd (map-fromCauchySequence'₁ 1
+     let cosπ-seq-cauchy =
+           fst (map-fromCauchySequence'₁ one₊
+            π-seq π-seq-cauchy cos Lipschitz-cos)
+     in snd (map-fromCauchySequence'₁ one₊
       π-seq π-seq-cauchy cos Lipschitz-cos) ∙
        fromCauchySequence'₁≡ (cos ∘ π-seq)
-        _ 0
+        cosπ-seq-cauchy 0
          λ ε →
            let zwz = lim0FromRatioBound (cos ∘ π-seq)
-                      (η , ℚ.<→0< _ (<ᵣ→<ℚ _ _ (isTrans≤<ᵣ _ _ _
+                      (η , ℚ<→0< _ (<ᵣ→<ℚ _ _ (isTrans≤<ᵣ _ _ _
                        (x≤y→0≤y-x _ _ (sin≤1 _))
                        1-sin1<η)
                         ))
@@ -1273,10 +1426,10 @@ opaque
                       (inl ∘ 0<cos-π-seq) 1
                        (λ n x → isTrans≤<ᵣ _ _ _
                          (isTrans≡≤ᵣ _ _ _ (cong absᵣ
-                           (cong₂ _·ᵣ_ (sym L𝐑.lem--063)
+                           (cong₂ _·ᵣ_ (sym ℝ!)
                             (cong (uncurry invℝ)
                               (Σ≡Prop (isProp＃ 0)
-                               (sym L𝐑.lem--063))))) (zz n x))
+                               (sym ℝ!))))) (π-seq-cos-ratio≤1-sin1 n x))
                          1-sin1<η)
                        ε
             in ∣ zwz ∣₁)
@@ -1286,45 +1439,21 @@ opaque
        (cong₂ _+ᵣ_ refl (-ᵣ-rat 0) ∙ +IdR 1)))
 
 
-  where
-
-
-  zz :  (n : ℕ) →
-         1 ℕ.< n →
-         absᵣ ((π-seq (suc (suc n)) -ᵣ π-seq (suc n)) ／ᵣ[
-          π-seq (suc n) -ᵣ π-seq n , inl
-            (x<y→0<y-x _ _ (π-seq-incr n)) ])
-            ≤ᵣ 1 -ᵣ sin 1
-  zz zero x = ⊥.rec (ℕ.¬-<-zero x)
-  zz (suc zero) x = ⊥.rec (ℕ.¬-<-zero (ℕ.pred-≤-pred x ))
-  zz (suc (suc n)) _ =
-    isTrans≡≤ᵣ _ _ _
-      (cong absᵣ (cong₂ _·ᵣ_ refl
-          (sym (invℝ₊≡invℝ (_ ,
-           (x<y→0<y-x _ _ (π-seq-incr (suc (suc n))))) _)) )
-        ∙ absᵣPos _ (snd
-          ((_ , (x<y→0<y-x _ _ (π-seq-incr (suc (suc (suc n))))))
-            ₊·ᵣ invℝ₊ (_ , (x<y→0<y-x _ _ (π-seq-incr (suc (suc n))))))))
-      (invEq (z/y≤x₊≃z≤y₊·x _ _ _)
-        (isTrans≤≡ᵣ _ _ _
-         (π-seq-dist n)
-         (·ᵣComm _ _)))
-
 π-num : ℝ
 π-num = 2 ·ᵣ π-number/2
 
 uContSin : ∀ P → IsUContinuousℙ P (λ x₁ _ → sin x₁)
-uContSin = Lipschitz-ℝ→ℝ→IsUContinuousℙ _ _  Lipschitz-sin
+uContSin = Lipschitz-ℝ→ℝ→IsUContinuousℙ one₊ sin Lipschitz-sin
 
 uContCos : ∀ P → IsUContinuousℙ P (λ x₁ _ → cos x₁)
-uContCos = Lipschitz-ℝ→ℝ→IsUContinuousℙ _ _ Lipschitz-cos
+uContCos = Lipschitz-ℝ→ℝ→IsUContinuousℙ one₊ cos Lipschitz-cos
 
 
 0≤x<π/2→0<cos[x] : ∀ x → 0 ≤ᵣ x → x <ᵣ π-number/2 → 0 <ᵣ cos x
 0≤x<π/2→0<cos[x] x 0≤x x<π/2 =
   PT.rec2 (isProp<ᵣ _ _)
     (λ (ε , 0<ε , ε<) ics →
-     let NN = ics (ε , ℚ.<→0< _ (<ᵣ→<ℚ _ _ 0<ε))  -- ics
+     let NN = ics (ε , ℚ<→0< _ (<ᵣ→<ℚ _ _ 0<ε))  -- ics
          z = snd NN (suc (fst NN)) (ℕ.≤-refl {suc (fst NN)})
          zz = <-o+-cancel _ _ _ $ isTrans≤<ᵣ _ _ _
           (isTrans≤≡ᵣ _ _ _
@@ -1363,7 +1492,7 @@ x≤π/2→0≤cos[x] x x∈ =
              (isTrans<≡ᵣ _ _ _
            (
              (<ᵣ-·ᵣo (rat m) 1 (_ , 0<π-number/2) (<ℚ→<ᵣ _ _ m<1)))
-             (·IdL _))
+             (·IdLᵣ _))
 
      in <ᵣWeaken≤ᵣ _ _ (0≤x<π/2→0<cos[x]
          (clampᵣ 0 π-number/2 (rat m ·ᵣ π-number/2))
@@ -1375,13 +1504,13 @@ x≤π/2→0≤cos[x] x x∈ =
       ≡ᵣWeaken≤ᵣ _ _ (sym cos[π/2]≡0 ∙
        cong cos (∈ℚintervalℙ→clampᵣ≡ 0 π-number/2 π-number/2
          (<ᵣWeaken≤ᵣ _ _ 0<π-number/2 , ≤ᵣ-refl _)
-         ∙ cong (clampᵣ 0 π-number/2) (sym (·IdL _))))
+         ∙ cong (clampᵣ 0 π-number/2) (sym (·IdLᵣ _))))
     w .ℚ.TrichotomyRec.gt-case m 1<m =
       ≡ᵣWeaken≤ᵣ _ _
        ((sym cos[π/2]≡0 ∙
         cong cos (sym ((≤x→clampᵣ≡ 0 π-number/2 (rat m ·ᵣ π-number/2)
          ((<ᵣWeaken≤ᵣ 0 π-number/2 0<π-number/2))
-          (isTrans≡≤ᵣ _ _ _ (sym (·IdL _))
+          (isTrans≡≤ᵣ _ _ _ (sym (·IdLᵣ _))
            (<ᵣWeaken≤ᵣ _ _
              (<ᵣ-·ᵣo 1 (rat m) (_ , 0<π-number/2) (<ℚ→<ᵣ _ _ 1<m)))))) ) ))
 
@@ -1403,97 +1532,127 @@ module sin-cos-of-sum where
 
   module _ (aQ bQ : ℝ) (a<b : aQ <ᵣ bQ) where
 
+   P : ℙ ℝ
+   P = intervalℙ aQ bQ
+
+   sinShift cosShift sinP cosP sinCosB cosSinB cosCosB sinSinB gP hP negGP :
+     ∀ x → x ∈ P → ℝ
+   sinShift x _ = sin (x +ᵣ b)
+   cosShift x _ = cos (x +ᵣ b)
+   sinP x _ = sin x
+   cosP x _ = cos x
+   sinCosB x x∈ = sinP x x∈ ·ᵣ cos b
+   cosSinB x x∈ = cosP x x∈ ·ᵣ sin b
+   cosCosB x x∈ = cosP x x∈ ·ᵣ cos b
+   sinSinB x x∈ = sinP x x∈ ·ᵣ sin b
+   gP x _ = g x
+   hP x _ = h x
+   negGP x _ = -ᵣ g x
 
    gBd : Bounded (intervalℙ aQ bQ) (λ x _ → g x)
-   gBd = (bounded-ᵣ _ _ _ (1 , λ x _ → ∣sin∣≤1 (x +ᵣ b))
-                      (bounded-+ _ _ _
-                        (bounded-· _ _ _ (bounded-sin _)
+   gBd = (bounded-ᵣ P sinShift (λ x x∈ → sinCosB x x∈ +ᵣ cosSinB x x∈)
+                      (1 , λ x _ → ∣sin∣≤1 (x +ᵣ b))
+                      (bounded-+ P sinCosB cosSinB
+                        (bounded-· P sinP (λ _ _ → cos b) (bounded-sin P)
                           (1 , λ _ _ → ∣cos∣≤1 b))
-                        (bounded-· _ _ _ (bounded-cos _)
+                        (bounded-· P cosP (λ _ _ → sin b) (bounded-cos P)
                           (1 , λ _ _ → ∣sin∣≤1 b))))
 
    hBd : Bounded (intervalℙ aQ bQ) (λ x _ → h x)
-   hBd = bounded-ᵣ _ _ _
+   hBd = bounded-ᵣ P cosShift (λ x x∈ → cosCosB x x∈ -ᵣ sinSinB x x∈)
           ((1 , λ x _ → ∣cos∣≤1 (x +ᵣ b)))
-          (bounded-ᵣ _ _ _
-            (bounded-· _ _ _ (bounded-cos _) (1 , λ _ _ → ∣cos∣≤1 b))
-            (bounded-· _ _ _ (bounded-sin _) (1 , λ _ _ → ∣sin∣≤1 b)))
+          (bounded-ᵣ P cosCosB sinSinB
+            (bounded-· P cosP (λ _ _ → cos b) (bounded-cos P) (1 , λ _ _ → ∣cos∣≤1 b))
+            (bounded-· P sinP (λ _ _ → sin b) (bounded-sin P) (1 , λ _ _ → ∣sin∣≤1 b)))
 
 
    gC : IsUContinuousℙ (intervalℙ aQ bQ) (λ x _ → g x)
-   gC = IsUContinuousℙ+ᵣ₂ _ _ _
-         (IsUContinuousℙ-transl _ b _ (uContSin _))
-         (IsUContinuousℙ-ᵣ∘ _ _
-           (IsUContinuousℙ+ᵣ₂ _ _ _
-             (IsUContinuousℙ·ᵣ₂ _ _ _
-               (bounded-sin _)
+   gC = IsUContinuousℙ+ᵣ₂ P sinShift
+         (λ x x∈ → -ᵣ (sinCosB x x∈ +ᵣ cosSinB x x∈))
+         (IsUContinuousℙ-transl P b (λ x _ → sin x) (uContSin (P ∘ (_-ᵣ b))))
+         (IsUContinuousℙ-ᵣ∘ P
+           (λ x x∈ → sinCosB x x∈ +ᵣ cosSinB x x∈)
+           (IsUContinuousℙ+ᵣ₂ P sinCosB cosSinB
+             (IsUContinuousℙ·ᵣ₂ P sinP (λ _ _ → cos b)
+               (bounded-sin P)
                (1 , λ _ _ → ∣cos∣≤1 b)
-               (uContSin _)
-               (IsUContinuousℙ-const _ _))
-             (IsUContinuousℙ·ᵣ₂ _ _ _
-               (bounded-cos _)
+               (uContSin P)
+               (IsUContinuousℙ-const P (cos b)))
+             (IsUContinuousℙ·ᵣ₂ P cosP (λ _ _ → sin b)
+               (bounded-cos P)
                (1 , λ _ _ → ∣sin∣≤1 b)
-               (uContCos _)
-               (IsUContinuousℙ-const _ _))))
+               (uContCos P)
+               (IsUContinuousℙ-const P (sin b)))))
 
    hC : IsUContinuousℙ (intervalℙ aQ bQ) (λ x _ → h x)
-   hC = IsUContinuousℙ+ᵣ₂ _ _ _
-           (IsUContinuousℙ-transl _ b _ (uContCos _))
-           (IsUContinuousℙ-ᵣ∘ _ _
-            (IsUContinuousℙ+ᵣ₂ _ _ _
-              ((IsUContinuousℙ·ᵣ₂ _ _ _
-               (bounded-cos _)
+   hC = IsUContinuousℙ+ᵣ₂ P cosShift
+           (λ x x∈ → -ᵣ (cosCosB x x∈ -ᵣ sinSinB x x∈))
+           (IsUContinuousℙ-transl P b (λ x _ → cos x) (uContCos (P ∘ (_-ᵣ b))))
+           (IsUContinuousℙ-ᵣ∘ P
+            (λ x x∈ → cosCosB x x∈ -ᵣ sinSinB x x∈)
+            (IsUContinuousℙ+ᵣ₂ P cosCosB
+              (λ x x∈ → -ᵣ (sinSinB x x∈))
+              ((IsUContinuousℙ·ᵣ₂ P cosP (λ _ _ → cos b)
+               (bounded-cos P)
                (1 , λ _ _ → ∣cos∣≤1 b)
-               (uContCos _)
-               (IsUContinuousℙ-const _ _)))
-              (IsUContinuousℙ-ᵣ∘ _ _(IsUContinuousℙ·ᵣ₂ _ _ _
-               (bounded-sin _)
+               (uContCos P)
+               (IsUContinuousℙ-const P (cos b))))
+              (IsUContinuousℙ-ᵣ∘ P sinSinB
+               (IsUContinuousℙ·ᵣ₂ P sinP (λ _ _ → sin b)
+               (bounded-sin P)
                (1 , λ _ _ → ∣sin∣≤1 b)
-               (uContSin _)
-               (IsUContinuousℙ-const _ _)))))
+               (uContSin P)
+               (IsUContinuousℙ-const P (sin b))))))
 
 
-   P = (intervalℙ (aQ) (bQ))
    gD : uDerivativeOfℙ P ,
           (λ x _ → g x) is (λ x _ → g' x)
-   gD = -uDerivativeℙ _ _ _ _ _
-         (uDerivativeOfℙ-restr _ P
-           _ _ (λ x (≤x , x≤) → ≤ᵣ-+o _ _ _ ≤x , ≤ᵣ-+o _ _ _ x≤)
+   gD = -uDerivativeℙ P sinShift cosShift
+          (λ x x∈ → sinCosB x x∈ +ᵣ cosSinB x x∈)
+          (λ x x∈ → cosCosB x x∈ -ᵣ sinSinB x x∈)
+         (uDerivativeOfℙ-restr (intervalℙ (aQ +ᵣ b) (bQ +ᵣ b) ∘ (_+ᵣ b)) P
+           (λ x _ → sin (x +ᵣ b))
+           (λ x _ → cos (x +ᵣ b))
+           (λ x (≤x , x≤) → ≤ᵣ-+o aQ x b ≤x , ≤ᵣ-+o x bQ b x≤)
            ((uDerivativeOfℙ-transl
-              (intervalℙ (aQ +ᵣ b) (bQ +ᵣ b)) _ _ b
-               (sin'=cos-uder' _ _ (<ᵣ-+o _ _ _ a<b))))
+              (intervalℙ (aQ +ᵣ b) (bQ +ᵣ b)) (λ x _ → sin x) (λ x _ → cos x) b
+               (sin'=cos-uder' (aQ +ᵣ b) (bQ +ᵣ b) (<ᵣ-+o aQ bQ b a<b))))
            )
-          (+uDerivativeℙ _ _ _ _ _
-            (·CuDerivativeℙ _ _ _ _ (sin'=cos-uder' _ _ a<b))
+          (+uDerivativeℙ P sinCosB cosCosB cosSinB (λ x x∈ → -ᵣ (sinSinB x x∈))
+            (·CuDerivativeℙ P (cos b) sinP cosP (sin'=cos-uder' aQ bQ a<b))
               ((subst
-               (uDerivativeOfℙ intervalℙ (aQ) (bQ) ,
-                 (λ r _ → cos r ·ᵣ sin b) is_)
+               (uDerivativeOfℙ P ,
+                 cosSinB is_)
             (funExt₂ λ _ _ → -ᵣ· _ _)
-             (·CuDerivativeℙ _ _ _ _ (cos'=-sin-uder' _ _ a<b)))))
+             (·CuDerivativeℙ P (sin b) cosP (λ x _ → -ᵣ sin x) (cos'=-sin-uder' aQ bQ a<b)))))
 
    hD : uDerivativeOfℙ (intervalℙ (aQ) (bQ)) ,
           (λ x _ → h x) is (λ x _ → h' x)
    hD = subst (uDerivativeOfℙ (intervalℙ (aQ) (bQ)) ,
           (λ x _ → h x) is_)
            (funExt₂ λ _ _ → sym (-ᵣDistr _ _))
-           (-uDerivativeℙ _ _ _ _ _
-            ((uDerivativeOfℙ-restr _ P
-           _ _ (λ x (≤x , x≤) → ≤ᵣ-+o _ _ _ ≤x , ≤ᵣ-+o _ _ _ x≤)
+           (-uDerivativeℙ P cosShift (λ x x∈ → -ᵣ (sinShift x x∈))
+            (λ x x∈ → cosCosB x x∈ -ᵣ sinSinB x x∈)
+            (λ x x∈ → -ᵣ (sinCosB x x∈ +ᵣ cosSinB x x∈))
+            ((uDerivativeOfℙ-restr (intervalℙ (aQ +ᵣ b) (bQ +ᵣ b) ∘ (_+ᵣ b)) P
+           (λ x _ → cos (x +ᵣ b))
+           (λ x _ → -ᵣ (sin (x +ᵣ b)))
+           (λ x (≤x , x≤) → ≤ᵣ-+o aQ x b ≤x , ≤ᵣ-+o x bQ b x≤)
            ((uDerivativeOfℙ-transl
-              (intervalℙ (aQ +ᵣ b) (bQ +ᵣ b)) _ _ b
-               (cos'=-sin-uder' _ _ (<ᵣ-+o _ _ _ a<b))))
+              (intervalℙ (aQ +ᵣ b) (bQ +ᵣ b)) (λ x _ → cos x) (λ x _ → -ᵣ sin x) b
+               (cos'=-sin-uder' (aQ +ᵣ b) (bQ +ᵣ b) (<ᵣ-+o aQ bQ b a<b))))
            ))
 
-             (subst (uDerivativeOfℙ intervalℙ (aQ) (bQ) ,
-           (λ r _ → cos r ·ᵣ cos b -ᵣ sin r ·ᵣ sin b) is_)
+             (subst (uDerivativeOfℙ P ,
+           (λ x x∈ → cosCosB x x∈ -ᵣ sinSinB x x∈) is_)
            (funExt₂ λ _ _ → sym (-ᵣDistr _ _))
-           (-uDerivativeℙ _ _ _ _ _
+           (-uDerivativeℙ P cosCosB (λ x x∈ → -ᵣ (sinCosB x x∈)) sinSinB cosSinB
              (subst
-               (uDerivativeOfℙ intervalℙ (aQ) (bQ) ,
-                 (λ r _ → cos r ·ᵣ cos b) is_)
+               (uDerivativeOfℙ P ,
+                 cosCosB is_)
             (funExt₂ λ _ _ → -ᵣ· _ _)
-             (·CuDerivativeℙ _ _ _ _ (cos'=-sin-uder' _ _ a<b)))
-             ((·CuDerivativeℙ _ _ _ _ (sin'=cos-uder' _ _ a<b))))) )
+             (·CuDerivativeℙ P (cos b) cosP (λ x _ → -ᵣ sin x) (cos'=-sin-uder' aQ bQ a<b)))
+             ((·CuDerivativeℙ P (sin b) sinP cosP (sin'=cos-uder' aQ bQ a<b))))) )
 
    D[g²+f²] : uDerivativeOfℙ (intervalℙ (aQ) (bQ)) ,
           (λ x _ → g x ·ᵣ g x +ᵣ h x ·ᵣ h x) is (λ _ _ → 0)
@@ -1504,16 +1663,20 @@ module sin-cos-of-sum where
                (cong₂ _+ᵣ_ refl (-ᵣ· _ _) ∙
                 𝐑'.+InvR' _ _ (·ᵣComm _ _))
                 ∙ sym (rat·ᵣrat _ 0))
-      (+uDerivativeℙ _ _ _ _ _
+      (+uDerivativeℙ P
+              (λ x x∈ → gP x x∈ ·ᵣ gP x x∈)
+              (λ x x∈ → 2 ·ᵣ (hP x x∈ ·ᵣ gP x x∈))
+              (λ x x∈ → hP x x∈ ·ᵣ hP x x∈)
+              (λ x x∈ → 2 ·ᵣ (negGP x x∈ ·ᵣ hP x x∈))
               (uDerivativeOfℙ² (aQ) (bQ) a<b
-                _ _ gBd
+                gP hP gBd
                     gC
                     hBd
                     gD)
               (uDerivativeOfℙ² (aQ) (bQ) a<b
-                _ _ hBd
+                hP negGP hBd
                     hC
-                    (-ᵣbounded _ _ gBd)
+                    (-ᵣbounded P gP gBd)
                     hD))
 
   [g²+f²]0 : g 0 ·ᵣ g 0 +ᵣ h 0 ·ᵣ h 0 ≡ 0
@@ -1541,7 +1704,7 @@ module sin-cos-of-sum where
     let z = nullDerivative→const a 0
           (≤ᵣ-refl a , <ᵣWeaken≤ᵣ _ _ a<0)
           (<ᵣWeaken≤ᵣ _ _ a<0 , ≤ᵣ-refl 0)
-           a<0 _
+           (<ᵣWeaken≤ᵣ _ _ a<0) _
            (D[g²+f²] a 0 a<0)
     in z ∙ [g²+f²]0
 
@@ -1549,7 +1712,7 @@ module sin-cos-of-sum where
   [g²+f²]=0-0<a a 0<a =
     let z = nullDerivative→const 0 a
           (≤ᵣ-refl 0 , <ᵣWeaken≤ᵣ _ _ 0<a)
-          (<ᵣWeaken≤ᵣ _ _ 0<a , ≤ᵣ-refl a) 0<a _
+          (<ᵣWeaken≤ᵣ _ _ 0<a , ≤ᵣ-refl a) (<ᵣWeaken≤ᵣ _ _ 0<a) _
            (D[g²+f²] 0 a 0<a)
     in sym z ∙ [g²+f²]0
 
@@ -1580,10 +1743,13 @@ module sin-cos-of-sum where
             (subst2 _≤ᵣ_
               (+IdR _)
               ([g²+f²]=0 a)
-              (≤ᵣ-o+ _ _ (g a ·ᵣ g a) (isTrans≤≡ᵣ _ _ _
-             (0≤ᵣx² (h a))
-             (cong₂ _·ᵣ_  (·IdL _) refl))))
-            (isTrans≤≡ᵣ _ _ _ (0≤ᵣx² (g a)) (cong₂ _·ᵣ_  (·IdL _) refl))
+              (≤ᵣ-o+ _ _ (g a ·ᵣ g a)
+                (isTrans≤≡ᵣ _ _ _
+                  (0≤ᵣx² (h a))
+                  (cong ((h a) ·ᵣ_) (·IdR (h a))))))
+            (isTrans≤≡ᵣ _ _ _
+              (0≤ᵣx² (g a))
+              (cong ((g a) ·ᵣ_) (·IdR (g a))))
    in x²≡0→x≡0 (g a) z
 
   h=0 : ∀ a → h a ≡ 0

@@ -1,36 +1,9 @@
-{-# OPTIONS --safe --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.InverseDerivative where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Powerset
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.Properties
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Transport
-open import Cubical.Functions.FunExtEquiv
-
-open import Cubical.Data.Int.Fast as ℤ using (pos)
-open import Cubical.Data.Nat as ℕ using (zero)
-open import Cubical.Data.NatPlusOne
-open import Cubical.Data.Rationals as ℚ using ([_/_])
-open import Cubical.Data.Sigma
-open import Cubical.Data.Sum as ⊎
-open import Cubical.Data.Unit
-
-open import Cubical.HITs.PropositionalTruncation as PT
-
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Closeness
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Derivative hiding (invℚ₊)
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.Lipschitz
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.RationalsImports
-open import Cubical.HITs.CauchyReals.Sequence
+{-
+Legacy inverse-derivative proof for the old quotient-slope derivative API.
+Previous exported name: invDerivativeℙ. It is intentionally commented while
+the inverse derivative theorem is migrated to DerivativeOfℙ/uDerivativeOfℙ.
 
 preMapLimitPos : ∀ P Q x x' f g y →
    (u : ∀ r r∈ ＃r →  g r r∈ ＃r ∈ Q)
@@ -280,3 +253,4 @@ invDerivativeℙ x f f' f'Pos fPos isEquivF incrG incrF  fC gC dF =
    (AsContinuousWithPred _ _ fC)
    gC
    (as-derivativeOfℙ _ _ _ _ _ dF)
+-}
