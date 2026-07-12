@@ -449,6 +449,11 @@ opaque
            δ∼ (g v v∈P) ∘ (x _ v∈P)) (gC u δ u∈P))
      ((fC (g u u∈P) ε))
 
+ IsContinuousWithPred-ᵣ : ∀ P f → IsContinuousWithPred P f →
+   IsContinuousWithPred P λ x x∈ → -ᵣ (f x x∈)
+ IsContinuousWithPred-ᵣ P f fc =
+   IsContinuousWP∘' P _ _ IsContinuous-ᵣ fc
+
 
  contDropPred : ∀ f → IsContinuousWithPred ⊤Pred (λ x _ → f x)
                  → IsContinuous f

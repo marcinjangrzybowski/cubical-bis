@@ -1,5 +1,5 @@
 
-module Cubical.HITs.CauchyReals.Alternating where
+module Cubical.HITs.CauchyReals.Dirty.Alternating where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

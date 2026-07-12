@@ -16,8 +16,6 @@ open import Cubical.HITs.CauchyReals.Inverse
 
 open import Cubical.HITs.CauchyReals.ArcSin.Positive.Continuity using
   ( IsContinuousWithPredArcSin )
-open import Cubical.HITs.CauchyReals.ArcSin.Positive.Properties.Extras using
-  ( IsContinuousWithPred-ᵣ )
 open import Cubical.HITs.CauchyReals.ArcSin.Positive.Properties.Definition using
   ( arcSin )
 open import Cubical.HITs.CauchyReals.ArcSin.Symmetric.Base public

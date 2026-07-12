@@ -1,4 +1,4 @@
-module Cubical.HITs.CauchyReals.AproxDemo where
+module Cubical.HITs.CauchyReals.Dirty.AproxDemo where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -257,5 +257,4 @@ module Aprox-𝓮 where
 
 -- -- -- -- -- -- --   -- 𝑒N : ℝ
 -- -- -- -- -- -- --   -- 𝑒N = {!𝑒!}
-
 

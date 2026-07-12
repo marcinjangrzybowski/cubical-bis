@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --lossy-unification #-}
 
-module Cubical.HITs.CauchyReals.PreviouslyInUniform where
+module Cubical.HITs.CauchyReals.Dirty.PreviouslyInUniform where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

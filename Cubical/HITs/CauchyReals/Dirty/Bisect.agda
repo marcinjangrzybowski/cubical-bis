@@ -1,4 +1,4 @@
-module Cubical.HITs.CauchyReals.Bisect where
+module Cubical.HITs.CauchyReals.Dirty.Bisect where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -1340,4 +1340,3 @@ record IsBilipschitz a b  (a<b : a ℚ.< b) f : Type where
  isoF .Iso.ret (x , x∈) =
    Σ≡Prop (∈-isProp (intervalℙ (rat a) (rat b)))
      (𝒇⁻¹∘𝒇 x x∈)
-

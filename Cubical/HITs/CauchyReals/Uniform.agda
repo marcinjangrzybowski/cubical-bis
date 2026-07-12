@@ -60,7 +60,7 @@ private
 
 -- Integration, exponential/trigonometric applications, and nth-root material
 -- that used to live here are preserved temporarily in
--- Cubical.HITs.CauchyReals.PreviouslyInUniform.  This module now contains the
+-- Cubical.HITs.CauchyReals.Dirty.PreviouslyInUniform.  This module now contains the
 -- dependency-light uniform-continuity and uniform-convergence infrastructure.
 
 opaque

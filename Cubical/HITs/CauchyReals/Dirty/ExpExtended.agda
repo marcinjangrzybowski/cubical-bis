@@ -1,4 +1,4 @@
-module Cubical.HITs.CauchyReals.ExpExtended where
+module Cubical.HITs.CauchyReals.Dirty.ExpExtended where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

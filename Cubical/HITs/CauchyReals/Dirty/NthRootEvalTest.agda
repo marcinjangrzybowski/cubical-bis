@@ -1,4 +1,4 @@
-module Cubical.HITs.CauchyReals.NthRootEvalTest where
+module Cubical.HITs.CauchyReals.Dirty.NthRootEvalTest where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -56,5 +56,4 @@ module _ where
 
   t0' : fst (root 2 (ℚ₊→ℝ₊ 4)) d🪄 2
   t0' = {!t0!}
-
 

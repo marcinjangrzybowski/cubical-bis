@@ -1,5 +1,5 @@
 
-module Cubical.HITs.CauchyReals.TrigBaseQ where
+module Cubical.HITs.CauchyReals.Dirty.TrigBaseQ where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -2812,4 +2812,3 @@ open import Cubical.HITs.CauchyReals.LiftingExpr
 -- -- -- 1st-rootNonNeg (x , x≤0) =
 -- -- --   sym (invEq (equivAdjointEquiv (nth-pow-root-equiv₀₊ 1))
 -- -- --      (ℝ₀₊≡ (·IdL _)))
-
