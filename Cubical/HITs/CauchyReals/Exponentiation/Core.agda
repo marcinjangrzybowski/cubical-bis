@@ -98,10 +98,10 @@ x ℚ^ℤ ℤ.negsuc n = invℚ₊ ((fst x ℚ^ⁿ suc n) , ℚ.0<ℚ^ⁿ (fst x
 
 
 ^ℤ-rat : ∀ q n → ((ℚ₊→ℝ₊ q) ^ℤ n) ≡ ℚ₊→ℝ₊ (q ℚ^ℤ n)
-^ℤ-rat q (pos n) = ℝ₊≡ (^ⁿ-ℚ^ⁿ _ _)
+^ℤ-rat q (pos n) = ℝ₊≡ (^ⁿ-ℚ^ⁿ n (q .fst))
 ^ℤ-rat q (ℤ.negsuc n) =
   ℝ₊≡
-    (cong (fst ∘ invℝ₊) (ℝ₊≡ (^ⁿ-ℚ^ⁿ _ _))
+    (cong (fst ∘ invℝ₊) (ℝ₊≡ (^ⁿ-ℚ^ⁿ (suc n) (q .fst)))
     ∙ invℝ₊-rat ((q .fst ℚ^ⁿ suc n) ,
         ℚ.0<ℚ^ⁿ (fst q) (snd q) (suc n)))
 
@@ -138,8 +138,8 @@ IsContinuous^ℤ (ℤ.negsuc n) =
             ((invℝ₊ x) ₊^ⁿ n) ≡ (invℝ₊ (x ₊^ⁿ n))
 ₊^ⁿ-invℝ₊ n x =
     ℝ₊≡ (cong (_^ⁿ n) (invℝ₊≡invℝ _ (inl (snd x))) ∙∙
-       ^ⁿ-invℝ _ _ _ _
-       ∙∙ sym (invℝ₊≡invℝ _ (inl (snd (x ₊^ⁿ n)))) )
+       ^ⁿ-invℝ n (x .fst) (inl (snd x))  _
+       ∙∙ sym (invℝ₊≡invℝ (x .fst ^ⁿ n , 0<x^ⁿ (x .fst) n (x .snd)) (inl (snd (x ₊^ⁿ n)))) )
 
 1₊^ⁿ≡1 : ∀ k → 1 ₊^ⁿ k ≡ 1
 1₊^ⁿ≡1 k = ℝ₊≡ (Exponentiationᵣ.1ⁿ≡1 k)
@@ -167,7 +167,7 @@ pos+negsuc a b = ℤ.+Comm (pos a) (ℤ.negsuc b) ∙∙
                    ≡ (x ^ℤ ((pos a) ℤ.+ (ℤ.negsuc b)))
 ^ℤ-minus x zero b =
     ℝ₊≡ (·IdLᵣ _)
-  ∙ cong (x ^ℤ_) (ℤ.pos0+ _)
+  ∙ cong {x = ℤ.negsuc b} (x ^ℤ_) (ℤ.pos0+ _)
 ^ℤ-minus x (suc a) zero =
   ℝ₊≡
     (cong (fst (x ₊^ⁿ suc a) ·ᵣ_)
@@ -197,12 +197,12 @@ pos+negsuc a b = ℤ.+Comm (pos a) (ℤ.negsuc b) ∙∙
      cong (x ^ℤ_) (pos+negsuc a b)
 
 ^ℤ-+ : ∀ x a b → ((x ^ℤ a) ₊·ᵣ (x ^ℤ b)) ≡ (x ^ℤ (a ℤ.+ b))
-^ℤ-+ x (pos n) (pos n₁) = ^ℕ-+ x n n₁ ∙ cong (x ^ℤ_) (ℤ.pos+ _ _)
+^ℤ-+ x (pos n) (pos n₁) = ^ℕ-+ x n n₁ ∙ cong (x ^ℤ_) (ℤ.pos+ n n₁)
 ^ℤ-+ x (pos n) (ℤ.negsuc n₁) = ^ℤ-minus x n n₁
 ^ℤ-+ x (ℤ.negsuc n) (pos n₁) =
   ℝ₊≡ (·ᵣComm _ _)
   ∙∙ ^ℤ-minus x n₁ n ∙∙
-  cong (x ^ℤ_) (ℤ.+Comm _ _)
+  cong (x ^ℤ_) (ℤ.+Comm (pos n₁) (ℤ.negsuc n))
 ^ℤ-+ x (ℤ.negsuc n) (ℤ.negsuc n₁) =
       sym (invℝ₊· _ _)
    ∙∙ cong invℝ₊ (^ℕ-+ x (suc n) (suc n₁))
@@ -222,7 +222,7 @@ pow-root-+ℕ₊₁ (1+ m) (1+ n) = SetsIso≡fun isSetℝ₊ isSetℝ₊
 
 
 ₙ√1 : ∀ b → root b 1 ≡ 1
-ₙ√1 b = cong (root b) (sym (1₊^ⁿ≡1 _)) ∙ Iso.ret (nth-pow-root-iso b) 1
+ₙ√1 b = cong (root b) (sym (1₊^ⁿ≡1 (ℕ₊₁→ℕ b))) ∙ Iso.ret (nth-pow-root-iso b) 1
 
 
 
