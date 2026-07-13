@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Dirty.ExpLog where
 
 open import Cubical.Foundations.Prelude

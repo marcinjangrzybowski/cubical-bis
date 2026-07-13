@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Dirty.PreviouslyInUniform where
 
 open import Cubical.Foundations.Prelude

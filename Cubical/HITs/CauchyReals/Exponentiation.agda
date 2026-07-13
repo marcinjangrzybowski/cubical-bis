@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Exponentiation where
 
 open import Cubical.HITs.CauchyReals.Exponentiation.Approximation public
