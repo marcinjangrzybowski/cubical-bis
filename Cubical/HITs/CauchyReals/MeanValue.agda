@@ -1,5 +1,3 @@
-{-# OPTIONS --safe #-}
-
 module Cubical.HITs.CauchyReals.MeanValue where
 
 open import Cubical.Foundations.Prelude

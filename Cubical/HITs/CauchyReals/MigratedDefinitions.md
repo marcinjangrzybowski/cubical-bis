@@ -320,12 +320,10 @@ style:
 
 - `Dirty/Alternating.agda`
 - `Dirty/AproxDemo.agda`
-- `Dirty/Bisect.agda`
 - `Dirty/ExpExtended.agda`
 - `Dirty/ExpLog.agda`
 - `Dirty/NthRootEvalTest.agda`
 - `Dirty/PreviouslyInUniform.agda`
-- `Dirty/TrigBaseQ.agda`
 - `Dirty/TypesDemo.agda`
 
 Deleted obsolete modules:
@@ -338,3 +336,8 @@ Deleted obsolete modules:
 - `ArcSin/Positive/Properties/Extras.agda`: its only general lemma moved to
   `Continuous.agda`.
 - `CircleMore.agda`: compatibility re-export wrapper after the circle split.
+- `Dirty/Bisect.agda`: superseded by the rational-backed inverse construction
+  and interval isomorphism in `Bisection.agda`.
+- `Dirty/TrigBaseQ.agda`: its completed material was split among `Signs.agda`,
+  `Power.agda`, `Uniform.agda`, `ExponentialSeries*.agda`, `TrigBase.agda`,
+  `FundamentalTheoremOfCalculus.agda`, and `NthRoot/NonNegative.agda`.

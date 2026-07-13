@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification --safe #-}
+{-# OPTIONS --lossy-unification #-}
 
 module Cubical.HITs.CauchyReals.Exponentiation.RealPowerBase where
 

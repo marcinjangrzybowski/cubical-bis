@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 module Cubical.HITs.CauchyReals.Dirty.PreviouslyInUniform where
 
@@ -630,17 +630,6 @@ nth-rootNonNeg0 n p = sym (fst (fst (snd (nth-rootNonNegDef n))))
   ∙ cong (λ p → fst (nth-rootNonNeg n (0 , p)))
    (isProp≤ᵣ 0 0 _ _)
 -}
-
--- Interval boundedness and boundedness closure lemmas have been migrated to
--- Uniform.
-
-IsUCauchyFSequenceExp : ∀ a b → a <ᵣ b →
-               ∥ (IsUCauchyFSequence (intervalℙ a b)
-                      λ n x _ → seqΣ (expSeq x) n) ∥₁
-IsUCauchyFSequenceExp a b a<b =
- PT.map (Iso.fun (IsoIsUConvSeries'IsCauchy'SequenceSum
-         (intervalℙ a b) (λ n x _ → expSeq x n))) (uConvExpSer a b a<b )
-
 
 {-
 Moved to Cubical.HITs.CauchyReals.FundamentalTheoremOfCalculus.
