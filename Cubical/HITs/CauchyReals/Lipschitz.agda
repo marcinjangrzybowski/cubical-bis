@@ -73,19 +73,6 @@ opaque
    subst∼ ℚ!!
      $ 𝕣-lim r y (fst ε ℚ.- fst δ , v₁) δ p x
 
--- 𝕣-lim'← : ∀ r y p ε
---          → r ∼[ ε ] (lim y p )
---          → (∀ δ v → r ∼[ fst ε ℚ.- fst δ , v ] ( y δ ))
-
--- 𝕣-lim'← r y p ε r~lim δ v  = {!!}
-
--- 𝕣-lim'≃ : ∀ r y ε δ p v →
---           (r ∼[ fst ε ℚ.- fst δ , v ] ( y δ )
---             ≃ r ∼[ ε ] (lim y p ))
--- 𝕣-lim'≃ r y ε δ p v₁ x =
---    {!!}
-
-
 -- HoTT Lemma (11.3.10)
 lim-surj : ∀ r → ∃[ x ∈ _ ] (r ≡ (uncurry lim x) )
 lim-surj = PT.map (map-snd (eqℝ _ _)) ∘ (Elimℝ-Prop.go w)
@@ -99,16 +86,6 @@ lim-surj = PT.map (map-snd (eqℝ _ _)) ∘ (Elimℝ-Prop.go w)
  w .Elimℝ-Prop.limA x p _ = ∣ (x , p) , refl∼ _ ∣₁
  w .Elimℝ-Prop.isPropA _ = squash₁
 
-
--- TODO : (Lemma 11.3.11)
-
--- HoTT-11-3-11 : ∀ {ℓ} (A : Type ℓ) (isSetA : isSet A) →
---        (f : (Σ[ x ∈  (ℚ₊ → ℝ) ] (∀ ( δ ε : ℚ₊) → x δ ∼[ δ +₊ ε ] x ε))
---          → A) →
---       (∀ u v → uncurry lim u ≡ uncurry lim v → f u ≡ f v)
---       → ∃![ g ∈ (ℝ → A) ] f ≡ g ∘ uncurry lim
--- HoTT-11-3-11 A isSetA f p =
---
 
 Lipschitz-ℚ→ℚ : ℚ₊ → (ℚ → ℚ) → Type
 Lipschitz-ℚ→ℚ L f =
@@ -188,15 +165,6 @@ isPropLipschitz-ℝ→ℝ q f = isPropΠ4 λ _ _ _ _ → isProp∼ _ _ _
 ·- x y = ℚ.·Assoc x (-1) y
          ∙∙ cong (ℚ._· y) (ℚ.·Comm x (-1))
          ∙∙ sym (ℚ.·Assoc (-1) x y)
-
-
--- HoTT Lemma (11.3.15)
-
--- opaque
-
-
--- subst∼Prim : ∀ {u v ε 0<ε ε' 0<ε'} → ε ≡ ε' → u ∼[ (ε , 0<ε) ] v → u ∼[ (ε' , 0<ε') ] v
--- subst∼Prim = subst (_ ∼[_] _) ∘ ℚ₊≡
 
 
 NonExpandingₚ : (ℝ → ℝ) → hProp ℓ-zero

@@ -112,12 +112,6 @@ Lipschitz-ℚ→ℚℙ→Lipschitz-ℚ→ℝℙ L a b f fLip q q∈ r r∈ ε q-
       (fLip q (∈intervalℙ→∈ℚintervalℙ a b q q∈)
         r (∈intervalℙ→∈ℚintervalℙ a b r r∈) ε q-r<ε))
 
--- Previously in Cubical.HITs.CauchyReals.Bisect.
-Invlipschitz-ℝ→ℝℙ : ℚ₊ → (P : ℙ ℝ) → (∀ x → x ∈ P → ℝ) → Type
-Invlipschitz-ℝ→ℝℙ K P f =
-  ∀ u u∈ v v∈ → (ε : ℚ₊) →
-    f u u∈ ∼[ ε ] f v v∈ → u ∼[ K ·₊ ε ] v
-
 opaque
  unfolding minᵣ
  continuousMapsInterval :

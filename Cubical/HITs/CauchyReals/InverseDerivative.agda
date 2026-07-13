@@ -1,256 +1,364 @@
 module Cubical.HITs.CauchyReals.InverseDerivative where
 
-{-
-Legacy inverse-derivative proof for the old quotient-slope derivative API.
-Previous exported name: invDerivativeℙ. It is intentionally commented while
-the inverse derivative theorem is migrated to DerivativeOfℙ/uDerivativeOfℙ.
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.Equiv
 
-preMapLimitPos : ∀ P Q x x' f g y →
-   (u : ∀ r r∈ ＃r →  g r r∈ ＃r ∈ Q)
-   (v : ∀ r r∈ ＃r → x' ＃ g r r∈ ＃r)
-  → at x  limitOfℙ P , g is x'
-  → at x' limitOfℙ Q , f is y
-  → at x  limitOfℙ P ,
-   (λ r r∈ ＃r → f (g r r∈ ＃r) (u _ _ _) (v _ _ _ )) is y
-preMapLimitPos _ _ _ _ _ _ _ _ _ gL =
+open import Cubical.Data.Sigma
+
+open import Cubical.HITs.PropositionalTruncation as PT
+
+open import Cubical.HITs.CauchyReals.Base
+open import Cubical.HITs.CauchyReals.Order
+open import Cubical.HITs.CauchyReals.Continuous
+open import Cubical.HITs.CauchyReals.Multiplication
+open import Cubical.HITs.CauchyReals.Inverse
+open import Cubical.HITs.CauchyReals.RationalsImports
+open import Cubical.HITs.CauchyReals.Derivative hiding (invℚ₊)
+open import Cubical.HITs.CauchyReals.InverseLipschitz
+
+open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Specialised.Reals
+
+private
+  opaque
+    rat-·₊ : ∀ u v → rat (fst (u ·₊ v)) ≡ rat (fst u) ·ᵣ rat (fst v)
+    rat-·₊ u v =
+      let p : fst (u ·₊ v) ≡ fst u ℚ.· fst v
+          p = ℚ!
+      in cong rat p ∙ rat·ᵣrat (fst u) (fst v)
+
+-- Previous name: invDerivativeℙ, for the quotient-slope derivative.
+inverseDerivativeℙ :
+  ∀ (P Q : ℙ ℝ)
+    (f f' : ∀ x → x ∈ P → ℝ)
+    (g : ∀ y → y ∈ Q → ℝ)
+    (g∈P : ∀ y y∈ → g y y∈ ∈ P)
+    (section : ∀ y y∈ → f (g y y∈) (g∈P y y∈) ≡ y)
+    (m : ℚ₊)
+  → LowerLipschitz-ℝ→ℝℙ m P f
+  → (f'＃ : ∀ x x∈ → 0 ＃ f' x x∈)
+  → DerivativeOfℙ P , f is f'
+  → DerivativeOfℙ Q , g is
+      (λ y y∈ → invℝ (f' (g y y∈) (g∈P y y∈))
+        (f'＃ (g y y∈) (g∈P y y∈)))
+inverseDerivativeℙ P Q f f' g g∈P section m lower f'＃ df x x∈ ε =
   PT.rec squash₁
-    (λ (δ , X) →
-      PT.rec squash₁
-       (λ (δ' , X') →
-         ∣ δ' , (λ _ _ _ uu →
-           let vv = X' _ _ _ uu
-           in X _ _ _ vv) ∣₁)
-       (gL δ)) ∘_
-
-mapLimitPos' : ∀ x P Q f g y y∈ → (f∈ : ∀ r r∈ x＃ → f r r∈ x＃ ∈ Q)
-  → IsContinuousWithPred Q g
-  → at x limitOfℙ P , f is y
-  → at x limitOfℙ P , (λ r r∈ x＃ → g (f r r∈ x＃) (f∈ _ _ _)) is
-      g y y∈
-mapLimitPos' x P Q f g y y∈ f∈ gC fL (ε , 0<ε) =
-    PT.rec squash₁
-    (λ (q , 0<q , q<ε) →
-     let q₊ = (q , <ᵣ→<ℚ _ _ 0<q)
-     in PT.rec squash₁
-         (λ (δ' , D') →
-            PT.rec squash₁
-              (λ (δ , D) →
-                ∣ minᵣ₊ (ℚ₊→ℝ₊ δ') δ ,
-                    (λ r r∈ x＃r x-r<δ →
-                       let uu = D r r∈ x＃r
-                                  (isTrans<≤ᵣ _ _ _ x-r<δ
-                                    (min≤ᵣ' (rat (fst δ')) _))
-                           uu' = D' (f r r∈ x＃r) (f∈ r r∈ x＃r)
-                                 (invEq (∼≃abs<ε _ _ _) uu)
-                       in  isTrans<ᵣ _ _ _
-                            (fst (∼≃abs<ε _ _ _) uu')
-                            q<ε) ∣₁)
-              (fL (ℚ₊→ℝ₊ (δ'))))
-         (gC y (q₊) y∈))
-   (denseℚinℝ _ _ 0<ε)
-
-invDerivativeℙPos-temp : ∀ x f f' f'Pos (fPos : ∀ x 0<x → 0 <ᵣ f x 0<x )
-  → (isEquivF : isEquiv {A = ℝ × Unit} {B = ℝ₊}
-       λ x → f (fst x) (snd x) , fPos (fst x) (snd x) )
-   → (∀ x y → fst x <ᵣ fst y →
-       fst (invEq (_ , isEquivF) x) <ᵣ fst (invEq (_ , isEquivF) y))
-   → (∀ x y → fst x <ᵣ fst y →
-       (f (fst x) (snd x)) <ᵣ (f (fst y) (snd y)))
-       → IsContinuousWithPred ⊤Pred f
-  → IsContinuousWithPred pred0< (λ x x∈ → fst (invEq (_ , isEquivF) (x , x∈)))
-  → derivativeOfℙ ⊤Pred , f at x is f'
-  → derivativeOfℙ pred0< , (λ r 0<r →
-       fst (invEq (_ , isEquivF) (r , 0<r)))
-         at f (fst x) (snd x) , fPos _ _
-       is fst (invℝ₊ (f' , f'Pos))
-invDerivativeℙPos-temp x f f' f'Pos fPos isEquivF incrG incrF  fC gC dF =
-  subst
-    (uncurry (at (rat [ pos zero / 1+ zero ]) limitOfℙ_,_is
-      fst (invℝ₊ (f' , f'Pos)) ))
-    (ΣPathP (refl , funExt₃
-      pp)) d''
+    chooseModulus
+    (denseℚinℝ 0 (fst ηBound) (snd ηBound))
   where
+  gx : ℝ
+  gx = g x x∈
 
-  e : _ ≃ _
-  e = (_ , isEquivF)
+  gx∈ : gx ∈ P
+  gx∈ = g∈P x x∈
 
-  g = invEq e
+  d : ℝ
+  d = f' gx gx∈
 
-  y = f (fst x) (snd x)
+  d＃ : 0 ＃ d
+  d＃ = f'＃ gx gx∈
 
-  h'' : (r : ℝ) → r ∈ (λ x₁ → pred0< (y +ᵣ x₁)) → ℝ
-  h'' h h∈  = fst (g (_ , h∈)) -ᵣ fst x
+  d⁻¹ : ℝ
+  d⁻¹ = invℝ d d＃
 
-  h' : (r : ℝ) → r ∈ (λ x₁ → pred0< (y +ᵣ x₁)) → 0 ＃ r → ℝ
-  h' h h∈ _ = h'' h h∈
+  denominator : ℝ₊
+  denominator =
+    absᵣ d⁻¹ +ᵣ 1 ,
+      isTrans≡<ᵣ _ _ _ (sym (+ᵣ-rat _ _))
+        (≤<ᵣMonotone+ᵣ 0 (absᵣ d⁻¹) 0 1
+          (0≤absᵣ d⁻¹) (decℚ<ᵣ? {0} {1}))
 
-  uu : (r : ℝ) (r∈ : r ∈ (λ x₂ → pred0< (y +ᵣ x₂))) (＃r : 0 ＃ r) →
-        h' r r∈ ＃r ∈ (λ x₂ → ⊤Pred (x .fst +ᵣ x₂))
-  uu _ r∈ _ = tt
+  εm : ℝ₊
+  εm = ℚ₊→ℝ₊ ε ₊·ᵣ ℚ₊→ℝ₊ m
 
-  vv : (r : ℝ) (r∈ : r ∈ (λ x₂ → pred0< (y +ᵣ x₂))) (＃r : 0 ＃ r) →
-        0 ＃ h' r r∈ ＃r
-  vv r r∈ = ⊎.elim
-    (inl ∘ λ p → x<y→0<y-x _ _ (isTrans≡<ᵣ _ _ _
-     (sym (cong fst (retEq e _)))
-     (incrG (y , fPos _ _) _ (isTrans≡<ᵣ _ _ _ (sym (+IdR _))
-       ((<ᵣ-o+ 0 _ y p))))) )
-    (inr ∘ λ p →
-      (x<y→x-y<0 _ _ (isTrans<≡ᵣ _ _ _
-       (incrG _ _ (isTrans<≡ᵣ _ _ _ (<ᵣ-o+ _ 0 y p) (+IdR _)))
-         (cong fst (retEq e _)))) )
+  ηBound : ℝ₊
+  ηBound = εm ₊·ᵣ invℝ₊ denominator
 
-  h-lim : at 0 limitOfℙ (λ x₁ → pred0< (y +ᵣ x₁)) , (λ h h∈ _ → h'' h h∈) is 0
-  h-lim = subst (at _ limitOfℙ _ , h' is_) (Rℝ.+InvR' _ _
-      (cong (fst ∘ invEq e) (ℝ₊≡ (+IdR y)) ∙ cong fst (retEq e _)))
-    (IsContinuousLimℙ (λ x₁ → pred0< (y +ᵣ x₁)) h'' 0
-      (isTrans<≡ᵣ _ _ _ (fPos (fst x) (snd x)) (sym (+IdR _)))
+  estimate :
+    (q : ℚ) → 0 <ᵣ rat q → rat q <ᵣ fst ηBound →
+    (δ : ℚ₊) →
+    (∀ y y∈ → absᵣ (y -ᵣ gx) ≤ᵣ rat (fst δ) →
+      absᵣ (derivativeErrorℙ P f f' gx gx∈ y y∈)
+      ≤ᵣ rat q ·ᵣ absᵣ (y -ᵣ gx)) →
+    ∀ y y∈ → absᵣ (y -ᵣ x) ≤ᵣ rat (fst (m ·₊ δ)) →
+    absᵣ (derivativeErrorℙ Q g
+      (λ u u∈ → invℝ (f' (g u u∈) (g∈P u u∈)) (f'＃ _ _))
+      x x∈ y y∈)
+    ≤ᵣ rat (fst ε) ·ᵣ absᵣ (y -ᵣ x)
+  estimate q 0<q q<ηBound δ D y y∈ y-x≤mδ =
+    isTrans≡≤ᵣ _ _ _ errorAbsPath
+      (isTrans≤ᵣ _ _ _
+        (≤ᵣ-o·ᵣ _ _ (absᵣ d⁻¹) (0≤absᵣ d⁻¹)
+          (D gy gy∈ gy-gx≤δ))
+        (isTrans≡≤ᵣ _ _ _ ℝ!
+          (isTrans≤ᵣ _ _ _
+            (≤ᵣ-·ᵣo
+              (absᵣ d⁻¹ ·ᵣ rat q)
+              (rat (fst ε) ·ᵣ rat (fst m))
+              (absᵣ (gy -ᵣ gx))
+              (0≤absᵣ (gy -ᵣ gx)) coefficient≤)
+            (isTrans≡≤ᵣ _ _ _ ℝ!
+              (≤ᵣ-o·ᵣ _ _ (rat (fst ε))
+                (<ᵣWeaken≤ᵣ _ _ (snd (ℚ₊→ℝ₊ ε)))
+                forwardLower)))))
+    where
+    gy : ℝ
+    gy = g y y∈
 
-      (IsContinuousWP∘ ⊤Pred _ _ _ _
-        (AsContinuousWithPred _ _ (IsContinuous+ᵣR (-ᵣ fst x)))
-          (IsContinuousWP∘ _ _
-               _ _ _ gC
-           (AsContinuousWithPred _ _ (IsContinuous+ᵣL y ))))
-           )
+    gy∈ : gy ∈ P
+    gy∈ = g∈P y y∈
 
-  d' : at 0 limitOfℙ (λ x₁ → pred0< (y +ᵣ x₁)) ,
-        (λ r r∈ ＃r →
-           differenceAtℙ ⊤Pred f (x .fst) (h' r r∈ ＃r) (vv r r∈ ＃r) (x .snd)
-           (uu r r∈ ＃r))
-        is f'
-  d' = preMapLimitPos _ _ _ _ _
-     h'
-     f'
-     uu vv
-      h-lim dF
+    forwardLower :
+      rat (fst m) ·ᵣ absᵣ (gy -ᵣ gx) ≤ᵣ absᵣ (y -ᵣ x)
+    forwardLower =
+      isTrans≤≡ᵣ _ _ _
+        (lower gy gy∈ gx gx∈)
+        (cong absᵣ (cong₂ _-ᵣ_ (section y y∈) (section x x∈)))
 
-  h''-pos : (r : ℝ) (r∈ : r ∈ (λ x₁ → pred0< (f (fst x) (snd x) +ᵣ x₁)))
-              (x＃ : 0 ＃ r) →
-             0 <ᵣ differenceAtℙ ⊤Pred f (x .fst) (h' r r∈ x＃)
-               _ (x .snd) _
-  h''-pos r r∈ x＃ = incr→0<differenceAtℙ _ _ _ _ _ _ _
-   λ _ _ _ _ → incrF _ _
+    m·gy-gx≤m·δ :
+      rat (fst m) ·ᵣ absᵣ (gy -ᵣ gx) ≤ᵣ
+      rat (fst m) ·ᵣ rat (fst δ)
+    m·gy-gx≤m·δ =
+      isTrans≤≡ᵣ _ _ _
+        (isTrans≤ᵣ _ _ _ forwardLower y-x≤mδ)
+        (rat-·₊ m δ)
 
-  d'' :
-   at 0 limitOfℙ pred0< ∘S (y +ᵣ_) ,
-       (λ r z z₁ →
-          fst (invℝ₊
-            (differenceAtℙ ⊤Pred f (x .fst) (h' r z z₁) _ (x .snd) _ ,
-             h''-pos r z z₁)))
-         is (fst (invℝ₊ (f' , f'Pos)) )
-  d'' = mapLimitPos' _ _ _ _ _ f'
-          f'Pos
-          h''-pos
-          IsContinuousWithPred-invℝ₊
-          d'
+    gy-gx≤δ : absᵣ (gy -ᵣ gx) ≤ᵣ rat (fst δ)
+    gy-gx≤δ =
+      invEq
+        (z≤x≃y₊·z≤y₊·x
+          (rat (fst δ)) (absᵣ (gy -ᵣ gx)) (ℚ₊→ℝ₊ m))
+        m·gy-gx≤m·δ
 
-  pp : ∀ x' u v → fst (invℝ₊ (_ , _))
-                   ≡ differenceAtℙ pred0< _
-                      _ x' v (fPos (fst x) (snd x)) u
-  pp x' u v =
-    p0 ∙ p1 ∙ cong₂ _·ᵣ_ p2 p3 ∙ p4
-   where
-   h : ℝ
-   h = h' x' u v
+    E : ℝ
+    E = derivativeErrorℙ P f f' gx gx∈ gy gy∈
 
-   h＃ : 0 ＃ h
-   h＃ = vv x' u v
+    inverseErrorPath :
+      derivativeErrorℙ Q g
+        (λ u u∈ → invℝ (f' (g u u∈) (g∈P u u∈)) (f'＃ _ _))
+        x x∈ y y∈
+      ≡ -ᵣ d⁻¹ ·ᵣ E
+    inverseErrorPath =
+      cong (λ Δ → gy -ᵣ gx -ᵣ d⁻¹ ·ᵣ Δ)
+        (cong₂ _-ᵣ_ (sym (section y y∈)) (sym (section x x∈)))
+      ∙ ℝ!
+      ∙ cong (λ t → (-ᵣ d⁻¹ ·ᵣ (f gy gy∈ -ᵣ f gx gx∈))
+                       +ᵣ t ·ᵣ (gy -ᵣ gx))
+          (sym (x·invℝ[x] d d＃))
+      ∙ ℝ!
 
-   Δ : ℝ
-   Δ = f (x .fst +ᵣ h) (uu x' u v) -ᵣ f (x .fst) (x .snd)
+    errorAbsPath :
+      absᵣ (derivativeErrorℙ Q g
+        (λ u u∈ → invℝ (f' (g u u∈) (g∈P u u∈)) (f'＃ _ _))
+        x x∈ y y∈)
+      ≡ absᵣ d⁻¹ ·ᵣ absᵣ E
+    errorAbsPath =
+      cong absᵣ inverseErrorPath
+      ∙ ·absᵣ (-ᵣ d⁻¹) E
+      ∙ cong (_·ᵣ absᵣ E) (sym (-absᵣ d⁻¹))
 
-   invh : ℝ
-   invh = invℝ h h＃
+    absd⁻¹≤denominator : absᵣ d⁻¹ ≤ᵣ fst denominator
+    absd⁻¹≤denominator =
+      isTrans≡≤ᵣ _ _ _ (sym (+IdR (absᵣ d⁻¹)))
+        (≤ᵣ-o+ 0 1 (absᵣ d⁻¹) decℚ≤ᵣ?)
 
-   invx' : ℝ
-   invx' = invℝ x' v
+    denominator·q≤εm : fst denominator ·ᵣ rat q ≤ᵣ fst εm
+    denominator·q≤εm =
+      <ᵣWeaken≤ᵣ _ _
+        (fst (z<x/y₊≃y₊·z<x (fst εm) (rat q) denominator)
+          q<ηBound)
 
-   gx' : ℝ
-   gx' = fst (g (y +ᵣ x' , u))
+    coefficient≤ :
+      absᵣ d⁻¹ ·ᵣ rat q ≤ᵣ rat (fst ε) ·ᵣ rat (fst m)
+    coefficient≤ =
+      isTrans≤≡ᵣ _ _ _
+        (isTrans≤ᵣ _ _ _
+          (≤ᵣ-·ᵣo (absᵣ d⁻¹) (fst denominator) (rat q)
+            (<ᵣWeaken≤ᵣ _ _ 0<q) absd⁻¹≤denominator)
+          denominator·q≤εm)
+        refl
 
-   uuu : 0 <ᵣ Δ ·ᵣ invh
-   uuu = h''-pos x' u v
+  chooseModulus :
+    Σ[ q ∈ ℚ ] (0 <ᵣ rat q) × (rat q <ᵣ fst ηBound) →
+    ∃[ δ ∈ ℚ₊ ]
+      (∀ y y∈ → absᵣ (y -ᵣ x) ≤ᵣ rat (fst δ) →
+        absᵣ (derivativeErrorℙ Q g
+          (λ u u∈ → invℝ (f' (g u u∈) (g∈P u u∈)) (f'＃ _ _))
+          x x∈ y y∈)
+        ≤ᵣ rat (fst ε) ·ᵣ absᵣ (y -ᵣ x))
+  chooseModulus (q , 0<q , q<ηBound) =
+    PT.map
+      (λ (δ , D) →
+        m ·₊ δ , λ y y∈ y-x≤mδ →
+          estimate q 0<q q<ηBound δ D y y∈ y-x≤mδ)
+      (df gx gx∈ (q , <ᵣ→<ℚ 0 q 0<q))
 
-   x+h≡gx' : x .fst +ᵣ h ≡ gx'
-   x+h≡gx' = +ᵣComm (x .fst) h ∙ Rℝ.minusPlus gx' (x .fst)
+inverse-uDerivativeℙ :
+  ∀ (P Q : ℙ ℝ)
+    (f f' : ∀ x → x ∈ P → ℝ)
+    (g : ∀ y → y ∈ Q → ℝ)
+    (g∈P : ∀ y y∈ → g y y∈ ∈ P)
+    (section : ∀ y y∈ → f (g y y∈) (g∈P y y∈) ≡ y)
+    (m M : ℚ₊)
+  → LowerLipschitz-ℝ→ℝℙ m P f
+  → (f'＃ : ∀ x x∈ → 0 ＃ f' x x∈)
+  → (∀ x x∈ →
+      absᵣ (invℝ (f' x x∈) (f'＃ x x∈)) ≤ᵣ rat (fst M))
+  → uDerivativeOfℙ P , f is f'
+  → uDerivativeOfℙ Q , g is
+      (λ y y∈ → invℝ (f' (g y y∈) (g∈P y y∈))
+        (f'＃ (g y y∈) (g∈P y y∈)))
+inverse-uDerivativeℙ P Q f f' g g∈P section m M lower f'＃ invBound df ε =
+  PT.rec squash₁ chooseEta
+    (denseℚinℝ 0 (fst ηBound) (snd ηBound))
+  where
+  denominator : ℝ₊
+  denominator =
+    rat (fst M) +ᵣ 1 ,
+      isTrans≡<ᵣ _ _ _ (sym (+ᵣ-rat _ _))
+        (≤<ᵣMonotone+ᵣ 0 (rat (fst M)) 0 1
+          (<ᵣWeaken≤ᵣ _ _ (snd (ℚ₊→ℝ₊ M)))
+          (decℚ<ᵣ? {0} {1}))
 
-   qq : f (x .fst +ᵣ h' x' u v) (uu x' u v) ≡ y +ᵣ x'
-   qq = cong₂ f x+h≡gx' (toPathP refl)
-         ∙ cong fst (secEq e (y +ᵣ x' , u))
+  εm : ℝ₊
+  εm = ℚ₊→ℝ₊ ε ₊·ᵣ ℚ₊→ℝ₊ m
 
-   zzz : f (x .fst +ᵣ h' x' u v) (uu x' u v) -ᵣ f (x .fst) (x .snd)
-              ≡ x'
-   zzz =
-     cong (_-ᵣ f (x .fst) (x .snd)) qq
-       ∙ cong (_-ᵣ y) (+ᵣComm y x')
-       ∙ Rℝ.plusMinus x' y
+  ηBound : ℝ₊
+  ηBound = εm ₊·ᵣ invℝ₊ denominator
 
-   zz : 0 ＃ ((f (x .fst +ᵣ h' x' u v) (uu x' u v)) -ᵣ f (x .fst) (x .snd))
-   zz = subst (0 ＃_) (sym zzz) v
+  ratM≤denominator : rat (fst M) ≤ᵣ fst denominator
+  ratM≤denominator =
+    isTrans≡≤ᵣ _ _ _ (sym (+IdR (rat (fst M))))
+      (≤ᵣ-o+ 0 1 (rat (fst M)) decℚ≤ᵣ?)
 
-   Δ₊ : ℝ₊
-   Δ₊ = absᵣ Δ , 0＃→0<abs Δ zz
+  estimate :
+    (q : ℚ) → 0 <ᵣ rat q → rat q <ᵣ fst ηBound →
+    (δ : ℚ₊) →
+    (∀ x x∈ y y∈ → absᵣ (y -ᵣ x) ≤ᵣ rat (fst δ) →
+      absᵣ (derivativeErrorℙ P f f' x x∈ y y∈)
+      ≤ᵣ rat q ·ᵣ absᵣ (y -ᵣ x)) →
+    ∀ x x∈ y y∈ → absᵣ (y -ᵣ x) ≤ᵣ rat (fst (m ·₊ δ)) →
+    absᵣ (derivativeErrorℙ Q g
+      (λ u u∈ → invℝ (f' (g u u∈) (g∈P u u∈)) (f'＃ _ _))
+      x x∈ y y∈)
+    ≤ᵣ rat (fst ε) ·ᵣ absᵣ (y -ᵣ x)
+  estimate q 0<q q<ηBound δ D x x∈ y y∈ y-x≤mδ =
+    isTrans≡≤ᵣ _ _ _ errorAbsPath
+      (isTrans≤ᵣ _ _ _
+        (≤ᵣ-o·ᵣ _ _ (absᵣ d⁻¹) (0≤absᵣ d⁻¹)
+          (D gx gx∈ gy gy∈ gy-gx≤δ))
+        (isTrans≡≤ᵣ _ _ _ ℝ!
+          (isTrans≤ᵣ _ _ _
+            (≤ᵣ-·ᵣo
+              (absᵣ d⁻¹ ·ᵣ rat q)
+              (rat (fst ε) ·ᵣ rat (fst m))
+              (absᵣ (gy -ᵣ gx))
+              (0≤absᵣ (gy -ᵣ gx)) coefficient≤)
+            (isTrans≡≤ᵣ _ _ _ ℝ!
+              (≤ᵣ-o·ᵣ _ _ (rat (fst ε))
+                (<ᵣWeaken≤ᵣ _ _ (snd (ℚ₊→ℝ₊ ε)))
+                forwardLower)))))
+    where
+    gx : ℝ
+    gx = g x x∈
 
-   invh₊ : ℝ₊
-   invh₊ = absᵣ invh , 0＃→0<abs invh (invℝ0＃ h h＃)
+    gy : ℝ
+    gy = g y y∈
 
-   Δg : ℝ
-   Δg = fst (g (y +ᵣ x' , u)) -ᵣ fst (g (y , fPos (fst x) (snd x)))
+    gx∈ : gx ∈ P
+    gx∈ = g∈P x x∈
 
-   h≡Δg : h ≡ Δg
-   h≡Δg = cong₂ _-ᵣ_ refl (cong fst (sym (retEq e x)))
+    gy∈ : gy ∈ P
+    gy∈ = g∈P y y∈
 
-   Δg/x'>0 : 0 <ᵣ Δg ·ᵣ invx'
-   Δg/x'>0 =
-     incr→0<differenceAtℙ pred0< (λ r 0<r → fst (g (r , 0<r)))
-       y x' v (fPos (fst x) (snd x)) u
-       λ _ _ _ _ → incrG _ _
+    d : ℝ
+    d = f' gx gx∈
 
-   p0 : fst (invℝ₊ (Δ ·ᵣ invh , uuu)) ≡ fst (invℝ₊ (Δ₊ ₊·ᵣ invh₊))
-   p0 =
-     cong {x = Δ ·ᵣ invh , uuu} (fst ∘ invℝ₊)
-       (ℝ₊≡ (sym (absᵣPos (Δ ·ᵣ invh) uuu) ∙ ·absᵣ Δ invh))
+    d＃ : 0 ＃ d
+    d＃ = f'＃ gx gx∈
 
-   p1 : fst (invℝ₊ (Δ₊ ₊·ᵣ invh₊)) ≡ fst (invℝ₊ Δ₊) ·ᵣ fst (invℝ₊ invh₊)
-   p1 = cong fst (invℝ₊· Δ₊ invh₊)
+    d⁻¹ : ℝ
+    d⁻¹ = invℝ d d＃
 
-   p2 : fst (invℝ₊ Δ₊) ≡ absᵣ invx'
-   p2 =
-     cong (fst ∘ invℝ₊) (ℝ₊≡ (cong absᵣ zzz))
-       ∙ sym (absᵣ-invℝ x' v)
+    forwardLower :
+      rat (fst m) ·ᵣ absᵣ (gy -ᵣ gx) ≤ᵣ absᵣ (y -ᵣ x)
+    forwardLower =
+      isTrans≤≡ᵣ _ _ _
+        (lower gy gy∈ gx gx∈)
+        (cong absᵣ (cong₂ _-ᵣ_ (section y y∈) (section x x∈)))
 
-   p3 : fst (invℝ₊ invh₊) ≡ absᵣ Δg
-   p3 =
-     sym (absᵣ-invℝ invh (invℝ0＃ h h＃))
-       ∙ cong absᵣ (invℝInvol h h＃ ∙ h≡Δg)
+    m·gy-gx≤m·δ :
+      rat (fst m) ·ᵣ absᵣ (gy -ᵣ gx) ≤ᵣ
+      rat (fst m) ·ᵣ rat (fst δ)
+    m·gy-gx≤m·δ =
+      isTrans≤≡ᵣ _ _ _
+        (isTrans≤ᵣ _ _ _ forwardLower y-x≤mδ)
+        (rat-·₊ m δ)
 
-   p4 : absᵣ invx' ·ᵣ absᵣ Δg ≡ Δg ·ᵣ invx'
-   p4 =
-     ·ᵣComm _ _ ∙ sym (·absᵣ Δg invx') ∙ absᵣPos (Δg ·ᵣ invx') Δg/x'>0
+    gy-gx≤δ : absᵣ (gy -ᵣ gx) ≤ᵣ rat (fst δ)
+    gy-gx≤δ =
+      invEq
+        (z≤x≃y₊·z≤y₊·x
+          (rat (fst δ)) (absᵣ (gy -ᵣ gx)) (ℚ₊→ℝ₊ m))
+        m·gy-gx≤m·δ
 
--- Previous location: ExponentiationDer.invDerivativeℙ.
-invDerivativeℙ : ∀ x (f : ℝ → ℝ) f' f'Pos (fPos : ∀ x → 0 <ᵣ f x)
-  → (isEquivF : isEquiv {A = ℝ} {B = ℝ₊} λ x → f x  , fPos x)
-   → (∀ x y → fst x <ᵣ fst y →
-       (invEq (_ , isEquivF) x) <ᵣ (invEq (_ , isEquivF) y))
-   → (∀ x y → x <ᵣ y →  (f x) <ᵣ (f y)) → IsContinuous f
-  → IsContinuousWithPred pred0< (λ x x∈ → (invEq (_ , isEquivF) (x , x∈)))
-  → derivativeOf f at x is f'
-  → derivativeOfℙ pred0< , (λ r 0<r →
-        (invEq (_ , isEquivF) (r , 0<r)))
-         at f x , fPos _
-       is fst (invℝ₊ (f' , f'Pos))
-invDerivativeℙ x f f' f'Pos fPos isEquivF incrG incrF  fC gC dF =
- invDerivativeℙPos-temp
-   (x , tt)
-   (λ x _ → f x)
-   f'
-   f'Pos
-   (λ v _ → fPos v)
-   (snd (isoToEquiv rUnit×Iso ∙ₑ (_ , isEquivF)))
-   (λ x₁ y x₂ → incrG _ _ x₂)
-   (λ x₁ y x₂ → incrF _ _ x₂)
-   (AsContinuousWithPred _ _ fC)
-   gC
-   (as-derivativeOfℙ _ _ _ _ _ dF)
--}
+    E : ℝ
+    E = derivativeErrorℙ P f f' gx gx∈ gy gy∈
+
+    inverseErrorPath :
+      derivativeErrorℙ Q g
+        (λ u u∈ → invℝ (f' (g u u∈) (g∈P u u∈)) (f'＃ _ _))
+        x x∈ y y∈
+      ≡ -ᵣ d⁻¹ ·ᵣ E
+    inverseErrorPath =
+      cong (λ Δ → gy -ᵣ gx -ᵣ d⁻¹ ·ᵣ Δ)
+        (cong₂ _-ᵣ_ (sym (section y y∈)) (sym (section x x∈)))
+      ∙ ℝ!
+      ∙ cong (λ t → (-ᵣ d⁻¹ ·ᵣ (f gy gy∈ -ᵣ f gx gx∈))
+                       +ᵣ t ·ᵣ (gy -ᵣ gx))
+          (sym (x·invℝ[x] d d＃))
+      ∙ ℝ!
+
+    errorAbsPath :
+      absᵣ (derivativeErrorℙ Q g
+        (λ u u∈ → invℝ (f' (g u u∈) (g∈P u u∈)) (f'＃ _ _))
+        x x∈ y y∈)
+      ≡ absᵣ d⁻¹ ·ᵣ absᵣ E
+    errorAbsPath =
+      cong absᵣ inverseErrorPath
+      ∙ ·absᵣ (-ᵣ d⁻¹) E
+      ∙ cong (_·ᵣ absᵣ E) (sym (-absᵣ d⁻¹))
+
+    denominator·q≤εm : fst denominator ·ᵣ rat q ≤ᵣ fst εm
+    denominator·q≤εm =
+      <ᵣWeaken≤ᵣ _ _
+        (fst (z<x/y₊≃y₊·z<x (fst εm) (rat q) denominator)
+          q<ηBound)
+
+    coefficient≤ :
+      absᵣ d⁻¹ ·ᵣ rat q ≤ᵣ rat (fst ε) ·ᵣ rat (fst m)
+    coefficient≤ =
+      isTrans≤≡ᵣ _ _ _
+        (isTrans≤ᵣ _ _ _
+          (≤ᵣ-·ᵣo (absᵣ d⁻¹) (fst denominator) (rat q)
+            (<ᵣWeaken≤ᵣ _ _ 0<q)
+            (isTrans≤ᵣ _ _ _ (invBound gx gx∈) ratM≤denominator))
+          denominator·q≤εm)
+        refl
+
+  chooseEta :
+    Σ[ q ∈ ℚ ] (0 <ᵣ rat q) × (rat q <ᵣ fst ηBound) →
+    ∃[ δ ∈ ℚ₊ ]
+      (∀ x x∈ y y∈ → absᵣ (y -ᵣ x) ≤ᵣ rat (fst δ) →
+        absᵣ (derivativeErrorℙ Q g
+          (λ u u∈ → invℝ (f' (g u u∈) (g∈P u u∈)) (f'＃ _ _))
+          x x∈ y y∈)
+        ≤ᵣ rat (fst ε) ·ᵣ absᵣ (y -ᵣ x))
+  chooseEta (q , 0<q , q<ηBound) =
+    PT.map
+      (λ (δ , D) →
+        m ·₊ δ , λ x x∈ y y∈ y-x≤mδ →
+          estimate q 0<q q<ηBound δ D x x∈ y y∈ y-x≤mδ)
+      (df (q , <ᵣ→<ℚ 0 q 0<q))

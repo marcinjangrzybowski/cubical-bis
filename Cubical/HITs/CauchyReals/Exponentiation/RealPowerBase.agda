@@ -56,6 +56,7 @@ open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
 open import Cubical.HITs.CauchyReals.Continuous
+open import Cubical.HITs.CauchyReals.ContinuousOrder
 open import Cubical.HITs.CauchyReals.Multiplication
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
@@ -187,10 +188,6 @@ IsGroupℝˣ = makeIsGroup
 ·Groupℝ = group _ _ _ _ IsGroupℝˣ
 
 
--- GroupIso-ℝˣ-ℝˣ₊×𝟚 : GroupIso ·Groupℝ (DirProd ·₊Groupℝ BoolGroup)
--- GroupIso-ℝˣ-ℝˣ₊×𝟚 = Iso-ℝ₋₊-ℝ₊×𝟚 , makeIsGroupHom {!!}
-
-
 module AutCont (Gstr : GroupStr ℝ) where
 
  open GroupStr Gstr
@@ -274,9 +271,6 @@ module +GrAutomorphism (A : ⟨ (Aut[ +Groupℝ ]) ⟩) where
  fun-rat : ∀ q → fun (rat q) ≡ rat q ·ᵣ α
  fun-rat q = cong fun (sym (·IdR _)) ∙ sym (f-linℚ 1 q)
 
- -- _ : {!!}
- -- _ = {!fun-rat 1!}
-
  Σfun' : Σ[ f' ∈ (ℝ → ℝ) ] ∃[ L ∈ ℚ₊ ] (Lipschitz-ℝ→ℝ L f')
  Σfun' = fromLipschitz' (fun ∘ rat)
   (PT.map
@@ -324,87 +318,6 @@ module +GrAutomorphism (A : ⟨ (Aut[ +Groupℝ ]) ⟩) where
  fun'-rat : ∀ x → fun' (rat x) ≡ fun (rat x)
  fun'-rat x = fun'· (rat x) ∙ sym (fun-rat x)
 
-
-
--- .Elimℝ-Prop2Sym.rat-ratA r q p =
---     let z = sym (fun'-rat r) ∙∙ p ∙∙ fun'-rat q
---     in isoFunInjective (fst A) _ _ z
---   w .Elimℝ-Prop2Sym.rat-limA = {!!}
---   w .Elimℝ-Prop2.lim-limA = {!!}
---   w .Elimℝ-Prop2.isPropA _ _ = isPropΠ λ _ → isSetℝ _ _
-
- -- fun'·-equiv : isEquiv fun'
- -- fun'·-equiv = isEmbedding×isSurjection→isEquiv {f = fun'}
- --  (fun-emb , {!!})
-
--- module +GrAutomorphism-Cont (A : ⟨ (Aut[ +Groupℝ ]) ⟩) where
-
---  module F = +GrAutomorphism A
---  module F' = +GrAutomorphism (invGroupIso A)
-
---  isom' : Iso ℝ ℝ
---  isom' .Iso.fun = F.fun'
---  isom' .Iso.inv = F'.fun'
---  isom' .Iso.sec = {!!}
---  -- ≡Continuous _ _
---  --   (IsContinuous∘ _ _ F.fun'-cont F'.fun'-cont) IsContinuousId
---  --     λ r → {!!}
---  isom' .Iso.ret = {!!}
-
---  α·α'≡1 : F'.α ·ᵣ F.α ≡ 1
---  α·α'≡1 = sym (F.fun'· _)
---   ∙  cong F.fun' (sym (·IdL _) ∙ sym (F'.fun'· _)) ∙ isom' .Iso.sec 1
-
---  g-linℚ : ∀ x q → rat q ·ᵣ g x ≡ g (rat q ·ᵣ x)
---  g-linℚ = {!!}
-
-
---  β = g 1
-
-
---  g-rat : ∀ q → g (rat q) ≡ rat q ·ᵣ β
---  g-rat q = cong g (sym (·IdR _)) ∙ sym (g-linℚ 1 q)
-
-
---  α·β=1 : α ·ᵣ β ≡ 1
---  α·β=1 =
---    let q : ℚ
---        q = {!!}
---        pp : {!!}
---        pp =     cong g {!f
---        !}
---                ∙ Iso.ret (fst A) (rat q)
---    in {!!}
-
---  -- f≠1 : f 1 ≡ 0 → ⊥
---  -- f≠1 p = {!inj-rat _ _
---  --   (isoFunInjective (fst A) _ _ (p ∙ sym (pres1)))!}
-
---  0<∣α∣ : 0 <ᵣ absᵣ α
---  0<∣α∣ = {! !}
-
-
--- --  _ : {!!}
--- --  _ = {!g (absᵣ α)!}
-
-
--- --  f-cont : IsContinuous f
--- --  f-cont u ε =
--- --   PT.map
--- --     {!!}
--- --     {!!}
-
-
-Invlipschitz-ℝ→ℝ→injective-interval : ∀ K a b f →
- Invlipschitz-ℝ→ℝℙ K (intervalℙ a b) f
-    → ∀ x x∈ y y∈ → f x x∈ ≡ f y y∈ → x ≡ y
-Invlipschitz-ℝ→ℝ→injective-interval K a b f il x x∈ y y∈ =
- fst (∼≃≡ _ _) ∘
-   (λ p ε → subst∼ (ℚ.y·[x/y] K (fst ε))
-     (il x x∈ y  y∈ ((invℚ₊ K) ·₊ ε) (p (invℚ₊ K ·₊ ε))))
-   ∘S invEq (∼≃≡ _ _)
-
-
 intervalℙ→dist< : ∀ a b x y → x ∈ intervalℙ a b → y ∈ intervalℙ a b
                    → absᵣ (x -ᵣ y) ≤ᵣ b -ᵣ a
 intervalℙ→dist< a b x y (a≤x , x≤b) (a≤y , y≤b) =
@@ -430,7 +343,7 @@ opaque
  unfolding maxᵣ
  1≤x⊔1/x : ∀ x → 1 ≤ᵣ maxᵣ (fst x) (fst (invℝ₊ x))
  1≤x⊔1/x =
-   uncurry (<→≤ContPos'pred {0}
+   uncurry (continuousOpenLowerComparison {0}
      (AsContinuousWithPred _ _
        (IsContinuousConst _))
         (contDiagNE₂WP maxR _ _ _
@@ -461,7 +374,7 @@ opaque
  unfolding _+ᵣ_
  1≤x+1/x : ∀ x → 1 ≤ᵣ fst x +ᵣ fst (invℝ₊ x)
  1≤x+1/x =
-   uncurry (<→≤ContPos'pred {0}
+   uncurry (continuousOpenLowerComparison {0}
      (AsContinuousWithPred _ _
        (IsContinuousConst _))
         (contDiagNE₂WP sumR _ _ _
@@ -474,81 +387,6 @@ opaque
                    ∙ sym (cong fst (invℝ₊-impl (rat u , 0<u)))))
                   (≤ℚ→≤ᵣ _ _ (ℚ.<Weaken≤ 1 _
                    (ℚ1<x+1/x (u , <ᵣ→<ℚ _ _ 0<u)))))
-
--- pasting : (x₀ : ℝ) → (f< : ∀ x → x ≤ᵣ x₀ → ℝ)
---                   → (<f : ∀ x → x₀ ≤ᵣ x → ℝ)
---                   → f< x₀ (≤ᵣ-refl x₀) ≡ <f x₀ (≤ᵣ-refl x₀)
---                   → Σ[ f ∈ (ℝ → ℝ) ]
---                         (∀ x x≤x₀ → f x ≡ f< x x≤x₀)
---                          × (∀ x x₀≤x → f x ≡ <f x x₀≤x)
--- pasting x₀ f< <f p =
---   (λ x → (<f (maxᵣ x₀ x) (≤maxᵣ _ _)
---       +ᵣ f< (minᵣ x₀ x) (min≤ᵣ _ _))
---        -ᵣ f< x₀ (≤ᵣ-refl x₀))
---   , (λ x x≤x₀ →
---       let z = minᵣComm _ _ ∙ ≤→minᵣ _ _ x≤x₀
---       in cong₂ _-ᵣ_ (cong₂ _+ᵣ_
---              (cong (uncurry <f) (Σ≡Prop (λ _ → isProp≤ᵣ _ _)
---                (maxᵣComm _ _ ∙ ?))) -- x≤x₀
---              (cong (uncurry f<) (Σ≡Prop (λ _ → isProp≤ᵣ _ _) z)) ) p ∙
---           L𝐑.lem--063)
---   , λ x x₀≤x →
---        Rℝ.plusMinus' _ _ _ (cong (uncurry f<)
---         (Σ≡Prop (λ _ → isProp≤ᵣ _ _) (≤→minᵣ _ _ x₀≤x))) ∙
---         (cong (uncurry <f)
---         (Σ≡Prop (λ _ → isProp≤ᵣ _ _) ?)) -- x₀≤x
-
-
--- pasting< : ∀ b x₀ b<x₀
---                   → (f< : ∀ x → b <ᵣ x → x ≤ᵣ x₀ → ℝ)
---                   → (<f : ∀ x → x₀ ≤ᵣ x → ℝ)
---                   → f< x₀ b<x₀ (≤ᵣ-refl x₀) ≡ <f x₀ (≤ᵣ-refl x₀)
---                   → Σ[ f ∈ (∀ x → b <ᵣ x → ℝ) ]
---                         (∀ x b<x x≤x₀ → f x b<x ≡ f< x b<x x≤x₀)
---                          × (∀ x b<x x₀≤x → f x b<x ≡ <f x x₀≤x)
--- pasting< b x₀ b<x₀ f< <f p =
---    ((λ x x< → (<f (maxᵣ x₀ x) (≤maxᵣ _ _)
---       +ᵣ f< (minᵣ x₀ x) (<min-lem _ _ _ b<x₀ x<) (min≤ᵣ _ _))
---        -ᵣ f< x₀ b<x₀ (≤ᵣ-refl x₀)))
---   , (λ x b<x x≤x₀ →
---       let z = minᵣComm _ _ ∙ ≤→minᵣ _ _ x≤x₀
---       in cong₂ _-ᵣ_ (cong₂ _+ᵣ_
---              (cong (uncurry <f) (Σ≡Prop (λ _ → isSetℝ _ _)
---                (maxᵣComm _ _ ∙ x≤x₀)))
---              (cong (uncurry (uncurry f<))
---                (Σ≡Prop (flip isProp≤ᵣ _ ∘ fst) (Σ≡Prop (isProp<ᵣ _) z)))
---              ) p ∙
---           L𝐑.lem--063)
---    , λ x b<x x₀≤x →
---      Rℝ.plusMinus' _ _ _ (cong (uncurry (uncurry f<))
---         (Σ≡Prop (λ (x , _) → isProp≤ᵣ x _) (Σ≡Prop (isProp<ᵣ _) (≤→minᵣ _ _ x₀≤x))) ) ∙
---        cong (uncurry <f) ((Σ≡Prop (λ _ → isSetℝ _ _) x₀≤x))
-
-
-
--- pasting≤ : ∀ b x₀ b≤x₀
---                   → (f< : ∀ x → b ≤ᵣ x → x ≤ᵣ x₀ → ℝ)
---                   → (<f : ∀ x → x₀ ≤ᵣ x → ℝ)
---                   → f< x₀ b≤x₀ (≤ᵣ-refl x₀) ≡ <f x₀ (≤ᵣ-refl x₀)
---                   → Σ[ f ∈ (∀ x → b ≤ᵣ x → ℝ) ]
---                         (∀ x b≤x x≤x₀ → f x b≤x ≡ f< x b≤x x≤x₀)
---                          × (∀ x b≤x x₀≤x → f x b≤x ≡ <f x x₀≤x)
--- pasting≤ b x₀ b≤x₀ f< <f p =
---   (λ x _ → (fst h) x)
---   , (λ x b≤x x≤x₀ → fst (snd h) x x≤x₀ ∙ q b≤x)
---   ,  const ∘ snd (snd h)
---  where
-
---  q : ∀ {y y' : Σ[ x ∈ ℝ ] (b ≤ᵣ x) × (x ≤ᵣ x₀)}
---          → (a : (fst y) ≡ (fst y')) → _ ≡ _
---  q {y} {y'} = cong {x = y} {y = y'} (uncurry $ uncurry ∘ f<) ∘
---          (Σ≡Prop (λ _ → isProp× (isSetℝ _ _) (isSetℝ _ _)))
-
---  h = pasting x₀
---        (λ x x≤x₀ → f< (maxᵣ b x) (≤maxᵣ _ _)
---          (max≤-lem _ _ _ b≤x₀ x≤x₀))
---        <f (q b≤x₀ ∙ p)
-
 
 opaque
  unfolding _+ᵣ_
@@ -637,19 +475,6 @@ slope-upper-bound z B y₀ y₁ y₀<y₁ (-B≤y₀ , y₀≤B) (-B≤y₁ , y�
   h₊ = ℚ.<→ℚ₊ _ _ y₀<y₁
   B<B+1 = ℚ≤→<+₊ _ _ 1 (ℚ.isRefl≤ (fst B))
 
-
--- -- lowBnd-1/ℕ : (ε : ℝ₊) → ∃[ k ∈ ℕ₊₁ ] rat [ 1 / k ] <ᵣ fst ε
--- -- lowBnd-1/ℕ = {!!}
-
-
--- -- ceilℚ₊ q = 1+ (fst (fst (floor-fracℚ₊ q))) ,
--- --    subst2 (_<_) --  (fromNat (suc (fst (fst (floor-fracℚ₊ q)))))
--- --       (ℚ.+Comm _ _ ∙ fst (snd (floor-fracℚ₊ q)))
--- --       (ℚ.ℕ+→ℚ+ _ _)
--- --        (<-+o _ _ (fromNat (fst (fst (floor-fracℚ₊ q))))
--- --          (snd (snd (snd (floor-fracℚ₊ q)))))
-
-
 slUpBd : ℕ → ℕ → ℚ₊
 slUpBd Z m = (ℚ._ℚ₊^ⁿ_ (fromNat (suc (suc Z))) (suc m)) ·₊ fromNat (suc Z)
 
@@ -694,124 +519,9 @@ opaque
   → ∀ z
   → minᵣ (fst (z ^ℚ q)) (fst (z ^ℚ q'')) ≤ᵣ fst (z ^ℚ q')
  monotone^ℚ q q' q'' q≤q' q'≤q'' =
-   uncurry (<→≤ContPos'pred {0}
+   uncurry (continuousOpenLowerComparison {0}
      (contDiagNE₂WP minR _ _ _
        (IsContinuous^ℚ q)
        (IsContinuous^ℚ q''))
      (IsContinuous^ℚ q')
      λ u 0<u → monotone^ℚ' q q' q'' q≤q' q'≤q'' u 0<u)
-
--- module BDL (z : ℝ₊) (Z : ℕ)
---           (z≤Z : fst z ≤ᵣ fromNat (suc (suc Z)))
---           (1/Z≤z : rat [ 1 / fromNat (suc (suc Z)) ]  ≤ᵣ fst z)
---           -- (1+1/Z<z : rat (1 ℚ.+ [ 1 / 1+ (suc Z) ]) ≤ᵣ fst z )
---            where
-
-
--- bdl' : 1 ≤ᵣ fst z → boundedLipschitz (fst ∘ z ^ℚ_) (slUpBd Z)
--- bdl' 1≤z n = ℚ.elimBy≡⊎<
---  (λ x y X y∈ x∈ → subst2 _≤ᵣ_
---       (minusComm-absᵣ _ _)
---       (cong (rat ∘ (fst (slUpBd Z n) ℚ.·_)) (ℚO.abs-Comm _ _))
---       (X x∈ y∈)  )
---  (λ x _ _ → subst2 _≤ᵣ_
---     (cong absᵣ (sym (+-ᵣ _)))
---     (cong rat (sym (𝐐'.0RightAnnihilates' _ _ (cong ℚ.abs (ℚ.+InvR x)))))
---     (≤ᵣ-refl 0))
---  λ y₀ y₁ y₀<y₁ y₀∈ y₁∈ →
---   isTrans≡≤ᵣ _ _ _ (absᵣNonNeg _ (x≤y→0≤y-x _ _
---         (^ℚ-MonotoneR _ _ (ℚ.<Weaken≤ _ _ y₀<y₁) 1≤z )))
---     (isTrans≤≡ᵣ _ _ _ (isTrans≤ᵣ _ _ _ (
---    (fst (z/y≤x₊≃z≤y₊·x _ _ _) (slope-upper-bound z (fromNat (suc n))
---    y₀ y₁ y₀<y₁
---     (ℚ.absTo≤×≤ (fromNat (suc n)) y₀ y₀∈)
---     (ℚ.absTo≤×≤ (fromNat (suc n)) y₁ y₁∈))))
---      (≤ᵣ-o· _ _ _ (ℚ.<Weaken≤ 0 _ (ℚ.-< _ _ y₀<y₁))
---       (≤ᵣ₊Monotone·ᵣ _ _ _ _
---         (<ᵣWeaken≤ᵣ _ _ $ snd (fromNat (suc (suc Z)) ^ℚ fst (fromNat (suc n))))
---         (x≤y→0≤y-x _ _ 1≤z)
---         (^ℚ-Monotone {y = fromNat (suc (suc Z))}
---          (fromNat (suc n)) z≤Z)
---         (≤ᵣ-+o _ _ (-1) z≤Z))))
---      (·ᵣComm _ _ ∙
---       cong₂ (_·ᵣ_)
---         (cong₂ (_·ᵣ_) (^ⁿ-ℚ^ⁿ _ _) (cong rat (ℚ.ℤ+→ℚ+ _ _))
---          ∙ sym (rat·ᵣrat _ _) )
---         (cong rat (sym (ℚO.0<→abs≡id _ (ℚ.-< _ _ y₀<y₁))))
---        ∙ sym (rat·ᵣrat _ _)))
-
-
-
--- --  slUpBdInv : ℕ → ℚ₊
--- --  slUpBdInv m = (fromNat (suc (suc Z))) ℚ₊^ⁿ (suc (suc (suc m)))
--- --      -- ℚ₊· ((invℚ₊ (fromNat (suc (suc Z)))) ℚ₊· invℚ₊ (fromNat (suc (suc Z))))
--- -- -- ((fst z -ᵣ 1) ／ᵣ₊ z)
-
---  -- slpBdIneq : ∀ n → fst (invℚ₊ (slUpBdInv n)) ℚ.≤
---  --    fst (slUpBd n)
---  -- slpBdIneq n = ℚ.isTrans≤ _ 1 _
---  --   (fst (ℚ.invℚ₊-≤-invℚ₊ 1 _)
---  --     (ℚ.1≤x^ⁿ (fromNat (suc (suc Z)))
---  --          (suc (suc (suc n)))
---  --          (≤ℤ→≤ℚ 1 (pos (suc (suc Z)))
---  --            (ℤ.suc-≤-suc {0} {pos (suc Z)}
---  --             (ℤ.zero-≤pos {suc Z})))))
---  --   (ℚ.≤Monotone·-onNonNeg 1 _ 1 _
---  --    ((ℚ.1≤x^ⁿ (fromNat (suc (suc Z)))
---  --          ((suc n))
---  --          (≤ℤ→≤ℚ 1 (pos (suc (suc Z)))
---  --            (ℤ.suc-≤-suc {0} {pos (suc Z)}
---  --             (ℤ.zero-≤pos {suc Z})))))
---  --    ((≤ℤ→≤ℚ 1 (pos (suc Z))
---  --            (ℤ.suc-≤-suc {0} {pos Z}
---  --             (ℤ.zero-≤pos {Z}))))
---  --    (ℚ.decℚ≤? {0} {1})
---  --    (ℚ.decℚ≤? {0} {1}))
-
--- --  1<z : 1 <ᵣ (fst z)
--- --  1<z = isTrans<ᵣ _ _ _ (<ℚ→<ᵣ _ _ (ℚ.<+ℚ₊' _ _ _ (ℚ.isRefl≤ 1))) 1+1/Z<z
-
-
--- clampᵣ₊ : ℝ₊ → ℝ₊ → ℝ₊ → ℝ₊
--- clampᵣ₊ d u x = minᵣ₊ (maxᵣ₊ d x) u
-
-isIncrasingℙᵣ : (P : ℙ ℝ) → (∀ (x : ℝ) → x ∈ P → ℝ) → Type
-isIncrasingℙᵣ P f =
- ∀ (x : ℝ) (x∈ : x ∈ P) (y : ℝ) (y∈ : y ∈ P) → x <ᵣ y → f x x∈ <ᵣ f y y∈
-
-
-isNondecrasingℙᵣ : (P : ℙ ℝ) → (∀ (x : ℝ) → x ∈ P → ℝ) → Type
-isNondecrasingℙᵣ P f =
- ∀ (x : ℝ) (x∈ : x ∈ P) (y : ℝ) (y∈ : y ∈ P) → x ≤ᵣ y → f x x∈ ≤ᵣ f y y∈
-
-opaque
- unfolding minᵣ maxᵣ
- ∈interval→≤ContPos'pred : {x₀ x₁ : ℚ} → (x₀ ℚ.≤ x₁)
-          → {f₀ f₁ : ∀ x → x ∈ intervalℙ (rat x₀) (rat x₁)   → ℝ}
-          → IsContinuousWithPred (intervalℙ (rat x₀) (rat x₁)) f₀
-          → IsContinuousWithPred (intervalℙ (rat x₀) (rat x₁)) f₁
-          → (∀ u x₀<u<x₁ → f₀ (rat u) x₀<u<x₁
-                     ≤ᵣ f₁ (rat u) x₀<u<x₁ )
-              → ∀ x x₀<x<x₁ → f₀ x x₀<x<x₁ ≤ᵣ f₁ x x₀<x<x₁
- ∈interval→≤ContPos'pred {x₀} {x₁} x₀≤x₁ {f₀} {f₁} f₀C f₁C X x (≤x , x≤) =
-   subst (λ (u , u∈) → f₀ u u∈ ≤ᵣ f₁ u u∈)
-    (Σ≡Prop (∈-isProp ((intervalℙ (rat x₀) (rat x₁))))
-      (sym (∈ℚintervalℙ→clampᵣ≡ _ _ _ (≤x , x≤))))
-    $ ≤Cont
-      {λ x → f₀ (clampᵣ (rat x₀) (rat x₁) x)
-        (clampᵣ∈ℚintervalℙ _ _ (≤ℚ→≤ᵣ _ _ x₀≤x₁) _)}
-      {λ x → f₁ (clampᵣ (rat x₀) (rat x₁) x)
-       ((clampᵣ∈ℚintervalℙ _ _ (≤ℚ→≤ᵣ _ _ x₀≤x₁) _))}
-      (IsContinuousWithPred∘IsContinuous _ _ _
-          _ f₀C (IsContinuousClamp (rat x₀) (rat x₁)))
-      (IsContinuousWithPred∘IsContinuous _ _ _
-          _ f₁C (IsContinuousClamp (rat x₀) (rat x₁)))
-      (λ u →
-        let
-          I = intervalℙ (rat x₀) (rat x₁)
-          cl∈ = clampᵣ∈ℚintervalℙ (rat x₀) (rat x₁) (≤ℚ→≤ᵣ x₀ x₁ x₀≤x₁) (rat u)
-          cl≡ = clampᵣ-rat x₀ x₁ u
-        in subst (λ (v , v∈) → f₀ v v∈ ≤ᵣ f₁ v v∈)
-             (Σ≡Prop (∈-isProp I) (sym cl≡))
-             (X (ℚ.clamp x₀ x₁ u) (subst (_∈ I) cl≡ cl∈)))
-      x

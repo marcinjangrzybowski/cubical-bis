@@ -1,0 +1,4 @@
+module Cubical.HITs.CauchyReals.Exponentiation.NormalizedExponential where
+
+open import Cubical.HITs.CauchyReals.Exponentiation.NormalizedExponentialLaws public
+open import Cubical.HITs.CauchyReals.Exponentiation.NormalizedExponentialOrder public

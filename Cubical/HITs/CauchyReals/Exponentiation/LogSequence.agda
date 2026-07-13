@@ -177,8 +177,6 @@ module expPreDer (Z : ℕ) where
                         (ℝ₊≡ refl) ))) )
                   z 0<z 0<z
 
-  -- lnSeq-∼ : (ε : ℚ₊) → ∀ {!!}
-  -- lnSeq-∼ = {!!}
   ca-lnSeq : IsCauchySequence' (lnSeq z)
   ca-lnSeq ε =
     fst (seqΔ-δ Z ε) , ℕ.elimBy≤
@@ -194,20 +192,8 @@ module expPreDer (Z : ℕ) where
             ))
         (seqΔ ε _ <x)
 
---   -- ca-lnSeq' : IsCauchySequence' lnSeq'
---   -- ca-lnSeq' = IsCauchySequence'-via-~seq lnSeq lnSeq' lnSeq~lnSeq' ca-lnSeq
---   -- IsCauchySequence'-via-~seq
-
   preLn : ℝ
   preLn = fromCauchySequence' _ ca-lnSeq
-
- -- --  lnSeq'-lim : ?
- -- --  lnSeq'-lim = fromCauchySequence'≡ _ ca-lnSeq
- -- -- -- fromCauchySequence'≡ : ∀ s ics x
- -- -- --          → ((∀ (ε : ℚ₊) →
- -- -- --              ∃[ N ∈ ℕ ] (∀ n → N ℕ.< n →
- -- -- --                   absᵣ ((s n) -ᵣ x) <ᵣ rat (fst ε))))
- -- -- --          → fromCauchySequence' s ics ≡ x
 
   preLn≤lnSeq : ∀ n → preLn ≤ᵣ (lnSeq z n)
   preLn≤lnSeq n =
@@ -249,11 +235,6 @@ module expPreDer (Z : ℕ) where
       (fromNat 2))
       (lnSeq'≤preLn 0)
 
-  -- preLn<0 : fst z <ᵣ 1 → preLn <ᵣ 0
-  -- preLn<0 z<1 = isTrans≤<ᵣ _ _ _
-  --   {!!}
-  --   {!!}
-
  open expPreDer'
 
  0=preLn : (1≤ : fst 1 ≤ᵣ fromNat (suc (suc Z)))
@@ -285,6 +266,37 @@ module expPreDer (Z : ℕ) where
                 (≤ᵣ-+o (preLn z z≤Z 1/Z≤z) _ (-ᵣ lnSeq' z n)
                   (preLn≤lnSeq _ _ _ n))
                 (seqΔ z z≤Z 1/Z≤z ε n <n))) ∣₁
+
+ preLn<0 : (z : ℝ₊)
+          (z≤Z : fst z ≤ᵣ fromNat (suc (suc Z)))
+          (1/Z≤z : rat [ 1 / fromNat (suc (suc Z)) ] ≤ᵣ fst z)
+          → fst z <ᵣ 1
+          → preLn z z≤Z 1/Z≤z <ᵣ 0
+ preLn<0 z z≤Z 1/Z≤z z<1 =
+   <ᵣ-ᵣ _ 0
+     (isTrans≡<ᵣ _ _ _ (-ᵣ-rat 0)
+       (subst (0 <ᵣ_)
+         (preLn-inv z z≤Z 1/Z≤z inv-z≤Z 1/Z≤inv-z)
+         (expPreDer'.0<preLn (invℝ₊ z) inv-z≤Z 1/Z≤inv-z 1<inv-z)))
+  where
+  inv-z≤Z : fst (invℝ₊ z) ≤ᵣ fromNat (suc (suc Z))
+  inv-z≤Z =
+    isTrans≤≡ᵣ _ _ _
+      (invEq (invℝ₊-≤-invℝ₊ z (ℚ₊→ℝ₊ (stepℚ₊ Z))) 1/Z≤z)
+      (invℝ₊-rat (stepℚ₊ Z))
+
+  1/Z≤inv-z : rat [ 1 / fromNat (suc (suc Z)) ] ≤ᵣ fst (invℝ₊ z)
+  1/Z≤inv-z =
+    isTrans≡≤ᵣ _ _ _
+      (sym (invℝ₊-rat (fromSucℚ₊ (suc Z))))
+      (invEq
+        (invℝ₊-≤-invℝ₊ (ℚ₊→ℝ₊ (fromSucℚ₊ (suc Z))) z)
+        z≤Z)
+
+  1<inv-z : 1 <ᵣ fst (invℝ₊ z)
+  1<inv-z =
+    fst (1/x<1≃1<x (invℝ₊ z))
+      (isTrans≡<ᵣ _ _ _ (cong fst (invℝ₊Invol z)) z<1)
 
 
 

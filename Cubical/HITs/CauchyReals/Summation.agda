@@ -460,7 +460,6 @@ deltas-sum (suc n) f =
 
 injectFin+ : {m n : ℕ} → Fin m → Fin (n ℕ.+ m)
 injectFin+ {n = n} x = (n ℕ.+ fst x) ,  ℕ.<→<ᵗ (ℕ.<-k+ {k = n} (ℕ.<ᵗ→< (snd x)))
--- injectFin+ {n = suc n} x = fsuc (injectFin+ x)
 
 
 injectFin+' : {m n : ℕ} → Fin n → Fin (n ℕ.+ m)
@@ -583,24 +582,6 @@ injectFin+'-flast≡injectFin+-fzero :
   fst (injectFin+' {m} {suc n} flast) ≡
   fst (injectFin+ {suc m} {n} fzero)
 injectFin+'-flast≡injectFin+-fzero n m = sym (+-zero _)
-
--- injectFin+'-flast-S : ∀ n m k p →
---      inr fzero ≡ Fin+→⊎ (suc n) (suc (suc m))
---        (k , p)
--- injectFin+'-flast-S n m zero p = {!n m!}
---   -- ⊥.rec (ℕ.znots {n}
---   --  (ℕ.inj-+m {m = suc (suc m)} (cong suc (sym (+-comm m 1)) ∙ p)))
--- injectFin+'-flast-S zero m (suc zero) p = refl
---  -- cong inr (toℕ-injective refl)
--- injectFin+'-flast-S zero m (suc (suc k)) p = {!!}
---  -- ⊥.rec (ℕ.snotz {k} (ℕ.inj-+m {m = suc (suc (suc m))}
---  --       (cong suc (
---  --         (ℕ.+-assoc k 3 m ∙
---  --          cong (ℕ._+ m) (+-comm k 3))
---  --        ∙ +-comm (suc (suc (suc k))) m) ∙ p)))
-
--- injectFin+'-flast-S (suc n) m (suc k) p = {!!}
---  -- cong (⊎.map fsuc (λ x → x)) (injectFin+'-flast-S n m k _)
 
 foldFin·2 : ∀ n m → (f : B → A → B) → (b : B) →
               (V : Fin (n ℕ.+ m) → A) →
@@ -731,9 +712,6 @@ module _ (A : Type) where
   go : Fin (2 ℕ.+ n) → A
   go (zero , _) = a₀
   go (suc k , p) = go-tail n f aₙ (k , p)
-  -- go (suc k , zero , p) = aₙ
-  -- go (suc k , suc l , p) =
-  --   f (k , l , cong (predℕ ∘ predℕ) (sym (ℕ.+-suc (suc l) (suc k)) ∙ p))
 
 go-tail-finj : ∀ {A n₀} (R : ElimFinSS A n₀) n (f : Fin n → A) a (j : Fin n) →
   ElimFinSS.go-tail R n f a (finj j) ≡ f j

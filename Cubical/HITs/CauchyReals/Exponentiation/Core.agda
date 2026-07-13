@@ -52,6 +52,7 @@ open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
 open import Cubical.HITs.CauchyReals.Continuous
+open import Cubical.HITs.CauchyReals.ContinuousOrder
 open import Cubical.HITs.CauchyReals.Multiplication
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
@@ -406,12 +407,6 @@ _₀₊·₀₊ᵣ_ : ℝ₀₊ → ℝ₀₊ → ℝ₀₊
 
 
 
--- lim√→₀ : ∀ n → (ε : ℚ₊) →
---            ∃[ δ ∈ ℚ₊ ] (∀ x →
---                fst x <ᵣ rat (fst δ) → fst (root n x) <ᵣ rat (fst ε))
--- lim√→₀ = {!!}
-
-
 module slope-incr-root (n : ℕ) where
 
 
@@ -750,6 +745,10 @@ module _ (x : ℝ) (0<x : 0 <ᵣ x) where
 _^ℚ_ : ℝ₊ → ℚ →  ℝ₊
 _^ℚ_ = uncurry _^ℚc_
 
+opaque
+  ^ℚ-zero : ∀ x → x ^ℚ 0 ≡ 1
+  ^ℚ-zero x = refl
+
 IsContinuous^ℚ : ∀ q → IsContinuousWithPred posℙ
                           (curry (fst ∘ (_^ℚ q)))
 IsContinuous^ℚ = SQ.ElimProp.go w
@@ -807,27 +806,6 @@ IsContinuous^ℚ = SQ.ElimProp.go w
           ∙ cong (flip root x₊) (·₊₁-comm _ _)))
        ∙ ^ℤ-· _ _ _
 
-
-
--- ^ⁿ-invℝ₊ : ∀ n x →
---             ((invℝ₊ x) ₊^ⁿ n) ≡ invℝ₊ (x ₊^ⁿ n)
--- ^ⁿ-invℝ₊ n = {!!}
--- uncurry
---   λ x 0<x →
---      ℝ₊≡ (≡ContinuousWithPred _ _ (openPred< 0) (openPred< 0)
---         _ _
---          (IsContinuousWP∘
---            (λ y → (0 <ᵣ y) , squash₁)
---            (λ y → (0 <ᵣ y) , squash₁)
---            _ _
---            (λ x 0<x → invℝ'-pos x 0<x) (IsContinuous₊^ⁿ n) (snd invℝ'))
-
---     (IsContinuousWP∘
---            (λ y → (0 <ᵣ y) , squash₁)
---            (λ y → (0 <ᵣ y) , squash₁)
---            _ _
---            (λ x 0<x → snd ((x , 0<x) ₊^ⁿ n)) (snd invℝ') (IsContinuous₊^ⁿ n) )
---     (λ r r<0 _ → {!!}) x 0<x 0<x)
 
 
 invℝ₊^ℤ : ∀ x a → (invℝ₊ x) ^ℤ (ℤ.- a) ≡ x ^ℤ a
@@ -889,13 +867,6 @@ Iso^ₙₒₜ₀ q 0#q .Iso.sec x =
   ∙∙ ℝ₊≡ (·IdR (fst x))
 Iso^ₙₒₜ₀ q 0#q .Iso.ret x =
  ^ℚ-· x _ _  ∙∙ cong (x ^ℚ_) (ℚ.x·invℚ[x] q 0#q) ∙∙ ℝ₊≡ (·IdR (fst x))
-
-
--- pow-root-+ : ∀ (m n : ℚ₊) →
---          Iso^₊ (m ℚ₊· n)
---              ≡ compIso (Iso^₊ m) (Iso^₊ n)
--- pow-root-+ m n = SetsIso≡fun isSetℝ₊ isSetℝ₊
---   (funExt (λ x → {!Iso^₊!}))
 
 
 factor-xᵃ-xᵇ : ∀ x a b → fst (x ^ℚ a) -ᵣ fst (x ^ℚ b) ≡
@@ -988,81 +959,19 @@ factorOut-xᵃ x a b =
    1/x<1 = isTrans≡<ᵣ _ _ _ (cong fst (sym (invℝ₊1)))
             (invEq (invℝ₊-<-invℝ₊ 1 x) x<1)
 
-⊆IsContinuousWithPred : ∀ P P' → (P'⊆P : P' ⊆ P) → ∀ f
-        → IsContinuousWithPred P f
-        → IsContinuousWithPred P' (λ x x∈ → f x (P'⊆P x x∈))
-⊆IsContinuousWithPred _ _ P'⊆P f cp u ε u∈P =
-  PT.map (map-snd (λ x _ → x _ ∘ (P'⊆P _)))
-    (cp u ε (P'⊆P _ u∈P))
-
-
-≤ContPos'pred : {x₀ : ℚ} {f₀ f₁ : ∀ x → rat x₀ ≤ᵣ x → ℝ}
-         → IsContinuousWithPred (pred≥ (rat x₀)) f₀
-         → IsContinuousWithPred (pred≥ (rat x₀)) f₁
-         → (∀ u x₀≤u → f₀ (rat u) (≤ℚ→≤ᵣ _ _ x₀≤u)
-                ≤ᵣ f₁ (rat u) (≤ℚ→≤ᵣ _ _ x₀≤u))
-             → ∀ x x₀≤x → f₀ x x₀≤x ≤ᵣ f₁ x x₀≤x
-≤ContPos'pred {x₀} {f₀} {f₁} f₀C f₁C X x x₀≤x =
-  subst (λ xp → f₀ (fst xp) (snd xp) ≤ᵣ f₁ (fst xp) (snd xp))
-    (Σ≡Prop (∈-isProp (pred≥ (rat x₀)))
-      (≤→maxᵣ (rat x₀) x x₀≤x))
-    (≤Cont
-      (IsContinuousWithPred∘IsContinuous _ _ _
-        (λ _ → ≤maxᵣ _ _) f₀C (IsContinuousMaxL (rat x₀)))
-      (IsContinuousWithPred∘IsContinuous _ _ _
-        (λ _ → ≤maxᵣ _ _) f₁C (IsContinuousMaxL (rat x₀)))
-      (λ u →
-        subst (λ xp → f₀ (fst xp) (snd xp) ≤ᵣ f₁ (fst xp) (snd xp))
-          (Σ≡Prop (∈-isProp (pred≥ (rat x₀)))
-            (sym (maxᵣ-rat x₀ u)))
-          (X (ℚ.max x₀ u) (ℚ.≤max x₀ u)))
-      x)
-
-opaque
- unfolding _<ᵣ_
-
- <→≤ContPos'pred : {x₀ : ℚ} {f₀ f₁ : ∀ x → rat x₀ <ᵣ x → ℝ}
-          → IsContinuousWithPred (pred> (rat x₀)) f₀
-          → IsContinuousWithPred (pred> (rat x₀)) f₁
-          → (∀ u x₀<u → f₀ (rat u) x₀<u
-                     ≤ᵣ f₁ (rat u) x₀<u)
-              → ∀ x x₀<x → f₀ x x₀<x ≤ᵣ f₁ x x₀<x
- <→≤ContPos'pred {x₀} {f₀} {f₁} f₀C f₁C X x x₀<x =
-   PT.rec (isProp≤ᵣ _ _)
-     (λ ((q , q') , (x₀≤q , q<q' , q'≤x)) →
-       let x₀<q' : rat x₀ <ᵣ rat q'
-           x₀<q' =
-             <ℚ→<ᵣ _ _
-               (ℚ.isTrans≤< _ _ _ (≤ᵣ→≤ℚ x₀ q x₀≤q) q<q')
-
-           q'≤z→x₀<z : pred≥ (rat q') ⊆ pred> (rat x₀)
-           q'≤z→x₀<z z q'≤z = isTrans<≤ᵣ _ _ _ x₀<q' q'≤z
-
-           z = ≤ContPos'pred {q'}
-                 (⊆IsContinuousWithPred _ _ q'≤z→x₀<z f₀ f₀C)
-                 (⊆IsContinuousWithPred _ _ q'≤z→x₀<z f₁ f₁C)
-                 (λ u q'≤u →
-                   X u (q'≤z→x₀<z (rat u) (≤ℚ→≤ᵣ _ _ q'≤u)))
-                 x q'≤x
-       in subst (λ x₀<x → f₀ x x₀<x ≤ᵣ f₁ x x₀<x)
-            (isProp<ᵣ _ _ _ _)
-            z)
-     x₀<x
-
-
 ^ℚ-MonotoneR : ∀ {x : ℝ₊} → (q r : ℚ) → q ℚ.≤ r
     → 1 ≤ᵣ fst x
     → fst (x ^ℚ q) ≤ᵣ fst (x ^ℚ r)
 ^ℚ-MonotoneR {x} q r q≤r 1≤x =
 
-  let z = ≤ContPos'pred {1}
-             (⊆IsContinuousWithPred _ _
+  let z = continuousClosedLowerComparison {1}
+             (IsContinuousWithPred⊆ _ _
+                (λ x x< → fst ((x , x<) ^ℚ q))
                 (λ x → isTrans<≤ᵣ 0 1 x ((decℚ<ᵣ? {0} {1})))
-                 (λ x x< → fst ((x , x<) ^ℚ q))
                 (IsContinuous^ℚ q))
-             (⊆IsContinuousWithPred _ _
+             (IsContinuousWithPred⊆ _ _
+                (λ x x< → fst ((x , x<) ^ℚ r))
                 (λ x → isTrans<≤ᵣ 0 1 x ((decℚ<ᵣ? {0} {1})))
-                 (λ x x< → fst ((x , x<) ^ℚ r))
                 (IsContinuous^ℚ r))
                 (λ u 1≤u → hh (ℚ.≤→<⊎≡ q r q≤r) u 1≤u (ℚ.≤→<⊎≡ 1 u 1≤u))
              (fst x) 1≤x

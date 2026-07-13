@@ -4,6 +4,10 @@ This index records the modules that have been cleaned enough to be used as
 ordinary source modules. It is meant as a navigation aid: look here first before
 reviving code from `Dirty/` or adding another helper.
 
+For the complementary inventory of `Dirty/` and commented-out declarations,
+including completeness and migration estimates, see
+[UnmigratedDefinitions.md](UnmigratedDefinitions.md).
+
 ## Core real infrastructure
 
 - `Base.agda`
@@ -19,7 +23,8 @@ reviving code from `Dirty/` or adding another helper.
   `clampᵣ`.
 
 - `OrderBounds.agda`
-  Reusable min/max and interval-bound lemmas for order proofs.
+  Reusable min/max and interval-bound lemmas for order proofs, including the
+  Archimedean positive unit-fraction bound `∃UnitFractionBelowℝ₊`.
 
 - `RationalsImports.agda`
   Project-local rational and positive-rational import facade, including
@@ -32,6 +37,10 @@ reviving code from `Dirty/` or adding another helper.
 - `Positive.agda`
   Small positive-real helpers factored out from later developments.
 
+- `UniversalProperty.agda`
+  Cauchy presentations, their limit map, and the set-valued factorization and
+  uniqueness theorem corresponding to HoTT Book Lemma 11.3.11.
+
 ## Continuity, Lipschitz maps, and algebra
 
 - `Lipschitz.agda`
@@ -43,6 +52,30 @@ reviving code from `Dirty/` or adding another helper.
   continuity of clamp, negation, min/max, and the general
   `IsContinuousWithPred-ᵣ` lemma.
 
+- `ContinuousOrder.agda`
+  Generic closed-lower, open-lower, and closed-interval order comparisons for
+  continuous functions, factored out of exponentiation-specific modules.
+
+- `FunctionOrder.agda`
+  Reusable `IsStrictlyIncreasingOn` and `IsNondecreasingOn` predicates.
+
+- `ContinuousApart.agda`
+  Extends inequalities proved away from zero across zero by continuity.
+
+- `ContinuousAdditiveAutomorphism.agda`
+  Scalar additive automorphisms, extraction of the scalar at one, and the
+  theorem that every continuous additive automorphism acts by that scalar.
+
+- `EndpointExtension.agda`
+  Uniformly continuous monotone extension from strict half-lines to their
+  closed endpoints, in both left- and right-end forms.
+
+- `Pasting.agda`, `Pasting/StrictLower.agda`, and
+  `Pasting/ClosedLower.agda`
+  Function pasting at a closed cut and strict/closed lower-domain variants,
+  with checked left/right computation laws. Previous names were `pasting`,
+  `pasting<`, and `pasting≤`.
+
 - `Multiplication.agda`
   Construction of multiplication on `ℝ`, commutative-ring structure, powers,
   multiplication continuity, rational homomorphism lemmas, and square algebra.
@@ -51,9 +84,19 @@ reviving code from `Dirty/` or adding another helper.
   Apartness, inverse on nonzero and positive reals, division operations,
   sign lemmas, and inverse continuity.
 
+- `InverseLipschitz/Base.agda`
+  Predicate-indexed inverse-Lipschitz maps and their injectivity theorem.
+
+- `InverseLipschitz.agda`
+  Lower-Lipschitz bounds and conversion to inverse-Lipschitz estimates.
+
 - `Power.agda`
   Integer/natural power support over `ℝ`, parity lemmas, absolute-value power
   lemmas, and zero/one power simplifications.
+
+- `PowerOrder.agda`
+  Rational natural-power order reflection and strict monotonicity in the
+  exponent for bases greater than one.
 
 - `PowerDerivative.agda`
   New-style derivative statements for ordinary power functions.
@@ -72,6 +115,10 @@ reviving code from `Dirty/` or adding another helper.
 - `Sequence/Limits.agda`
   Smaller limit-oriented sequence facts factored out from the larger sequence
   module.
+
+- `Sequence/AlternatingSeries.agda`
+  Alternating rational sequences, parity bounds on partial sums, and the
+  Cauchy criterion for decreasing magnitudes tending to zero.
 
 - `Summation.agda`
   Finite sums over `Fin`, fold/zip algebra, finite-sum inequalities, powers of
@@ -111,7 +158,8 @@ reviving code from `Dirty/` or adding another helper.
 
 - `Integration.agda`
   Definitions of `on[_,_]IntegralOf_is_` and `on[_,_]IntegralOf_is'_`,
-  uniqueness, substitution, translation, and preintegration machinery.
+  uniqueness, substitution, translation, positive input-scaling substitution
+  (`integral'-pre·<` and `integral'-pre·`), and preintegration machinery.
 
 - `IntegrationMore.agda`
   Active legacy integration lemmas still used by checked modules: clamp
@@ -130,6 +178,13 @@ reviving code from `Dirty/` or adding another helper.
   Bishop-style derivative definitions using two points `x` and `y`, local and
   uniform derivative variants, derivative algebra, continuity consequences,
   and null-derivative lemmas.
+
+- `Derivative/Uniqueness.agda`
+  Uniqueness of Bishop-style derivative values and transport across equal
+  functions.
+
+- `Derivative/Scaling.agda`
+  Bishop-style derivative rules for scaling the input of a function.
 
 - `MeanValue.agda`
   Bishop proposition 7, Rolle's theorem, mean value theorem, endpoint-weak
@@ -173,6 +228,11 @@ reviving code from `Dirty/` or adding another helper.
   Approximation machinery for exponentiation and rational approximation over
   bounded intervals.
 
+- `Exponentiation/Approximation/InverseLipschitz.agda`
+  Extension of bounded rational lower-slope estimates to inverse-Lipschitz
+  estimates for the corresponding real approximants. This split checks
+  without lossy unification.
+
 - `Exponentiation/Convexity.agda`
   AM-GM, slope monotonicity, and convexity-style inequalities for powers.
 
@@ -190,10 +250,62 @@ reviving code from `Dirty/` or adding another helper.
 - `Exponentiation/RealPower.agda`
   Real-power construction from the logarithm sequence machinery.
 
+- `Exponentiation/RealPowerBaseContinuity.agda`
+  The exp-log representation of real powers and continuity of `x ↦ x ^ y` on
+  positive bases.
+
+- `Exponentiation/RealPowerLaws.agda`
+  Difference factorization for real powers.
+
+- `Exponentiation/RealPowerBaseOrder.agda`
+  Strict monotonicity of positive-base real power for positive exponents.
+
+- `Exponentiation/NonzeroRealGroup.agda`
+  Group isomorphism decomposing nonzero reals into a positive magnitude and a
+  Boolean sign.
+
+- `Exponentiation/RealPowerBounds.agda` and
+  `Exponentiation/RealPowerLowerLipschitz.agda`
+  Compact-interval upper and lower slope estimates, lower-Lipschitz bounds,
+  and inverse-Lipschitz consequences for real exponentiation.
+
+- `Exponentiation/RealPowerDerivative.agda` and
+  `Exponentiation/RealPowerDerivativeEverywhere.agda`
+  Bishop-style differentiability of a bounded real-power approximant at zero
+  and at every real exponent.
+
+- `Exponentiation/RealPowerCalculusProof.agda` and
+  `Exponentiation/RealPowerCalculus.agda`
+  Global Bishop-style derivative of `x ^ y` with respect to `y`, and the
+  logarithm power law, replacing the old quotient-slope results.
+
+- `Exponentiation/NormalizedBase.agda`, `NormalizedBaseLaw.agda`, and
+  `NormalizedBaseIndependence.agda`
+  Construction and characterization of the normalized exponential base and
+  independence from its auxiliary starting base.
+
+- `Exponentiation/NormalizedExponential*.agda`
+  Normalized real exponential, logarithm inverse laws, algebraic laws, order
+  behavior, and the public normalized-exponential facade.
+
+- `Exponentiation/LogarithmLaws.agda`
+  Product/additive logarithm laws and global order consequences.
+
+- `Exponentiation/LogarithmDerivativeBounded.agda` and
+  `Exponentiation/LogarithmDerivative.agda`
+  Bounded-interval estimates and the Bishop-style derivative of logarithm.
+
+- `Exponentiation/ExpLogDerivative.agda`, `ExpLog.agda`, and
+  `ExpLogGroup.agda`
+  Derivative of normalized exponential, public exp/log facade, and the
+  additive-to-positive-multiplicative group isomorphism.
+
 - `ExponentiationMore.agda`
-  Active legacy exponentiation/log module still imported by arcsine and ExpLog
-  material. It remains outside `Dirty/` only because checked modules still
-  depend on it; future work should split or replace the remaining imports.
+  Remaining checked real-power/logarithm construction, real-power laws,
+  monotonicity, and an opaque inverse-Lipschitz proof. It still carries the
+  pre-existing lossy-unification option. The independent positive-base secant
+  slope theorem, whose rational convexity prerequisite is absent, is catalogued
+  separately.
 
 - `ExponentialSeries.agda`
   Exponential series construction, convergence, positivity, and uniform
@@ -318,12 +430,9 @@ The following modules are preserved under `Dirty/` because they are obsolete,
 experimental, contain holes/lossy flags, or are not yet migrated to the current
 style:
 
-- `Dirty/Alternating.agda`
 - `Dirty/AproxDemo.agda`
 - `Dirty/ExpExtended.agda`
-- `Dirty/ExpLog.agda`
 - `Dirty/NthRootEvalTest.agda`
-- `Dirty/PreviouslyInUniform.agda`
 - `Dirty/TypesDemo.agda`
 
 Deleted obsolete modules:
@@ -341,3 +450,12 @@ Deleted obsolete modules:
 - `Dirty/TrigBaseQ.agda`: its completed material was split among `Signs.agda`,
   `Power.agda`, `Uniform.agda`, `ExponentialSeries*.agda`, `TrigBase.agda`,
   `FundamentalTheoremOfCalculus.agda`, and `NthRoot/NonNegative.agda`.
+- `Dirty/Alternating.agda`: its theorem core moved to
+  `Sequence/AlternatingSeries.agda`; unrelated evaluator experiments were not
+  retained in the analysis hierarchy.
+- `Dirty/PreviouslyInUniform.agda`: endpoint extension moved to
+  `EndpointExtension.agda`; its nth-root and FTOC material was already present
+  in checked modules, leaving no unique definitions.
+- `Dirty/ExpLog.agda`: all valid exp/log and scalar-action results had already
+  migrated; its remaining additive-automorphism classification statement was
+  unprovable and was discarded.

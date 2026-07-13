@@ -300,34 +300,20 @@ module _ (a b : ℝ) (α : ℝ) (0<α : 0 <ᵣ α) where
        (isTrans≡<ᵣ _ _ _
          (sym (+IdR _)) (<ᵣ-o+ 0 1 α decℚ<ᵣ?)))
 
-
-
-
--- integral'-pre· : ∀ a b f s (α : ℝ₊)
---                  → (on[ a , b ]IntegralOf f is' s)
---          → (on[ a ·ᵣ (fst α) , b ·ᵣ (fst α)
---            ]IntegralOf (f ∘S (_·ᵣ fst (invℝ₊ α))) is' (s ·ᵣ (fst α)))
--- integral'-pre· a b f s α X ε =
---   PT.rec squash₁
---     (λ (δ , (0<δ , δ<)) →
---       PT.map (map-snd
---          λ {δ'} →
---            λ Y p p≤ →
---             let pp = partition-pre·
---                        (a ·ᵣ (fst α)) (b ·ᵣ (fst α)) (invℝ₊ α)
---                      (p)
---             in isTrans<ᵣ _ _ _
---                (isTrans≡<ᵣ _ _ _ (({!!} ∙ ·absᵣ {!!} (fst α))
---                     ∙ cong (absᵣ _ ·ᵣ_) (absᵣPos _ (snd α)) ∙ ·ᵣComm _ _ )
---                     {!!}
---                  -- (<ᵣ-o·ᵣ _ _  α (Y (subst2 TaggedPartition[_,_]
---                  --  ([x·yᵣ]/₊y _ α) (([x·yᵣ]/₊y _ α)) pp)
---                  --   {!p≤!}))
---                    )
---                 (fst (z<x/y₊≃y₊·z<x _ _ _) δ<)
---               )
---         (X (δ , {!!})))
---     (denseℚinℝ 0 (rat (fst ε) ·ᵣ (fst (invℝ₊ α))) {!cfc!})
+integral'-pre· : ∀ a b f s (α : ℝ₊)
+  → on[ a , b ]IntegralOf f is' s
+  → on[ a ·ᵣ fst α , b ·ᵣ fst α ]IntegralOf
+      (f ∘S (_·ᵣ fst (invℝ₊ α))) is' (s ·ᵣ fst α)
+integral'-pre· a b f s α X =
+  integral'-pre·< a b (fst α) (snd α)
+    (f ∘S (_·ᵣ fst (invℝ₊ α))) s
+    (subst (λ g → on[ a , b ]IntegralOf g is' s)
+      (sym (funExt λ x →
+        cong f
+          (cong ((x ·ᵣ fst α) ·ᵣ_)
+             (invℝ₊≡invℝ α (inl (snd α)))
+           ∙ [x·y]/yᵣ x (fst α) (inl (snd α)))))
+      X)
 
 
 

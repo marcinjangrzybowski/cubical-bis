@@ -232,9 +232,6 @@ x^→∞ m ε =
       }
 
 
--- bernoulli's-ineq-^ℚ-r<1 : ∀ x r → 1 <ᵣ fst x → 0 ℚ.< r → r ℚ.< 1 → fst (x ^ℚ r) <ᵣ 1 +ᵣ rat r ·ᵣ (fst x -ᵣ 1)
-
-
 module _ (z : ℝ₊) where
 
  lnSeq=diff : ∀ n → ((fst (z ^ℚ (0 ℚ.+ [ 1 / 2+ n ])) -ᵣ
@@ -314,16 +311,6 @@ module _ (z : ℝ₊) where
 
   mono = slope-monotone z a 0 a' 0 a<0 a'<0 a≤a' (ℚ.isRefl≤ 0)
 
-
---  0≤ᵣlnSeq : ∀ n → 0 ≤ᵣ lnSeq z n
---  0≤ᵣlnSeq n =  isTrans≡≤ᵣ _ _ _ (rat·ᵣrat 0 0) $
---    ≤ᵣ₊Monotone·ᵣ _ _ _ _
---     w (≤ᵣ-refl _)
---     w  (≤ℚ→≤ᵣ _ _ (ℚ.0≤pos _ _) )
-
---    where
-
---    w = fst (x≤y≃0≤y-x _ _) (1≤^ℚ z _ 1≤z)
 
  lnSeq'≤lnSeq : ∀ n m → lnSeq' z n ≤ᵣ lnSeq z m
  lnSeq'≤lnSeq n m =

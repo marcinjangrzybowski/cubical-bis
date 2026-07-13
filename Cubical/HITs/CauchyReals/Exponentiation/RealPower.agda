@@ -56,6 +56,8 @@ open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
 open import Cubical.HITs.CauchyReals.Continuous
+open import Cubical.HITs.CauchyReals.ContinuousOrder
+open import Cubical.HITs.CauchyReals.FunctionOrder
 open import Cubical.HITs.CauchyReals.Multiplication
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
@@ -89,7 +91,6 @@ open import Cubical.HITs.CauchyReals.Exponentiation.RealPowerBase public
 module BDL (z : ℝ₊) (Z : ℕ)
           (z≤Z : fst z ≤ᵣ fromNat (suc (suc Z)))
           (1/Z≤z : rat [ 1 / fromNat (suc (suc Z)) ]  ≤ᵣ fst z)
-          -- (1+1/Z<z : rat (1 ℚ.+ [ 1 / 1+ (suc Z) ]) ≤ᵣ fst z )
            where
 
  opaque
@@ -139,7 +140,7 @@ module BDL (z : ℝ₊) (Z : ℕ)
      (cong (λ z → absᵣ
        (fst (z ^ℚ  y) -ᵣ fst (z ^ℚ x)))
        (ℝ₊≡ refl))
-   (∈interval→≤ContPos'pred {x₀ = [ 1 / fromNat (suc (suc Z)) ]}
+   (continuousClosedIntervalComparison {x₀ = [ 1 / fromNat (suc (suc Z)) ]}
         {x₁ = fromNat (suc (suc Z)) }
          (ℚ.isTrans≤ [ 1 / (fromNat (suc (suc Z))) ] 1 (fromNat (suc (suc Z)))
           (ℚ.invℚ₊≤invℚ₊ (fromNat (suc (suc Z))) 1
@@ -161,11 +162,9 @@ module BDL (z : ℝ₊) (Z : ℕ)
           (λ z z∈ → isTrans<≤ᵣ _ _ _ (<ℚ→<ᵣ _ _ (0<pos _ _))
            (fst z∈))
           ((contDiagNE₂WP sumR _ _ _
-         (⊆IsContinuousWithPred _ _ (λ x 0<x → 0<x) _
-           (IsContinuous^ℚ y))
+         (IsContinuous^ℚ y)
             (IsContinuousWP∘' _ _ _ IsContinuous-ᵣ
-              ((⊆IsContinuousWithPred _ _ (λ x 0<x → 0<x) _
-           (IsContinuous^ℚ x))))))))
+              (IsContinuous^ℚ x))))))
          ((AsContinuousWithPred _ _ (IsContinuousConst
            (rat (fst (slUpBd Z n) ℚ.· abs (y ℚ.- x))))))
            www
@@ -243,80 +242,9 @@ module BDL (z : ℝ₊) (Z : ℕ)
 
  open BoundedLipsch (fst ∘ z ^ℚ_) (slUpBd Z) bdl public
 
--- --  bdlInv-lem : ( fst (fromNat (suc (suc Z))
--- --                    ^ℚ -2)) ≤ᵣ ((fst z -ᵣ 1) ／ᵣ₊ z)
--- --  bdlInv-lem = isTrans≡≤ᵣ _ _ _
--- --    (cong fst (^ℚ-minus' _ 2 ∙ sym (^ℚ-+ _ 1 1)) ∙
--- --     cong₂ _·ᵣ_ (
--- --         cong fst (^ℚ-1 (invℝ₊ (fromNat (suc (suc Z)))))
--- --       ∙ cong (fst ∘ invℝ₊) (fromNatℝ≡fromNatℚ _)
--- --      ∙ invℝ₊-rat (fromNat (suc (suc Z))))
--- --         (cong fst (^ℚ-1 (invℝ₊ (fromNat (suc (suc Z)))))
--- --       ∙ cong (fst ∘ invℝ₊) (fromNatℝ≡fromNatℚ _)) )
--- --    (≤ᵣ₊Monotone·ᵣ (rat _) _ _ _
--- --     (<ᵣWeaken≤ᵣ _ _ (x<y→0<y-x _ _ 1<z))
--- --     (<ᵣWeaken≤ᵣ _ _ $
--- --      snd (invℝ₊ (ℚ₊→ℝ₊ ([ pos (suc (suc Z)) , 1 ] , tt)))) (
--- --     <ᵣWeaken≤ᵣ _ _
--- --      (a+c<b⇒a<b-c _ _ _
--- --        (isTrans≡<ᵣ _ _ _ (+ᵣComm (rat [ 1 / 1+ (suc Z) ]) 1) 1+1/Z<z)))
--- --      (invEq (invℝ₊-≤-invℝ₊ (ℚ₊→ℝ₊ _) _) (<ᵣWeaken≤ᵣ _ _ z<Z)))
-
--- --  bdlInv : boundedInvLipschitz slUpBdInv
--- --  bdlInv n = ℚ.elimBy≡⊎<
--- --   (λ x y X y∈ x∈ → subst2 _≤ᵣ_
--- --        (cong rat (ℚO.abs-Comm _ _))
--- --        (cong (rat (fst (slUpBdInv n)) ·ᵣ_) (minusComm-absᵣ _ _))
--- --        (X x∈ y∈)  )
--- --   ((λ x _ _ → subst2 _≤ᵣ_
--- --      (cong rat (sym (cong ℚ.abs (ℚ.+InvR x))))
--- --      (sym (Rℝ.0RightAnnihilates' _ _ (cong absᵣ (+-ᵣ _))))
--- --      (≤ᵣ-refl 0)))
--- --   λ y₀ y₁ y₀<y₁ y₀∈ y₁∈ →
--- --    subst2 _≤ᵣ_
--- --      (cong rat (sym (ℚO.0<→abs≡id _ (ℚ.-< _ _ y₀<y₁))))
--- --      (cong (rat (fst (slUpBdInv n)) ·ᵣ_)
--- --       (sym (absᵣNonNeg _ (x≤y→0≤y-x _ _
--- --          (^ℚ-MonotoneR _ _ (ℚ.<Weaken≤ _ _ y₀<y₁) (<ᵣWeaken≤ᵣ _ _ 1<z) )))))
--- --      (isTrans≡≤ᵣ _ _ _ (sym (·IdR _))
--- --       (fst (z/y'≤x/y≃y₊·z≤y'₊·x _ _ (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _ y₀<y₁))
--- --             (ℚ₊→ℝ₊ (slUpBdInv n)))
--- --         (isTrans≡≤ᵣ _ _ _ (·IdL _)
--- --          (isTrans≤ᵣ _ _ _
--- --            (isTrans≡≤ᵣ _ _ _
--- --              (invℝ₊-rat _ ∙ cong fst (
--- --                ( (sym (^ℤ-rat (fromNat (suc (suc Z)))
--- --                    (ℤ.negsuc (1 ℕ.+ suc n)))
--- --                    ∙ cong (_^ℚ [ ℤ.negsuc (1 ℕ.+ suc n) / 1 ])
--- --                     (ℝ₊≡ refl))
--- --            ∙ cong (fromNat (suc (suc Z)) ^ℚ_)
--- --             (cong [_/ 1 ] (ℤ.negsuc+ _ _) ∙ sym (ℚ.ℤ+→ℚ+ _ _)))
--- --                ∙ sym (^ℚ-+ _ _ _)) ∙ ·ᵣComm _ _)
--- --              (≤ᵣ₊Monotone·ᵣ
--- --                (fst (fromNat (suc (suc Z))
--- --                    ^ℚ (ℚ.- [ pos (suc n) , (1+ 0) ])))
--- --                _
--- --                _
--- --                _
--- --                (<ᵣWeaken≤ᵣ _ _
--- --                  $ snd (z ^ℚ (ℚ.- [ pos (suc n) , (1+ 0) ])))
--- --                (<ᵣWeaken≤ᵣ _ _
--- --                  $ snd (fromNat (fromNat (suc (suc Z))) ^ℚ -2))
--- --                (subst2 _≤ᵣ_
--- --                  (cong fst (sym (^ℚ-minus' _ _)))
--- --                  (cong fst (sym (^ℚ-minus' _ _)))
--- --                  (^ℚ-Monotone (fromNat (suc n))
--- --                   (invEq (invℝ₊-≤-invℝ₊ _ _)
--- --                    (<ᵣWeaken≤ᵣ _ _ z<Z))))
--- --                bdlInv-lem))
--- --           (<ᵣWeaken≤ᵣ _ _
--- --            (slope-lower-bound z (fromNat (suc n)) 1<z
--- --             _ _ y₀<y₁
--- --             (ℚ.absTo≤×≤ (fromNat (suc n)) y₀ y₀∈)
--- --             (ℚ.absTo≤×≤ (fromNat (suc n)) y₁ y₁∈))
--- --      )))))
-
--- --  open BoundedInvLipsch slUpBdInv bdlInv public
+ opaque
+  𝒇-zero : 𝒇 0 ≡ 1
+  𝒇-zero = 𝒇-rat 0 ∙ cong fst (^ℚ-zero z)
 
  mid-𝒇 : ∀ q q' q'' → q ℚ.≤ q' → q' ℚ.≤ q'' →
     minᵣ (𝒇 (rat q))
@@ -426,7 +354,7 @@ module BDL (z : ℝ₊) (Z : ℕ)
  module _ (n : ℕ) where
 
 
-  incr^ : 1 <ᵣ fst z → isIncrasingℙᵣ
+  incr^ : 1 <ᵣ fst z → IsStrictlyIncreasingOn
             (intervalℙ (fromNeg (suc n)) (fromNat (suc n)))
             (λ x _ → fst (fst (flₙ n)) x)
   incr^ 1<z x x∈ y y∈ x<y =
@@ -436,7 +364,7 @@ module BDL (z : ℝ₊) (Z : ℕ)
       (𝒇-monotone-str 1<z  x y x<y)
 
 
-  nondecr^ : 1 ≤ᵣ fst z → isNondecrasingℙᵣ
+  nondecr^ : 1 ≤ᵣ fst z → IsNondecreasingOn
       (intervalℙ (fromNeg (suc n)) (fromNat (suc n)))
       (λ x _ → fst (fst (flₙ n)) x)
   nondecr^ 1≤z x x∈ y y∈ x≤y =
@@ -528,120 +456,17 @@ module BDL (z : ℝ₊) (Z : ℕ)
             (ℚ.minus-< 0 [ 1 / 2+ n ] (0<pos 0 (2+ n)))
             (isSym＃ _ _ u∈) u≤ (ℚ.isRefl≤ 0)))
 
-  {-
-  Old quotient-slope derivative proof. Previous names:
-  expDerAt0, differenceAt𝒇-Δ, expDerA.
 
-  expDerAt0 : derivativeOf 𝒇 at 0 is preLn
-  expDerAt0 ε =
-   PT.rec
-     squash₁
-     (λ (ε' , 0<ε' , <ε) →
-       let ε'₊ = (ε' , <ᵣ→<ℚ _ _ 0<ε')
-           N = fst (seqΔ-δ Z ε'₊)
-           X =  seqΔ ε'₊
-      in  ∣ ℚ₊→ℝ₊ ([ 1 / 2+ (suc N) ] , 0<pos 0 (2+ (suc N))) ,
-              (λ r 0＃r ∣r∣<1/N →
-                let d≤lnSeq : differenceAt 𝒇 0 r 0＃r ≤ᵣ lnSeq z (suc N)
-                    d≤lnSeq = ≤ContWP＃≤ [ 1 / 2+ suc N ] (0<pos 0 (2+ (suc N)))
-                              (IsContinuousWithPred-differenceAt 0 _ 𝒇-cont)
-                              ((AsContinuousWithPred _ _
-                               (IsContinuousConst (lnSeq z (suc N)))))
-                              (λ u u∈ u≤ →
-                                subst2 _≤ᵣ_
-                                 ((cong₂ _·ᵣ_ (cong₂ _-ᵣ_
-                              (cong (fst ∘ (z ^ℚ_)) (sym (ℚ.+IdL u))
-                                ∙ sym (𝒇-rat (0 ℚ.+ u))
-                                ∙ cong 𝒇 (sym (+ᵣ-rat 0 u)))
-                              (sym (𝒇-rat _)))
-                                 ((cong₂ invℝ (Rℝ.+IdR' _ _ (-ᵣ-rat 0)) (toPathP (isProp＃ _ _ _ _))))))
-                                 (cong₂ _·ᵣ_
-                                   refl ((invℝ₊-rat (posStepWidth (suc N)) ∙ cong rat
-                               (cong (fst ∘ invℚ₊)
-                                 (ℚ₊≡ {x = posStepWidth (suc N)}
-                                   {y = stepℚ₊ (suc N)}
-                                   (ℚ.+IdR _))))))
-                                 ( (slope-monotone＃ ((z)) 0 u
-                                   0 [ 1 / 2+ (suc N) ]
-                                   u∈ (0<pos 0 _) (ℚ.isRefl≤ 0) u≤))
+  opaque
+    𝒇· : ∀ x y → 𝒇 x ·ᵣ 𝒇 y ≡ 𝒇 (x +ᵣ y)
+    𝒇· = ≡Cont₂
+         (cont₂∘ IsContinuous₂·ᵣ 𝒇-cont 𝒇-cont )
+         (cont∘₂ 𝒇-cont (contNE₂ sumR))
+         λ u u' → cong₂ _·ᵣ_ (𝒇-rat u) (𝒇-rat u')
+            ∙ cong fst (^ℚ-+ _ _ _)
+            ∙ sym (𝒇-rat (u ℚ.+ u'))
+            ∙ cong 𝒇 (sym (+ᵣ-rat u u'))
 
-                                   )
-                              r 0＃r
-                              (isTrans≤ᵣ _ _ _ (≤absᵣ r)
-                                 (isTrans≡≤ᵣ _ _ _ (cong absᵣ (sym (Rℝ.+IdR' _ _ (-ᵣ-rat 0)))
-                                  ∙ minusComm-absᵣ _ _) (<ᵣWeaken≤ᵣ (absᵣ (0 -ᵣ r)) _ ∣r∣<1/N)))
-
-
-                    lnSeq'≤d : lnSeq' z (suc N) ≤ᵣ differenceAt 𝒇 0 r 0＃r
-                    lnSeq'≤d = ≤ContWP＃≤' (ℚ.- [ 1 / 2+ suc N ])
-                                   ((ℚ.minus-< 0 [ 1 / 2+ suc N ] (0<pos 0 (2+ (suc N)))))
-                               ((AsContinuousWithPred _ _
-                               (IsContinuousConst (lnSeq' z (suc N)))))
-                               (IsContinuousWithPred-differenceAt 0 _ 𝒇-cont)
-                                (λ u u∈ u≤ → subst2 _≤ᵣ_
-                                   ((cong₂ _·ᵣ_ refl ((invℝ₊-rat (negStepWidth (suc N)) ∙ cong rat
-                                     (cong (fst ∘ invℚ₊)
-                                       (ℚ₊≡
-                                         {x = negStepWidth (suc N)}
-                                         {y = stepℚ₊ (suc N)}
-                                         (ℚ.+IdL _ ∙ ℚ.-Invol _)))))))
-                                   (sym (-ᵣ·-ᵣ _ _) ∙ cong₂ _·ᵣ_
-                                     (-[x-y]≡y-x _ _ ∙
-                                       cong₂ _-ᵣ_ (sym (𝒇-rat _) ∙ cong 𝒇 (sym (+IdL _)))
-                                         (sym (𝒇-rat _)))
-                                     (-invℝ _ _ ∙ cong₂ invℝ (cong -ᵣ_ (+IdL _) ∙ -ᵣInvol _)
-                                       (toPathP (isProp＃ _ _ _ _))))
-
-                                   (slope-monotone＃' z
-                                     (ℚ.- [ 1 / 2+ (suc N) ]) 0 u 0
-                                     ((ℚ.minus-< 0 [ 1 / 2+ suc N ] (0<pos 0 (2+ (suc N)))))
-                                     (isSym＃ _ _ u∈) u≤ (ℚ.isRefl≤ 0))
-                                     )
-                                r 0＃r
-                              (isTrans≤ᵣ _ _ _
-                                (isTrans≡≤ᵣ _ _ _
-                                 (sym (-ᵣ-rat _))
-                                 (-ᵣ≤ᵣ _ _ (<ᵣWeaken≤ᵣ (absᵣ (0 -ᵣ r)) _ ∣r∣<1/N)))
-                                (≤ᵣ-ᵣ _ _ (isTrans≤≡ᵣ _ _ _ (≤absᵣ (-ᵣ r))
-                                  (cong absᵣ (sym (+IdL _)) ∙ sym (-ᵣInvol _)))))
-
-
-                in isTrans≤<ᵣ _ _ _
-                     (intervalℙ→dist< _ _ _ _
-                        ((lnSeq'≤preLn _) , (preLn≤lnSeq _))
-                        (lnSeq'≤d , d≤lnSeq))
-                     (isTrans<ᵣ _ _ _ (X (suc N) ℕ.≤-refl) <ε)
-
-                 ) ∣₁ )
-     (denseℚinℝ 0 _ (snd ε))
-  -}
-
-  𝒇· : ∀ x y → 𝒇 x ·ᵣ 𝒇 y ≡ 𝒇 (x +ᵣ y)
-  𝒇· = ≡Cont₂
-       (cont₂∘ IsContinuous₂·ᵣ 𝒇-cont 𝒇-cont )
-       (cont∘₂ 𝒇-cont (contNE₂ sumR))
-       λ u u' → cong₂ _·ᵣ_ (𝒇-rat u) (𝒇-rat u')
-          ∙ cong fst (^ℚ-+ _ _ _)
-          ∙ sym (𝒇-rat (u ℚ.+ u'))
-          ∙ cong 𝒇 (sym (+ᵣ-rat u u'))
-
- {-
- Previous names: differenceAt𝒇-Δ, expDerA.
-
- differenceAt𝒇-Δ : ∀ x r 0＃r → 𝒇 x ·ᵣ differenceAt 𝒇 0 r 0＃r ≡ (differenceAt 𝒇 x r 0＃r)
- differenceAt𝒇-Δ x r 0＃r = ·ᵣAssoc _ _ _ ∙
-   cong (_／ᵣ[ r , 0＃r ]) (Rℝ.·DistR- _ _ _ ∙
-     cong₂ _-ᵣ_
-       (𝒇· _ (0 +ᵣ r) ∙ cong 𝒇 (cong (x +ᵣ_) (+IdL r)))
-       (𝒇· _ _ ∙ cong 𝒇 (+IdR x)))
-
-
- expDerA : ∀ x → derivativeOf 𝒇 at x is (𝒇 x ·ᵣ preLn)
- expDerA x =
- subst (at (rat [ pos zero / 1+ zero ]) limitOf_is (𝒇 x ·ᵣ preLn))
-   (funExt₂ λ r 0＃r → differenceAt𝒇-Δ _ _ _ )
-   (·-lim _ _ _ _ _ (const-lim (𝒇 x) 0) expDerAt0)
- -}
 
 
 seq-^-intervals : Seq⊆

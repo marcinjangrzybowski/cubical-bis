@@ -374,18 +374,6 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
  rightSample .samples≤pts' = ≤ᵣ-refl ∘ pts' ∘ fsuc
 
 
--- clampDeltaᵣ : ∀ L L' x → clampᵣ L L' x ≡
---                (x +ᵣ clampᵣ (L -ᵣ x) (L' -ᵣ x) 0)
--- clampDeltaᵣ L L' x = {!!}
-
-
--- clampDeltaSplitℚ : ∀ L L' x y → L ℚ.≤ L' → x ℚ.≤ y
---             → (y ℚ.- x) ≡
---               (ℚ.min L y ℚ.- ℚ.min L x)
---                ℚ.+ (ℚ.clamp L L' y ℚ.- ℚ.clamp L L' x)
---                ℚ.+ (ℚ.max L' y ℚ.- ℚ.max L' x)
--- clampDeltaSplitℚ = {!!}
-
 open Partition[_,_] public hiding (a≤b)
 
 TaggedPartition[_,_] : ℝ → ℝ → Type
@@ -469,15 +457,6 @@ module EqualPartition a b (a≤b : a ≤ᵣ b) where
  0≤Δ : 0 ≤ᵣ Δ
  0≤Δ = x≤y→0≤y-x a _ a≤b
 
-
- -- uContMesh : ∀ f → IsUContinuous f →
- --        ∀ (ε₊ : ℚ₊) → ∃[ δ ∈ ℚ₊ ]
- --                  (∀ ((p , t) : TaggedPartition[ a , b ]) →
- --                     (mesh p <ᵣ rat (fst δ) →
- --                       absᵣ (riemannSum' t f -ᵣ
- --                             riemannSum' (leftSample p) f)
- --                          <ᵣ Δ ·ᵣ rat (fst ε₊)))
- -- uContMesh d iucf ε₊ = {!!}
 
  module _ (n : ℕ) where
 
@@ -806,65 +785,6 @@ module Partition-pre· (a b : ℝ) (α : ℝ) (0≤α : 0 ≤ᵣ α) where
      (≤ᵣ-·ᵣo _ _ _ 0≤α
       (x k))
 
- -- mesh-pre·-sample : ((p , tg) : TaggedPartition[ a , b ]) → ∀ k →
- --     fst (samplesΣ tg k) ≡ {!!}
- -- mesh-pre·-sample = {!!}
-
--- module _ (a b : ℝ) (α : ℝ) (0≤α : 0 ≤ᵣ α) where
-
---  integral'-pre· : ∀ f s
---           → (on[ a  , b ]IntegralOf (f ∘S (_·ᵣ (α))) is' s)
---           → (on[ a ·ᵣ α  , b ·ᵣ α  ]IntegralOf f is' (s ·ᵣ α))
---  integral'-pre· f s X ε =
---    PT.rec squash₁
---       (λ (x' , (α<x' , _)) →
---        let x'₊ : ℚ₊
---            x'₊ = (x' , ℚ<→0< x'
---                   (<ᵣ→<ℚ [ pos 0 / 1+ 0 ] x'
---                    (isTrans≤<ᵣ (rat [ pos 0 / 1+ 0 ]) α (rat x') 0≤α α<x')))
---        in PT.map
---          (map-snd λ {δ}
---            (XX : ((p , tg) : TaggedPartition[ a , b ]) →
---                                mesh≤ᵣ p (rat (fst δ)) →
---                                absᵣ (riemannSum' tg (f ∘S (_·ᵣ α)) -ᵣ s) <ᵣ
---                                rat (fst (ε ℚ₊· invℚ₊ x'₊)))
---           (p , tg) (m≤ : mesh≤ᵣ p (rat (fst δ)))  →
---            {! !})
---           (X (ε ℚ₊· invℚ₊ x'₊)))
---      ((denseℚinℝ α (α +ᵣ 1)
---        (isTrans≡<ᵣ _ _ _
---          (sym (+IdR _)) (<ᵣ-o+ 0 1 α decℚ<ᵣ?))))
-
-module _ (a b : ℝ) (α : ℝ) (0<α : 0 <ᵣ α) where
-
--- integral'-pre· : ∀ a b f s (α : ℝ₊)
---                  → (on[ a , b ]IntegralOf f is' s)
---          → (on[ a ·ᵣ (fst α) , b ·ᵣ (fst α)
---            ]IntegralOf (f ∘S (_·ᵣ fst (invℝ₊ α))) is' (s ·ᵣ (fst α)))
--- integral'-pre· a b f s α X ε =
---   PT.rec squash₁
---     (λ (δ , (0<δ , δ<)) →
---       PT.map (map-snd
---          λ {δ'} →
---            λ Y p p≤ →
---             let pp = partition-pre·
---                        (a ·ᵣ (fst α)) (b ·ᵣ (fst α)) (invℝ₊ α)
---                      (p)
---             in isTrans<ᵣ _ _ _
---                (isTrans≡<ᵣ _ _ _ (({!!} ∙ ·absᵣ {!!} (fst α))
---                     ∙ cong (absᵣ _ ·ᵣ_) (absᵣPos _ (snd α)) ∙ ·ᵣComm _ _ )
---                     {!!}
---                  -- (<ᵣ-o·ᵣ _ _  α (Y (subst2 TaggedPartition[_,_]
---                  --  ([x·yᵣ]/₊y _ α) (([x·yᵣ]/₊y _ α)) pp)
---                  --   {!p≤!}))
---                    )
---                 (fst (z<x/y₊≃y₊·z<x _ _ _) δ<)
---               )
---         (X (δ , {!!})))
---     (denseℚinℝ 0 (rat (fst ε) ·ᵣ (fst (invℝ₊ α))) {!cfc!})
-
-
-
 opaque
  unfolding _+ᵣ_ maxᵣ
 
@@ -1083,179 +1003,6 @@ opaque
        u v
 
 
- -- clamp-Δ-·f' : ∀ a b → a ≤ᵣ b → ∀ f
- --      → IsContinuous f
- --      → ∀ (δ : ℚ₊)
- --      → ∀ u v → u ≤ᵣ v
- --      → v -ᵣ u ≤ᵣ rat (fst δ)
- --      → ∀ x → rat x ∈ intervalℙ u v
- --      → (clampᵣ a b v -ᵣ clampᵣ a b u) ·ᵣ f (rat x)
- --        ≡ (clampᵣ a b v -ᵣ clampᵣ a b u)
- --          ·ᵣ f (clampᵣ (a -ᵣ rat (fst δ)) (b) (rat x))
- -- clamp-Δ-·f' a b a≤b f cf δ u v u≤v v∼u x (≤x , x≤) =
- --   subst {x = rat x} {clampᵣ u v (rat x)}
- --      (λ x →
- --      (clampᵣ a b v -ᵣ clampᵣ a b u) ·ᵣ f x
- --        ≡ (clampᵣ a b v -ᵣ clampᵣ a b u)
- --          ·ᵣ f (clampᵣ (a -ᵣ rat (fst δ)) (b) x))
- --          ?
- --       (subst2 (λ b u →
- --      (clampᵣ a b v -ᵣ clampᵣ a b u) ·ᵣ f (rat x)
- --        ≡ (clampᵣ a b v -ᵣ clampᵣ a b u)
- --          ·ᵣ f (clampᵣ (a -ᵣ rat (fst δ)) (b) (rat x)))
- --     (≤→maxᵣ _ _ a≤b)
-
- --     (sym (∈ℚintervalℙ→clampᵣ≡
- --       (v -ᵣ rat (fst δ)) v
- --       u (≤u , u≤v)))
- --       (≡Cont₂
- --         {f₀ = λ a b → f₀ a b u v}
- --         {f₁ = λ a b → f₁ a b u v}
- --        (cont∘₂ (IsContinuous·ᵣR (f (u' ?))) ch)
- --         (cont₂·₂ᵣ
- --           ch
- --           (cont∘₂ cf
- --             (IsContinuousClamp₂∘ (clampᵣ (v -ᵣ rat (fst δ)) v ?)
- --               ((λ _ → IsContinuousConst _) ,
- --                (λ _ → IsContinuous+ᵣR (-ᵣ rat (fst δ)))
- --                ) ((contNE₂ maxR)))))
- --        (λ aℚ bℚ →
- --          ≡Cont₂ {f₀ = f₀ (rat aℚ) (rat bℚ)}
- --                 {f₁ = f₁ (rat aℚ) (rat bℚ)}
- --             (cont₂·₂ᵣ (ch' aℚ bℚ)
- --               (cont∘₂ cf ch''))
- --             (cont₂·₂ᵣ (ch' aℚ bℚ)
- --               (cont∘₂ cf
- --                 (cont∘₂ (IsContinuousClamp (rat aℚ -ᵣ rat (fst δ))
- --                       ((maxᵣ (rat aℚ) (rat bℚ)))) ch'')))
- --             (λ uℚ vℚ →
- --              let qqq = (cong (λ xx →
- --                       clampᵣ xx (rat vℚ) (rat uℚ))
- --                        (sym (-ᵣ-rat₂ vℚ  (fst δ))))
- --                  ppp =
- --                     cong (λ uu →
- --                        clampᵣ (rat aℚ) (maxᵣ (rat aℚ) (rat bℚ)) (rat vℚ) -ᵣ
- --                       clampᵣ (rat aℚ) (maxᵣ (rat aℚ) (rat bℚ))
- --                       uu)
- --                        qqq
- --              in cong₂ _·ᵣ_
- --                 (sym ppp)
- --                 (cong f (sym qqq))
- --                 ∙∙ hh aℚ ((ℚ.max aℚ bℚ))
- --                       (ℚ.≤max aℚ bℚ)
- --                    ((ℚ.clamp (vℚ ℚ.- (fst δ)) (vℚ) ( uℚ)))
- --                       (vℚ) (ℚ.clamp≤ (vℚ ℚ.- fst δ) vℚ uℚ)
- --                        (isTrans≤≡ᵣ _ _ _ (≤ᵣ-o+ (-ᵣ (rat (ℚ.clamp (vℚ ℚ.- fst δ) vℚ uℚ)))
- --                         (-ᵣ rat (vℚ ℚ.- fst δ))
- --                         (rat vℚ)
- --                          (-ᵣ≤ᵣ _ _  (≤ℚ→≤ᵣ _ _ (ℚ.≤clamp (vℚ ℚ.- fst δ) vℚ uℚ
- --                           (ℚ.≤-ℚ₊ vℚ vℚ δ (ℚ.isRefl≤ vℚ))))))
- --                          (cong (_-ᵣ_ (rat vℚ)) (sym (-ᵣ-rat₂ vℚ (fst δ)))
- --                           ∙ ℝ!)
- --                          ) ∙∙
- --                 cong₂ _·ᵣ_
- --                  ppp
- --                  (cong f
- --                    (cong (clampᵣ (rat aℚ -ᵣ rat (fst δ)) _)
-
- --                      qqq)))
- --             u v)
- --         a b))
-
-
- --   where
- --    -- x'
- --    ≤u : v -ᵣ rat (fst δ) ≤ᵣ u
- --    ≤u = a-b≤c⇒a-c≤b v _ _ v∼u
-
-
- --    u' : ℝ → ℝ
- --    u' = clampᵣ (v -ᵣ rat (fst δ)) v
-
- --    f₀ : ℝ → ℝ → ℝ → ℝ → ℝ
- --    f₀ a b u v = ((clampᵣ a (maxᵣ a b)) v -ᵣ clampᵣ a (maxᵣ a b)
- --      (clampᵣ (v -ᵣ rat (fst δ)) v u))
- --       ·ᵣ f (clampᵣ (v -ᵣ rat (fst δ)) v (rat x))
-
-
- --    f₁ : ℝ → ℝ → ℝ → ℝ → ℝ
- --    f₁ a b u v = ((clampᵣ a (maxᵣ a b)) v -ᵣ clampᵣ a (maxᵣ a b)
- --         (clampᵣ (v -ᵣ rat (fst δ)) v u))
- --          ·ᵣ f (clampᵣ (a -ᵣ rat (fst δ)) ((maxᵣ a b))
- --           (clampᵣ (v -ᵣ rat (fst δ)) v (rat x)))
-
-
-
-
- --    b' : ℝ
- --    b' = maxᵣ a b
-
- --    ch : IsContinuous₂ λ z z₁ →
- --                            NonExpanding₂-Lemmas.NE.go ℚ._+_ sumR
- --                             (clampᵣ z (maxᵣ z z₁) v)
- --                            (-ᵣ clampᵣ z (maxᵣ z z₁) (u' u))
- --    ch = (IsContinuous-₂∘
- --             (IsContinuousClamp₂∘ v
- --                ((λ _ → IsContinuousConst _) , (λ _ → IsContinuousId))
- --                (contNE₂ maxR))
- --             (IsContinuousClamp₂∘ (clampᵣ (v -ᵣ rat (fst δ)) v u)
- --                 ((λ _ → IsContinuousConst _) , (λ _ → IsContinuousId))
- --                 (contNE₂ maxR)))
-
- --    ch'' : IsContinuous₂ (λ z z₁ → (clampᵣ (z₁ -ᵣ rat (fst δ)) z₁ (rat x)))
- --    ch'' = ?
- --    -- contNE₂∘ minR
- --    --      {λ z z₁ → maxᵣ ((z₁ -ᵣ rat (fst δ))) z}
- --    --      {λ z z₁ → z₁}
- --    --    (contNE₂∘ maxR
- --    --      ((λ _ → IsContinuous+ᵣR (-ᵣ rat (fst δ))) , (λ _ → IsContinuousConst _))
- --    --      ( (λ _ → IsContinuousConst _) ,  (λ _ → IsContinuousId)))
- --    --   ((λ _ → IsContinuousId) , (λ _ → IsContinuousConst _))
-
- --    ch' : ∀ aℚ bℚ → IsContinuous₂
- --      (λ z z₁ →
- --         clampᵣ (rat aℚ) (maxᵣ (rat aℚ) (rat bℚ)) z₁ -ᵣ
- --         clampᵣ (rat aℚ) (maxᵣ (rat aℚ) (rat bℚ))
- --         (clampᵣ (z₁ -ᵣ rat (fst δ)) z₁ _))
- --    ch' aℚ bℚ = ?
- --    -- IsContinuous-₂∘
- --    --   ((λ _ → IsContinuousClamp (rat aℚ) (maxᵣ (rat aℚ) (rat bℚ)))
- --    --    , λ _ → IsContinuousConst _ )
- --    --   (cont∘₂ (IsContinuousClamp (rat aℚ) (maxᵣ (rat aℚ) (rat bℚ)))
- --    --    ch'')
-
- --    hh : ∀ a b → a ℚ.≤ b
- --      → ∀ u v → u ℚ.≤ v
- --      → rat v -ᵣ rat u ≤ᵣ rat (fst δ)
-
- --      → (clampᵣ (rat a) (rat b) (rat v) -ᵣ clampᵣ (rat a) (rat b) (rat u))
- --         ·ᵣ f (rat x)
- --        ≡ (clampᵣ (rat a) (rat b) (rat v) -ᵣ clampᵣ (rat a) (rat b) (rat u))
- --          ·ᵣ f (clampᵣ (rat a -ᵣ rat (fst δ)) (rat b) (rat x))
- --    hh a b a≤b u v u≤v v-u≤δ = ?
- --      -- ⊎.rec
- --      --   (λ p →
- --      --    let q : clampᵣ (rat a) (rat b) (rat v)
- --      --            -ᵣ clampᵣ (rat a) (rat b) (rat u) ≡ 0
- --      --        q = cong₂ _-ᵣ_ (clampᵣ-rat a b v) (clampᵣ-rat a b u)
- --      --              ∙ -ᵣ-rat₂ (ℚ.clamp a b v) (ℚ.clamp a b u)  ∙ cong rat p
- --      --    in (Rℝ.0LeftAnnihilates'
- --      --          (clampᵣ (rat a) (rat b) (rat v)
- --      --            -ᵣ clampᵣ (rat a) (rat b) (rat u)) (f (rat u)) q)
- --      --     ∙ sym (Rℝ.0LeftAnnihilates'
- --      --         (clampᵣ (rat a) (rat b) (rat v)
- --      --            -ᵣ clampᵣ (rat a) (rat b) (rat u))
- --      --             (f (clampᵣ (rat a -ᵣ rat (fst δ)) (rat b) (rat u))) q))
- --      --   (λ (a≤v , u≤b) →
- --      --      cong ( (clampᵣ (rat a) (rat b) (rat v) -ᵣ clampᵣ (rat a) (rat b) (rat u)) ·ᵣ_)
- --      --     (cong f ((∈ℚintervalℙ→clampᵣ≡ (rat a -ᵣ rat (fst δ)) (rat b) (rat u)
- --      --        ((isTrans≤ᵣ _ _ _
- --      --          (≤ᵣ-+o _ _ (-ᵣ (rat (fst δ))) (≤ℚ→≤ᵣ a v a≤v)) (a-b≤c⇒a-c≤b (rat v) _ _ v-u≤δ))
- --      --          , (≤ℚ→≤ᵣ u b u≤b)))
- --      --           )))
- --      --  (clampCases a b a≤b u v u≤v)
-
-
 
 opaque
  unfolding maxᵣ
@@ -1373,36 +1120,6 @@ invℚ₊-inj a b x =
 module Resample where
 
 
- -- resampledRiemannSum : ∀ a b → a ≤ᵣ b →  (∀ r → a ≤ᵣ r → r ≤ᵣ b → ℝ)
- --   → (pa pa' : Partition[ a , b ])
- --    (s : Sample pa) → ℝ
- -- resampledRiemannSum a b a≤b f pa pa' sa =
- --   foldlFin {n = 1 ℕ.+ P'.len}
- --      (λ s  k →
- --        let  a' = P'.pts' (finj k)
- --             b' = P'.pts' (fsuc k)
- --        in s +ᵣ
- --            foldlFin {n = 1 ℕ.+ P.len}
- --            (λ s ((t , a≤t , t≤b) , b-a) → s +ᵣ
- --              b-a ·ᵣ (f (clampᵣ a' b' t)
- --                (isTrans≤ᵣ _ _ _ (P'.a≤pts' (finj k))
- --                  (≤clampᵣ a' b' t (P'.pts'≤pts' k)))
- --                (isTrans≤ᵣ _ _ _ (clamp≤ᵣ a' b' t) (P'.pts'≤b (fsuc k)))) ) 0
- --                (λ k →  S.samplesΣ k , P.pts' (fsuc k) -ᵣ P.pts' (finj k))
- --        )
- --      0
- --      (idfun _)
-
- --      -- (λ k →  k (P'.pts' (fsuc k) , P'.pts' (finj k)))
- --  -- foldlFin {n = 1 ℕ.+ P.len}
- --  --    (λ s ((t , a≤t , t≤b) , b-a) → s +ᵣ
- --  --      b-a ·ᵣ (f t a≤t t≤b) ) 0
- --  --        (λ k →  S.samplesΣ k , P.pts' (fsuc k) -ᵣ P.pts' (finj k))
- --  where
- --  module P = Partition[_,_] pa
- --  module P' = Partition[_,_] pa'
- --  module S = Sample sa
-
 
  resampledRiemannSum' : ∀ a b →  (ℝ → ℝ)
    → (pa pa' : Partition[ a , b ])
@@ -1514,16 +1231,6 @@ module Resample where
       absᵣ (riemannSum' (snd tpa) f -ᵣ riemannSum' (snd tpa') f) ≤ᵣ
      rat (fst ε)
  resampleΔ-UC a b a≤b f fcu ε δ X (pa , sa) (pa' , sa') = zzzz
-   -- PT.map {A = Σ ℚ₊
-   --              (λ δ →
-   --                 (u v : ℝ) →
-   --                 u ∼[ δ ] v →
-   --                 absᵣ (f u -ᵣ f v) <ᵣ
-   --                 fst (ℚ₊→ℝ₊ ε ₊·ᵣ invℝ₊ (b +ᵣ -ᵣ a , x<y→0<y-x a b a<b)))}
-     -- (λ (δ , X) →  , λ )
-    -- (IsUContinuous-εᵣ f fcu
-    --  (ℚ₊→ℝ₊ ε ₊·ᵣ invℝ₊ (_ , x<y→0<y-x _ _ a<b)))
-
   where
     σ : ℝ₊
     σ = maxᵣ 1 (b -ᵣ a) ,

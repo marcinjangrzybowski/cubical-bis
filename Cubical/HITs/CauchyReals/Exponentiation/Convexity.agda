@@ -54,6 +54,7 @@ open import Cubical.HITs.CauchyReals.LiftingExpr
 open import Cubical.HITs.CauchyReals.Order public using (pred0< ; pred1<)
 open import Cubical.HITs.CauchyReals.Order hiding (pred0< ; pred1<)
 open import Cubical.HITs.CauchyReals.Continuous
+open import Cubical.HITs.CauchyReals.ContinuousOrder
 open import Cubical.HITs.CauchyReals.Multiplication
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Sequence
@@ -446,7 +447,7 @@ opaque
    ((fst (z ^ℚ c) -ᵣ fst (z ^ℚ a))
      ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _  a<c ))
  slope-incr (z , 0<z) a b c a<b b≤c a<c =
-   <→≤ContPos'pred {0}
+   continuousOpenLowerComparison {0}
      {λ z 0<z →
         ((fst ((z , 0<z) ^ℚ b)
         -ᵣ fst ((z , 0<z) ^ℚ a))
@@ -458,19 +459,15 @@ opaque
        ((IsContinuousWP∘' _ _ _
        (IsContinuous·ᵣR (fst (invℝ₊ (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _ a<b)))))
        (contDiagNE₂WP sumR _ _ _
-         (⊆IsContinuousWithPred _ _ (λ x 0<x → 0<x) _
-           (IsContinuous^ℚ b))
+         (IsContinuous^ℚ b)
             (IsContinuousWP∘' _ _ _ IsContinuous-ᵣ
-              ((⊆IsContinuousWithPred _ _ (λ x 0<x → 0<x) _
-           (IsContinuous^ℚ a)))))))
+              (IsContinuous^ℚ a)))))
        (((IsContinuousWP∘' _ _ _
        (IsContinuous·ᵣR (fst (invℝ₊ (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _ a<c)))))
        (contDiagNE₂WP sumR _ _ _
-         (⊆IsContinuousWithPred _ _ (λ x 0<x → 0<x) _
-           (IsContinuous^ℚ c))
+         (IsContinuous^ℚ c)
             (IsContinuousWP∘' _ _ _ IsContinuous-ᵣ
-              ((⊆IsContinuousWithPred _ _ (λ x 0<x → 0<x) _
-           (IsContinuous^ℚ a))))))))
+              (IsContinuous^ℚ a))))))
        (ℚ.byTrichotomy 1 w)
          z 0<z
 
@@ -937,170 +934,3 @@ opaque
            (IsContinuousWP∘ pred0< _ _ _
              (curry (snd ∘ (_^ℚ fst B))) (AsContinuousWithPred _ _  IsContinuous-ᵣ)
                (IsContinuous^ℚ _)))
-
-
-
-
--- module ExpSlopeBound (z : ℝ₊) (1<z : 1 <ᵣ fst z)  where
---  module _ (B : ℚ₊) where
-
-
-
---   ineqStrict : ∀ x y → y ℚ.≤ fst B → x ℚ.< y →
---            (fst (z ^ℚ y) -ᵣ fst (z ^ℚ x)) <ᵣ
---               bound z B ·ᵣ rat (y ℚ.- x)
---   ineqStrict x y y≤B x<y =
---        isTrans<≡ᵣ _ _ _
---          (fst (z/y<x₊≃z<y₊·x _ _ (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _ x<y)))
---            (isTrans≤<ᵣ _ _ _
---              (slope-incr' z x x' y
---                (ℚ.≤max _ _) x'<y x<y)
---              (isTrans<≤ᵣ _ _ _
---                (<ᵣ-·ᵣo _ _ (invℝ₊ (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ x' y x'<y)))
---                 (power-slope-Δ z 1<z x' y x'<y
---                (ℚ.<→ℚ₊ _ _ (ℚ.isTrans<≤  _ _ _ x'<y y≤B))))
---                (isTrans≡≤ᵣ _ _ _
---                  (cong₂ _／ᵣ₊_ (cong (λ v →
---                         fst (z ^ℚ (y ℚ.+ (fst B ℚ.- x'))) -ᵣ fst (z ^ℚ v))
---                        lem--05)
---                    (ℝ₊≡ (cong rat lem--078)))
---                  (isTrans≤≡ᵣ _ _ _
---                     (slope-incr z
---                       (fst B) (y ℚ.+ (fst B ℚ.- x')) (2 ℚ.· (fst B))
---                        (subst2 (ℚ._<_) (ℚ.+IdL (fst B))
---                          (sym (ℚ.+Assoc _ _ _)
---                          ∙ cong (y ℚ.+_) (ℚ.+Comm _ _))
---                          (ℚ.<-+o 0 _ (fst B) (ℚ.-< _ _ x'<y)))
---                        (subst2 ℚ._≤_
---                          ( sym (ℚ.+Assoc _ _ _)
---                          ∙ cong (y ℚ.+_) (ℚ.+Comm _ _)) (ℚ.x+x≡2x (fst B))
---                          (ℚ.≤-+o _ _ _ y-x'≤B))
---                        (subst (ℚ._< (2 ℚ.· fst B)) (ℚ.·IdL (fst B))
---                          (ℚ.<-·o _ _ (fst B) (ℚ.0<ℚ₊ B)
---                            (ℚ.decℚ<? {1} {2})))) ww)))))
---          (·ᵣComm _ _)
-
---     where
---     x' = ℚ.max x (y ℚ.- fst B)
-
---     x'<y : x' ℚ.< y
---     x'<y = ℚ.max< _ _ _ x<y (ℚ.<-ℚ₊' y y B (ℚ.isRefl≤ y ) )
-
---     y-x'≤B : y ℚ.- x' ℚ.≤ fst B
---     y-x'≤B = subst (y ℚ.- x' ℚ.≤_) lem--079
---      (ℚ.≤-o+ _ _ y
---      (ℚ.minus-≤ (y ℚ.- fst B) x' (ℚ.≤max' x (y ℚ.- fst B))))
-
---     ww' = (ℚ.<→ℚ₊ (fst B) (2 ℚ.· fst B)
---              (subst (ℚ._< 2 ℚ.· fst B) (ℚ.·IdL (fst B))
---               (ℚ.<-·o 1 2 (fst B) (ℚ.0<ℚ₊ B) ℚ.decℚ<?)))
-
---     ww : ((fst (z ^ℚ (2 ℚ.· fst B)) -ᵣ fst (z ^ℚ fst B)) ／ᵣ₊
---             (ℚ₊→ℝ₊ ww'))
---            ≡ ((fst (z ^ℚ (2 ℚ.· (fst B))) -ᵣ fst (z ^ℚ (fst B))) ·ᵣ
---      rat (fst (invℚ₊ B)))
---     ww =
---      cong ((fst (z ^ℚ (2 ℚ.· fst B)) -ᵣ fst (z ^ℚ fst B)) ·ᵣ_)
---        (invℝ'-rat _ (snd ww') (snd (ℚ₊→ℝ₊ ww')) ∙
---          cong (rat ∘ fst ∘ invℚ₊) (ℚ₊≡
---           (cong (ℚ._- (fst B)) (sym (ℚ.x+x≡2x (fst B)))
---            ∙ sym (lem--034 {fst B}))) )
-
-
---   ineqStrictInv : ∀ x y → (ℚ.- (fst B)) ℚ.≤ x → x ℚ.< y →
---                 (-ᵣ (bound (invℝ₊ z) B)) ·ᵣ rat (y ℚ.- x) <ᵣ  (fst (z ^ℚ y) -ᵣ fst (z ^ℚ x))
---   ineqStrictInv x y -B≤x x<y =
---      isTrans≡<ᵣ _ _ _ (·ᵣComm _ _)
---        (fst (z<x/y₊≃y₊·z<x _ _ _) w)
---     where
-
---     -2B<-B = (ℚ.minus-< _ _ (subst (ℚ._< 2 ℚ.· (fst B))
---                 (ℚ.·IdL (fst B)) (ℚ.<-·o 1 2 (fst B) (ℚ.0<ℚ₊ B)
---                   ℚ.decℚ<?)))
-
---     w : (-ᵣ (bound (invℝ₊ z) B))  <ᵣ  ((fst (z ^ℚ y) -ᵣ fst (z ^ℚ x)) ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _  x<y ))
---     w = isTrans≡<ᵣ _ _ _ (sym (-ᵣ· _ _) ∙
---        cong₂ _·ᵣ_ (-[x-y]≡y-x _ _ ∙ cong₂ _-ᵣ_
---                     (cong fst (cong (invℝ₊ z ^ℚ_) (sym (ℚ.-Invol _)) ∙ sym (^ℚ-minus _ _)))
---                     (cong fst (cong (invℝ₊ z ^ℚ_) (sym (ℚ.-Invol _)) ∙ sym (^ℚ-minus _ _))))
---                   (sym (invℝ₊-rat B)
---                    ∙ cong (fst ∘ invℝ₊ ∘ ℚ₊→ℝ₊)
---                      (ℚ₊≡ ((sym (ℚ.·IdL _) ∙ ℚ.·DistR+ 2 -1 (fst B))
---                       ∙ cong (ℚ._+ (ℚ.- fst B)) (sym (ℚ.-Invol _))
---                       ∙ ℚ.+Comm _ _))) )
---       (slope-monotone-strict z 1<z
---         (ℚ.- (2 ℚ.· fst B)) (ℚ.- (fst B))
---           x y -2B<-B x<y
---             (ℚ.isTrans≤ _ _ _ (ℚ.<Weaken≤ _ _ -2B<-B) -B≤x)
---             (ℚ.isTrans≤< _ _ _ -B≤x x<y))
-
---   ineq : ∀ x y → y ℚ.≤ fst B → x ℚ.≤ y →
---            (fst (z ^ℚ y) -ᵣ fst (z ^ℚ x)) ≤ᵣ
---               bound z B ·ᵣ rat (y ℚ.- x)
---   ineq x y y≤B = ⊎.rec
---     (λ x≡y → ≡ᵣWeaken≤ᵣ _ _
---       (𝐑'.+InvR' _ _ (cong (fst ∘ z ^ℚ_) (sym x≡y))
---         ∙∙ sym (𝐑'.0RightAnnihilates (bound z B)) ∙∙
---         cong (bound z B ·ᵣ_) (cong rat (sym (𝐐'.+InvR' _ _ (sym x≡y))))))
---     (<ᵣWeaken≤ᵣ _ _ ∘ ineqStrict x y y≤B )
---     ∘ ℚ.≤→≡⊎< x y
-
-
-
---   ineqInv : ∀ x y → (ℚ.- (fst B)) ℚ.≤ x → x ℚ.≤ y →
---                 (-ᵣ (bound (invℝ₊ z) B)) ·ᵣ rat (y ℚ.- x) ≤ᵣ  (fst (z ^ℚ y) -ᵣ fst (z ^ℚ x))
---   ineqInv x y -B≤x =
---     ⊎.rec
---       (λ x≡y → ≡ᵣWeaken≤ᵣ _ _
---          (cong (-ᵣ bound (invℝ₊ z) B ·ᵣ_) (cong rat (𝐐'.+InvR' y x (sym x≡y))) ∙∙
---            𝐑'.0RightAnnihilates (-ᵣ bound (invℝ₊ z) B) ∙∙
---             (sym (𝐑'.+InvR' (fst (z ^ℚ y)) (fst (z ^ℚ x))
---              (cong (fst ∘ (z ^ℚ_)) (sym x≡y))) )))
---       (<ᵣWeaken≤ᵣ _ _ ∘ ineqStrictInv x y -B≤x)
---      ∘ ℚ.≤→≡⊎< x y
-
---   opaque
---    unfolding -ᵣ_ absᵣ
---    ineq-abs : ∀ x y → x ℚ.≤ fst B → y ℚ.≤ fst B →
---             absᵣ (fst (z ^ℚ y) -ᵣ fst (z ^ℚ x)) ≤ᵣ
---                bound z B ·ᵣ rat (abs' (y ℚ.- x))
---    ineq-abs x y x≤B y≤B = w (ℚ.≡⊎# x y)
-
---     where
---     w : (x ≡ y) ⊎ (x ℚ.# y) → absᵣ (fst (z ^ℚ y) -ᵣ fst (z ^ℚ x)) ≤ᵣ
---                bound z B ·ᵣ rat (abs' (y ℚ.- x))
---     w (inl x≡y) =
---       ≡ᵣWeaken≤ᵣ _ _
---        (cong absᵣ (𝐑'.+InvR' _ _ (cong (fst ∘ z ^ℚ_) (sym x≡y)))
---          ∙∙ sym (𝐑'.0RightAnnihilates (bound z B)) ∙∙
---          cong (bound z B ·ᵣ_)
---           (cong (rat ∘ abs') (sym (𝐐'.+InvR' _ _ (sym x≡y))))
---           )
---     w (inr (inl x<y)) = <ᵣWeaken≤ᵣ _ _ (isTrans<≡ᵣ _ _ _ (isTrans≡<ᵣ _ _ _
---           (absᵣNonNeg _ (x≤y→0≤y-x _ _ (^ℚ-MonotoneR x y
---              (ℚ.<Weaken≤ _ _ x<y)
---             (<ᵣWeaken≤ᵣ _ _ 1<z))))
---            (ineqStrict x y y≤B x<y))
---          (cong (bound z B ·ᵣ_)
---           (cong rat (sym (ℚO.0<→abs≡id _ (ℚ.-< _ _ x<y)) ∙ abs'≡abs _))))
---     w (inr (inr y<x)) =
---       <ᵣWeaken≤ᵣ _ _ (isTrans<≡ᵣ _ _ _ (isTrans≡<ᵣ _ _ _
---           (minusComm-absᵣ _ _ ∙
---            absᵣPos _ (x<y→0<y-x _ _ (^ℚ-StrictMonotoneR 1<z y x y<x)))
---            (ineqStrict y x x≤B y<x))
---          (cong (bound z B ·ᵣ_)
---           (cong rat ((sym (ℚ.-[x-y]≡y-x _ _) ∙ sym (ℚO.<0→abs≡- _
---             (subst ((y ℚ.- x) ℚ.<_)
---               (ℚ.+InvR _) (ℚ.<-+o _ _ (ℚ.- x) y<x)))) ∙ abs'≡abs _))))
-
---   ineqInv-abs : ∀ x y → (ℚ.- (fst B)) ℚ.≤ x → (ℚ.- (fst B)) ℚ.≤ y →
---                 (-ᵣ (bound (invℝ₊ z) B)) ·ᵣ rat (abs (y ℚ.- x)) ≤ᵣ
---                     absᵣ (fst (z ^ℚ y) -ᵣ fst (z ^ℚ x))
---   ineqInv-abs = ℚ.elimBy≤ (λ x y X u v →
---     subst2 (λ a b → (-ᵣ (bound (invℝ₊ z) B)) ·ᵣ rat a ≤ᵣ b)
---                     (ℚO.abs-Comm _ _) (minusComm-absᵣ _ _) (X v u))
---      λ x y x≤y x≤ _ →
---         subst2 (λ a b → (-ᵣ (bound (invℝ₊ z) B)) ·ᵣ rat a ≤ᵣ b)
---           (sym (ℚO.0≤→abs≡id _ (ℚ.-≤ _ _ x≤y)))
---            (sym (absᵣNonNeg _ (x≤y→0≤y-x _ _ (^ℚ-MonotoneR _ _ x≤y (<ᵣWeaken≤ᵣ _ _ 1<z) ))))
---            (ineqInv x y x≤ x≤y)

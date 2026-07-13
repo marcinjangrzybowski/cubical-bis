@@ -228,9 +228,6 @@ opaque
           (inl ∘S subst2 _<ᵣ_ ℝ! (+IdR y) ∘S <ᵣ-o+ _ _ y)
            ∘S decCut (x +ᵣ (-ᵣ y)))
 
--- ＃≃abs< : ∀ x y → absᵣ x <ᵣ y ≃
--- ＃≃abs< : ?
-
 isSym＃ : BinaryRelation.isSym _＃_
 isSym＃ _ _ = fst ⊎-swap-≃
 
@@ -1170,12 +1167,6 @@ opaque
   isTrans≤ᵣ _ _ _ (≤ᵣ-·ᵣo m n o 0≤o m≤n)
     (≤ᵣ-o·ᵣ o s n 0≤n o≤s)
 
--- NonNeg·ᵣ : ∀ x y → 0 ≤ᵣ x → 0 ≤ᵣ y → 0 ≤ᵣ x ·ᵣ y
--- NonNeg·ᵣ x y 0≤x 0≤y = isTrans≡≤ᵣ _ _ _ (rat·ᵣrat 0 0)
---  (≤ᵣ₊Monotone·ᵣ _ _ _ _ 0≤x (≤ᵣ-refl _) 0≤x 0≤y)
-
-
-
 opaque
  unfolding _<ᵣ_
 
@@ -1379,15 +1370,6 @@ opaque
       z≤x/y₊≃y₊·z≤x _ _ _
    ∙ₑ substEquiv (_≤ᵣ x) (·ᵣAssoc _ _ _)
    ∙ₑ z/y≤x₊≃z≤y₊·x _ _ _
-
- -- x/x'≤y/y'≃x/y≤x'/y' : ∀ x (x' y y' : ℝ₊) → (z ·ᵣ (fst (invℝ₊ y'))
- --                                      ≤ᵣ x ·ᵣ (fst (invℝ₊ y))) ≃
- --                       ((fst y) ·ᵣ z ≤ᵣ (fst y') ·ᵣ x)
- -- x/x'≤y/y'≃x/y≤x'/y' x z y y' = ?
- --   --    z≤x/y₊≃y₊·z≤x _ _ _
- --   -- ∙ₑ substEquiv (_≤ᵣ x) (·ᵣAssoc _ _ _)
- --   -- ∙ₑ z/y≤x₊≃z≤y₊·x _ _ _
-
 
  z/y'<x/y≃y₊·z<y'₊·x : ∀ x z (y y' : ℝ₊) → (z ·ᵣ (fst (invℝ₊ y'))
                                       <ᵣ x ·ᵣ (fst (invℝ₊ y))) ≃

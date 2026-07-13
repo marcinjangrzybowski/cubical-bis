@@ -651,11 +651,6 @@ module ∼' where
      isProp× (isProp→ (snd (a' .fst (ε +₊ x) u)))
              (isProp→ (snd (a .fst (ε +₊ x) u)))
 
-
- -- pre-~' : ℝ → Σ (ℚ₊ → ℝ → (hProp ℓ-zero)) _
- -- pre-~' = Recℝ.go w
-
-
 -- HoTT Theorem (11.3.16)
 
 _∼'[_]_ : ℝ → ℚ₊ → ℝ → Type
@@ -804,4 +799,3 @@ _ : ∀ x y x' y' ε → (lim x y) ∼'[ ε ] (lim x' y') ≡
                (∃[ (δ , η) ∈ (ℚ₊ × ℚ₊) ] Σ[ v ∈ _ ]
                 ((x δ) ∼'[ (fst ε ℚ.- (fst δ ℚ.+ fst η)) , v ] (x' η) ))
 _ = λ x y x' y' ε → refl
-

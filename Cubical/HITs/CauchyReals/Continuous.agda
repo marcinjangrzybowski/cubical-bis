@@ -1230,31 +1230,6 @@ opaque
          (λ u  → (X _ (ℚ.≤max x₀ u)))
           x)
 
-
-
-
- -- ≤ContPos'pred : {x₀ : ℚ} {f₀ f₁ : ∀ x → (rat x₀ ≤ᵣ x) → ℝ}
- --          → IsContinuousWithPred (λ _ → _ , isProp≤ᵣ _ _) f₀
- --          → IsContinuousWithPred (λ _ → _ , isProp≤ᵣ _ _) f₁
- --          → (∀ u x₀<u → f₀ (rat u) (≤ℚ→≤ᵣ _ _ x₀<u)
- --                 ≤ᵣ f₁ (rat u) (≤ℚ→≤ᵣ _ _ x₀<u) )
- --              → ∀ x x₀≤x → f₀ x x₀≤x ≤ᵣ f₁ x x₀≤x
- -- ≤ContPos'pred {x₀} {f₀} {f₁} f₀C f₁C X x 0≤x =
- --   subst (λ (x , x₀≤x) → f₀ x ?  ≤ᵣ f₁ x ?) -- ? x₀≤x
- --      (Σ≡Prop (λ _ → isSetℝ _ _) ?) -- ?
- --     (≤Cont
- --       (IsContinuousWithPred∘IsContinuous _ _ _
- --          (λ _ → ≤maxᵣ _ _) f₀C (IsContinuousMaxL (rat x₀)))
- --       (IsContinuousWithPred∘IsContinuous _ _ _
- --          (λ _ → ≤maxᵣ _ _) f₁C (IsContinuousMaxL (rat x₀)))
- --          (λ u  →
- --              subst (λ qq → f₀ (maxᵣ (rat x₀) (rat u)) qq
- --                      ≤ᵣ f₁ (maxᵣ (rat x₀) (rat u)) qq)
- --                 (?) ?) x) -- (X (ℚ.max x₀ u) (ℚ.≤max _ _))
-
-
-
-
  <→≤ContPos' : {x₀ : ℚ} {f₀ f₁ : ℝ → ℝ}
           → IsContinuous f₀
           → IsContinuous f₁
@@ -1277,33 +1252,6 @@ IsContinuousWithPred⊆ : ∀ (P P' : ℝ → hProp ℓ-zero) f
 IsContinuousWithPred⊆ P P' f P'⊆P X u ε u∈P =
   PT.map (map-snd ((_∘ P'⊆P _) ∘_))
    (X u ε (P'⊆P _ u∈P))
-
--- opaque
---  unfolding _<ᵣ_
---  <→≤ContPos'pred : {x₀ : ℚ} {f₀ f₁ : ∀ x → (rat x₀ <ᵣ x) → ℝ}
---           → IsContinuousWithPred (λ _ → _ , isProp<ᵣ _ _) f₀
---           → IsContinuousWithPred (λ _ → _ , isProp<ᵣ _ _) f₁
---           → (∀ u x₀<u → f₀ (rat u) x₀<u
---                      ≤ᵣ f₁ (rat u) x₀<u )
---               → ∀ x x₀<x → f₀ x x₀<x ≤ᵣ f₁ x x₀<x
---  <→≤ContPos'pred {x₀} {f₀} {f₁} f₀C f₁C X x =
---     PT.elim (λ _ → isSetℝ _ _)
---       λ ((q , q') , (x₀≤q , q<q' , q'≤x)) →
---        let z = ≤ContPos'pred {q'}
---                 (IsContinuousWithPred⊆ _ _ f₀
---                    (λ  _ → isTrans<≤ᵣ _ _ _
---                   ((<ℚ→<ᵣ _ _ (ℚ.isTrans≤< _ _ _ (≤ᵣ→≤ℚ x₀ q x₀≤q) q<q'))))
---                    f₀C)
---                  (IsContinuousWithPred⊆ _ _ f₁
---                    (λ  _ → isTrans<≤ᵣ _ _ _
---                   ((<ℚ→<ᵣ _ _ (ℚ.isTrans≤< _ _ _ (≤ᵣ→≤ℚ x₀ q x₀≤q) q<q'))))
---                    f₁C)
---                  (λ u _ → X u _)
---                        x q'≤x
---       in subst (λ x₀<x → f₀ x x₀<x  ≤ᵣ f₁ x x₀<x)
---              (squash₁ _ _) z
-
-
 
 ≤ContPos : {f₀ f₁ : ℝ → ℝ}
          → IsContinuous f₀

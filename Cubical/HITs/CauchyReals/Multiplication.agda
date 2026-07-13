@@ -618,11 +618,6 @@ opaque
 
 
 
--- _^ⁿ_ : ℝ → ℕ → ℝ
--- x ^ⁿ zero = 1
--- x ^ⁿ suc n = (x ^ⁿ n) ·ᵣ x
-
-
 opaque
  unfolding absᵣ
  ·absᵣ : ∀ x y → absᵣ (x ·ᵣ y) ≡ absᵣ x ·ᵣ absᵣ y

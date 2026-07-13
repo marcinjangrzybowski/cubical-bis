@@ -48,6 +48,7 @@ open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
 open import Cubical.HITs.CauchyReals.Order
 open import Cubical.HITs.CauchyReals.Continuous
+open import Cubical.HITs.CauchyReals.ContinuousOrder
 open import Cubical.HITs.CauchyReals.Multiplication
 open import Cubical.HITs.CauchyReals.Inverse
 open import Cubical.HITs.CauchyReals.Partition using (ℚ<→0< ; _ℚ₊·_)
@@ -89,7 +90,7 @@ opaque
     (cong (maxᵣ x)
       (cong (fst invℝ' x) (isProp<ᵣ _ _ _ 0<x)
        ∙ sym (cong fst (invℝ₊-impl (x , 0<x)))))
-    (<→≤ContPos'pred {0}
+    (continuousOpenLowerComparison {0}
       {f₀ = λ _ _ → 1}
       {f₁ = λ y 0<y → maxᵣ y (fst invℝ' y 0<y)}
       (AsContinuousWithPred _ _ (IsContinuousConst 1))

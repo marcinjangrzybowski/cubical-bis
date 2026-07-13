@@ -53,6 +53,7 @@ module ℚO = OCRP.OrderedCommRingTheory ℚOrderedCommRing
 open import Cubical.HITs.CauchyReals.Base
 open import Cubical.HITs.CauchyReals.Closeness
 open import Cubical.HITs.CauchyReals.Lipschitz
+open import Cubical.HITs.CauchyReals.InverseLipschitz.Base
 open import Cubical.HITs.CauchyReals.Order
 open import Cubical.HITs.CauchyReals.Continuous
 open import Cubical.HITs.CauchyReals.Multiplication
@@ -241,143 +242,6 @@ module Pos^ where
 
 
 
- -- slope-monotone-^ᵣ :   (a b a' b' : ℝ₊)
- --  → (a<b : fst a <ᵣ fst b) → (a'<b' : fst a' <ᵣ fst b')
- --  → (a≤a' : fst a ≤ᵣ fst a') →  (b≤b' : fst b ≤ᵣ fst b') →
- --  ∀ y → 1 ≤ᵣ y →
- --  (((fst (b ^ᵣ y)) -ᵣ (fst (a ^ᵣ y)))
- --    ／ᵣ₊ (_ , x<y→0<y-x _ _ a<b ))
- --      ≤ᵣ
- --  (((fst (b' ^ᵣ y)) -ᵣ (fst (a' ^ᵣ y)))
- --    ／ᵣ₊ (_ , x<y→0<y-x _ _ a'<b' ))
- -- slope-monotone-^ᵣ a b a' b' a<b a'<b' a≤a' b≤b' =
- --   (≤ContPos' {1}
- --    (IsContinuous∘ _ _ (IsContinuous·ᵣR _)
- --      (cont₂+ᵣ _ _
- --        (cont-^ _)
- --        (IsContinuous∘ _ _
- --          IsContinuous-ᵣ
- --           (cont-^ _))))
- --    (IsContinuous∘ _ _ (IsContinuous·ᵣR _)
- --      (cont₂+ᵣ _ _
- --        (cont-^ _)
- --        (IsContinuous∘ _ _
- --          IsContinuous-ᵣ
- --           (cont-^ _))))
- --    λ q 1≤q →
- --      subst2 _≤ᵣ_
- --        (cong₂ (λ u v → ((u -ᵣ v) ／ᵣ₊
- --         (fst b +ᵣ -ᵣ fst a , x<y→0<y-x (fst a) (fst b) a<b)))
- --        (sym (^-rat _ _)) (sym (^-rat _ _)))
- --        ((cong₂ (λ u v → ((u -ᵣ v) ／ᵣ₊
- --         (fst b' +ᵣ -ᵣ fst a' , x<y→0<y-x (fst a') (fst b') a'<b')))
- --        (sym (^-rat _ _)) (sym (^-rat _ _))))
- --        (slope-monotone-^ℚ a b a' b' a<b a'<b' a≤a' b≤b' q 1≤q))
-
- -- ^-cont : ∀ (y : ℝ) → IsContinuousWithPred pred0< (curry (fst ∘ (_^ᵣ y)))
- -- ^-cont  y = {! !}
-
- -- factor-xᵃ-xᵇ'ᵣ : ∀ x a b → fst (x ^ᵣ a) -ᵣ fst (x ^ᵣ b) ≡
- --                         fst (x ^ᵣ a) ·ᵣ (1 -ᵣ fst (x ^ᵣ (b -ᵣ a)))
- -- factor-xᵃ-xᵇ'ᵣ x a b = {!!}
-
- -- ^-monotone-lemmaℚ : ∀ (x : ℚ₊) y (δ : ℚ₊) → fst ((ℚ₊→ℝ₊ x) ^ℚ y) ∈
- --                        intervalℙ (minᵣ (fst ((ℚ₊→ℝ₊ x) ^ℚ (y ℚ.+ (fst δ))))
- --                                      (fst ((ℚ₊→ℝ₊ x) ^ℚ (y ℚ.+ (fst δ)))))
- --                                  (maxᵣ (fst ((ℚ₊→ℝ₊ x) ^ℚ (y ℚ.+ (fst δ))))
- --                                      (fst ((ℚ₊→ℝ₊ x) ^ℚ (y ℚ.+ (fst δ)))))
- -- ^-monotone-lemmaℚ = {!!}
-
- -- ^-monotone-lemma : ∀ x y δ → fst (x ^ᵣ y) ∈
- --                        intervalℙ (minᵣ (fst (x ^ᵣ (y -ᵣ δ)))
- --                                      (fst (x ^ᵣ (y +ᵣ δ))))
- --                                  (maxᵣ (fst (x ^ᵣ (y -ᵣ δ)))
- --                                      (fst (x ^ᵣ (y +ᵣ δ))))
- -- ^-monotone-lemma = {!!}
- -- -- ^-strictMonotone : ∀ x x' y → 0 <ᵣ y → fst x <ᵣ fst x'
- -- --   → fst (x ^ᵣ y) <ᵣ fst (x' ^ᵣ y)
- -- -- ^-strictMonotone = {!!}
-
---  ^-cont : ∀ (y : ℝ) → IsContinuousWithPred pred0< (curry (fst ∘ (_^ᵣ y)))
---  ^-cont y u ε 0<u =
---    PT.rec
---      squash₁
---       (λ (δy , Xy) →
---         PT.rec2 squash₁
---           (λ (δy- , (<δy- , δy-< )) (δy+ , <δy+ , δy+< )
---              → PT.map2
---               (λ (δx- , Xx-) (δx+ , Xx+ ) →
---                 let δ₊ = ℚ.min₊ (ℚ.min₊ δx- δx+) δy
---                     Xy- = subst ((fst ((u , 0<u) ^ᵣ y))  ∼[ /4₊ ε ]_)
---                             (^-rat _ _)
---                              (Xy (rat δy-)
---                              {!!})
---                     Xy+ = subst ((fst ((u , 0<u) ^ᵣ y))  ∼[ /4₊ ε ]_)
---                             (^-rat _ _)
---                              (Xy (rat δy+) {!!})
---                 in δ₊ ,
---                   λ v 0<v u∼v →
---                    let Y : fst ((u , 0<u) ^ᵣ y) ∼[ _ ]
---                             fst ((v , 0<v) ^ᵣ rat δy-)
---                        Y = triangle∼ Xy-
---                           (subst ((fst ((u , 0<u) ^ℚ δy-))  ∼[ /4₊ ε ]_)
---                             (sym (^-rat _ _))
---                              ((Xx- v 0<v {!!})) )
---                    in {!!}
---                  )
---               (IsContinuous^ℚ δy- u (/4₊ ε) 0<u)
---               (IsContinuous^ℚ δy+ u (/4₊ ε) 0<u)
---              )
---           (denseℚinℝ (y -ᵣ rat (fst δy)) y {!!})
---           (denseℚinℝ y (y +ᵣ rat (fst δy)) {!!}))
---       (cont-^ (u , 0<u) y (/4₊ ε))
--- --     PT.map
--- --       {!!}
--- --       (denseℚinℝ 0 (fst δᵣ) (snd δᵣ))
-
-
-   -- Seq⊆.elimProp-∩ Seq⊆-abs<N
-   --    ⊤Pred y tt Seq⊆-abs<N-s⊇-⊤Pred
-   --    (λ (y : ℝ) → IsContinuousWithPred pred0< (curry (fst ∘ (_^ᵣ y))))
-   --    (λ _ → isPropΠ3 λ _ _ _ → squash₁)
-   --    λ n y∈ u ε u∈P → PT.map2
-   --     (λ (δ , X) (δ' , X') →
-   --       ℚ.min₊ δ δ' ,
-   --        λ v 0<v u∼v →
-   --          let B  = fst (∼≃abs<ε _ _ _)
-   --                     $ X  v 0<v (∼-monotone≤ (ℚ.min≤ _ _ ) u∼v)
-   --              B' = fst (∼≃abs<ε _ _ _)
-   --                     $ X' v 0<v (∼-monotone≤ (ℚ.min≤' _ _) u∼v)
-   --          in invEq (∼≃abs<ε _ _ _)
-   --               (isTrans≤<ᵣ _ _ _
-   --                 (^B-δ-lemma n y (u , _) (v , 0<v)
-   --                  (ointervalℙ⊆intervalℙ _ _ _ y∈))
-   --                 (max<-lem _ _ _
-   --                   B
-   --                   B')))
-   --     (IsContinuous^ℚ (fromNat (suc n)) u ε u∈P)
-   --     (IsContinuous^ℚ (fromNeg (suc n)) u ε u∈P)
-
-
- {-
- Old quotient-slope derivative theorem. Previous name: ^-der.
-
- ^-der : ∀ x → ∀ y → derivativeOf (fst ∘ x ^ᵣ_) at y
-               is (fst (x ^ᵣ y) ·ᵣ ln x)
- ^-der (x , 0<x) = ∩$-elimProp x 0<x
-       {λ (g , d) → (y : ℝ) →
-         derivativeOf (fst ∘ g) at y is (fst (g y) ·ᵣ d)}
-      (λ _ → isPropΠ2 λ _ _ → squash₁)
-       (λ n (a , b) →
-         BDL.expDerA
-           (x ,
-            isTrans<≤ᵣ 0 (rat [ pos 1 / fromNat (suc (suc n)) ]) x
-              (<ℚ→<ᵣ [ pos 0 / 1 ] [ pos 1 / fromNat (suc (suc n)) ]
-                (0<pos 0 (fromNat (suc (suc n)))))
-              a)
-           n b a)
- -}
-
  ^ᵣ0 : ∀ x → fst (x ^ᵣ 0) ≡ 1
  ^ᵣ0 x = ^-rat x 0
 
@@ -445,10 +309,6 @@ rootₙ→1 x α 1<α =
                      (<ℤ→<ℚ _ _ (ℤ.ℕ<→pos-<-pos _ _ (ℕ.≤-suc <n))))))) δ<δᵣ)))))
         )
       (denseℚinℝ 0 δᵣ 0<δᵣ)
-
--- clamp : ℚ → ℚ → ℚ → ℚ
--- clamp d u x = ℚ.min (ℚ.max d x) u
-
 
 opaque
  unfolding maxᵣ
@@ -622,417 +482,408 @@ ln-mon-str-1< y y' 1<y y<y' =
         (fst y∈))
     1<y (snd x∈) (fst x∈) (snd y∈) (fst y∈) y<y'
 
+realPowerMulExponent : (x : ℝ₊) (a b : ℝ) →
+  fst ((x ^ᵣ a) ^ᵣ b) ≡ fst (x ^ᵣ (a ·ᵣ b))
+realPowerMulExponent x a =
+  ≡Continuous _ _
+    (cont-^ _)
+    (IsContinuous∘ _ _ (cont-^ x) (IsContinuous·ᵣL a))
+    λ b' →
+      ^-rat _ _
+      ∙ ≡Continuous _ _
+          (IsContinuousWithPred∘IsContinuous
+            _ _ _ (λ v → snd (x ^ᵣ v)) (IsContinuous^ℚ b') (cont-^ x))
+          (IsContinuous∘ _ _ (cont-^ x) (IsContinuous·ᵣR (rat b')))
+          (λ a' →
+            cong (λ z → fst (z ^ℚ b')) (ℝ₊≡ (^-rat x a'))
+            ∙ cong fst (^ℚ-· x a' b')
+            ∙ sym (^-rat _ _)
+            ∙ cong (fst ∘ (x ^ᵣ_)) (rat·ᵣrat _ _))
+          a
 
--- opaque
---  unfolding _+ᵣ_
-invLipPreLn : ∀ Z → ∃[ K ∈ ℚ₊ ]
-              Invlipschitz-ℝ→ℝℙ K
-               ((intervalℙ (rat [ 1 / fromNat (suc (suc Z)) ])
-              (fromNat (suc (suc Z)))))
-              λ x (≤x , x≤) →
-                expPreDer.expPreDer'.preLn Z
-                  (x , isTrans<≤ᵣ _ _ _ (<ℚ→<ᵣ _ _ (0<pos _ _)) ≤x)
-                 x≤ ≤x
-invLipPreLn Z =
-   PT.map
-     ww
-     (denseℚinℝ _ _ (snd Kᵣ))
-
-  where
-
-
-   Z<SZ : fst (fromSucℚ₊ (suc Z)) ℚ.<
-       fst (fromSucℚ₊ (suc (suc Z)))
-   Z<SZ =
-                (<ℤ→<ℚ (pos (suc (suc Z))) (pos (suc (suc (suc Z))))
-                (ℤ.ℕ<→pos-<-pos _ _
-                  (ℕ.≤-refl {(suc (suc (suc Z)))})))
-   1<Z : [ pos 1 / 1+ 0 ] ℚ.< [ pos (suc (suc Z)) / 1+ 0 ]
-   1<Z =
-                (<ℤ→<ℚ (pos (suc zero)) (pos (suc (suc Z)))
-                (ℤ.ℕ<→pos-<-pos _ _
-                  (ℕ.suc-≤-suc (ℕ.suc-≤-suc ℕ.zero-≤))))
-
-   [1/3+Z]≤[2+Z] : rat [ pos 1 / 2+ suc Z ] ≤ᵣ rat [ pos (suc (suc Z)) / 1+ 0 ]
-   [1/3+Z]≤[2+Z] = isTrans≤ᵣ _ 1 _
-     (≤ℚ→≤ᵣ _ _ (ℚ.invℚ₊≤invℚ₊ (fromSucℚ₊ (suc (suc Z))) 1
-       ((ℚ.<Weaken≤ _ _
-        (ℚ.isTrans< 1 (fst (fromSucℚ₊ (suc Z))) _ 1<Z (Z<SZ))))
-       ))
-     (<ᵣWeaken≤ᵣ _ _ (<ℚ→<ᵣ _ _ 1<Z))
-
-   2+Z∈ : (fromNat (suc (suc Z))) ∈
-            ((intervalℙ (rat [ 1 / fromNat (suc (suc (suc Z))) ])
-               (fromNat (suc (suc (suc Z))))))
-   2+Z∈ = [1/3+Z]≤[2+Z] , (<ᵣWeaken≤ᵣ _ _ (<ℚ→<ᵣ _ _ Z<SZ))
-
-
-   3+Z∈ : rat ([ (pos (suc (suc (suc Z)))) / 1 ]) ∈
-            ((intervalℙ (rat [ 1 / fromNat (suc (suc (suc Z))) ])
-               (fromNat (suc (suc (suc Z))))))
-   3+Z∈ =
-             (≤ℚ→≤ᵣ _ _
-                (ℚ.isTrans≤ _ 1 [ pos (suc (suc (suc Z))) / (1+ 0) ]
-                  (ℚ.invℚ₊≤invℚ₊ (fromSucℚ₊ (suc (suc Z))) 1
-                   ((≤ℤ→≤ℚ _ (pos _) (invEq (ℤ.pos-≤-pos≃ℕ≤ _ _)
-                (ℕ.suc-≤-suc ℕ.zero-≤)))))
-                  ((≤ℤ→≤ℚ _ (pos (suc (suc (suc Z)))) (invEq (ℤ.pos-≤-pos≃ℕ≤ _ _)
-                (ℕ.suc-≤-suc ℕ.zero-≤)))))) , (≤ᵣ-refl _)
-
-
-
-   SSSZℚ₊ SSZℚ₊ : ℚ₊
-   SSSZℚ₊ = [ (pos (suc (suc (suc Z)))) / 1 ] , 0<pos (suc (suc Z)) 1
-   SSZℚ₊ = [ (pos (suc (suc Z))) / 1 ] , 0<pos (suc Z) 1
-
-   SSSZ₊ SSZ₊ : ℝ₊
-   SSSZ₊ = ℚ₊→ℝ₊ SSSZℚ₊
-   SSZ₊ = ℚ₊→ℝ₊ SSZℚ₊
-
-   Kᵣ : ℝ₊
-   Kᵣ =
-         BDL.preLn SSSZ₊ (suc Z) (snd 3+Z∈) (fst 3+Z∈)
-          +ᵣ -ᵣ
-
-          BDL.preLn SSZ₊ (suc Z) (snd 2+Z∈) (fst 2+Z∈)
-          ,
-          x<y→0<y-x
-           (BDL.preLn SSZ₊ (suc Z) (snd 2+Z∈) (fst 2+Z∈))
-           (BDL.preLn SSSZ₊ (suc Z) (snd 3+Z∈)
-         (fst 3+Z∈))
-           (monotoneStrictPreLn (suc Z)
-             SSZ₊
-             SSSZ₊
-             (<ℚ→<ᵣ _ _ 1<Z)
-             (snd 2+Z∈) (fst 2+Z∈)
-             (snd 3+Z∈) (fst 3+Z∈)
-             (<ℚ→<ᵣ _ _ Z<SZ))
-
-   ww : Σ ℚ (λ q → (rat [ pos 0 / 1+ 0 ] <ᵣ rat q) × (rat q <ᵣ Kᵣ .fst)) →
-         Σ ℚ₊
-         (λ K →
-            Invlipschitz-ℝ→ℝℙ K
-            (intervalℙ (rat [ pos 1 / 2+ Z ])
-             (rat [ pos (suc (suc Z)) / 1+ 0 ]))
-            λ x (x≤ , ≤x) → expPreDer.expPreDer'.preLn Z
-                  (x , isTrans<≤ᵣ _ _ _ (<ℚ→<ᵣ _ _ (0<pos _ _)) x≤)
-                 ≤x x≤)
-   ww (K , 0<K , K<Kᵣ) =  (invℚ₊ K₊) , zzz
+opaque
+  invLipPreLn : ∀ Z → ∃[ K ∈ ℚ₊ ]
+                InverseLipschitz-ℝ→ℝℙ K
+                 ((intervalℙ (rat [ 1 / fromNat (suc (suc Z)) ])
+                (fromNat (suc (suc Z)))))
+                λ x (≤x , x≤) →
+                  expPreDer.expPreDer'.preLn Z
+                    (x , isTrans<≤ᵣ _ _ _ (<ℚ→<ᵣ _ _ (0<pos _ _)) ≤x)
+                   x≤ ≤x
+  invLipPreLn Z =
+     PT.map
+       ww
+       (denseℚinℝ _ _ (snd Kᵣ))
 
     where
-    K₊ : ℚ₊
-    K₊ = (K , <ᵣ→<ℚ _ _ 0<K)
-    zzz : Invlipschitz-ℝ→ℝℙ (invℚ₊ K₊)
-      (intervalℙ (rat [ pos 1 / 2+ Z ])
-       (rat [ pos (suc (suc Z)) / 1+ 0 ]))
-      (λ x (≤x , x≤) →
-         BDL.preLn
-         (x ,
-          isTrans<≤ᵣ (rat [ pos 0 / 1+ 0 ]) (rat [ pos 1 / 2+ Z ]) x
-          (<ℚ→<ᵣ [ pos 0 / 1+ 0 ] [ pos 1 / 2+ Z ] (0<pos 0 (2+ Z)))
-          ≤x)
-         Z x≤ ≤x )
-    zzz u u∈ v v∈ ε lnU∼lnV =
-     invEq (∼≃abs<ε _ _ _)
-              (isTrans<≡ᵣ _ _ _
-               (isTrans≤<ᵣ _ _ _
-                 zzzz
-                 (isTrans<≡ᵣ _ _ _
-                  (<ᵣ₊Monotone·ᵣ _ _ _ _
-                  (<ᵣWeaken≤ᵣ _ _ (snd (invℝ₊ Kᵣ)))
-                  (0≤absᵣ _)
-                  (invEq (invℝ₊-<-invℝ₊ Kᵣ _)
-                    K<Kᵣ) lnuv<)
-                     (cong₂ _·ᵣ_
-                      (invℝ₊-rat _)
-                      refl))
-                 )
-               (sym (rat·ᵣrat _ _)))
-     where
-      u₊ v₊ : ℝ₊
-      u₊ =
-        u ,
-        isTrans<≤ᵣ (rat [ pos 0 / 1+ 0 ]) (rat [ pos 1 / 2+ Z ]) u
-          (<ℚ→<ᵣ [ pos 0 / 1+ 0 ] [ pos 1 / 2+ Z ] (0<pos 0 (2+ Z)))
-          (fst u∈)
-      v₊ =
-        v ,
-        isTrans<≤ᵣ (rat [ pos 0 / 1+ 0 ]) (rat [ pos 1 / 2+ Z ]) v
-          (<ℚ→<ᵣ [ pos 0 / 1+ 0 ] [ pos 1 / 2+ Z ] (0<pos 0 (2+ Z)))
-          (fst v∈)
 
-      lnU = BDL.preLn u₊ Z (snd u∈) (fst u∈)
-      lnV = BDL.preLn v₊ Z (snd v∈) (fst v∈)
+
+     Z<SZ : fst (fromSucℚ₊ (suc Z)) ℚ.<
+         fst (fromSucℚ₊ (suc (suc Z)))
+     Z<SZ =
+                  (<ℤ→<ℚ (pos (suc (suc Z))) (pos (suc (suc (suc Z))))
+                  (ℤ.ℕ<→pos-<-pos _ _
+                    (ℕ.≤-refl {(suc (suc (suc Z)))})))
+     1<Z : [ pos 1 / 1+ 0 ] ℚ.< [ pos (suc (suc Z)) / 1+ 0 ]
+     1<Z =
+                  (<ℤ→<ℚ (pos (suc zero)) (pos (suc (suc Z)))
+                  (ℤ.ℕ<→pos-<-pos _ _
+                    (ℕ.suc-≤-suc (ℕ.suc-≤-suc ℕ.zero-≤))))
+
+     [1/3+Z]≤[2+Z] : rat [ pos 1 / 2+ suc Z ] ≤ᵣ rat [ pos (suc (suc Z)) / 1+ 0 ]
+     [1/3+Z]≤[2+Z] = isTrans≤ᵣ _ 1 _
+       (≤ℚ→≤ᵣ _ _ (ℚ.invℚ₊≤invℚ₊ (fromSucℚ₊ (suc (suc Z))) 1
+         ((ℚ.<Weaken≤ _ _
+          (ℚ.isTrans< 1 (fst (fromSucℚ₊ (suc Z))) _ 1<Z (Z<SZ))))
+         ))
+       (<ᵣWeaken≤ᵣ _ _ (<ℚ→<ᵣ _ _ 1<Z))
+
+     2+Z∈ : (fromNat (suc (suc Z))) ∈
+              ((intervalℙ (rat [ 1 / fromNat (suc (suc (suc Z))) ])
+                 (fromNat (suc (suc (suc Z))))))
+     2+Z∈ = [1/3+Z]≤[2+Z] , (<ᵣWeaken≤ᵣ _ _ (<ℚ→<ᵣ _ _ Z<SZ))
+
+
+     3+Z∈ : rat ([ (pos (suc (suc (suc Z)))) / 1 ]) ∈
+              ((intervalℙ (rat [ 1 / fromNat (suc (suc (suc Z))) ])
+                 (fromNat (suc (suc (suc Z))))))
+     3+Z∈ =
+               (≤ℚ→≤ᵣ _ _
+                  (ℚ.isTrans≤ _ 1 [ pos (suc (suc (suc Z))) / (1+ 0) ]
+                    (ℚ.invℚ₊≤invℚ₊ (fromSucℚ₊ (suc (suc Z))) 1
+                     ((≤ℤ→≤ℚ _ (pos _) (invEq (ℤ.pos-≤-pos≃ℕ≤ _ _)
+                  (ℕ.suc-≤-suc ℕ.zero-≤)))))
+                    ((≤ℤ→≤ℚ _ (pos (suc (suc (suc Z)))) (invEq (ℤ.pos-≤-pos≃ℕ≤ _ _)
+                  (ℕ.suc-≤-suc ℕ.zero-≤)))))) , (≤ᵣ-refl _)
 
 
 
+     SSSZℚ₊ SSZℚ₊ : ℚ₊
+     SSSZℚ₊ = [ (pos (suc (suc (suc Z)))) / 1 ] , 0<pos (suc (suc Z)) 1
+     SSZℚ₊ = [ (pos (suc (suc Z))) / 1 ] , 0<pos (suc Z) 1
 
-      clp : ℝ → ℝ
-      clp = clampᵣ (rat [ 1 / (1+  (suc Z)) ])
-                   (rat [ pos (suc (suc Z)) / 1 ])
+     SSSZ₊ SSZ₊ : ℝ₊
+     SSSZ₊ = ℚ₊→ℝ₊ SSSZℚ₊
+     SSZ₊ = ℚ₊→ℝ₊ SSZℚ₊
 
-      1/SSZ<SSZ =
-        ℚ.isTrans< _ 1 _
-          (fst (ℚ.invℚ₊-<-invℚ₊ 1 SSZℚ₊) 1<Z)
-          1<Z
+     Kᵣ : ℝ₊
+     Kᵣ =
+           BDL.preLn SSSZ₊ (suc Z) (snd 3+Z∈) (fst 3+Z∈)
+            +ᵣ -ᵣ
 
+            BDL.preLn SSZ₊ (suc Z) (snd 2+Z∈) (fst 2+Z∈)
+            ,
+            x<y→0<y-x
+             (BDL.preLn SSZ₊ (suc Z) (snd 2+Z∈) (fst 2+Z∈))
+             (BDL.preLn SSSZ₊ (suc Z) (snd 3+Z∈)
+           (fst 3+Z∈))
+             (monotoneStrictPreLn (suc Z)
+               SSZ₊
+               SSSZ₊
+               (<ℚ→<ᵣ _ _ 1<Z)
+               (snd 2+Z∈) (fst 2+Z∈)
+               (snd 3+Z∈) (fst 3+Z∈)
+               (<ℚ→<ᵣ _ _ Z<SZ))
 
-      1/SSZ≤SSZ = ≤ℚ→≤ᵣ _ _ (ℚ.<Weaken≤ _ _ 1/SSZ<SSZ)
+     ww : Σ ℚ (λ q → (rat [ pos 0 / 1+ 0 ] <ᵣ rat q) × (rat q <ᵣ Kᵣ .fst)) →
+           Σ ℚ₊
+           (λ K →
+              InverseLipschitz-ℝ→ℝℙ K
+              (intervalℙ (rat [ pos 1 / 2+ Z ])
+               (rat [ pos (suc (suc Z)) / 1+ 0 ]))
+              λ x (x≤ , ≤x) → expPreDer.expPreDer'.preLn Z
+                    (x , isTrans<≤ᵣ _ _ _ (<ℚ→<ᵣ _ _ (0<pos _ _)) x≤)
+                   ≤x x≤)
+     ww (K , 0<K , K<Kᵣ) =  (invℚ₊ K₊) , zzz
 
-      0<clp : ∀ x → 0 <ᵣ clp x
-      0<clp x = isTrans<≤ᵣ _ _ _ (<ℚ→<ᵣ _ _ (0<pos _ _))
-         (≤clampᵣ (rat [ 1 / (1+  (suc Z)) ]) _ x 1/SSZ≤SSZ)
+      where
+      K₊ : ℚ₊
+      K₊ = (K , <ᵣ→<ℚ _ _ 0<K)
+      zzz : InverseLipschitz-ℝ→ℝℙ (invℚ₊ K₊)
+        (intervalℙ (rat [ pos 1 / 2+ Z ])
+         (rat [ pos (suc (suc Z)) / 1+ 0 ]))
+        (λ x (≤x , x≤) →
+           BDL.preLn
+           (x ,
+            isTrans<≤ᵣ (rat [ pos 0 / 1+ 0 ]) (rat [ pos 1 / 2+ Z ]) x
+            (<ℚ→<ᵣ [ pos 0 / 1+ 0 ] [ pos 1 / 2+ Z ] (0<pos 0 (2+ Z)))
+            ≤x)
+           Z x≤ ≤x )
+      zzz u u∈ v v∈ ε lnU∼lnV =
+       invEq (∼≃abs<ε _ _ _)
+                (isTrans<≡ᵣ _ _ _
+                 (isTrans≤<ᵣ _ _ _
+                   zzzz
+                   (isTrans<≡ᵣ _ _ _
+                    (<ᵣ₊Monotone·ᵣ _ _ _ _
+                    (<ᵣWeaken≤ᵣ _ _ (snd (invℝ₊ Kᵣ)))
+                    (0≤absᵣ _)
+                    (invEq (invℝ₊-<-invℝ₊ Kᵣ _)
+                      K<Kᵣ) lnuv<)
+                       (cong₂ _·ᵣ_
+                        (invℝ₊-rat _)
+                        refl))
+                   )
+                 (sym (rat·ᵣrat _ _)))
+       where
+        u₊ v₊ : ℝ₊
+        u₊ =
+          u ,
+          isTrans<≤ᵣ (rat [ pos 0 / 1+ 0 ]) (rat [ pos 1 / 2+ Z ]) u
+            (<ℚ→<ᵣ [ pos 0 / 1+ 0 ] [ pos 1 / 2+ Z ] (0<pos 0 (2+ Z)))
+            (fst u∈)
+        v₊ =
+          v ,
+          isTrans<≤ᵣ (rat [ pos 0 / 1+ 0 ]) (rat [ pos 1 / 2+ Z ]) v
+            (<ℚ→<ᵣ [ pos 0 / 1+ 0 ] [ pos 1 / 2+ Z ] (0<pos 0 (2+ Z)))
+            (fst v∈)
 
-      clpCount : IsContinuous clp
-      clpCount = IsContinuousClamp
-         (rat [ 1 / (1+  (suc Z)) ])
-                   (rat [ pos (suc (suc Z)) / 1 ])
-
-      -- lnX : ℝ → ℝ
-      -- lnX x = BDL.preLn (clp x , 0<clp x) Z
-      --    (clamp≤ᵣ (rat [ 1 / fromNat (suc (suc Z)) ]) _ x)
-
-      --    (≤clampᵣ (rat [ 1 / fromNat (suc (suc Z)) ]) _ x
-      --       (isTrans≤ᵣ _ 1 _
-      --           (≤ℚ→≤ᵣ _ _ (fst (ℚ.invℚ₊-≤-invℚ₊ 1 (fromNat (suc (suc Z))))
-      --             (ℚ.<Weaken≤ _ _ 1<Z)))
-      --           (<ᵣWeaken≤ᵣ _ _ (<ℚ→<ᵣ _ _ 1<Z))))
-
-      lnX' : ℝ → ℝ
-      lnX' x = ln (clp x , 0<clp x)
-
-      lnX'ₙ : ∀ (x : ℝ₊) 0<x
-              (x∈ : fst x ∈ (intervalℙ (rat [ 1 /  (2+ (suc Z)) ])
-                        (rat [ pos (suc (suc (suc Z))) / 1 ]))) →
-                ln x ≡ BDL.preLn
-                         (fst x , 0<x) (suc Z) (snd x∈) (fst x∈)
-      lnX'ₙ x 0<x x∈ =
-        cong snd (Seq-^-FI.∩$-∈ₙ (fst x) (snd x) (suc Z) x∈)
-        ∙ cong (λ 0<x → BDL.preLn
-                         (fst x , 0<x) (suc Z) (snd x∈) (fst x∈))
-                         (isProp<ᵣ _ _ _ _)
-
-      clp≡ : ∀ u → u ∈ ((intervalℙ (rat [ 1 /  (1+ (suc Z)) ])
-               (rat [ pos (suc (suc Z)) / 1 ]))) → clp u ≡ u
-      clp≡ u u∈ = sym (∈ℚintervalℙ→clampᵣ≡ _ _ u u∈)
-
-      lnX'Cont : IsContinuous lnX'
-      lnX'Cont = IsContinuousWithPred∘IsContinuous
-       _ _ _ 0<clp
-       ln-cont clpCount
-
-      lnuv< = fst (∼≃abs<ε _ _ _) lnU∼lnV
-
-      zzzz= : ∀ x y → clampᵣ (rat [ pos 1 / 2+ Z ])
-       (rat [ pos (suc (suc Z)) / 1+ 0 ]) (rat x)
-       ≡
-       clampᵣ (rat [ pos 1 / 2+ Z ]) (rat [ pos (suc (suc Z)) / 1+ 0 ])
-       (rat y) →
-       fst Kᵣ ·ᵣ absᵣ (clp (rat x) -ᵣ clp (rat y)) ≤ᵣ
-       absᵣ (lnX' (rat x) -ᵣ lnX' (rat y))
-      zzzz= x y p =
-       ≡ᵣWeaken≤ᵣ _ _
-                 (Rℝ.0RightAnnihilates' _ _
-                   (cong absᵣ (Rℝ.+InvR' _ _ p) ∙ absᵣ-rat 0)
-                   ∙ sym (absᵣ-rat 0) ∙
-                   cong absᵣ (sym (Rℝ.+InvR' _ _
-                     (ll))))
-
-         where
-
-         ll : ln (clp (rat x) , 0<clp (rat x))  ≡ ln (clp (rat y) , 0<clp (rat y))
-         ll = cong ln (ℝ₊≡ p)
-
-      zzzz< : ∀ x y → clampᵣ (rat [ pos 1 / 2+ Z ])
-       (rat [ pos (suc (suc Z)) / 1+ 0 ]) (rat x)
-       <ᵣ
-       clampᵣ (rat [ pos 1 / 2+ Z ]) (rat [ pos (suc (suc Z)) / 1+ 0 ])
-       (rat y) →
-       fst Kᵣ ·ᵣ absᵣ (clp (rat x) -ᵣ clp (rat y)) ≤ᵣ
-       absᵣ (lnX' (rat x) -ᵣ lnX' (rat y))
-      zzzz< x y x<y =
-       isTrans≡≤ᵣ
-         (fst Kᵣ ·ᵣ absᵣ (clp (rat x) -ᵣ clp (rat y)))
-         (absᵣ (clp (rat x) -ᵣ clp (rat y)) ·ᵣ fst Kᵣ)
-         (absᵣ (lnX' (rat x) -ᵣ lnX' (rat y)))
-        (·ᵣComm _ _) (fst (z≤x/y₊≃y₊·z≤x _ _ _)
-          (subst2  _≤ᵣ_
-           (cong₂ _·ᵣ_ refl
-             (cong (fst ∘ invℝ₊)
-              (ℝ₊≡ {_ , _} {_ , isTrans<≡ᵣ _ _ _ decℚ<ᵣ?
-               (sym (cong (rat ∘ [_/ 1 ]) hhhh))} (-ᵣ-rat₂ _ _ ∙ cong rat (ℚ.ℤ-→ℚ- _ _
-               ∙ cong ([_/ 1 ]) (cong₂ ℤ._+_ (ℤ.pos+ _ _) refl ∙ sym (ℤ.+Assoc 1 (pos ((suc (suc Z))))
-                    (ℤ.- (pos (suc (suc Z)))))
-                ∙ 𝐙'.+IdR' _ _ (ℤ.-Cancel (pos (suc (suc Z)))) ∙ sym hhhh )) ))
-             ∙ cong (fst ∘ invℝ₊) (ℝ₊≡ (cong rat (cong [_/ 1 ] hhhh))) ∙ cong fst invℝ₊1 )
-             ∙ (·IdR _) )
-           (cong₂ {y = absᵣ (lnX' (rat x) +ᵣ -ᵣ lnX' (rat y))} _·ᵣ_
-             ( sym (absᵣNonNeg _ (x≤y→0≤y-x _ _
-              (expPreDer.monotonePreLn (suc Z)
-               (clp (rat x) , 0<clp (rat x))
-               (clp (rat y) , 0<clp (rat y))
-                (snd x*∈) (fst x*∈) (snd y*∈) (fst y*∈) (<ᵣWeaken≤ᵣ _ _ x<y))))
-               ∙ cong absᵣ (cong₂ (λ u v → u +ᵣ -ᵣ v)
-               (sym (lnX'ₙ ((clp (rat y)) , 0<clp (rat y)) _ _)) --(sym (lnX'ₙ _ _ _))
-               ((sym (lnX'ₙ (clp (rat x) , 0<clp (rat x)) _ _))) --
-                )
-                 ∙ minusComm-absᵣ (lnX' (rat y)) (lnX' (rat x)))
-
-             (cong (fst ∘ invℝ₊)
-               (ℝ₊≡ {_} {_ , isTrans<≤ᵣ _ _ _ (x<y→0<y-x _ _ x<y)
-                     (isTrans≤≡ᵣ _ _ _ (≤absᵣ _) (minusComm-absᵣ _ _))}
-                  (sym (absᵣPos _ (x<y→0<y-x _ _ x<y))
-                 ∙ minusComm-absᵣ _ _))))
-           zzWW)) --
-         where
-
-         hhA : pos (suc (suc Z)) ℤ.+negsuc Z ≡ pos 1
-         hhA = sym (ℤStdP.pos- (suc (suc Z)) (suc Z)) ∙ hhNat Z
-          where
-          hhNat : ∀ Z → (suc (suc Z) ℤStd.ℕ- suc Z) ≡ pos 1
-          hhNat zero = refl
-          hhNat (suc Z) = hhNat Z
-
-         hhhh : 1 ℤ.+ ℤ.predℤ (pos (suc (suc Z)) ℤ.+negsuc Z) ≡ pos 1
-         hhhh = cong (1 ℤ.+_) (cong ℤ.predℤ hhA) ∙ refl
-
-         SSZ≤SSSZ : [ pos (suc (suc Z)) / 1 ] ℚ.≤ [ pos (suc (suc (suc Z))) / 1 ]
-         SSZ≤SSSZ = (ℚ.<Weaken≤ [ pos (suc (suc Z)) / 1 ] [ pos (suc (suc (suc Z))) / 1 ] Z<SZ)
-
-         1/SSSZ≤1/SSZ : rat [ pos 1 / 2+ suc Z ] ≤ᵣ rat [ pos 1 / 2+ Z ]
-         1/SSSZ≤1/SSZ = ≤ℚ→≤ᵣ _ _
-          (ℚ.invℚ≤invℚ SSSZℚ₊ SSZℚ₊ SSZ≤SSSZ)
-
-         x*∈ : clp (rat x) ∈  (intervalℙ (rat [ 1 /  (2+ (suc Z)) ])
-                        (rat [ pos (suc (suc (suc Z))) / 1 ]))
-         x*∈ =
-          let (≤x , x≤) = ((clampᵣ∈ℚintervalℙ _ _ 1/SSZ≤SSZ (rat x)))
-          in isTrans≤ᵣ _ _ _ 1/SSSZ≤1/SSZ ≤x , isTrans≤ᵣ _ _ _ x≤
-            (≤ℚ→≤ᵣ _ _ SSZ≤SSSZ)
-
-         y*∈ : clp (rat y) ∈ (intervalℙ (rat [ 1 /  (2+ (suc Z)) ])
-                        (rat [ pos (suc (suc (suc Z))) / 1 ]))
-         y*∈ =
-          let (≤y , y≤) = ((clampᵣ∈ℚintervalℙ _ _ 1/SSZ≤SSZ (rat y)))
-          in (isTrans≤ᵣ _ _ _ 1/SSSZ≤1/SSZ ≤y) ,
-               isTrans≤ᵣ _ _ _ y≤ ((≤ℚ→≤ᵣ _ _ SSZ≤SSSZ))
+        lnU lnV : ℝ
+        lnU = BDL.preLn u₊ Z (snd u∈) (fst u∈)
+        lnV = BDL.preLn v₊ Z (snd v∈) (fst v∈)
 
 
 
-         zzWW :
-           ((BDL.preLn SSSZ₊ (suc Z) (snd 3+Z∈) (fst 3+Z∈)
-             -ᵣ BDL.preLn SSZ₊ (suc Z) (snd 2+Z∈) (fst 2+Z∈))
-             ／ᵣ₊ (fst SSSZ₊ -ᵣ fst SSZ₊ ,
-               x<y→0<y-x (fst SSZ₊) (fst SSSZ₊) (<ℚ→<ᵣ _ _ Z<SZ)))
-           ≤ᵣ
-           ((BDL.preLn (clp (rat y) , 0<clp (rat y)) (suc Z) (snd y*∈) (fst y*∈)
-             -ᵣ BDL.preLn (clp (rat x) , 0<clp (rat x)) (suc Z) (snd x*∈) (fst x*∈))
-             ／ᵣ₊ (clp (rat y) -ᵣ clp (rat x) ,
-               x<y→0<y-x (clp (rat x)) (clp (rat y)) x<y))
-         zzWW =
-          (expPreDer.slope-monotone-preLn
-             (suc Z) (clp (rat x) , 0<clp (rat x)) (clp (rat y) , 0<clp (rat y))
-              SSZ₊ SSSZ₊
-              (snd x*∈) (fst x*∈)
-              (snd y*∈) (fst y*∈)
-              (snd 2+Z∈) (fst 2+Z∈)
-              (snd 3+Z∈) (fst 3+Z∈)
-              x<y (<ℚ→<ᵣ _ _ Z<SZ) (snd ((clampᵣ∈ℚintervalℙ _ _ 1/SSZ≤SSZ (rat x)))) (snd y*∈))
 
-      opaque
-       unfolding _+ᵣ_
-       zzzz* : fst Kᵣ ·ᵣ absᵣ (clp u -ᵣ clp v) ≤ᵣ absᵣ (lnX' u -ᵣ lnX' v)
-       zzzz* =
-         ≤Cont₂
-            {λ u v → fst Kᵣ ·ᵣ absᵣ (clp u -ᵣ clp v)}
-            {λ u v → absᵣ (lnX' u -ᵣ lnX' v)}
-            (cont∘₂ (IsContinuous∘ _ _
-               (IsContinuous·ᵣL (fst Kᵣ))
-               IsContinuousAbsᵣ)
-              (cont₂∘  (contNE₂ sumR)
-                clpCount
-                (IsContinuous∘ _ _
-                  IsContinuous-ᵣ clpCount)) )
-            (cont∘₂ IsContinuousAbsᵣ
-              (cont₂∘  (contNE₂ sumR)
-                lnX'Cont
-                (IsContinuous∘ _ _
-                  IsContinuous-ᵣ lnX'Cont)
-                ))
-            (ℚ.elimBy≡⊎<'
-               (λ x y X →
-                 subst2 (_≤ᵣ_ ∘ (fst Kᵣ ·ᵣ_))
-                   ((minusComm-absᵣ (clp (rat x)) (clp (rat y))))
-                   (minusComm-absᵣ (lnX' (rat x)) (lnX' (rat y)))
-                   X)
-               (λ x → ≡ᵣWeaken≤ᵣ _ _
-                    (Rℝ.0RightAnnihilates' _ _ (cong absᵣ (+-ᵣ _)
-                      ∙ absᵣ-rat 0)
-                     ∙∙ sym (absᵣ-rat 0)
-                     ∙∙ cong absᵣ ((sym (+-ᵣ (lnX' (rat x)))))))
-               λ x h₊ →
-                 let
-                   y = x ℚ.+ fst h₊
-                   x<y = ℚ≤→<+₊ x x h₊ (ℚ.isRefl≤ x)
-                 in
-                  ⊎.rec
-                   (zzzz= x y)
-                   (zzzz< x y)
-                   (ℚ-clamp-<-casesᵣ ([ 1 /  (1+ (suc Z)) ])
-                          ([ pos (suc (suc Z)) / 1 ])
-                          x y 1/SSZ<SSZ x<y))
-            u v
+        clp : ℝ → ℝ
+        clp = clampᵣ (rat [ 1 / (1+  (suc Z)) ])
+                     (rat [ pos (suc (suc Z)) / 1 ])
 
-      zzzz : absᵣ (u -ᵣ v) ≤ᵣ
-             invℝ₊ Kᵣ .fst ·ᵣ absᵣ (lnU -ᵣ lnV)
-      zzzz =
-        isTrans≤≡ᵣ _ _ _
-          (invEq (z≤x/y₊≃y₊·z≤x _ _ _)
-            (isTrans≤≡ᵣ _ _ _
-              (isTrans≡≤ᵣ _ _ _
-                (cong₂ (λ u v → fst Kᵣ ·ᵣ absᵣ (u -ᵣ v))
-                  (∈ℚintervalℙ→clampᵣ≡ _ _ u u∈)
-                  (∈ℚintervalℙ→clampᵣ≡ _ _ v v∈))
-                zzzz*)
-              (cong absᵣ
-                (cong₂ _-ᵣ_
-                  (cong ln
-                      ((ℝ₊≡
-                         {clp u , 0<clp u} {u , snd u₊}
-                        (sym (∈ℚintervalℙ→clampᵣ≡ _ _ u u∈))))
-         ∙∙ cong snd (Seq-^-FI.∩$-∈ₙ u (snd u₊) Z u∈)
-         ∙∙ cong (λ 0<u → BDL.preLn (u , 0<u) Z (snd u∈) (fst u∈))
-               (isProp<ᵣ 0 u _ _))
+        1/SSZ<SSZ : fst (invℚ₊ SSZℚ₊) ℚ.< fst SSZℚ₊
+        1/SSZ<SSZ =
+          ℚ.isTrans< _ 1 _
+            (fst (ℚ.invℚ₊-<-invℚ₊ 1 SSZℚ₊) 1<Z)
+            1<Z
 
-                  (cong ln
-                      ((ℝ₊≡
-                         {clp v , 0<clp v} {v , snd v₊}
-                        (sym (∈ℚintervalℙ→clampᵣ≡ _ _ v v∈))))
-         ∙∙ cong snd (Seq-^-FI.∩$-∈ₙ v (snd v₊) Z v∈)
-         ∙∙ cong (λ 0<v → BDL.preLn (v , 0<v) Z (snd v∈) (fst v∈))
-               (isProp<ᵣ 0 v _ _))
-                  ))))
-          (·ᵣComm _ _)
 
-^ᵣ· : (x : ℝ₊) (a b : ℝ) →
-      fst ((x ^ᵣ a) ^ᵣ b) ≡ fst (x ^ᵣ (a ·ᵣ b))
-^ᵣ· x a  =
-   ≡Continuous _ _
-      (cont-^ _)
-       (IsContinuous∘ _ _ (cont-^ x)
-         (IsContinuous·ᵣL a))
-     λ b' →
-      ^-rat _ _ ∙
-         ≡Continuous _ _
-           (IsContinuousWithPred∘IsContinuous _ _
-             _ (λ v → snd (x ^ᵣ v)) (IsContinuous^ℚ b') (cont-^ x))
-           (IsContinuous∘ _ _ (cont-^ x)
-         (IsContinuous·ᵣR (rat b')))
-           (λ a' →
-           (cong (fst ∘ _^ℚ b') (ℝ₊≡ (^-rat x a')))
-             ∙ cong fst (^ℚ-· x a' b') ∙
-             sym (^-rat _ _) ∙ cong (fst ∘ (x ^ᵣ_)) (rat·ᵣrat _ _))
-           a
+        1/SSZ≤SSZ : rat (fst (invℚ₊ SSZℚ₊)) ≤ᵣ rat (fst SSZℚ₊)
+        1/SSZ≤SSZ = ≤ℚ→≤ᵣ _ _ (ℚ.<Weaken≤ _ _ 1/SSZ<SSZ)
+
+        0<clp : ∀ x → 0 <ᵣ clp x
+        0<clp x = isTrans<≤ᵣ _ _ _ (<ℚ→<ᵣ _ _ (0<pos _ _))
+           (≤clampᵣ (rat [ 1 / (1+  (suc Z)) ]) _ x 1/SSZ≤SSZ)
+
+        clpCount : IsContinuous clp
+        clpCount = IsContinuousClamp
+           (rat [ 1 / (1+  (suc Z)) ])
+                     (rat [ pos (suc (suc Z)) / 1 ])
+
+        lnX' : ℝ → ℝ
+        lnX' x = ln (clp x , 0<clp x)
+
+        lnX'ₙ : ∀ (x : ℝ₊) 0<x
+                (x∈ : fst x ∈ (intervalℙ (rat [ 1 /  (2+ (suc Z)) ])
+                          (rat [ pos (suc (suc (suc Z))) / 1 ]))) →
+                  ln x ≡ BDL.preLn
+                           (fst x , 0<x) (suc Z) (snd x∈) (fst x∈)
+        lnX'ₙ x 0<x x∈ =
+          cong snd (Seq-^-FI.∩$-∈ₙ (fst x) (snd x) (suc Z) x∈)
+          ∙ cong (λ 0<x → BDL.preLn
+                           (fst x , 0<x) (suc Z) (snd x∈) (fst x∈))
+                           (isProp<ᵣ _ _ _ _)
+
+        clp≡ : ∀ u → u ∈ ((intervalℙ (rat [ 1 /  (1+ (suc Z)) ])
+                 (rat [ pos (suc (suc Z)) / 1 ]))) → clp u ≡ u
+        clp≡ u u∈ = sym (∈ℚintervalℙ→clampᵣ≡ _ _ u u∈)
+
+        lnX'Cont : IsContinuous lnX'
+        lnX'Cont = IsContinuousWithPred∘IsContinuous
+         _ _ _ 0<clp
+         ln-cont clpCount
+
+        lnuv< : absᵣ (lnU -ᵣ lnV) <ᵣ rat (fst ε)
+        lnuv< = fst (∼≃abs<ε _ _ _) lnU∼lnV
+
+        zzzz= : ∀ x y → clampᵣ (rat [ pos 1 / 2+ Z ])
+         (rat [ pos (suc (suc Z)) / 1+ 0 ]) (rat x)
+         ≡
+         clampᵣ (rat [ pos 1 / 2+ Z ]) (rat [ pos (suc (suc Z)) / 1+ 0 ])
+         (rat y) →
+         fst Kᵣ ·ᵣ absᵣ (clp (rat x) -ᵣ clp (rat y)) ≤ᵣ
+         absᵣ (lnX' (rat x) -ᵣ lnX' (rat y))
+        zzzz= x y p =
+         ≡ᵣWeaken≤ᵣ _ _
+                   (Rℝ.0RightAnnihilates' _ _
+                     (cong absᵣ (Rℝ.+InvR' _ _ p) ∙ absᵣ-rat 0)
+                     ∙ sym (absᵣ-rat 0) ∙
+                     cong absᵣ (sym (Rℝ.+InvR' _ _
+                       (ll))))
+
+           where
+
+           ll : ln (clp (rat x) , 0<clp (rat x))  ≡ ln (clp (rat y) , 0<clp (rat y))
+           ll = cong ln (ℝ₊≡ p)
+
+        zzzz< : ∀ x y → clampᵣ (rat [ pos 1 / 2+ Z ])
+         (rat [ pos (suc (suc Z)) / 1+ 0 ]) (rat x)
+         <ᵣ
+         clampᵣ (rat [ pos 1 / 2+ Z ]) (rat [ pos (suc (suc Z)) / 1+ 0 ])
+         (rat y) →
+         fst Kᵣ ·ᵣ absᵣ (clp (rat x) -ᵣ clp (rat y)) ≤ᵣ
+         absᵣ (lnX' (rat x) -ᵣ lnX' (rat y))
+        zzzz< x y x<y =
+         isTrans≡≤ᵣ
+           (fst Kᵣ ·ᵣ absᵣ (clp (rat x) -ᵣ clp (rat y)))
+           (absᵣ (clp (rat x) -ᵣ clp (rat y)) ·ᵣ fst Kᵣ)
+           (absᵣ (lnX' (rat x) -ᵣ lnX' (rat y)))
+          (·ᵣComm _ _) (fst (z≤x/y₊≃y₊·z≤x _ _ _)
+            (subst2  _≤ᵣ_
+             (cong₂ _·ᵣ_ refl
+               (cong (fst ∘ invℝ₊)
+                (ℝ₊≡ {_ , _} {_ , isTrans<≡ᵣ _ _ _ decℚ<ᵣ?
+                 (sym (cong (rat ∘ [_/ 1 ]) hhhh))} (-ᵣ-rat₂ _ _ ∙ cong rat (ℚ.ℤ-→ℚ- _ _
+                 ∙ cong ([_/ 1 ]) (cong₂ ℤ._+_ (ℤ.pos+ _ _) refl ∙ sym (ℤ.+Assoc 1 (pos ((suc (suc Z))))
+                      (ℤ.- (pos (suc (suc Z)))))
+                  ∙ 𝐙'.+IdR' _ _ (ℤ.-Cancel (pos (suc (suc Z)))) ∙ sym hhhh )) ))
+               ∙ cong (fst ∘ invℝ₊) (ℝ₊≡ (cong rat (cong [_/ 1 ] hhhh))) ∙ cong fst invℝ₊1 )
+               ∙ (·IdR _) )
+             (cong₂ {y = absᵣ (lnX' (rat x) +ᵣ -ᵣ lnX' (rat y))} _·ᵣ_
+               ( sym (absᵣNonNeg _ (x≤y→0≤y-x _ _
+                (expPreDer.monotonePreLn (suc Z)
+                 (clp (rat x) , 0<clp (rat x))
+                 (clp (rat y) , 0<clp (rat y))
+                  (snd x*∈) (fst x*∈) (snd y*∈) (fst y*∈) (<ᵣWeaken≤ᵣ _ _ x<y))))
+                 ∙ cong absᵣ (cong₂ (λ u v → u +ᵣ -ᵣ v)
+                 (sym (lnX'ₙ ((clp (rat y)) , 0<clp (rat y)) _ _)) --(sym (lnX'ₙ _ _ _))
+                 ((sym (lnX'ₙ (clp (rat x) , 0<clp (rat x)) _ _))) --
+                  )
+                   ∙ minusComm-absᵣ (lnX' (rat y)) (lnX' (rat x)))
+
+               (cong (fst ∘ invℝ₊)
+                 (ℝ₊≡ {_} {_ , isTrans<≤ᵣ _ _ _ (x<y→0<y-x _ _ x<y)
+                       (isTrans≤≡ᵣ _ _ _ (≤absᵣ _) (minusComm-absᵣ _ _))}
+                    (sym (absᵣPos _ (x<y→0<y-x _ _ x<y))
+                   ∙ minusComm-absᵣ _ _))))
+             zzWW)) --
+           where
+
+           hhA : pos (suc (suc Z)) ℤ.+negsuc Z ≡ pos 1
+           hhA = sym (ℤStdP.pos- (suc (suc Z)) (suc Z)) ∙ hhNat Z
+            where
+            hhNat : ∀ Z → (suc (suc Z) ℤStd.ℕ- suc Z) ≡ pos 1
+            hhNat zero = refl
+            hhNat (suc Z) = hhNat Z
+
+           hhhh : 1 ℤ.+ ℤ.predℤ (pos (suc (suc Z)) ℤ.+negsuc Z) ≡ pos 1
+           hhhh = cong (1 ℤ.+_) (cong ℤ.predℤ hhA) ∙ refl
+
+           SSZ≤SSSZ : [ pos (suc (suc Z)) / 1 ] ℚ.≤ [ pos (suc (suc (suc Z))) / 1 ]
+           SSZ≤SSSZ = (ℚ.<Weaken≤ [ pos (suc (suc Z)) / 1 ] [ pos (suc (suc (suc Z))) / 1 ] Z<SZ)
+
+           1/SSSZ≤1/SSZ : rat [ pos 1 / 2+ suc Z ] ≤ᵣ rat [ pos 1 / 2+ Z ]
+           1/SSSZ≤1/SSZ = ≤ℚ→≤ᵣ _ _
+            (ℚ.invℚ≤invℚ SSSZℚ₊ SSZℚ₊ SSZ≤SSSZ)
+
+           x*∈ : clp (rat x) ∈  (intervalℙ (rat [ 1 /  (2+ (suc Z)) ])
+                          (rat [ pos (suc (suc (suc Z))) / 1 ]))
+           x*∈ =
+            let (≤x , x≤) = ((clampᵣ∈ℚintervalℙ _ _ 1/SSZ≤SSZ (rat x)))
+            in isTrans≤ᵣ _ _ _ 1/SSSZ≤1/SSZ ≤x , isTrans≤ᵣ _ _ _ x≤
+              (≤ℚ→≤ᵣ _ _ SSZ≤SSSZ)
+
+           y*∈ : clp (rat y) ∈ (intervalℙ (rat [ 1 /  (2+ (suc Z)) ])
+                          (rat [ pos (suc (suc (suc Z))) / 1 ]))
+           y*∈ =
+            let (≤y , y≤) = ((clampᵣ∈ℚintervalℙ _ _ 1/SSZ≤SSZ (rat y)))
+            in (isTrans≤ᵣ _ _ _ 1/SSSZ≤1/SSZ ≤y) ,
+                 isTrans≤ᵣ _ _ _ y≤ ((≤ℚ→≤ᵣ _ _ SSZ≤SSSZ))
+
+
+
+           zzWW :
+             ((BDL.preLn SSSZ₊ (suc Z) (snd 3+Z∈) (fst 3+Z∈)
+               -ᵣ BDL.preLn SSZ₊ (suc Z) (snd 2+Z∈) (fst 2+Z∈))
+               ／ᵣ₊ (fst SSSZ₊ -ᵣ fst SSZ₊ ,
+                 x<y→0<y-x (fst SSZ₊) (fst SSSZ₊) (<ℚ→<ᵣ _ _ Z<SZ)))
+             ≤ᵣ
+             ((BDL.preLn (clp (rat y) , 0<clp (rat y)) (suc Z) (snd y*∈) (fst y*∈)
+               -ᵣ BDL.preLn (clp (rat x) , 0<clp (rat x)) (suc Z) (snd x*∈) (fst x*∈))
+               ／ᵣ₊ (clp (rat y) -ᵣ clp (rat x) ,
+                 x<y→0<y-x (clp (rat x)) (clp (rat y)) x<y))
+           zzWW =
+            (expPreDer.slope-monotone-preLn
+               (suc Z) (clp (rat x) , 0<clp (rat x)) (clp (rat y) , 0<clp (rat y))
+                SSZ₊ SSSZ₊
+                (snd x*∈) (fst x*∈)
+                (snd y*∈) (fst y*∈)
+                (snd 2+Z∈) (fst 2+Z∈)
+                (snd 3+Z∈) (fst 3+Z∈)
+                x<y (<ℚ→<ᵣ _ _ Z<SZ) (snd ((clampᵣ∈ℚintervalℙ _ _ 1/SSZ≤SSZ (rat x)))) (snd y*∈))
+
+        opaque
+         unfolding _+ᵣ_
+         zzzz* : fst Kᵣ ·ᵣ absᵣ (clp u -ᵣ clp v) ≤ᵣ absᵣ (lnX' u -ᵣ lnX' v)
+         zzzz* =
+           ≤Cont₂
+              {λ u v → fst Kᵣ ·ᵣ absᵣ (clp u -ᵣ clp v)}
+              {λ u v → absᵣ (lnX' u -ᵣ lnX' v)}
+              (cont∘₂ (IsContinuous∘ _ _
+                 (IsContinuous·ᵣL (fst Kᵣ))
+                 IsContinuousAbsᵣ)
+                (cont₂∘  (contNE₂ sumR)
+                  clpCount
+                  (IsContinuous∘ _ _
+                    IsContinuous-ᵣ clpCount)) )
+              (cont∘₂ IsContinuousAbsᵣ
+                (cont₂∘  (contNE₂ sumR)
+                  lnX'Cont
+                  (IsContinuous∘ _ _
+                    IsContinuous-ᵣ lnX'Cont)
+                  ))
+              (ℚ.elimBy≡⊎<'
+                 (λ x y X →
+                   subst2 (_≤ᵣ_ ∘ (fst Kᵣ ·ᵣ_))
+                     ((minusComm-absᵣ (clp (rat x)) (clp (rat y))))
+                     (minusComm-absᵣ (lnX' (rat x)) (lnX' (rat y)))
+                     X)
+                 (λ x → ≡ᵣWeaken≤ᵣ _ _
+                      (Rℝ.0RightAnnihilates' _ _ (cong absᵣ (+-ᵣ _)
+                        ∙ absᵣ-rat 0)
+                       ∙∙ sym (absᵣ-rat 0)
+                       ∙∙ cong absᵣ ((sym (+-ᵣ (lnX' (rat x)))))))
+                 λ x h₊ →
+                   let
+                     y = x ℚ.+ fst h₊
+                     x<y = ℚ≤→<+₊ x x h₊ (ℚ.isRefl≤ x)
+                   in
+                    ⊎.rec
+                     (zzzz= x y)
+                     (zzzz< x y)
+                     (ℚ-clamp-<-casesᵣ ([ 1 /  (1+ (suc Z)) ])
+                            ([ pos (suc (suc Z)) / 1 ])
+                            x y 1/SSZ<SSZ x<y))
+              u v
+
+        zzzz : absᵣ (u -ᵣ v) ≤ᵣ
+               invℝ₊ Kᵣ .fst ·ᵣ absᵣ (lnU -ᵣ lnV)
+        zzzz =
+          isTrans≤≡ᵣ _ _ _
+            (invEq (z≤x/y₊≃y₊·z≤x _ _ _)
+              (isTrans≤≡ᵣ _ _ _
+                (isTrans≡≤ᵣ _ _ _
+                  (cong₂ (λ u v → fst Kᵣ ·ᵣ absᵣ (u -ᵣ v))
+                    (∈ℚintervalℙ→clampᵣ≡ _ _ u u∈)
+                    (∈ℚintervalℙ→clampᵣ≡ _ _ v v∈))
+                  zzzz*)
+                (cong absᵣ
+                  (cong₂ _-ᵣ_
+                    (cong ln
+                        ((ℝ₊≡
+                           {clp u , 0<clp u} {u , snd u₊}
+                          (sym (∈ℚintervalℙ→clampᵣ≡ _ _ u u∈))))
+           ∙∙ cong snd (Seq-^-FI.∩$-∈ₙ u (snd u₊) Z u∈)
+           ∙∙ cong (λ 0<u → BDL.preLn (u , 0<u) Z (snd u∈) (fst u∈))
+                 (isProp<ᵣ 0 u _ _))
+
+                    (cong ln
+                        ((ℝ₊≡
+                           {clp v , 0<clp v} {v , snd v₊}
+                          (sym (∈ℚintervalℙ→clampᵣ≡ _ _ v v∈))))
+           ∙∙ cong snd (Seq-^-FI.∩$-∈ₙ v (snd v₊) Z v∈)
+           ∙∙ cong (λ 0<v → BDL.preLn (v , 0<v) Z (snd v∈) (fst v∈))
+                 (isProp<ᵣ 0 v _ _))
+                    ))))
+            (·ᵣComm _ _)
 
 inj-ln : ∀ x y → ln x ≡ ln y → x ≡ y
 inj-ln (x , 0<x) (y , 0<y) =
@@ -1042,52 +893,6 @@ inj-ln (x , 0<x) (y , 0<y) =
    λ Z x∈ y∈ p →
      PT.rec (isSetℝ₊ _ _)
        (λ (_ , isLip) →
-         ℝ₊≡ (Invlipschitz-ℝ→ℝ→injective-interval _ _ _ _ isLip x x∈ y y∈
+         ℝ₊≡ (InverseLipschitz-ℝ→ℝℙ→injective _ _ _ isLip x x∈ y y∈
           p))
       (invLipPreLn Z)
-
-{-
-Old proof used quotient-slope derivative uniqueness through ^-der.
-Previous names: ln[a^b₊]≡b₊·ln[a], ln[a^b]≡b·ln[a].
-
-ln[a^b₊]≡b₊·ln[a] : ∀ a (b : ℝ₊) → ln (a ^ᵣ (fst b)) ≡ fst b ·ᵣ ln a
-ln[a^b₊]≡b₊·ln[a] a (b , 0<b) =
-   limitUniq _ _ _ _ (zz b) (zz' b 0<b) ∙ ·ᵣComm _ _
-  where
-  zz : ∀ b → derivativeOf (fst ∘ a ^ᵣ_  ∘ (b ·ᵣ_)) at 0 is
-        (ln (a ^ᵣ b))
-  zz b = substDer
-     (λ r → ^ᵣ· _ _ _)
-     (subst (derivativeOf (fst ∘ (a ^ᵣ b) ^ᵣ_ ) at 0 is_)
-     ((Rℝ.·IdL' _ _ (^ᵣ0 _))) (^-der (a ^ᵣ b) 0))
-
-  zz'' : ∀ b (0<b : 0 <ᵣ b) → derivativeOf (fst ∘ a ^ᵣ_  ∘ (b ·ᵣ_))
-                at 0 ／ᵣ₊ (b , 0<b) is (b ·ᵣ (fst (a ^ᵣ 0) ·ᵣ ln a))
-  zz'' b 0<b = derivative-∘· _ _ _ (b , 0<b) (^-der a 0)
-
-  zz' : ∀ b (0<b : 0 <ᵣ b) → derivativeOf (fst ∘ a ^ᵣ_  ∘ (b ·ᵣ_)) at 0 is (ln a ·ᵣ b)
-  zz' b 0<b = subst2 (derivativeOf (fst ∘ a ^ᵣ_  ∘ (b ·ᵣ_)) at_is_)
-         (Rℝ.0LeftAnnihilates _) (cong (b ·ᵣ_) (Rℝ.·IdL' _ _ (^ᵣ0 a)) ∙ ·ᵣComm _ _) (zz'' b 0<b)
-
-ln[a^b]≡b·ln[a] : ∀ a b → ln (a ^ᵣ b) ≡ b ·ᵣ ln a
-ln[a^b]≡b·ln[a] a =
-  ≡Continuous _ _
-    (IsContinuousWithPred∘IsContinuous
-     _ _ _
-      (λ x → snd (a ^ᵣ x))
-      ln-cont
-      (cont-^ a)) (IsContinuous·ᵣR _)
-    (ℚ.byTrichotomy 0 ww)
-
-  where
-  ww : ℚ.TrichotomyRec 0 (λ z → ln (a ^ᵣ rat z) ≡ rat z ·ᵣ ln a)
-  ww .ℚ.TrichotomyRec.lt-case b b<0 =
-    cong ln (ℝ₊≡ (^-rat _ _ ∙∙ cong fst (^ℚ-minus _ _) ∙∙ sym (^-rat _ _)))
-     ∙∙ ln[a^b₊]≡b₊·ln[a] (invℝ₊ a) (rat (ℚ.- b) ,
-      <ℚ→<ᵣ _ _ (ℚ.minus-< _ _ b<0) ) ∙∙
-       (cong₂ _·ᵣ_ (sym (-ᵣ-rat b)) (ln-inv a) ∙  -ᵣ·-ᵣ _ _)
-  ww .ℚ.TrichotomyRec.eq-case = (cong ln (ℝ₊≡ (^ᵣ0 _)) ∙ ln-1≡0)
-    ∙ sym (Rℝ.0LeftAnnihilates (ln a))
-  ww .ℚ.TrichotomyRec.gt-case b 0<b =
-    ln[a^b₊]≡b₊·ln[a] a (rat b , <ℚ→<ᵣ _ _ 0<b)
--}

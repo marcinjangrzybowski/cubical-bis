@@ -15,7 +15,7 @@ open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (_^ⁿ_)
 
 open import Cubical.HITs.CauchyReals.Base
 open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.OrderBounds
+import Cubical.HITs.CauchyReals.OrderBounds as OrderBounds
 open import Cubical.HITs.CauchyReals.Continuous
 open import Cubical.HITs.CauchyReals.Multiplication
 open import Cubical.HITs.CauchyReals.Inverse
@@ -25,26 +25,15 @@ open import Cubical.HITs.CauchyReals.PiNumber
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 open import Cubical.HITs.CauchyReals.ArcSin.Positive.Properties.Range
+
 ointerval→abs< : ∀ x y → x ∈ ointervalℙ (-ᵣ y) y → absᵣ x <ᵣ y
-ointerval→abs< x y (-y<x , x<y) =
-   isTrans≡<ᵣ _ _ _  (abs-max _)
-    (max<-lem x (-ᵣ x) y x<y (isTrans<≡ᵣ _ _ _ (-ᵣ<ᵣ _ _ -y<x) (-ᵣInvol _)))
+ointerval→abs< = OrderBounds.ointerval→abs<
 
 abs<→ointerval : ∀ x y → absᵣ x <ᵣ y → x ∈ ointervalℙ (-ᵣ y) y
-abs<→ointerval x y ∣x∣<y =
-     isTrans<≡ᵣ _ _ _
-       ( -ᵣ<ᵣ _ _ (isTrans≤<ᵣ _ _ _
-        (isTrans≤≡ᵣ _ _ _ (≤absᵣ (-ᵣ x)) (sym (-absᵣ x)))
-       ∣x∣<y)) (-ᵣInvol x)
-   , isTrans≤<ᵣ _ _ _ (≤absᵣ x) ∣x∣<y
+abs<→ointerval = OrderBounds.abs<→ointerval
 
 abs≤→interval : ∀ x y → absᵣ x ≤ᵣ y → x ∈ intervalℙ (-ᵣ y) y
-abs≤→interval x y ∣x∣≤y =
-     isTrans≤≡ᵣ _ _ _
-       ( -ᵣ≤ᵣ _ _ (isTrans≤ᵣ _ _ _
-        (isTrans≤≡ᵣ _ _ _ (≤absᵣ (-ᵣ x)) (sym (-absᵣ x)))
-       ∣x∣≤y)) (-ᵣInvol x)
-   , isTrans≤ᵣ _ _ _ (≤absᵣ x) ∣x∣≤y
+abs≤→interval = OrderBounds.abs≤→interval
 
 opaque
  arcSin⟨⟩ : ∀ x → (x∈ : x ∈ ointervalℙ -1 1) → ℝ
