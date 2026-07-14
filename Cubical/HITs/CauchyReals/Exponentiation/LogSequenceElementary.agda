@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Exponentiation.LogSequenceElementary where
 
 open import Cubical.Foundations.Prelude
@@ -122,6 +120,17 @@ negStepWidth≡fromNatInv n =
 lnSeq : ℝ₊ → ℕ → ℝ
 lnSeq z n =  (fst (z ^ℚ [ 1 / 2+ n ]) -ᵣ 1)  ·ᵣ fromNat (suc (suc n))
 
+opaque
+ lnSeq-one : ∀ n → lnSeq 1 n ≡ 0
+ lnSeq-one n =
+   Rℝ.0LeftAnnihilates'
+     (fst (1 ^ℚ fst (stepℚ₊ n)) -ᵣ 1)
+     (fromNat (suc (suc n)))
+     (Rℝ.+InvR'
+       (fst (1 ^ℚ fst (stepℚ₊ n)))
+       1
+       (cong fst (1^ℚ≡1 (fst (stepℚ₊ n)))))
+
 
 opaque
  unfolding -ᵣ_
@@ -143,6 +152,31 @@ opaque
      (≤ℚ→≤ᵣ 0 [ pos (suc (suc n)) / 1 ] (ℚ.0≤pos (suc (suc n)) 1))
     $ ≤ᵣ-+o (fst (z ^ℚ [ 1 / 2+ n ])) (fst (z' ^ℚ [ 1 / 2+ n ])) -1
       (^ℚ-Monotone {z} {z'} (stepℚ₊ n) z≤z')
+
+ lnSeq-nonnegative : ∀ z → 1 ≤ᵣ fst z → ∀ n → 0 ≤ᵣ lnSeq z n
+ lnSeq-nonnegative z 1≤z n =
+   isTrans≡≤ᵣ
+     0
+     (0 ·ᵣ 0)
+     (root-difference ·ᵣ fromNat (suc (suc n)))
+     (rat·ᵣrat 0 0)
+     (≤ᵣ₊Monotone·ᵣ
+       0 root-difference 0 (fromNat (suc (suc n)))
+       root-difference-nonnegative
+       (≤ᵣ-refl 0)
+       root-difference-nonnegative
+       (≤ℚ→≤ᵣ
+         0 [ pos (suc (suc n)) / 1 ]
+         (ℚ.0≤pos (suc (suc n)) 1)))
+  where
+  root-difference : ℝ
+  root-difference = fst (z ^ℚ fst (stepℚ₊ n)) -ᵣ 1
+
+  root-difference-nonnegative : 0 ≤ᵣ root-difference
+  root-difference-nonnegative =
+    fst
+      (x≤y≃0≤y-x 1 (fst (z ^ℚ fst (stepℚ₊ n))))
+      (1≤^ℚ z (stepℚ₊ n) 1≤z)
 
 
 
@@ -227,7 +261,7 @@ x^→∞ m ε =
                    (ℚ≤→<+₊ (k ℚ.· εq) (k ℚ.· εq) 1 (ℚ.isRefl≤ (k ℚ.· εq)))
              in ℚ.isTrans< (k ℚ.· εq) ((k ℚ.· (x ℚ.- 1)) ℚ.+ 1) (x ℚ^ⁿ suc (suc n)) left<lower
              (bernoulli's-ineq-^ℚⁿ x n
-               (subst (1 ℚ.<_) (ℚ.+Comm _ _)
+               (subst (1 ℚ.<_) (ℚ.+Comm 1 εq)
                 (ℚ≤→<+₊ 1 1 ε (ℚ.isRefl≤ 1))))))
       }
 

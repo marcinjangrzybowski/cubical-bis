@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Exponentiation.Core where
 
 open import Cubical.Foundations.Prelude
@@ -288,24 +286,66 @@ slopeMonotone^ (suc (suc N)) a b a' b' a<b a'<b' a≤a' b≤b' =
       geometricProgression (fst b' ^ⁿ (suc N)) (fst a' ／ᵣ[ fst b' , _ ]) n₁
  w n x =
   let (m , p) = ℕ.predℕ-≤-predℕ x
-  in subst2 _≤ᵣ_
-    ((cong₂ _·ᵣ_ refl (sym ([x/y]·yᵣ _ _ (inl (0<x^ⁿ _ _ (snd b))))
-     ∙ ·ᵣComm _ _) ∙ ·ᵣAssoc _ _ _)
-      ∙ cong₂ _·ᵣ_
-          ((cong fst (^ℕ-+ b _ _) ∙ cong ((fst b) ^ⁿ_) (p)))
-          (／^ⁿ _ _ _ _ _)
-      ∙ sym (geometricProgressionClosed _ _ _))
-    ((cong₂ _·ᵣ_ refl (sym ([x/y]·yᵣ _ _ (inl (0<x^ⁿ _ _ (snd b'))))
-     ∙ ·ᵣComm _ _) ∙ ·ᵣAssoc _ _ _)
-      ∙ cong₂ _·ᵣ_
-          ((cong fst (^ℕ-+ b' _ _) ∙ cong ((fst b') ^ⁿ_) (p)))
-          (／^ⁿ _ _ _ _ _)
-      ∙ sym (geometricProgressionClosed _ _ _))
-    (≤ᵣ₊Monotone·ᵣ _ _ _ _
-      (<ᵣWeaken≤ᵣ _ _ (0<x^ⁿ _ _ (snd b')))
-      (<ᵣWeaken≤ᵣ _ _ (0<x^ⁿ _ _ (snd a)))
-      (^ⁿ-Monotone _ (<ᵣWeaken≤ᵣ _ _ (snd b)) b≤b')
-       (^ⁿ-Monotone _ (<ᵣWeaken≤ᵣ _ _ (snd a)) a≤a') )
+
+      bⁿPos : 0 <ᵣ fst b ^ⁿ n
+      bⁿPos = 0<x^ⁿ (fst b) n (snd b)
+
+      b'ⁿPos : 0 <ᵣ fst b' ^ⁿ n
+      b'ⁿPos = 0<x^ⁿ (fst b') n (snd b')
+
+      leftPath :
+        (fst b ^ⁿ m) ·ᵣ (fst a ^ⁿ n) ≡
+        geometricProgression (fst b ^ⁿ suc N) fa.r n
+      leftPath =
+          (cong₂ _·ᵣ_ refl
+            (sym ([x/y]·yᵣ (fst a ^ⁿ n) (fst b ^ⁿ n) (inl bⁿPos))
+             ∙ ·ᵣComm
+               ((fst a ^ⁿ n) ／ᵣ[ fst b ^ⁿ n , inl bⁿPos ])
+               (fst b ^ⁿ n))
+           ∙ ·ᵣAssoc
+             (fst b ^ⁿ m) (fst b ^ⁿ n)
+             ((fst a ^ⁿ n) ／ᵣ[ fst b ^ⁿ n , inl bⁿPos ]))
+        ∙ cong₂ _·ᵣ_
+            (cong fst (^ℕ-+ b m n) ∙ cong ((fst b) ^ⁿ_) p)
+            (／^ⁿ n (fst a) (fst b) fa.0＃b (inl bⁿPos))
+        ∙ sym (geometricProgressionClosed (fst b ^ⁿ suc N) fa.r n)
+
+      rightPath :
+        (fst b' ^ⁿ m) ·ᵣ (fst a' ^ⁿ n) ≡
+        geometricProgression (fst b' ^ⁿ suc N) fa'.r n
+      rightPath =
+          (cong₂ _·ᵣ_ refl
+            (sym ([x/y]·yᵣ (fst a' ^ⁿ n) (fst b' ^ⁿ n) (inl b'ⁿPos))
+             ∙ ·ᵣComm
+               ((fst a' ^ⁿ n) ／ᵣ[ fst b' ^ⁿ n , inl b'ⁿPos ])
+               (fst b' ^ⁿ n))
+           ∙ ·ᵣAssoc
+             (fst b' ^ⁿ m) (fst b' ^ⁿ n)
+             ((fst a' ^ⁿ n) ／ᵣ[ fst b' ^ⁿ n , inl b'ⁿPos ]))
+        ∙ cong₂ _·ᵣ_
+            (cong fst (^ℕ-+ b' m n) ∙ cong ((fst b') ^ⁿ_) p)
+            (／^ⁿ n (fst a') (fst b') fa'.0＃b (inl b'ⁿPos))
+        ∙ sym (geometricProgressionClosed (fst b' ^ⁿ suc N) fa'.r n)
+
+      product≤ :
+        (fst b ^ⁿ m) ·ᵣ (fst a ^ⁿ n) ≤ᵣ
+        (fst b' ^ⁿ m) ·ᵣ (fst a' ^ⁿ n)
+      product≤ =
+        ≤ᵣ₊Monotone·ᵣ
+          (fst b ^ⁿ m) (fst b' ^ⁿ m)
+          (fst a ^ⁿ n) (fst a' ^ⁿ n)
+          (<ᵣWeaken≤ᵣ 0 (fst b' ^ⁿ m)
+            (0<x^ⁿ (fst b') m (snd b')))
+          (<ᵣWeaken≤ᵣ 0 (fst a ^ⁿ n)
+            (0<x^ⁿ (fst a) n (snd a)))
+          (^ⁿ-Monotone m (<ᵣWeaken≤ᵣ 0 (fst b) (snd b)) b≤b')
+          (^ⁿ-Monotone n (<ᵣWeaken≤ᵣ 0 (fst a) (snd a)) a≤a')
+  in subst2
+    {x = (fst b ^ⁿ m) ·ᵣ (fst a ^ⁿ n)}
+    {y = geometricProgression (fst b ^ⁿ suc N) fa.r n}
+    {z = (fst b' ^ⁿ m) ·ᵣ (fst a' ^ⁿ n)}
+    {w = geometricProgression (fst b' ^ⁿ suc N) fa'.r n}
+    _≤ᵣ_ leftPath rightPath product≤
 
 slope-monotone-ₙ√ : (n : ℕ) (a b a' b' : ℝ₊)
   → (a<b : fst a <ᵣ fst b) → (a'<b' : fst a' <ᵣ fst b')
@@ -340,16 +380,17 @@ uContRoot0 (1+ n) ε =
     (ε ℚ₊^ⁿ (suc n))
   , λ u u<εⁿ →
     isTrans<≡ᵣ _ _ _ (ₙ√-StrictMonotone
-          {y = ℚ₊→ℝ₊ (ε ℚ₊^ⁿ (suc n))} (1+ n) u<εⁿ)
+         {y = ℚ₊→ℝ₊ (ε ℚ₊^ⁿ (suc n))} (1+ n) u<εⁿ)
          (cong (fst ∘ root (1+ n)) (
-            ℝ₊≡ (sym (^ⁿ-ℚ^ⁿ _ _)))
+            ℝ₊≡ (sym (^ⁿ-ℚ^ⁿ (suc n) (fst ε))))
           ∙ cong fst (Iso.ret (nth-pow-root-iso (1+ n)) (ℚ₊→ℝ₊ ε)))
 
 
 ·DistRoot : ∀ x y b → root b x ₊·ᵣ root b y ≡ root b (x ₊·ᵣ y)
 ·DistRoot x y b =
    sym (Iso.ret (nth-pow-root-iso b) _) ∙ cong (root b)
-    (ℝ₊≡ (^ⁿ-ldist-· _ _ _)
+    (ℝ₊≡ (^ⁿ-ldist-·
+      (fst (root b x)) (fst (root b y)) (ℕ₊₁→ℕ b))
       ∙ cong₂ _₊·ᵣ_
        (Iso.sec (nth-pow-root-iso b) x)
        (Iso.sec (nth-pow-root-iso b) y))
@@ -357,7 +398,7 @@ uContRoot0 (1+ n) ε =
 invCommRoot : ∀ x b → invℝ₊ (root b x) ≡ root b (invℝ₊ x)
 invCommRoot x b =
   isoFunInjective (nth-pow-root-iso b) _ _
-   (₊^ⁿ-invℝ₊ _ _
+   (₊^ⁿ-invℝ₊ (ℕ₊₁→ℕ b) (root b x)
      ∙ cong invℝ₊ (Iso.sec (nth-pow-root-iso b) _)
      ∙ sym (Iso.sec (nth-pow-root-iso b) _))
 
@@ -365,14 +406,14 @@ pow-root-comm₊ : ∀ x a b → (root b x) ₊^ⁿ a ≡ root b (x ₊^ⁿ a)
 pow-root-comm₊ x zero b = sym (ₙ√1 b)
 pow-root-comm₊ x (suc a) b =
     cong (root b x ₊·ᵣ_) (pow-root-comm₊ x a b)
-  ∙ ·DistRoot _ _ _
+  ∙ ·DistRoot x (x ₊^ⁿ a) b
 
 
 pow-root-comm : ∀ x a b → (root b x) ^ℤ a ≡ root b (x ^ℤ a)
 pow-root-comm x (pos n) b = pow-root-comm₊ x n b
 pow-root-comm x (ℤ.negsuc n) b =
    cong invℝ₊ (pow-root-comm₊ x (suc n) b) ∙
-     invCommRoot _ _
+     invCommRoot (x ₊^ⁿ suc n) b
 
 
 
@@ -409,75 +450,122 @@ _₀₊·₀₊ᵣ_ : ℝ₀₊ → ℝ₀₊ → ℝ₀₊
 
 module slope-incr-root (n : ℕ) where
 
+ degree : ℕ₊₁
+ degree = 2+ n
 
  help-fn : (a c : ℝ₊) → ℝ
  help-fn a c =
-   fst (root (1+ (suc n)) (a ₊+ᵣ c)) -ᵣ fst (root (1+ (suc n)) a)
+   fst (root degree (a ₊+ᵣ c)) -ᵣ fst (root degree a)
 
  help-fn-decr : ∀ c a b → fst a <ᵣ fst b
                  →  help-fn b c <ᵣ help-fn a c
  help-fn-decr c a b a<b =
-      subst2 _<ᵣ_
-        (cong (fst c ·ᵣ_) (invℝ₊≡invℝ _ _) ∙ sym (H.h b))
-         (cong (fst c ·ᵣ_) (invℝ₊≡invℝ _ _) ∙ sym (H.h a))
+      subst2
+        {x = fst c ·ᵣ fst (invℝ₊ (H.fac.S₊ b))}
+        {y = help-fn b c}
+        {z = fst c ·ᵣ fst (invℝ₊ (H.fac.S₊ a))}
+        {w = help-fn a c}
+        _<ᵣ_
+        (cong (fst c ·ᵣ_)
+          (invℝ₊≡invℝ (H.fac.S₊ b) (inl (H.fac.0<S b)))
+          ∙ sym (H.h b))
+         (cong (fst c ·ᵣ_)
+          (invℝ₊≡invℝ (H.fac.S₊ a) (inl (H.fac.0<S a)))
+          ∙ sym (H.h a))
         (invEq (z/y'<x/y≃y₊·z<y'₊·x (fst c) (fst c)
            (H.fac.S₊ a) (H.fac.S₊ b ))
-          (<ᵣ-·ᵣo _ _ c (Seq<→Σ<
-            (geometricProgression _ (H.fac.r a))
-            (geometricProgression _ (H.fac.r b))
+          (<ᵣ-·ᵣo (H.fac.S a) (H.fac.S b) c (Seq<→Σ<
+            (geometricProgression
+              (fst (root degree (a ₊+ᵣ c)) ^ⁿ suc n) (H.fac.r a))
+            (geometricProgression
+              (fst (root degree (b ₊+ᵣ c)) ^ⁿ suc n) (H.fac.r b))
             (suc n) (λ m m≤n →
-              subst2 _<ᵣ_
-                (sym (geometricProgressionClosed _ _ _))
-                (sym (geometricProgressionClosed _ _ _))
+              subst2
+                {x = (fst (root degree (a ₊+ᵣ c)) ^ⁿ suc n) ·ᵣ
+                     (H.fac.r a ^ⁿ m)}
+                {y = geometricProgression
+                     (fst (root degree (a ₊+ᵣ c)) ^ⁿ suc n)
+                     (H.fac.r a) m}
+                {z = (fst (root degree (b ₊+ᵣ c)) ^ⁿ suc n) ·ᵣ
+                     (H.fac.r b ^ⁿ m)}
+                {w = geometricProgression
+                     (fst (root degree (b ₊+ᵣ c)) ^ⁿ suc n)
+                     (H.fac.r b) m}
+                _<ᵣ_
+                (sym (geometricProgressionClosed
+                  (fst (root degree (a ₊+ᵣ c)) ^ⁿ suc n)
+                  (H.fac.r a) m))
+                (sym (geometricProgressionClosed
+                  (fst (root degree (b ₊+ᵣ c)) ^ⁿ suc n)
+                  (H.fac.r b) m))
                 (<≤ᵣ₊Monotone·ᵣ
-                  (ℝ₊→ℝ₀₊ (root (2+ n) (a ₊+ᵣ c)
-                    ₊·ᵣ (root (2+ n) (a ₊+ᵣ c) ₊^ⁿ n)))
-                  _ ((H.fac.r a , H.fac.0<r a) ₊^ⁿ m) _
+                  (ℝ₊→ℝ₀₊ (root degree (a ₊+ᵣ c)
+                    ₊·ᵣ (root degree (a ₊+ᵣ c) ₊^ⁿ n)))
+                  (fst (root degree (b ₊+ᵣ c)) ^ⁿ suc n)
+                  ((H.fac.r a , H.fac.0<r a) ₊^ⁿ m)
+                  (H.fac.r b ^ⁿ m)
 
                      (^ⁿ-StrictMonotone (suc n)
                       (ℕ.suc-≤-suc ℕ.zero-≤)
-                      ((<ᵣWeaken≤ᵣ _ _
-                      $ snd (root (1+ (suc n)) (a ₊+ᵣ c))))
-                       ((<ᵣWeaken≤ᵣ _ _
-                      $ snd (root (1+ (suc n)) (b ₊+ᵣ c))))
-                       (ₙ√-StrictMonotone _
-                         (<ᵣ-+o _ _ (fst c) a<b)))
+                      (<ᵣWeaken≤ᵣ 0 (fst (root degree (a ₊+ᵣ c)))
+                        (snd (root degree (a ₊+ᵣ c))))
+                      (<ᵣWeaken≤ᵣ 0 (fst (root degree (b ₊+ᵣ c)))
+                        (snd (root degree (b ₊+ᵣ c))))
+                       (ₙ√-StrictMonotone degree
+                         (<ᵣ-+o (fst a) (fst b) (fst c) a<b)))
                      (^ⁿ-Monotone m
-                      (<ᵣWeaken≤ᵣ _ _ (H.fac.0<r a))
-                       (subst2 _≤ᵣ_
-                         (sym (cong fst (·DistRoot _ _ _))
-                            ∙ (cong (fst (root (1+ (suc n)) a) ·ᵣ_)
-                              (cong fst (sym (invCommRoot _ _))
-                               ∙ invℝ₊≡invℝ _ _ )))
-                         (sym (cong fst (·DistRoot _ _ _))
-                            ∙ (cong (fst (root (1+ (suc n)) b) ·ᵣ_)
-                              (cong fst (sym (invCommRoot _ _))
-                               ∙ invℝ₊≡invℝ _ _ )))
-                         (ₙ√-Monotone _
-                           (<ᵣWeaken≤ᵣ _ _
-                             (a/[a+c]<b/[b+c] _ _ _ a<b))))))))))
+                      (<ᵣWeaken≤ᵣ 0 (H.fac.r a) (H.fac.0<r a))
+                       (subst2
+                         {x = fst (root degree
+                           (a ₊·ᵣ invℝ₊ (a ₊+ᵣ c)))}
+                         {y = H.fac.r a}
+                         {z = fst (root degree
+                           (b ₊·ᵣ invℝ₊ (b ₊+ᵣ c)))}
+                         {w = H.fac.r b}
+                         _≤ᵣ_
+                         (sym (cong fst
+                            (·DistRoot a (invℝ₊ (a ₊+ᵣ c)) degree))
+                            ∙ cong (fst (root degree a) ·ᵣ_)
+                              (cong fst
+                                (sym (invCommRoot (a ₊+ᵣ c) degree))
+                               ∙ invℝ₊≡invℝ (root degree (a ₊+ᵣ c))
+                                 (inl (snd (root degree (a ₊+ᵣ c))))))
+                         (sym (cong fst
+                            (·DistRoot b (invℝ₊ (b ₊+ᵣ c)) degree))
+                            ∙ cong (fst (root degree b) ·ᵣ_)
+                              (cong fst
+                                (sym (invCommRoot (b ₊+ᵣ c) degree))
+                               ∙ invℝ₊≡invℝ (root degree (b ₊+ᵣ c))
+                                 (inl (snd (root degree (b ₊+ᵣ c))))))
+                         (ₙ√-Monotone
+                           {x = a ₊·ᵣ invℝ₊ (a ₊+ᵣ c)}
+                           {y = b ₊·ᵣ invℝ₊ (b ₊+ᵣ c)} degree
+                           (<ᵣWeaken≤ᵣ
+                             (fst (a ₊·ᵣ invℝ₊ (a ₊+ᵣ c)))
+                             (fst (b ₊·ᵣ invℝ₊ (b ₊+ᵣ c)))
+                             (a/[a+c]<b/[b+c] a b c a<b))))))))))
 
   where
   open bⁿ-aⁿ n hiding (n)
 
   module H (a : ℝ₊) where
    module fac = factor
-     (fst (root (1+ (suc n)) a)) (fst (root (1+ (suc n)) (a ₊+ᵣ c)))
-     (snd (root (1+ (suc n)) a)) (snd (root (1+ (suc n)) (a ₊+ᵣ c)))
+     (fst (root degree a)) (fst (root degree (a ₊+ᵣ c)))
+     (snd (root degree a)) (snd (root degree (a ₊+ᵣ c)))
 
-   h : fst (root (2+ n) (a ₊+ᵣ c)) -ᵣ fst (root (2+ n) a) ≡ (c .fst ／ᵣ[
-                Sₙ (fst (root (2+ n) (a ₊+ᵣ c)) ^ⁿ suc n)
-                (r (fst (root (2+ n) a)) (fst (root (2+ n) (a ₊+ᵣ c)))
-                 (snd (root (2+ n) a)) (snd (root (2+ n) (a ₊+ᵣ c))))
+   h : fst (root degree (a ₊+ᵣ c)) -ᵣ fst (root degree a) ≡ (c .fst ／ᵣ[
+                Sₙ (fst (root degree (a ₊+ᵣ c)) ^ⁿ suc n)
+                (r (fst (root degree a)) (fst (root degree (a ₊+ᵣ c)))
+                 (snd (root degree a)) (snd (root degree (a ₊+ᵣ c))) )
                 (bⁿ-aⁿ.n n)
                 , inl fac.0<S ])
    h = x·y≡z→x≡z/y _ _ _ (inl fac.0<S) ((fac.[b-a]·S≡bⁿ-aⁿ
 
          ∙ cong₂ _-ᵣ_
          (cong fst
-          (Iso.sec (nth-pow-root-iso (1+ (suc n))) (a ₊+ᵣ c)))
+          (Iso.sec (nth-pow-root-iso degree) (a ₊+ᵣ c)))
          (cong fst
-          (Iso.sec (nth-pow-root-iso (1+ (suc n))) a))
+          (Iso.sec (nth-pow-root-iso degree) a))
            ∙ ℝ!))
 
 
@@ -613,14 +701,21 @@ opaque
     let v∈+ : (rat x +ᵣ rat (fst Δ)) ∈ posℙ
         v∈+ = subst (_∈ posℙ) (sym (+ᵣ-rat x (fst Δ))) v∈
 
+        cancelStep : (x ℚ.+ fst Δ) ℚ.- x ≡ fst Δ
+        cancelStep = ℚ!
+
+        stepDistance : abs (x ℚ.- (x ℚ.+ fst Δ)) ≡ fst Δ
+        stepDistance =
+            ℚO.abs-Comm x (x ℚ.+ fst Δ)
+          ∙ cong abs cancelStep
+          ∙ ℚO.0<→abs≡id (fst Δ) (snd Δ)
+
         X' : fst (root (1+ n) (ℚ₊→ℝ₊ Δ)) <ᵣ rat (fst ε)
         X' = isTrans<≡ᵣ _ _ _
           (ₙ√-StrictMonotone {ℚ₊→ℝ₊ Δ} {ℚ₊→ℝ₊ δ} (1+ n)
-          ((<ℚ→<ᵣ _ _ (subst (ℚ._< fst δ)
-              (ℚO.abs-Comm x (x ℚ.+ fst Δ) ∙ cong abs
-                ℚ! ∙ (ℚO.0<→abs≡id _ (snd Δ))) X))))
+          ((<ℚ→<ᵣ _ _ (subst (ℚ._< fst δ) stepDistance X))))
           (cong (fst ∘ root (1+ n))
-             (ℝ₊≡ (sym (^ⁿ-ℚ^ⁿ _ _)))
+             (ℝ₊≡ (sym (^ⁿ-ℚ^ⁿ (suc n) (fst ε))))
             ∙ cong fst (Iso.ret (nth-pow-root-iso (1+ n))
               (ℚ₊→ℝ₊ ε)))
 
@@ -666,24 +761,30 @@ uContRoot n = IsUContinuousℚℙ→IsUContinuousℙ (curry (fst ∘ root n))
 
 
 ^ℤ-· : ∀ x a b → ((x ^ℤ a) ^ℤ b) ≡  (x ^ℤ (a ℤ.· b))
-^ℤ-· x (pos n) (pos n₁) = ^ℕ-· x n n₁ ∙ cong (x ^ℤ_) (ℤ.pos·pos _ _)
-^ℤ-· x (pos zero) (ℤ.negsuc n₁) = 1^ℤ≡1 _
+^ℤ-· x (pos n) (pos n₁) =
+  ^ℕ-· x n n₁ ∙ cong (x ^ℤ_) (ℤ.pos·pos n n₁)
+^ℤ-· x (pos zero) (ℤ.negsuc n₁) = 1^ℤ≡1 (ℤ.negsuc n₁)
 ^ℤ-· x (pos (suc n)) (ℤ.negsuc n₁) =
      cong invℝ₊ (^ℕ-· x (suc n) (suc n₁))
-   ∙ cong (x ^ℤ_) (cong ℤ.-_ (ℤ.pos·pos _ _ ) ∙ sym (ℤ.pos·negsuc _ _))
+   ∙ cong (x ^ℤ_)
+       (cong ℤ.-_ (ℤ.pos·pos (suc n) (suc n₁))
+       ∙ sym (ℤ.pos·negsuc (suc n) n₁))
 ^ℤ-· x (ℤ.negsuc n) (pos zero) =
-  cong {x = 0} (x ^ℤ_) (sym (ℤ.·AnnihilR _))
+  cong {x = pos zero} {y = ℤ.negsuc n ℤ.· pos zero}
+    (x ^ℤ_) (sym (ℤ.·AnnihilR (ℤ.negsuc n)))
 ^ℤ-· x (ℤ.negsuc n) (pos (suc n₁)) =
-      ₊^ⁿ-invℝ₊ _ _
+      ₊^ⁿ-invℝ₊ (suc n₁) (x ₊^ⁿ suc n)
    ∙∙ cong invℝ₊ (^ℕ-· x (suc n) (suc n₁))
    ∙∙ cong (x ^ℤ_)
-     ( cong ℤ.-_ ((ℤ.pos·pos (suc n) (suc n₁) )) ∙ sym (ℤ.negsuc·pos n (suc n₁)) )
+     (cong ℤ.-_ (ℤ.pos·pos (suc n) (suc n₁))
+     ∙ sym (ℤ.negsuc·pos n (suc n₁)))
 
 ^ℤ-· x (ℤ.negsuc n) (ℤ.negsuc n₁) =
-        (sym (₊^ⁿ-invℝ₊ _ _)
-       ∙ cong (_₊^ⁿ (suc n₁)) (invℝ₊Invol _))
+        (sym (₊^ⁿ-invℝ₊ (suc n₁) (invℝ₊ (x ₊^ⁿ suc n)))
+       ∙ cong (_₊^ⁿ (suc n₁)) (invℝ₊Invol (x ₊^ⁿ suc n)))
    ∙∙ ^ℕ-· x (suc n) (suc n₁)
-   ∙∙ cong (x ^ℤ_) (ℤ.pos·pos _ _ ∙ (sym $ ℤ.negsuc·negsuc n n₁))
+   ∙∙ cong (x ^ℤ_)
+     (ℤ.pos·pos (suc n) (suc n₁) ∙ sym (ℤ.negsuc·negsuc n n₁))
 
 
 
@@ -700,33 +801,56 @@ pre^ℚ-aprox a b =
 module _ (x : ℝ) (0<x : 0 <ᵣ x) where
  ^ℚ-coh' : ∀ a a' b b' → pos a ℤ.· pos (suc b') ≡ pos a' ℤ.· pos (suc b) →
    (root (1+ b) (x , 0<x)  ^ℤ (pos a)) ≡ (root (1+ b') (x , 0<x) ^ℤ (pos a'))
- ^ℚ-coh' n n' b b' p  =
-     let z = cong₂ (_^ℤ_)
-               (sym ((cong Iso.inv (pow-root-+ℕ₊₁ (1+ b') (1+ b))) ≡$ (x , 0<x))
-               ∙∙ cong (flip root (x , 0<x) )
-                 (·₊₁-comm _ _ )
-               ∙∙ (((cong Iso.inv (pow-root-+ℕ₊₁ (1+ b) (1+ b'))) ≡$ (x , 0<x))))
-                (ℤ.·Comm _ _ ∙∙ p ∙∙ ℤ.·Comm _ _)
-    in (sym (cong (_₊^ⁿ n)
-            (Iso.sec (nth-pow-root-iso (1+ b')) (root (1+ b) (x , 0<x))))
-        ∙ (^ℤ-· _ (pos (suc b')) (pos n)) )
-      ∙∙ z ∙∙
-       ( sym (^ℤ-· _ (pos (suc b)) (pos n'))
-         ∙ cong (_₊^ⁿ n')
-            (Iso.sec (nth-pow-root-iso (1+ b)) (root (1+ b') (x , 0<x))))
+ ^ℚ-coh' n n' b b' p =
+   let leftBase : ℝ₊
+       leftBase = root (1+ b') (root (1+ b) (x , 0<x))
+
+       rightBase : ℝ₊
+       rightBase = root (1+ b) (root (1+ b') (x , 0<x))
+
+       baseComm : leftBase ≡ rightBase
+       baseComm =
+           sym ((cong Iso.inv (pow-root-+ℕ₊₁ (1+ b') (1+ b))) ≡$ (x , 0<x))
+         ∙∙ cong (λ degree → root degree (x , 0<x))
+              (·₊₁-comm (1+ b') (1+ b))
+         ∙∙ ((cong Iso.inv (pow-root-+ℕ₊₁ (1+ b) (1+ b'))) ≡$ (x , 0<x))
+
+       exponentComm :
+         pos (suc b') ℤ.· pos n ≡ pos (suc b) ℤ.· pos n'
+       exponentComm =
+           ℤ.·Comm (pos (suc b')) (pos n)
+         ∙∙ p
+         ∙∙ ℤ.·Comm (pos n') (pos (suc b))
+
+       commuteCommonPower :
+         leftBase ^ℤ (pos (suc b') ℤ.· pos n)
+           ≡ rightBase ^ℤ (pos (suc b) ℤ.· pos n')
+       commuteCommonPower = cong₂ _^ℤ_ baseComm exponentComm
+   in
+       (sym (cong (_₊^ⁿ n)
+          (Iso.sec (nth-pow-root-iso (1+ b')) (root (1+ b) (x , 0<x))))
+       ∙ ^ℤ-· leftBase (pos (suc b')) (pos n))
+     ∙∙ commuteCommonPower
+     ∙∙ (sym (^ℤ-· rightBase (pos (suc b)) (pos n'))
+       ∙ cong (_₊^ⁿ n')
+          (Iso.sec (nth-pow-root-iso (1+ b)) (root (1+ b') (x , 0<x))))
 
  ^ℚ-coh : ∀ a a' b b' → a ℤ.· pos (suc b') ≡ a' ℤ.· pos (suc b) →
    (root (1+ b) (x , 0<x)  ^ℤ a) ≡ (root (1+ b') (x , 0<x) ^ℤ a')
  ^ℚ-coh (pos n) (pos n₁) b b' p = ^ℚ-coh' n n₁ b b' p
 
  ^ℚ-coh (pos n) (ℤ.negsuc n₁) b b' p =
-   ⊥.rec (ℤ.posNotnegsuc _ _
-    (ℤ.pos·pos _ _ ∙∙ p ∙∙ (ℤ.negsuc·pos n₁ (suc b) ∙
-      cong (ℤ.-_) (sym (ℤ.pos·pos _ _)) )))
+   ⊥.rec (ℤ.posNotnegsuc
+     (n ℕ.· suc b') (b ℕ.+ n₁ ℕ.· suc b)
+     (ℤ.pos·pos n (suc b') ∙∙ p ∙∙
+       (ℤ.negsuc·pos n₁ (suc b) ∙
+        cong (ℤ.-_) (sym (ℤ.pos·pos (suc n₁) (suc b))))))
  ^ℚ-coh (ℤ.negsuc n) (pos n₁) b b' p =
-   ⊥.rec (ℤ.negsucNotpos _ _
-    ((cong (ℤ.-_) (ℤ.pos·pos _ _) ∙
-       sym (ℤ.negsuc·pos n (suc b'))) ∙∙ p ∙∙ ((sym (ℤ.pos·pos _ _)) )))
+   ⊥.rec (ℤ.negsucNotpos
+     (b' ℕ.+ n ℕ.· suc b') (n₁ ℕ.· suc b)
+     ((cong (ℤ.-_) (ℤ.pos·pos (suc n) (suc b')) ∙
+       sym (ℤ.negsuc·pos n (suc b'))) ∙∙ p ∙∙
+       sym (ℤ.pos·pos n₁ (suc b))))
  ^ℚ-coh (ℤ.negsuc n) (ℤ.negsuc n₁) b b' p =
    cong invℝ₊ (^ℚ-coh' (suc n) (suc n₁) b b' (
      sym (ℤ.-DistL· (ℤ.negsuc n) (pos (suc b')))
@@ -769,8 +893,10 @@ IsContinuous^ℚ = SQ.ElimProp.go w
  w .ElimProp2.f (a , 1+ b) (a' , 1+ b') =
   ((root (1+ b) (x , 0<x) ^ℤ a) ₊·ᵣ (root (1+ b') (x , 0<x) ^ℤ a'))
    ≡⟨ cong₂ _₊·ᵣ_
-        (cong (_^ℤ a) b√x≡ ∙ ^ℤ-· bb'√x _ _)
-        (cong (_^ℤ a') b'√x≡ ∙ ^ℤ-· bb'√x _ _) ⟩
+        (cong (_^ℤ a) b√x≡
+          ∙ ^ℤ-· bb'√x (pos (suc b')) a)
+        (cong (_^ℤ a') b'√x≡
+          ∙ ^ℤ-· bb'√x (pos (suc b)) a') ⟩
             ((bb'√x ^ℤ (ℤ.ℕ₊₁→ℤ (1+ b') ℤ.· a))
          ₊·ᵣ (bb'√x ^ℤ (ℤ.ℕ₊₁→ℤ (1+ b) ℤ.· a')))
    ≡⟨ (λ i → ^ℤ-+ bb'√x
@@ -785,12 +911,13 @@ IsContinuous^ℚ = SQ.ElimProp.go w
    bb'√x = root ((1+ b) ·₊₁ (1+ b')) (x , 0<x)
 
    b√x≡ : root (1+ b) (x , 0<x) ≡ bb'√x ₊^ⁿ (suc b')
-   b√x≡ = sym (Iso.sec (nth-pow-root-iso (1+ b')) _) ∙
+   b√x≡ =
+     sym (Iso.sec (nth-pow-root-iso (1+ b')) (root (1+ b) x₊)) ∙
       (cong (_₊^ⁿ (suc b')) $ sym (cong Iso.inv (pow-root-+ℕ₊₁ (1+ b') (1+ b)) ≡$ x₊)
-        ∙ cong (flip root x₊) (·₊₁-comm _ _))
+        ∙ cong (flip root x₊) (·₊₁-comm (1+ b') (1+ b)))
 
    b'√x≡ : root (1+ b') (x , 0<x) ≡ bb'√x ₊^ⁿ (suc b)
-   b'√x≡ = sym (Iso.sec (nth-pow-root-iso (1+ b)) _) ∙
+   b'√x≡ = sym (Iso.sec (nth-pow-root-iso (1+ b)) (root (1+ b') x₊)) ∙
       (cong (_₊^ⁿ (suc b)) $ sym (cong Iso.inv (pow-root-+ℕ₊₁ (1+ b) (1+ b')) ≡$ x₊))
 
 
@@ -800,24 +927,32 @@ IsContinuous^ℚ = SQ.ElimProp.go w
  w : ElimProp2 (λ a b → ((x₊ ^ℚ a) ^ℚ b) ≡ (x₊ ^ℚ (a ℚ.· b)))
  w .ElimProp2.isPropB _ _ = isSetℝ₊ _ _
  w .ElimProp2.f (a , 1+ b) (a' , 1+ b') =
+   let commonRoot : ℝ₊
+       commonRoot = root ((1+ b) ·₊₁ (1+ b')) x₊
+
+       rootComm : root (1+ b') (root (1+ b) x₊) ≡ commonRoot
+       rootComm =
+           sym ((cong Iso.inv (pow-root-+ℕ₊₁ (1+ b') (1+ b))) ≡$ x₊)
+         ∙ cong (flip root x₊) (·₊₁-comm (1+ b') (1+ b))
+   in
      cong (_^ℤ a')
-       (sym (pow-root-comm _ _ _) ∙ cong (_^ℤ a) (
-             sym (cong Iso.inv (pow-root-+ℕ₊₁ (1+ b') (1+ b)) ≡$ x₊)
-          ∙ cong (flip root x₊) (·₊₁-comm _ _)))
-       ∙ ^ℤ-· _ _ _
+       (sym (pow-root-comm (root (1+ b) x₊) a (1+ b'))
+       ∙ cong (_^ℤ a) rootComm)
+     ∙ ^ℤ-· commonRoot a a'
 
 
 
 invℝ₊^ℤ : ∀ x a → (invℝ₊ x) ^ℤ (ℤ.- a) ≡ x ^ℤ a
 invℝ₊^ℤ x (pos zero) = refl
 invℝ₊^ℤ x (pos (suc n)) = cong invℝ₊ (₊^ⁿ-invℝ₊ (suc n) x)
- ∙ invℝ₊Invol _
-invℝ₊^ℤ x (ℤ.negsuc n) = ₊^ⁿ-invℝ₊ _ _
+ ∙ invℝ₊Invol (x ₊^ⁿ suc n)
+invℝ₊^ℤ x (ℤ.negsuc n) = ₊^ⁿ-invℝ₊ (suc n) x
 
 invℝ₊[^ℤ] : ∀ x a → (invℝ₊ x ^ℤ a) ≡ invℝ₊ (x ^ℤ a)
 invℝ₊[^ℤ] x (pos zero) = ℝ₊≡ (sym (invℝ₊-rat 1))
-invℝ₊[^ℤ] x (pos (suc n)) = ₊^ⁿ-invℝ₊ _ _
-invℝ₊[^ℤ] x (ℤ.negsuc n) = cong invℝ₊ (₊^ⁿ-invℝ₊ _ _)
+invℝ₊[^ℤ] x (pos (suc n)) = ₊^ⁿ-invℝ₊ (suc n) x
+invℝ₊[^ℤ] x (ℤ.negsuc n) =
+  cong invℝ₊ (₊^ⁿ-invℝ₊ (suc n) x)
 
 invℝ₊^ℤ' : ∀ x a → (invℝ₊ x) ^ℤ a ≡ x ^ℤ (ℤ.- a)
 invℝ₊^ℤ' x a = cong ((invℝ₊ x) ^ℤ_) (sym (ℤ.-Involutive a)) ∙ invℝ₊^ℤ x (ℤ.- a)
@@ -840,12 +975,18 @@ invℝ₊^ℚ x = SQ.ElimProp.go w
  w : ElimProp (λ a → (x ^ℚ a) ≡ ((invℝ₊ x) ^ℚ (ℚ.- a)))
  w .ElimProp.isPropB _ = isSetℝ₊ _ _
  w .ElimProp.f (a , (1+ b)) =
-  cong (λ b → (x ^ℚ [ a , b ]))
-   (sym (·₊₁-identityˡ _))
-  ∙
-  (sym (invℝ₊^ℤ _ _))
-   ∙ cong (_^ℤ _) (invCommRoot _ _)
-   ∙ cong (root _ (invℝ₊ x) ^ℤ_) (sym (ℤ.-1·x≡-x a))
+   let degree : ℕ₊₁
+       degree = 1 ·₊₁ (1+ b)
+
+       rooted : ℝ₊
+       rooted = root degree x
+   in
+     cong (λ denominator → x ^ℚ [ a , denominator ])
+       (sym (·₊₁-identityˡ (1+ b)))
+     ∙ sym (invℝ₊^ℤ rooted a)
+     ∙ cong (_^ℤ (ℤ.- a)) (invCommRoot x degree)
+     ∙ cong (root degree (invℝ₊ x) ^ℤ_)
+         (sym (ℤ.-1·x≡-x a))
 
 ^ℚ-minus' : ∀ x a → (x ^ℚ (ℚ.- a)) ≡ ((invℝ₊ x) ^ℚ a)
 ^ℚ-minus' x a = ^ℚ-minus x (ℚ.- a) ∙ cong ((invℝ₊ x) ^ℚ_) (ℚ.-Invol a)
@@ -857,40 +998,55 @@ invℝ₊^ℚ x = SQ.ElimProp.go w
  where
  w : ElimProp (λ q → 1 ^ℚ q ≡ 1)
  w .ElimProp.isPropB _ = isSetℝ₊ _ _
- w .ElimProp.f (a , b) = cong (_^ℤ a) (ₙ√1 b) ∙ 1^ℤ≡1 _
+ w .ElimProp.f (a , b) = cong (_^ℤ a) (ₙ√1 b) ∙ 1^ℤ≡1 a
 
 Iso^ₙₒₜ₀ : ∀ q → 0 ℚ.# q  → Iso ℝ₊ ℝ₊
 Iso^ₙₒₜ₀ q _ .Iso.fun = _^ℚ q
 Iso^ₙₒₜ₀ q 0#q .Iso.inv = _^ℚ (invℚ q 0#q)
 Iso^ₙₒₜ₀ q 0#q .Iso.sec x =
- ^ℚ-· x _ _ ∙∙ cong (x ^ℚ_) (ℚ.·Comm _ _ ∙ ℚ.x·invℚ[x] q 0#q)
+ ^ℚ-· x (invℚ q 0#q) q
+  ∙∙ cong (x ^ℚ_)
+    (ℚ.·Comm (invℚ q 0#q) q ∙ ℚ.x·invℚ[x] q 0#q)
   ∙∙ ℝ₊≡ (·IdR (fst x))
 Iso^ₙₒₜ₀ q 0#q .Iso.ret x =
- ^ℚ-· x _ _  ∙∙ cong (x ^ℚ_) (ℚ.x·invℚ[x] q 0#q) ∙∙ ℝ₊≡ (·IdR (fst x))
+ ^ℚ-· x q (invℚ q 0#q)
+  ∙∙ cong (x ^ℚ_) (ℚ.x·invℚ[x] q 0#q)
+  ∙∙ ℝ₊≡ (·IdR (fst x))
 
 
 factor-xᵃ-xᵇ : ∀ x a b → fst (x ^ℚ a) -ᵣ fst (x ^ℚ b) ≡
                         fst (x ^ℚ b) ·ᵣ (fst (x ^ℚ (a ℚ.- b)) -ᵣ 1)
 factor-xᵃ-xᵇ x a b =
-    cong₂ _-ᵣ_
-      (cong (fst ∘ x ^ℚ_) (sym ℚ!)
-       ∙ cong fst (sym (^ℚ-+ _ _ _)))
-      (sym (·IdR _))
-  ∙ sym (·DistL- _ _ _)
+  let splitExponent : b ℚ.+ (a ℚ.- b) ≡ a
+      splitExponent = ℚ!
+  in
+      cong₂ _-ᵣ_
+        (cong (fst ∘ x ^ℚ_) (sym splitExponent)
+         ∙ cong fst (sym (^ℚ-+ x b (a ℚ.- b))))
+        (sym (·IdR (fst (x ^ℚ b))))
+    ∙ sym (·DistL-
+        (fst (x ^ℚ b)) (fst (x ^ℚ (a ℚ.- b))) 1)
 
 factor-xᵃ-xᵇ' : ∀ x a b → fst (x ^ℚ a) -ᵣ fst (x ^ℚ b) ≡
                         fst (x ^ℚ a) ·ᵣ (1 -ᵣ fst (x ^ℚ (b ℚ.- a)))
 factor-xᵃ-xᵇ' x a b =
- cong₂ _-ᵣ_ (sym (·IdR _))
-           (cong fst (cong (x ^ℚ_) (sym ℚ!))
-              ∙ cong fst (sym (^ℚ-+ _ _ _)) )
-   ∙ sym (·DistL- _ _ _)
+  let splitExponent : a ℚ.+ (b ℚ.- a) ≡ b
+      splitExponent = ℚ!
+  in
+    cong₂ _-ᵣ_ (sym (·IdR (fst (x ^ℚ a))))
+      (cong fst (cong (x ^ℚ_) (sym splitExponent))
+       ∙ cong fst (sym (^ℚ-+ x a (b ℚ.- a))))
+    ∙ sym (·DistL-
+        (fst (x ^ℚ a)) 1 (fst (x ^ℚ (b ℚ.- a))))
 
 factorOut-xᵃ : ∀ x a b → x ^ℚ a ≡
      ((x ^ℚ b) ₊·ᵣ (x ^ℚ (a ℚ.- b)))
 factorOut-xᵃ x a b =
-  cong (x ^ℚ_) (sym ℚ!)
-  ∙ sym (^ℚ-+ x b (a ℚ.- b))
+  let splitExponent : b ℚ.+ (a ℚ.- b) ≡ a
+      splitExponent = ℚ!
+  in
+    cong (x ^ℚ_) (sym splitExponent)
+    ∙ sym (^ℚ-+ x b (a ℚ.- b))
 
 ^ℚ-StrictMonotone : ∀ {x y : ℝ₊} (q : ℚ₊)
     → fst x <ᵣ fst y
@@ -965,11 +1121,11 @@ factorOut-xᵃ x a b =
 ^ℚ-MonotoneR {x} q r q≤r 1≤x =
 
   let z = continuousClosedLowerComparison {1}
-             (IsContinuousWithPred⊆ _ _
+             (IsContinuousWithPred⊆ posℙ (pred≥ (rat 1))
                 (λ x x< → fst ((x , x<) ^ℚ q))
                 (λ x → isTrans<≤ᵣ 0 1 x ((decℚ<ᵣ? {0} {1})))
                 (IsContinuous^ℚ q))
-             (IsContinuousWithPred⊆ _ _
+             (IsContinuousWithPred⊆ posℙ (pred≥ (rat 1))
                 (λ x x< → fst ((x , x<) ^ℚ r))
                 (λ x → isTrans<≤ᵣ 0 1 x ((decℚ<ᵣ? {0} {1})))
                 (IsContinuous^ℚ r))

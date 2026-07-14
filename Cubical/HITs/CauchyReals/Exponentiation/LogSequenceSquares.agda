@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Exponentiation.LogSequenceSquares where
 
 open import Cubical.Foundations.Prelude
@@ -96,7 +94,9 @@ open import Cubical.HITs.CauchyReals.Exponentiation.LogSequenceBernoulli
   w .ElimProp.f (ℤ.negsuc n , b) =
     subst {x = [ ℤ.pos (suc n) , b ] ℚ.· [ ℤ.pos (suc n) , b ]}
           {y = [ ℤ.negsuc n , b ] ℚ.· [ ℤ.negsuc n , b ]}
-          (0 ℚ.≤_) (cong (λ z → [ z / b ·₊₁ b ]) (sym (ℤ.negsuc·negsuc _ _)))
+          (0 ℚ.≤_)
+          (cong (λ z → [ z / b ·₊₁ b ])
+            (sym (ℤ.negsuc·negsuc n n)))
       (ℚ.≤Monotone·-onNonNeg 0 [ ℤ.pos (suc n) , b ] 0 [ ℤ.pos (suc n) , b ]
     (ℚ.0≤pos _ _) (ℚ.0≤pos _ _) (ℚ.0≤pos _ _) (ℚ.0≤pos _ _))
 
@@ -105,4 +105,3 @@ open import Cubical.HITs.CauchyReals.Exponentiation.LogSequenceBernoulli
 0≤x·ᵣx = ≤Cont (IsContinuousConst 0) (cont₂·ᵣ _ _ IsContinuousId IsContinuousId)
   λ u → isTrans≤≡ᵣ _ _ _ (≤ℚ→≤ᵣ _ _
     (ℚ0≤x·ᵣx u)) (rat·ᵣrat u u )
-

@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Exponentiation.Convexity where
 
 open import Cubical.Foundations.Prelude
@@ -66,11 +64,25 @@ open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 open import Cubical.HITs.CauchyReals.Exponentiation.Core
 
+private
+  opaque
+    invℝ₊-rat-opaque : ∀ q →
+      fst (invℝ₊ (ℚ₊→ℝ₊ q)) ≡ rat (fst (invℚ₊ q))
+    invℝ₊-rat-opaque q = invℝ₊-rat q
+
+    invℝ₊-rat-involutive-opaque : ∀ (q : ℚ₊) →
+      fst (invℝ₊ (ℚ₊→ℝ₊ (invℚ₊ q))) ≡ rat (fst q)
+    invℝ₊-rat-involutive-opaque q =
+      invℝ₊-rat-opaque (invℚ₊ q)
+      ∙ cong rat (ℚ.invℚ₊-invol q)
+
 fromNatℝ+ : ∀ {x y z} →
     x ℕ.+ y ≡ z →
     HasFromNat.fromNat fromNatℝ x +ᵣ HasFromNat.fromNat fromNatℝ y
       ≡ HasFromNat.fromNat fromNatℝ z
-fromNatℝ+ p = +ᵣ-rat _ _ ∙ cong rat (ℚ.ℕ+→ℚ+  _ _ ∙ cong ([_/ 1 ] ∘ pos) p)
+fromNatℝ+ {x} {y} p =
+  fromNat+ᵣ x y
+  ∙ cong (λ n → HasFromNat.fromNat fromNatℝ n {{tt}}) p
 
 square-minus-one-expanded : ∀ t →
   (t -ᵣ 1) ·ᵣ (t -ᵣ 1)
@@ -81,28 +93,49 @@ AM-GM₂ : ∀ z → 1 <ᵣ fst z → ∀ x (Δ : ℚ₊) →
           fst (2 ₊·ᵣ (z ^ℚ x)) <ᵣ
             fst ((z ^ℚ (x ℚ.- fst Δ)) ₊+ᵣ (z ^ℚ (x ℚ.+ fst Δ)))
 AM-GM₂ z 1<z x Δ = isTrans<≡ᵣ _ _ _ (isTrans≡<ᵣ _ _ _
-       (cong (2 ·ᵣ_) (cong (fst ∘ z ^ℚ_) ℚ!
-          ∙ sym (cong fst (^ℚ-+ z _ _)))
-          ∙ ·ᵣComm _ _ ∙ sym (·ᵣAssoc _ _ _))
-       (fst (z<x≃y₊·z<y₊·x _ _ (z ^ℚ (x ℚ.- fst Δ))) (isTrans≡<ᵣ _ _ _
-         (cong (fst a ·ᵣ_) (sym (fromNatℝ+ refl))
+       (cong (2 ·ᵣ_) (cong (fst ∘ z ^ℚ_) centerSplit
+          ∙ sym (cong fst (^ℚ-+ z lowerExponent d)))
+          ∙ ·ᵣComm 2 (fst lowerPower ·ᵣ fst a)
+          ∙ sym (·ᵣAssoc (fst lowerPower) (fst a) 2))
+       (fst (z<x≃y₊·z<y₊·x _ _ lowerPower) (isTrans≡<ᵣ _ _ _
+         (cong (fst a ·ᵣ_)
+           (sym (fromNatℝ+ {x = 1} {y = 1} {z = 2} refl))
            ∙ ·DistL+ (fst a) 1 1)
        (invEq (x<y≃0<y-x _ _)
       $ isTrans<≡ᵣ _ _ _ (ℝ₊· (fst a -ᵣ 1 , w') (fst a -ᵣ 1 , w'))
        (square-minus-one-expanded (fst a))))))
-        (·DistL+ _ _ _ ∙ +ᵣComm _ _ ∙
+        (·DistL+ (fst lowerPower) (fst a ·ᵣ fst a) (1 ·ᵣ 1)
+          ∙ +ᵣComm _ _ ∙
           cong₂ _+ᵣ_
-          (cong (((z ^ℚ (x ℚ.- fst Δ)) .fst) ·ᵣ_)
-              (sym (rat·ᵣrat _ _)) ∙ ·IdR _)
-              (cong (((z ^ℚ (x ℚ.- fst Δ)) .fst) ·ᵣ_)
-                (cong fst (^ℚ-+ z _ _)) ∙
-                  (cong fst (^ℚ-+ z _ _)) ∙
+          (cong (fst lowerPower ·ᵣ_)
+              (sym (rat·ᵣrat 1 1)) ∙ ·IdR (fst lowerPower))
+              (cong (fst lowerPower ·ᵣ_)
+                (cong fst (^ℚ-+ z d d)) ∙
+                  (cong fst (^ℚ-+ z lowerExponent (d ℚ.+ d))) ∙
                     cong (fst ∘ z ^ℚ_)
-                      ℚ!))
+                      shiftedSplit))
 
 
  where
- a = z ^ℚ (fst Δ)
+ d : ℚ
+ d = fst Δ
+
+ lowerExponent : ℚ
+ lowerExponent = x ℚ.- d
+
+ centerSplit : x ≡ lowerExponent ℚ.+ d
+ centerSplit = ℚ!
+
+ shiftedSplit : lowerExponent ℚ.+ (d ℚ.+ d) ≡ x ℚ.+ d
+ shiftedSplit = ℚ!
+
+ lowerPower : ℝ₊
+ lowerPower = z ^ℚ lowerExponent
+
+ a : ℝ₊
+ a = z ^ℚ d
+
+ w' : 0 <ᵣ fst a -ᵣ 1
  w' = fst (x<y≃0<y-x _ _) (1<^ℚ z Δ 1<z)
 
 invℚ₊-fromNat : ∀ m → fst (invℚ₊ (fromNat (suc m))) ≡ [ pos 1 / 1+ m ]
@@ -126,11 +159,13 @@ module AM-GM-hlp (b : ℝ₊) (1<b : 1 <ᵣ (fst b)) (x₀ : ℚ) (s : ℚ₊) w
 
  -- TODO : this should be used in few places bellow:
  x-suc : ∀ n → x n ℚ.+ fst s ≡ x (suc n)
- x-suc n = sym (ℚ.+Assoc _ _ _)
+ x-suc n = sym (ℚ.+Assoc x₀ (fromNat n ℚ.· fst s) (fst s))
      ∙ cong (x₀ ℚ.+_) (
-       cong ((fromNat n) ℚ.· (fst s) ℚ.+_) (sym (ℚ.·IdL _)) ∙∙
-       sym (ℚ.·DistR+  (fromNat n) 1 (fst s)) ∙∙
-           cong (ℚ._· (fst s)) (ℚ.+Comm _ _ ∙ (ℚ.ℕ+→ℚ+ 1 n) ) )
+       cong ((fromNat n ℚ.· fst s) ℚ.+_)
+         (sym (ℚ.·IdL (fst s))) ∙∙
+       sym (ℚ.·DistR+ (fromNat n) 1 (fst s)) ∙∙
+       cong (ℚ._· fst s)
+         (ℚ.+Comm (fromNat n) 1 ∙ ℚ.ℕ+→ℚ+ 1 n))
 
  α : ℝ₊
  α = (1 ₊+ᵣ (b ^ℚ (2 ℚ.· fst s))) ₊·ᵣ ℚ₊→ℝ₊ ( [ 1 / 2 ] , 1/2∈ℚ.0<1/2 )
@@ -150,22 +185,30 @@ module AM-GM-hlp (b : ℝ₊) (1<b : 1 <ᵣ (fst b)) (x₀ : ℚ) (s : ℚ₊) w
       fst (b ^ℚ x₀) +ᵣ
       rat (fst (invℚ₊ (fromNat 2))) ·ᵣ (fst (b ^ℚ x 2) -ᵣ fst (b ^ℚ x₀))
  fromAM-GM = isTrans≡<ᵣ _ _ _ (cong (fst ∘ b ^ℚ_ ∘ (x₀ ℚ.+_ ))
-      (ℚ.·IdL _))
+      (ℚ.·IdL (fst s)))
     (isTrans<≡ᵣ _ _ _ (invEq (z<x/y₊≃y₊·z<x _ _ 2)
    (AM-GM₂ b 1<b (x₀ ℚ.+ fst s) s))
     (cong (_·ᵣ fst (invℝ₊ 2))
        (cong₂ _+ᵣ_
-          (cong (fst ∘ b ^ℚ_) (sym ℚ!)
+          (cong (fst ∘ b ^ℚ_) cancelStep
           ∙ sym (Rℝ.plusMinus _ _)
           ∙ cong (_-ᵣ fst (b ^ℚ x₀))
               (Cubical.HITs.CauchyReals.Multiplication.x+x≡2x _ ∙ ·ᵣComm _ _))
-          (cong (fst ∘ b ^ℚ_) (sym (ℚ.+Assoc _ _ _)
-          ∙ cong (x₀ ℚ.+_) (ℚ.x+x≡2x _)))
+          (cong (fst ∘ b ^ℚ_) doubleStep)
        ∙ sym (+ᵣAssoc _ _ _))
       ∙ ·DistR+ (fst (b ^ℚ x₀) ·ᵣ 2) _ _
       ∙ cong₂ _+ᵣ_ ([x·yᵣ]/₊y _ _)
           (·ᵣComm _ _
           ∙ cong₂ _·ᵣ_ (invℝ₊-rat 2) (+ᵣComm _ _))))
+
+  where
+  cancelStep : (x₀ ℚ.+ fst s) ℚ.- fst s ≡ x₀
+  cancelStep = ℚ!
+
+  doubleStep : (x₀ ℚ.+ fst s) ℚ.+ fst s ≡ x 2
+  doubleStep =
+    sym (ℚ.+Assoc x₀ (fst s) (fst s))
+    ∙ cong (x₀ ℚ.+_) (ℚ.x+x≡2x (fst s))
 
  opaque
   unfolding -ᵣ_ _+ᵣ_
@@ -198,6 +241,7 @@ module AM-GM-hlp (b : ℝ₊) (1<b : 1 <ᵣ (fst b)) (x₀ : ℚ) (s : ℚ₊) w
   convSteps (suc zero) zero (zero , 1+n=1+N) = fromAM-GM
   convSteps (suc (suc N)) zero (zero , 1+n=1+N) =
     ⊥.rec (ℕ.znots (cong predℕ 1+n=1+N))
+{-
   convSteps (suc N) (suc n) (zero , 2+n=1+N) =
     subst2 _<ᵣ_
       (cong (fst ∘ (b ^ℚ_) ∘ x) (sym 2+n=1+N))
@@ -222,10 +266,114 @@ module AM-GM-hlp (b : ℝ₊) (1<b : 1 <ᵣ (fst b)) (x₀ : ℚ) (s : ℚ₊) w
               ∙ sym (rat·ᵣrat _ (fromNat (suc N))))
               ∙ cong rat (ℚ.·Comm _ _)))
         ∙ +ᵣComm _ _))
+-}
+  convSteps (suc N) (suc n) (zero , 2+n=1+N) =
+    subst2 _<ᵣ_ leftPath rightPath boundary
+    where
+    power : ℕ → ℝ
+    power k = fst (b ^ℚ x k)
+
+    base : ℝ
+    base = fst (b ^ℚ x₀)
+
+    rightAt : ℕ → ℝ
+    rightAt k =
+      base +ᵣ
+      rat (fst (fromNat (suc (predℕ k)) ·₊
+        invℚ₊ (fromNat (suc (suc N))))) ·ᵣ
+      (power (suc (suc N)) -ᵣ base)
+
+    leftPath : power (suc N) ≡ power (suc (suc n))
+    leftPath = cong power (sym 2+n=1+N)
+
+    rightPath : rightAt (suc N) ≡ rightAt (suc (suc n))
+    rightPath = cong rightAt (sym 2+n=1+N)
+
+    firstDifference : ℝ
+    firstDifference = power (suc N) -ᵣ base
+
+    secondDifference : ℝ
+    secondDifference = power (suc (suc N)) -ᵣ base
+
+    firstRational : ℚ₊
+    firstRational = fromNat (suc N)
+
+    secondRational : ℚ₊
+    secondRational = fromNat (suc (suc N))
+
+    firstReciprocal : ℝ₊
+    firstReciprocal = ℚ₊→ℝ₊ (invℚ₊ firstRational)
+
+    secondSlope : ℝ
+    secondSlope =
+      rat (fst (invℚ₊ secondRational)) ·ᵣ
+      secondDifference
+
+    dividedBound : ℝ
+    dividedBound = secondSlope ·ᵣ fst (invℝ₊ firstReciprocal)
+
+    strictStep : power (suc N) <ᵣ dividedBound +ᵣ base
+    strictStep =
+      a-b<c⇒a<c+b (power (suc N)) base dividedBound
+        (invEq
+          (z<x/y₊≃y₊·z<x secondSlope firstDifference firstReciprocal)
+          (convStep N))
+
+    firstInverse : ℝ
+    firstInverse = fst (invℝ₊ firstReciprocal)
+
+    secondReciprocal : ℝ
+    secondReciprocal = rat (fst (invℚ₊ secondRational))
+
+    rationalCoefficient : ℚ
+    rationalCoefficient = fst (firstRational ·₊ invℚ₊ secondRational)
+
+    reassociateProduct :
+      dividedBound ≡
+      (secondReciprocal ·ᵣ firstInverse) ·ᵣ secondDifference
+    reassociateProduct =
+      sym (·ᵣAssoc secondReciprocal secondDifference firstInverse)
+      ∙ cong (secondReciprocal ·ᵣ_)
+          (·ᵣComm secondDifference firstInverse)
+      ∙ ·ᵣAssoc secondReciprocal firstInverse secondDifference
+
+    invertFirstReciprocal :
+      fst (invℝ₊ (ℚ₊→ℝ₊ (invℚ₊ firstRational))) ≡
+      rat (fst firstRational)
+    invertFirstReciprocal =
+      invℝ₊-rat-involutive-opaque firstRational
+
+    normalizeCoefficient :
+      secondReciprocal ·ᵣ firstInverse ≡ rat rationalCoefficient
+    normalizeCoefficient =
+      cong (secondReciprocal ·ᵣ_) invertFirstReciprocal
+      ∙ sym
+          (rat·ᵣrat
+            (fst (invℚ₊ secondRational))
+            (fst firstRational))
+      ∙ cong rat
+          (ℚ.·Comm
+            (fst (invℚ₊ secondRational))
+            (fst firstRational))
+
+    normalizeBound :
+      dividedBound ≡ rat rationalCoefficient ·ᵣ secondDifference
+    normalizeBound =
+      reassociateProduct
+      ∙ cong (_·ᵣ secondDifference) normalizeCoefficient
+
+    coefficientPath : dividedBound +ᵣ base ≡ rightAt (suc N)
+    coefficientPath =
+      cong (_+ᵣ base) normalizeBound
+      ∙ +ᵣComm (rat rationalCoefficient ·ᵣ secondDifference) base
+
+    boundary : power (suc N) <ᵣ rightAt (suc N)
+    boundary = isTrans<≡ᵣ _ _ _ strictStep coefficientPath
 
 
   convStep zero = isTrans≡<ᵣ _ _ _
     (·IdLᵣ _) (a<c+b⇒a-c<b _ _  _ fromAM-GM)
+{-
   convStep (suc N) =
     isTrans<ᵣ _ _ _
       (isTrans<≡ᵣ _ _ _
@@ -269,6 +417,197 @@ module AM-GM-hlp (b : ℝ₊) (1<b : 1 <ᵣ (fst b)) (x₀ : ℚ) (s : ℚ₊) w
                 (cong (fst ∘ (b ^ℚ_))
                   (cong (ℚ._- (fst s)) (sym (x-suc (suc N))) ∙ sym ℚ!))
                 (cong (fst ∘ (b ^ℚ_)) (x-suc (suc (suc N)))))))))
+-}
+  convStep (suc N) = isTrans<ᵣ _ _ _ firstHalf secondHalf
+    where
+    power : ℕ → ℝ
+    power k = fst (b ^ℚ x k)
+
+    base : ℝ
+    base = fst (b ^ℚ x₀)
+
+    secondIndex : ℚ₊
+    secondIndex = fromNat (suc (suc N))
+
+    thirdIndex : ℚ₊
+    thirdIndex = fromNat (suc (suc (suc N)))
+
+    secondReciprocal : ℝ
+    secondReciprocal = rat (fst (invℚ₊ secondIndex))
+
+    thirdReciprocal : ℝ
+    thirdReciprocal = rat (fst (invℚ₊ thirdIndex))
+
+    secondDifference : ℝ
+    secondDifference = power (suc (suc N)) -ᵣ base
+
+    thirdDifference : ℝ
+    thirdDifference = power (suc (suc (suc N))) -ᵣ base
+
+    convexDifference : ℝ
+    convexDifference =
+      (2 ·ᵣ power (suc (suc N)) -ᵣ power (suc N)) -ᵣ base
+
+    middle : ℝ
+    middle = thirdReciprocal ·ᵣ convexDifference
+
+    previousCoefficientℚ : ℚ
+    previousCoefficientℚ = [ pos (suc N) / 2+ N ]
+
+    previousCoefficient : ℝ
+    previousCoefficient = rat previousCoefficientℚ
+
+    previousDifference : ℝ
+    previousDifference = power (suc N) -ᵣ base
+
+    previousBound :
+      previousDifference <ᵣ previousCoefficient ·ᵣ secondDifference
+    previousBound =
+      isTrans<≡ᵣ _ _ _
+        (a<c+b⇒a-c<b
+          (power (suc N))
+          (rat (fst
+            (fromNat (suc N) ·₊ invℚ₊ secondIndex)) ·ᵣ
+            secondDifference)
+          base
+          (convSteps (suc N) N ℕ.≤-refl))
+        (cong (_·ᵣ secondDifference)
+          (cong rat (invℚ₊-[/] (pos (suc N)) (suc N))))
+
+    negativePreviousBound :
+      (-ᵣ previousCoefficient) ·ᵣ secondDifference <ᵣ
+      -ᵣ previousDifference
+    negativePreviousBound =
+      isTrans≡<ᵣ _ _ _
+        (-ᵣ· previousCoefficient secondDifference)
+        (-ᵣ<ᵣ previousDifference
+          (previousCoefficient ·ᵣ secondDifference)
+          previousBound)
+
+    expandedAverageBound :
+      (2 ·ᵣ secondDifference) +ᵣ
+        ((-ᵣ previousCoefficient) ·ᵣ secondDifference) <ᵣ
+      (2 ·ᵣ secondDifference) -ᵣ previousDifference
+    expandedAverageBound =
+      <ᵣ-o+
+        ((-ᵣ previousCoefficient) ·ᵣ secondDifference)
+        (-ᵣ previousDifference)
+        (2 ·ᵣ secondDifference)
+        negativePreviousBound
+
+    discreteDifferencePath :
+      (2 ·ᵣ secondDifference) -ᵣ previousDifference ≡
+      convexDifference
+    discreteDifferencePath =
+      cong (_-ᵣ previousDifference)
+        (sym
+          (Cubical.HITs.CauchyReals.Multiplication.x+x≡2x
+            secondDifference))
+      ∙∙ double-sub-shuffleᵣ
+          (power (suc (suc N))) base (power (suc N))
+      ∙∙ cong
+          ((_-ᵣ base) ∘ (_-ᵣ power (suc N)))
+          (Cubical.HITs.CauchyReals.Multiplication.x+x≡2x
+            (power (suc (suc N))))
+
+    thirdNatural : ℝ
+    thirdNatural = rat (fst thirdIndex)
+
+    scaleCoefficientℚ :
+      fst thirdIndex ℚ.· fst (invℚ₊ secondIndex) ≡
+      fromNat 2 ℚ.- previousCoefficientℚ
+    scaleCoefficientℚ =
+      invℚ₊-[/] (pos (suc (suc (suc N)))) (suc N)
+      ∙ [2+N]/[1+N]=2-N/[1+N] (suc N)
+
+    scaleCoefficient :
+      thirdNatural ·ᵣ secondReciprocal ≡
+      2 +ᵣ (-ᵣ previousCoefficient)
+    scaleCoefficient =
+      sym
+        (rat·ᵣrat (fst thirdIndex) (fst (invℚ₊ secondIndex)))
+      ∙ cong rat scaleCoefficientℚ
+      ∙ sym (+ᵣ-rat (fromNat 2) (ℚ.- previousCoefficientℚ))
+      ∙ cong (2 +ᵣ_) (sym (-ᵣ-rat previousCoefficientℚ))
+
+    scaledLeft : ℝ
+    scaledLeft =
+      thirdNatural ·ᵣ (secondReciprocal ·ᵣ secondDifference)
+
+    expandScaledLeft :
+      scaledLeft ≡
+      (2 ·ᵣ secondDifference) +ᵣ
+        ((-ᵣ previousCoefficient) ·ᵣ secondDifference)
+    expandScaledLeft =
+      ·ᵣAssoc thirdNatural secondReciprocal secondDifference
+      ∙ cong (_·ᵣ secondDifference) scaleCoefficient
+      ∙ ·DistR+ 2 (-ᵣ previousCoefficient) secondDifference
+
+    scaledAverageBound : scaledLeft <ᵣ convexDifference
+    scaledAverageBound =
+      isTrans≡<ᵣ _ _ _ expandScaledLeft
+        (isTrans<≡ᵣ _ _ _
+          expandedAverageBound discreteDifferencePath)
+
+    divideScaledAverage :
+      secondReciprocal ·ᵣ secondDifference <ᵣ
+      convexDifference ·ᵣ
+        fst (invℝ₊ (ℚ₊→ℝ₊ thirdIndex))
+    divideScaledAverage =
+      invEq
+        (z<x/y₊≃y₊·z<x
+          convexDifference
+          (secondReciprocal ·ᵣ secondDifference)
+          (ℚ₊→ℝ₊ thirdIndex))
+        scaledAverageBound
+
+    normalizeDivision :
+      convexDifference ·ᵣ
+        fst (invℝ₊ (ℚ₊→ℝ₊ thirdIndex)) ≡ middle
+    normalizeDivision =
+      cong (convexDifference ·ᵣ_) (invℝ₊-rat-opaque thirdIndex)
+      ∙ ·ᵣComm convexDifference thirdReciprocal
+
+    firstHalf :
+      secondReciprocal ·ᵣ secondDifference <ᵣ middle
+    firstHalf =
+      isTrans<≡ᵣ _ _ _ divideScaledAverage normalizeDivision
+
+    lowerStep :
+      x (suc (suc N)) ℚ.- fst s ≡ x (suc N)
+    lowerStep = ℚ!
+
+    upperStep :
+      x (suc (suc N)) ℚ.+ fst s ≡ x (suc (suc (suc N)))
+    upperStep = x-suc (suc (suc N))
+
+    amGMAtSecond :
+      2 ·ᵣ power (suc (suc N)) <ᵣ
+      power (suc N) +ᵣ power (suc (suc (suc N)))
+    amGMAtSecond =
+      isTrans<≡ᵣ _ _ _
+        (AM-GM₂ b 1<b (x (suc (suc N))) s)
+        (cong₂ _+ᵣ_
+          (cong (fst ∘ (b ^ℚ_)) lowerStep)
+          (cong (fst ∘ (b ^ℚ_)) upperStep))
+
+    convexDifferenceBound : convexDifference <ᵣ thirdDifference
+    convexDifferenceBound =
+      <ᵣ-+o
+        (2 ·ᵣ power (suc (suc N)) -ᵣ power (suc N))
+        (power (suc (suc (suc N))))
+        (-ᵣ base)
+        (a<c+b⇒a-c<b
+          (2 ·ᵣ power (suc (suc N)))
+          (power (suc (suc (suc N))))
+          (power (suc N))
+          amGMAtSecond)
+
+    secondHalf : middle <ᵣ thirdReciprocal ·ᵣ thirdDifference
+    secondHalf =
+      <ᵣ-o·ᵣ convexDifference thirdDifference
+        (ℚ₊→ℝ₊ (invℚ₊ thirdIndex))
+        convexDifferenceBound
 
 
 
@@ -285,31 +624,89 @@ AM-GM-strict z x 1<z Δ = ElimProp.go w
     ⊥.rec (ℚ.isIrrefl< 0
       (subst (0 ℚ.<_) (ℚ.[0/n]≡[0/m] m 0) 0<α))
   w .ElimProp.f (pos (suc n) , (1+ m)) 0<α α<1 =
-   subst2 _<ᵣ_
-     (cong (fst ∘ z ^ℚ_ ∘ (x ℚ.+_))
-         (ℚ.·Assoc _ [ pos 1 / 1+ m ] _ ∙
-            cong (ℚ._· (fst Δ)) n/N-lem))
-     ((cong (fst (z ^ℚ x) +ᵣ_)
-       (cong₂ _·ᵣ_ (cong rat n/N-lem)
-         (cong (_-ᵣ (fst (z ^ℚ x)))
-           ((cong (fst ∘ z ^ℚ_ ∘ (x ℚ.+_))
-              (ℚ.·Assoc _ [ pos 1 / 1+ m ] _ ∙
-            cong (ℚ._· (fst Δ)) (ℚ.x·invℚ₊[x] (fromNat (suc m)))
-              ∙ ℚ.·IdL _)))))))
-     ww
+    subst2 _<ᵣ_ leftPath rightPath sourceBound
    where
+    αValue : ℚ
+    αValue = [ pos (suc n) / 1+ m ]
+
     Δ/N : ℚ₊
     Δ/N = ([ pos 1 / 1+ m ] , ℚ.0<pos 0 (1+ m)) ·₊ Δ
 
     n/N-lem : [ pos (suc n) / 1 ] ℚ.· [ pos 1 / 1+ m ] ≡ [ pos (suc n) / 1+ m ]
     n/N-lem = cong₂ [_/_] (ℤ.·IdR (pos (suc n))) (·₊₁-identityˡ (1+ m))
 
-    ww = AM-GM-hlp.convSteps z 1<z x Δ/N m n
-         (ℕ.predℕ-≤-predℕ (ℤ.pos-≤-pos→ℕ≤ _ _
-           (ℤ.<→suc≤ (subst2 ℤ._<_ (ℤ.·IdR _) (ℤ.·IdL _)
-             (α<1 .ℚ._<_.prf)))))
+    sampleScale :
+      fromNat (suc n) ℚ.· fst Δ/N ≡ αValue ℚ.· fst Δ
+    sampleScale =
+      ℚ.·Assoc (fromNat (suc n)) [ pos 1 / 1+ m ] (fst Δ)
+      ∙ cong (ℚ._· fst Δ) n/N-lem
+
+    fullScale :
+      fromNat (suc m) ℚ.· fst Δ/N ≡ fst Δ
+    fullScale =
+      ℚ.·Assoc (fromNat (suc m)) [ pos 1 / 1+ m ] (fst Δ)
+      ∙ cong (ℚ._· fst Δ)
+          (ℚ.x·invℚ₊[x] (fromNat (suc m)))
+      ∙ ℚ.·IdL (fst Δ)
+
+    coefficientScale :
+      fst (fromNat (suc n) ·₊ invℚ₊ (fromNat (suc m))) ≡
+      αValue
+    coefficientScale = n/N-lem
+
+    leftPath :
+      fst (z ^ℚ
+        (x ℚ.+ fromNat (suc n) ℚ.· fst Δ/N)) ≡
+      fst (z ^ℚ (x ℚ.+ αValue ℚ.· fst Δ))
+    leftPath =
+      cong (fst ∘ z ^ℚ_ ∘ (x ℚ.+_)) sampleScale
+
+    rightPath :
+      fst (z ^ℚ x) +ᵣ
+        rat (fst
+          (fromNat (suc n) ·₊ invℚ₊ (fromNat (suc m)))) ·ᵣ
+        (fst (z ^ℚ
+          (x ℚ.+ fromNat (suc m) ℚ.· fst Δ/N)) -ᵣ
+          fst (z ^ℚ x)) ≡
+      fst (z ^ℚ x) +ᵣ
+        rat αValue ·ᵣ
+        (fst (z ^ℚ (x ℚ.+ fst Δ)) -ᵣ fst (z ^ℚ x))
+    rightPath =
+      cong (fst (z ^ℚ x) +ᵣ_)
+        (cong₂ _·ᵣ_
+          (cong rat coefficientScale)
+          (cong (_-ᵣ fst (z ^ℚ x))
+            (cong (fst ∘ z ^ℚ_ ∘ (x ℚ.+_)) fullScale)))
+
+    integerBound : pos (suc n) ℤ.< pos (suc m)
+    integerBound =
+      subst2 ℤ._<_
+        (ℤ.·IdR (pos (suc n)))
+        (ℤ.·IdL (pos (suc m)))
+        (α<1 .ℚ._<_.prf)
+
+    naturalBound : suc (suc n) ℕ.≤ suc m
+    naturalBound =
+      ℤ.pos-≤-pos→ℕ≤ (suc (suc n)) (suc m)
+        (ℤ.<→suc≤ integerBound)
+
+    indexBound : n ℕ.< m
+    indexBound = ℕ.predℕ-≤-predℕ naturalBound
+
+    sourceBound :
+      fst (z ^ℚ
+        (x ℚ.+ fromNat (suc n) ℚ.· fst Δ/N)) <ᵣ
+      fst (z ^ℚ x) +ᵣ
+        rat (fst
+          (fromNat (suc n) ·₊ invℚ₊ (fromNat (suc m)))) ·ᵣ
+        (fst (z ^ℚ
+          (x ℚ.+ fromNat (suc m) ℚ.· fst Δ/N)) -ᵣ
+          fst (z ^ℚ x))
+    sourceBound =
+      AM-GM-hlp.convSteps z 1<z x Δ/N m n indexBound
   w .ElimProp.f α@(ℤ.negsuc n , 1+ m) 0<α _ =
-    ⊥.rec $ ℤ.¬pos≤negsuc (subst (0 ℤ.≤_) (ℤ.·IdR _)
+    ⊥.rec $ ℤ.¬pos≤negsuc (subst (0 ℤ.≤_)
+             (ℤ.·IdR (ℤ.negsuc n))
              ((ℚ.<Weaken≤ 0 SQ.[ α ] 0<α) .ℚ._≤_.prf))
 
 AM-GM : ∀ z x → (1 <ᵣ fst z) → (Δ : ℚ₊) → (α : ℚ) → 0 ℚ.≤ α → α ℚ.≤ 1 →
@@ -334,7 +731,7 @@ AM-GM z x 1<z Δ α 0≤α α≤1 =
          (cong (fst ∘ (z ^ℚ_))
             (Rℚ.+IdR' x _
                (cong (ℚ._· (fst Δ)) (sym 0=α)
-                 ∙ Rℚ.0LeftAnnihilates _))
+                 ∙ Rℚ.0LeftAnnihilates (fst Δ)))
            ∙ sym (Rℝ.+IdR' _ _
            (cong (_·ᵣ (fst (z ^ℚ (x ℚ.+ fst Δ)) -ᵣ fst (z ^ℚ x)))
              (cong rat (sym 0=α))
@@ -378,41 +775,147 @@ slope-incr-strict : (z : ℝ₊) (1<z : 1 <ᵣ fst z) → (a b c : ℚ)
   ((fst (z ^ℚ c) -ᵣ fst (z ^ℚ a))
     ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _  a<c ))
 slope-incr-strict z 1<z a b c a<b b<c a<c =
-  isTrans≡<ᵣ _ _ _
-     (cong (_·ᵣ fst (invℝ₊ (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a b a<b))))
-      (cong (_-ᵣ fst (z ^ℚ a))
-          (cong (fst ∘ (z ^ℚ_))
-            (sym ℚ! ∙ cong (a ℚ.+_)
-              (sym (ℚ.y·[x/y]
-                (ℚ.<→ℚ₊ a c a<c)
-                (fst (ℚ.<→ℚ₊ a b a<b))) ∙
-             ℚ.·Comm _ _ ∙
-              cong (ℚ._· fst (ℚ.<→ℚ₊ a c a<c))
-               (ℚ.·Comm _ _))))))
-      (isTrans<≡ᵣ _ _ _
-       amgm
-       (·ᵣComm _ _
-       ∙ cong₂ _·ᵣ_
-           (cong (_-ᵣ fst (z ^ℚ a))
-             (cong (fst ∘ (z ^ℚ_)) ℚ!))
-           (sym (invℝ₊-rat (ℚ.<→ℚ₊ _ _ a<c)))))
+  invEq
+    (z/y<x₊≃z<y₊·x slopeAC differenceAB intervalABℝ)
+    scaledDifferenceBound
 
  where
- α₊ = (ℚ.<→ℚ₊ _ _  a<b ) ·₊ invℚ₊ (ℚ.<→ℚ₊ _ _  a<c )
+ intervalAB : ℚ₊
+ intervalAB = ℚ.<→ℚ₊ a b a<b
+
+ intervalAC : ℚ₊
+ intervalAC = ℚ.<→ℚ₊ a c a<c
+
+ intervalABℝ : ℝ₊
+ intervalABℝ = ℚ₊→ℝ₊ intervalAB
+
+ intervalACℝ : ℝ₊
+ intervalACℝ = ℚ₊→ℝ₊ intervalAC
+
+ α₊ : ℚ₊
+ α₊ = intervalAB ·₊ invℚ₊ intervalAC
+
+ differenceAB : ℝ
+ differenceAB = fst (z ^ℚ b) -ᵣ fst (z ^ℚ a)
+
+ differenceAC : ℝ
+ differenceAC = fst (z ^ℚ c) -ᵣ fst (z ^ℚ a)
+
+ slopeAC : ℝ
+ slopeAC = differenceAC ／ᵣ₊ intervalACℝ
+
+ intervalLt : fst intervalAB ℚ.< fst intervalAC
+ intervalLt = ℚ.<-+o b c (ℚ.- a) b<c
+
  α<1 : fst α₊ ℚ.< 1
- α<1 = ℚ.x<y·z→x/y<z _ _ _
-   (subst (b ℚ.- a ℚ.<_)
-    (sym (ℚ.·IdR _))
-    (ℚ.<-+o _ _ (ℚ.- a) b<c))
+ α<1 =
+   ℚ.x<y·z→x/y<z (fst intervalAB) intervalAC 1
+     (subst (fst intervalAB ℚ.<_)
+       (sym (ℚ.·IdR (fst intervalAC))) intervalLt)
 
+ ratioCancel :
+   fst α₊ ℚ.· fst intervalAC ≡ fst intervalAB
+ ratioCancel =
+   ℚ.·Comm (fst α₊) (fst intervalAC)
+   ∙ cong (fst intervalAC ℚ.·_)
+       (ℚ.·Comm (fst intervalAB) (fst (invℚ₊ intervalAC)))
+   ∙ ℚ.y·[x/y] intervalAC (fst intervalAB)
 
- amgm = invEq (z/y<x₊≃z<y₊·x _ _ (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _  a<b )))
-  (isTrans<≡ᵣ _ _ _ (a<c+b⇒a-c<b _ _ _
-      (AM-GM-strict z a 1<z ((ℚ.<→ℚ₊ _ _  a<c ))
-          (fst α₊) (snd α₊) α<1))
-           (cong (_·ᵣ (fst (z ^ℚ (a ℚ.+ fst (ℚ.<→ℚ₊ _ _ a<c))) -ᵣ
-       fst (z ^ℚ a))) (rat·ᵣrat _ _)
-        ∙ sym (·ᵣAssoc _ _ _)))
+ interpolationExponent :
+   a ℚ.+ fst α₊ ℚ.· fst intervalAC ≡ b
+ interpolationExponent =
+   cong (a ℚ.+_) ratioCancel ∙ ℚ!
+
+ endExponent : a ℚ.+ fst intervalAC ≡ c
+ endExponent = ℚ!
+
+ leftPath :
+   fst (z ^ℚ (a ℚ.+ fst α₊ ℚ.· fst intervalAC)) ≡
+   fst (z ^ℚ b)
+ leftPath = cong (fst ∘ z ^ℚ_) interpolationExponent
+
+ rightPath :
+   fst (z ^ℚ a) +ᵣ rat (fst α₊) ·ᵣ
+     (fst (z ^ℚ (a ℚ.+ fst intervalAC)) -ᵣ fst (z ^ℚ a)) ≡
+   fst (z ^ℚ a) +ᵣ rat (fst α₊) ·ᵣ differenceAC
+ rightPath =
+   cong (fst (z ^ℚ a) +ᵣ_)
+     (cong (rat (fst α₊) ·ᵣ_)
+       (cong (_-ᵣ fst (z ^ℚ a))
+         (cong (fst ∘ z ^ℚ_) endExponent)))
+
+ amGMAtPoints :
+   fst (z ^ℚ b) <ᵣ
+   fst (z ^ℚ a) +ᵣ rat (fst α₊) ·ᵣ differenceAC
+ amGMAtPoints =
+   subst2 _<ᵣ_ leftPath rightPath
+     (AM-GM-strict z a 1<z intervalAC
+       (fst α₊) (snd α₊) α<1)
+
+ differenceBound :
+   differenceAB <ᵣ rat (fst α₊) ·ᵣ differenceAC
+ differenceBound =
+   a<c+b⇒a-c<b
+     (fst (z ^ℚ b))
+     (rat (fst α₊) ·ᵣ differenceAC)
+     (fst (z ^ℚ a))
+     amGMAtPoints
+
+ ratioAsReal :
+   rat (fst α₊) ≡
+   rat (fst intervalAB) ·ᵣ rat (fst (invℚ₊ intervalAC))
+ ratioAsReal =
+   rat·ᵣrat (fst intervalAB) (fst (invℚ₊ intervalAC))
+
+ scaledSlopePath :
+   rat (fst α₊) ·ᵣ differenceAC ≡
+   fst intervalABℝ ·ᵣ slopeAC
+ scaledSlopePath =
+   cong (_·ᵣ differenceAC) ratioAsReal
+   ∙ sym
+       (·ᵣAssoc
+         (rat (fst intervalAB))
+         (rat (fst (invℚ₊ intervalAC)))
+         differenceAC)
+   ∙ cong (rat (fst intervalAB) ·ᵣ_)
+       (·ᵣComm (rat (fst (invℚ₊ intervalAC))) differenceAC
+       ∙ cong (differenceAC ·ᵣ_)
+           (sym (invℝ₊-rat-opaque intervalAC)))
+
+ scaledDifferenceBound :
+   differenceAB <ᵣ fst intervalABℝ ·ᵣ slopeAC
+ scaledDifferenceBound =
+   isTrans<≡ᵣ _ _ _ differenceBound scaledSlopePath
+
+opaque
+  slope-incr-strict-opaque :
+      (z : ℝ₊) (1<z : 1 <ᵣ fst z) → (a b c : ℚ) →
+      (a<b : a ℚ.< b) → (b<c : b ℚ.< c) → (a<c : a ℚ.< c) →
+      ((fst (z ^ℚ b) -ᵣ fst (z ^ℚ a))
+        ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a b a<b)) <ᵣ
+      ((fst (z ^ℚ c) -ᵣ fst (z ^ℚ a))
+        ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a c a<c))
+  slope-incr-strict-opaque = slope-incr-strict
+
+  slope-zero-one-strict-below :
+    (z : ℝ₊) (1<z : 1 <ᵣ fst z) → (r : ℚ) →
+    (0<r : 0 ℚ.< r) → (r<1 : r ℚ.< 1) → (0<1 : 0 ℚ.< 1) →
+    ((fst (z ^ℚ r) -ᵣ fst (z ^ℚ 0))
+      ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 r 0<r)) <ᵣ
+    ((fst (z ^ℚ 1) -ᵣ fst (z ^ℚ 0))
+      ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 1 0<1))
+  slope-zero-one-strict-below z 1<z r 0<r r<1 0<1 =
+    slope-incr-strict-opaque z 1<z 0 r 1 0<r r<1 0<1
+
+  slope-zero-one-strict-above :
+    (z : ℝ₊) (1<z : 1 <ᵣ fst z) → (r : ℚ) →
+    (0<1 : 0 ℚ.< 1) → (1<r : 1 ℚ.< r) → (0<r : 0 ℚ.< r) →
+    ((fst (z ^ℚ 1) -ᵣ fst (z ^ℚ 0))
+      ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 1 0<1)) <ᵣ
+    ((fst (z ^ℚ r) -ᵣ fst (z ^ℚ 0))
+      ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 r 0<r))
+  slope-zero-one-strict-above z 1<z r 0<1 1<r 0<r =
+    slope-incr-strict-opaque z 1<z 0 1 r 0<1 1<r 0<r
 
 opaque
  unfolding _+ᵣ_
@@ -428,7 +931,7 @@ opaque
                   (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _ a<b)) ((fst (z ^ℚ b) -ᵣ fst (z ^ℚ a)))
                   (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _ b<c)) ((fst (z ^ℚ c) -ᵣ fst (z ^ℚ b))))
               (isTrans<≡ᵣ _ _ _
-                (slope-incr-strict z 1<z _ _ _ a<b b<c a<c)
+                (slope-incr-strict-opaque z 1<z a b c a<b b<c a<c)
                 (cong₂ _／ᵣ₊_
                   (diff-split (fst (z ^ℚ a)) (fst (z ^ℚ b)) (fst (z ^ℚ c)))
                   (ℝ₊≡ (cong rat ℚ! ∙ sym (+ᵣ-rat _ _)))))
@@ -436,6 +939,198 @@ opaque
       (cong₂ _／ᵣ₊_
         (diff-split (fst (z ^ℚ a)) (fst (z ^ℚ b)) (fst (z ^ℚ c)))
         ((ℝ₊≡ (cong rat ℚ! ∙ sym (+ᵣ-rat _ _))))) w
+
+private
+  opaque
+    forwardSlope :
+      (z : ℝ₊) (a q : ℚ) → a ℚ.< q → ℝ
+    forwardSlope z a q a<q =
+      (fst (z ^ℚ q) -ᵣ fst (z ^ℚ a))
+        ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a q a<q)
+
+    negatedIntervalSlope :
+      (z : ℝ₊) (a q : ℚ) → a ℚ.< q → ℝ
+    negatedIntervalSlope z a q a<q =
+      (fst (z ^ℚ (ℚ.- a)) -ᵣ fst (z ^ℚ (ℚ.- q)))
+        ／ᵣ₊ ℚ₊→ℝ₊
+          (ℚ.<→ℚ₊ (ℚ.- q) (ℚ.- a) (ℚ.minus-< a q a<q))
+
+  opaque
+    unfolding negatedIntervalSlope
+    slope-incr-negated-strict :
+      (z : ℝ₊) (1<z : 1 <ᵣ fst z) →
+      (a b c : ℚ) →
+      (a<b : a ℚ.< b) → (b<c : b ℚ.< c) → (a<c : a ℚ.< c) →
+      negatedIntervalSlope z a c a<c <ᵣ
+      negatedIntervalSlope z a b a<b
+    slope-incr-negated-strict z 1<z a b c a<b b<c a<c =
+      slope-incr'-strict z 1<z
+        (ℚ.- c) (ℚ.- b) (ℚ.- a)
+        (ℚ.minus-< b c b<c)
+        (ℚ.minus-< a b a<b)
+        (ℚ.minus-< a c a<c)
+
+  opaque
+    unfolding forwardSlope negatedIntervalSlope
+    negatedIntervalSlope-inverseBase :
+      (z : ℝ₊) (a q : ℚ) (a<q : a ℚ.< q) →
+      -ᵣ negatedIntervalSlope (invℝ₊ z) a q a<q ≡
+      forwardSlope z a q a<q
+    negatedIntervalSlope-inverseBase z a q a<q =
+      sym
+        (-ᵣ·
+          (fst (invℝ₊ z ^ℚ (ℚ.- a)) -ᵣ
+            fst (invℝ₊ z ^ℚ (ℚ.- q)))
+          (fst
+            (invℝ₊
+              (ℚ₊→ℝ₊
+                (ℚ.<→ℚ₊ (ℚ.- q) (ℚ.- a)
+                  (ℚ.minus-< a q a<q))))))
+      ∙ cong₂ (λ difference interval →
+          difference ／ᵣ₊ ℚ₊→ℝ₊ interval)
+          (-[x-y]≡y-x
+            (fst (invℝ₊ z ^ℚ (ℚ.- a)))
+            (fst (invℝ₊ z ^ℚ (ℚ.- q)))
+          ∙ cong₂ _-ᵣ_
+              (sym (cong fst (^ℚ-minus z q)))
+              (sym (cong fst (^ℚ-minus z a))))
+          (ℚ₊≡ ℚ!)
+
+  opaque
+    unfolding forwardSlope
+    forwardSlope-formula :
+      (z : ℝ₊) (a q : ℚ) (a<q : a ℚ.< q) →
+      forwardSlope z a q a<q ≡
+      (fst (z ^ℚ q) -ᵣ fst (z ^ℚ a))
+        ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a q a<q)
+    forwardSlope-formula z a q a<q = refl
+{-
+      isTrans≡<ᵣ _ _ _ combinedSlopePath mediantBound
+      where
+      leftOrder : (ℚ.- c) ℚ.< (ℚ.- b)
+      leftOrder = ℚ.minus-< b c b<c
+
+      rightOrder : (ℚ.- b) ℚ.< (ℚ.- a)
+      rightOrder = ℚ.minus-< a b a<b
+
+      wholeOrder : (ℚ.- c) ℚ.< (ℚ.- a)
+      wholeOrder = ℚ.minus-< a c a<c
+
+      leftInterval : ℚ₊
+      leftInterval = ℚ.<→ℚ₊ (ℚ.- c) (ℚ.- b) leftOrder
+
+      rightInterval : ℚ₊
+      rightInterval = ℚ.<→ℚ₊ (ℚ.- b) (ℚ.- a) rightOrder
+
+      wholeInterval : ℚ₊
+      wholeInterval = ℚ.<→ℚ₊ (ℚ.- c) (ℚ.- a) wholeOrder
+
+      leftIntervalℝ : ℝ₊
+      leftIntervalℝ = ℚ₊→ℝ₊ leftInterval
+
+      rightIntervalℝ : ℝ₊
+      rightIntervalℝ = ℚ₊→ℝ₊ rightInterval
+
+      wholeIntervalℝ : ℝ₊
+      wholeIntervalℝ = ℚ₊→ℝ₊ wholeInterval
+
+      leftDifference : ℝ
+      leftDifference =
+        fst (z ^ℚ (ℚ.- b)) -ᵣ fst (z ^ℚ (ℚ.- c))
+
+      rightDifference : ℝ
+      rightDifference =
+        fst (z ^ℚ (ℚ.- a)) -ᵣ fst (z ^ℚ (ℚ.- b))
+
+      wholeDifference : ℝ
+      wholeDifference =
+        fst (z ^ℚ (ℚ.- a)) -ᵣ fst (z ^ℚ (ℚ.- c))
+
+      intervalSplitℚ :
+        fst wholeInterval ≡ fst leftInterval ℚ.+ fst rightInterval
+      intervalSplitℚ = ℚ!
+
+      intervalSplit :
+        wholeIntervalℝ ≡ leftIntervalℝ ₊+ᵣ rightIntervalℝ
+      intervalSplit =
+        ℝ₊≡
+          (cong rat intervalSplitℚ
+          ∙ sym (+ᵣ-rat (fst leftInterval) (fst rightInterval)))
+
+      differenceSplit :
+        wholeDifference ≡ leftDifference +ᵣ rightDifference
+      differenceSplit =
+        diff-split
+          (fst (z ^ℚ (ℚ.- c)))
+          (fst (z ^ℚ (ℚ.- b)))
+          (fst (z ^ℚ (ℚ.- a)))
+
+      combinedSlopePath :
+        wholeDifference ／ᵣ₊ wholeIntervalℝ ≡
+        (leftDifference +ᵣ rightDifference)
+          ／ᵣ₊ (leftIntervalℝ ₊+ᵣ rightIntervalℝ)
+      combinedSlopePath =
+        cong₂ _／ᵣ₊_ differenceSplit intervalSplit
+
+      leftBound :
+        leftDifference ／ᵣ₊ leftIntervalℝ <ᵣ
+        wholeDifference ／ᵣ₊ wholeIntervalℝ
+      leftBound = ?
+
+      leftToCombined :
+        leftDifference ／ᵣ₊ leftIntervalℝ <ᵣ
+        (leftDifference +ᵣ rightDifference)
+          ／ᵣ₊ (leftIntervalℝ ₊+ᵣ rightIntervalℝ)
+      leftToCombined =
+        isTrans<≡ᵣ _ _ _ leftBound combinedSlopePath
+
+      mediantBound :
+        (leftDifference +ᵣ rightDifference)
+          ／ᵣ₊ (leftIntervalℝ ₊+ᵣ rightIntervalℝ) <ᵣ
+        rightDifference ／ᵣ₊ rightIntervalℝ
+      mediantBound =
+        fst
+          (x'/x<[x'+y']/[x+y]≃[x'+y']/[x+y]<y'/y
+            leftIntervalℝ leftDifference
+            rightIntervalℝ rightDifference)
+          leftToCombined
+-}
+
+opaque
+  powerSecantSlope :
+      (a q : ℚ) → a ℚ.< q → ∀ x → 0 <ᵣ x → ℝ
+  powerSecantSlope a q a<q x 0<x =
+      (fst ((x , 0<x) ^ℚ q) -ᵣ fst ((x , 0<x) ^ℚ a))
+        ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a q a<q)
+
+opaque
+  unfolding powerSecantSlope
+  powerSecantSlope-formula :
+      (a q : ℚ) (a<q : a ℚ.< q) (x : ℝ) (0<x : 0 <ᵣ x) →
+      powerSecantSlope a q a<q x 0<x ≡
+      (fst ((x , 0<x) ^ℚ q) -ᵣ fst ((x , 0<x) ^ℚ a))
+        ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a q a<q)
+  powerSecantSlope-formula a q a<q x 0<x = refl
+
+opaque
+  unfolding powerSecantSlope _+ᵣ_ -ᵣ_
+  powerSecantSlope-continuous :
+      (a q : ℚ) (a<q : a ℚ.< q) →
+      IsContinuousWithPred posℙ (powerSecantSlope a q a<q)
+  powerSecantSlope-continuous a q a<q =
+      IsContinuousWP∘' posℙ
+        (_·ᵣ fst (invℝ₊ (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a q a<q))))
+        (λ x 0<x →
+          fst ((x , 0<x) ^ℚ q) -ᵣ fst ((x , 0<x) ^ℚ a))
+        (IsContinuous·ᵣR
+          (fst (invℝ₊ (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a q a<q)))))
+        (contDiagNE₂WP sumR posℙ
+          (curry (fst ∘ (_^ℚ q)))
+          (λ x 0<x → -ᵣ fst ((x , 0<x) ^ℚ a))
+          (IsContinuous^ℚ q)
+          (IsContinuousWP∘' posℙ (-ᵣ_)
+            (curry (fst ∘ (_^ℚ a)))
+            IsContinuous-ᵣ (IsContinuous^ℚ a)))
 
 opaque
  unfolding _+ᵣ_ -ᵣ_
@@ -447,29 +1142,17 @@ opaque
    ((fst (z ^ℚ c) -ᵣ fst (z ^ℚ a))
      ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _  a<c ))
  slope-incr (z , 0<z) a b c a<b b≤c a<c =
-   continuousOpenLowerComparison {0}
-     {λ z 0<z →
-        ((fst ((z , 0<z) ^ℚ b)
-        -ᵣ fst ((z , 0<z) ^ℚ a))
-      ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _ a<b))}
-      {λ z 0<z →
-         ((fst ((z , 0<z) ^ℚ c)
-           -ᵣ fst ((z , 0<z) ^ℚ a))
-      ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _  a<c ))}
-       ((IsContinuousWP∘' _ _ _
-       (IsContinuous·ᵣR (fst (invℝ₊ (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _ a<b)))))
-       (contDiagNE₂WP sumR _ _ _
-         (IsContinuous^ℚ b)
-            (IsContinuousWP∘' _ _ _ IsContinuous-ᵣ
-              (IsContinuous^ℚ a)))))
-       (((IsContinuousWP∘' _ _ _
-       (IsContinuous·ᵣR (fst (invℝ₊ (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _ a<c)))))
-       (contDiagNE₂WP sumR _ _ _
-         (IsContinuous^ℚ c)
-            (IsContinuousWP∘' _ _ _ IsContinuous-ᵣ
-              (IsContinuous^ℚ a))))))
-       (ℚ.byTrichotomy 1 w)
-         z 0<z
+   subst2 _≤ᵣ_
+     (powerSecantSlope-formula a b a<b z 0<z)
+     (powerSecantSlope-formula a c a<c z 0<z)
+     (continuousOpenLowerComparison
+       {x₀ = 0}
+       {f₀ = powerSecantSlope a b a<b}
+       {f₁ = powerSecantSlope a c a<c}
+       (powerSecantSlope-continuous a b a<b)
+       (powerSecantSlope-continuous a c a<c)
+       rationalComparison
+       z 0<z)
 
   where
 
@@ -480,70 +1163,212 @@ opaque
          ≤ᵣ
      ((fst (z ^ℚ c) -ᵣ fst (z ^ℚ a))
        ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _  a<c ))
-   slope-incr** z 1<z a b c a<b =
-      flip
-        λ a<c → ⊎.rec
-           (≡ᵣWeaken≤ᵣ _ _ ∘
-             cong
-               (λ (b , a<b) →
-                 ((fst (z ^ℚ b) -ᵣ fst (z ^ℚ a)) ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a b a<b)))
-               ∘ Σ≡Prop {B = λ b → a ℚ.< b} (ℚ.isProp< _))
-           (λ b<c → <ᵣWeaken≤ᵣ _ _ $  slope-incr-strict z 1<z a b c a<b b<c a<c)
-          ∘ ℚ.≤→≡⊎< b c
+   slope-incr** z 1<z a b c a<b b≤c a<c =
+      ⊎.rec equalCase strictCase (ℚ.≤→≡⊎< b c b≤c)
+      where
+      slopeTo : Σ[ q ∈ ℚ ] (a ℚ.< q) → ℝ
+      slopeTo (q , a<q) =
+        (fst (z ^ℚ q) -ᵣ fst (z ^ℚ a))
+          ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a q a<q)
 
-   w : ℚ.TrichotomyRec 1
-          λ u → (0<u : 0 <ᵣ rat u) → ((fst ((rat u , 0<u) ^ℚ b) -ᵣ fst ((rat u , 0<u) ^ℚ a)) ／ᵣ₊
-                      ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a b a<b))
-                     ≤ᵣ
-                     ((fst ((rat u , 0<u) ^ℚ c) -ᵣ fst ((rat u , 0<u) ^ℚ a)) ／ᵣ₊
-                      ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a c a<c))
+      equalCase : b ≡ c → slopeTo (b , a<b) ≤ᵣ slopeTo (c , a<c)
+      equalCase b=c =
+        subst
+          (λ q → (a<q : a ℚ.< q) →
+            slopeTo (b , a<b) ≤ᵣ slopeTo (q , a<q))
+          b=c sameEndpoint a<c
+        where
+        sameEndpoint :
+          (a<b' : a ℚ.< b) →
+          slopeTo (b , a<b) ≤ᵣ slopeTo (b , a<b')
+        sameEndpoint a<b' =
+          ≡ᵣWeaken≤ᵣ _ _
+            (cong (λ proof → slopeTo (b , proof))
+              (ℚ.isProp< a b a<b a<b'))
+
+      strictCase : b ℚ.< c → slopeTo (b , a<b) ≤ᵣ slopeTo (c , a<c)
+      strictCase b<c =
+        <ᵣWeaken≤ᵣ _ _
+          (slope-incr-strict-opaque z 1<z a b c a<b b<c a<c)
+
+   comparisonFamily : ℚ → Type
+   comparisonFamily u =
+     (0<u : 0 <ᵣ rat u) →
+     ((fst ((rat u , 0<u) ^ℚ b) -ᵣ fst ((rat u , 0<u) ^ℚ a))
+       ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a b a<b)) ≤ᵣ
+     ((fst ((rat u , 0<u) ^ℚ c) -ᵣ fst ((rat u , 0<u) ^ℚ a))
+       ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a c a<c))
+
+   w : ℚ.TrichotomyRec 1 comparisonFamily
    w .ℚ.TrichotomyRec.lt-case u u<1 0<u =
-     subst2 _≤ᵣ_
-         (sym (-ᵣ· _ _ ) ∙ cong₂ (λ A B → A ／ᵣ₊ (ℚ₊→ℝ₊ B))
-            (-[x-y]≡y-x _ _ ∙ cong₂ _-ᵣ_ (sym (cong fst (^ℚ-minus u₊ b)))
-                        ((sym (cong fst (^ℚ-minus u₊ a)))))
-                        {u = ℚ.<→ℚ₊ (ℚ.- b) (ℚ.- a) (ℚ.minus-< a b a<b)}
-                        (ℚ₊≡ ℚ!))
-         (sym (-ᵣ· _ _) ∙ (cong₂ (λ A B → A ／ᵣ₊ (ℚ₊→ℝ₊ B))
-            (-[x-y]≡y-x _ _ ∙ cong₂ _-ᵣ_
-               ((sym (cong fst (^ℚ-minus u₊ c))))
-               ((sym (cong fst (^ℚ-minus u₊ a)))))
-               {u = ℚ.<→ℚ₊ (ℚ.- c) (ℚ.- a) (ℚ.minus-< a c a<c)}
-                 (ℚ₊≡ ℚ!)))
-           (-ᵣ≤ᵣ _ _
-             (⊎.rec ww'' ww' (ℚ.≤→≡⊎< b c b≤c)))
+     subst2 _≤ᵣ_ leftPath rightPath negatedInverseOrder
      where
      u₊ : ℝ₊
      u₊ = (rat u , 0<u)
+
      1/u₊ : ℝ₊
-     1/u₊ = (invℝ₊ (rat u , 0<u))
+     1/u₊ = invℝ₊ u₊
+
+     1<1/u : 1 <ᵣ fst 1/u₊
+     1<1/u =
+       isTrans<≡ᵣ _ _ _
+         (invEq (z<x/y₊≃y₊·z<x 1 1 u₊)
+           (isTrans≡<ᵣ _ _ _ (·IdR (rat u)) (<ℚ→<ᵣ u 1 u<1)))
+         (·IdLᵣ (fst (invℝ₊ u₊)))
+
+     inverseSlope : ∀ q → (a<q : a ℚ.< q) → ℝ
+     inverseSlope q a<q = negatedIntervalSlope 1/u₊ a q a<q
+
+     originalSlope : ∀ q → (a<q : a ℚ.< q) → ℝ
+     originalSlope q a<q = forwardSlope u₊ a q a<q
+
+     negativeSlopePath : ∀ q (a<q : a ℚ.< q) →
+       -ᵣ inverseSlope q a<q ≡ originalSlope q a<q
+     negativeSlopePath q a<q =
+       negatedIntervalSlope-inverseBase u₊ a q a<q
+
+     equalInverseOrder : b ≡ c →
+       inverseSlope c a<c ≤ᵣ inverseSlope b a<b
+     equalInverseOrder b=c =
+       subst
+         (λ q → (a<q : a ℚ.< q) →
+           inverseSlope c a<c ≤ᵣ inverseSlope q a<q)
+         (sym b=c) sameEndpoint a<b
+       where
+       sameEndpoint : (a<c' : a ℚ.< c) →
+         inverseSlope c a<c ≤ᵣ inverseSlope c a<c'
+       sameEndpoint a<c' =
+         ≡ᵣWeaken≤ᵣ _ _
+           (cong (inverseSlope c) (ℚ.isProp< a c a<c a<c'))
+
+     strictInverseOrder : b ℚ.< c →
+       inverseSlope c a<c ≤ᵣ inverseSlope b a<b
+     strictInverseOrder b<c =
+       <ᵣWeaken≤ᵣ _ _
+         (slope-incr-negated-strict 1/u₊ 1<1/u
+           a b c a<b b<c a<c)
+
+     inverseOrder : inverseSlope c a<c ≤ᵣ inverseSlope b a<b
+     inverseOrder =
+       ⊎.rec equalInverseOrder strictInverseOrder
+         (ℚ.≤→≡⊎< b c b≤c)
+
+     negatedInverseOrder :
+       -ᵣ inverseSlope b a<b ≤ᵣ -ᵣ inverseSlope c a<c
+     negatedInverseOrder =
+       -ᵣ≤ᵣ (inverseSlope c a<c) (inverseSlope b a<b) inverseOrder
+
+     leftPath :
+       -ᵣ inverseSlope b a<b ≡
+       (fst (u₊ ^ℚ b) -ᵣ fst (u₊ ^ℚ a))
+         ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a b a<b)
+     leftPath =
+       negativeSlopePath b a<b ∙ forwardSlope-formula u₊ a b a<b
+
+     rightPath :
+       -ᵣ inverseSlope c a<c ≡
+       (fst (u₊ ^ℚ c) -ᵣ fst (u₊ ^ℚ a))
+         ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a c a<c)
+     rightPath =
+       negativeSlopePath c a<c ∙ forwardSlope-formula u₊ a c a<c
+{-
+     subst2 _≤ᵣ_ leftPath rightPath negatedInverseOrder
+     where
+     u₊ : ℝ₊
+     u₊ = (rat u , 0<u)
+
+     1/u₊ : ℝ₊
+     1/u₊ = invℝ₊ u₊
+
      1<1/u : 1 <ᵣ (fst 1/u₊)
-     1<1/u = isTrans<≡ᵣ _ _ _
-        (invEq (z<x/y₊≃y₊·z<x 1 1 (rat u , 0<u)) (isTrans≡<ᵣ _ _ _
-            (·IdR _) (<ℚ→<ᵣ _ _ u<1)))
-         (·IdLᵣ _)
+     1<1/u =
+       isTrans<≡ᵣ _ _ _
+         (invEq (z<x/y₊≃y₊·z<x 1 1 u₊)
+           (isTrans≡<ᵣ _ _ _ (·IdR (rat u)) (<ℚ→<ᵣ u 1 u<1)))
+         (·IdLᵣ (fst (invℝ₊ u₊)))
 
-     ww' : (b ℚ.< c) →   ((fst (1/u₊ ^ℚ (ℚ.- a)) -ᵣ fst (1/u₊ ^ℚ (ℚ.- c)))
-                                  ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ (ℚ.- c) (ℚ.- a) (ℚ.minus-< a c a<c)))
-                                    ≤ᵣ
-                                ((fst (1/u₊ ^ℚ (ℚ.- a)) -ᵣ fst (1/u₊ ^ℚ (ℚ.- b)))
-                                  ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ (ℚ.- b) (ℚ.- a) (ℚ.minus-< a b a<b) ))
-     ww' b<c = <ᵣWeaken≤ᵣ _ _ $ slope-incr'-strict (invℝ₊ (rat u , 0<u)) 1<1/u (ℚ.- c) (ℚ.- b) (ℚ.- a)
-              (ℚ.minus-< _ _ b<c) (ℚ.minus-< _ _ a<b) (ℚ.minus-< _ _ a<c)
+     intervalAB : ℚ₊
+     intervalAB = ℚ.<→ℚ₊ a b a<b
+
+     intervalAC : ℚ₊
+     intervalAC = ℚ.<→ℚ₊ a c a<c
+
+     negativeInterval : ∀ q → a ℚ.< q → ℚ₊
+     negativeInterval q a<q =
+       ℚ.<→ℚ₊ (ℚ.- q) (ℚ.- a) (ℚ.minus-< a q a<q)
+
+     inverseSlope : ∀ q → (a<q : a ℚ.< q) → ℝ
+     inverseSlope q a<q =
+       (fst (1/u₊ ^ℚ (ℚ.- a)) -ᵣ fst (1/u₊ ^ℚ (ℚ.- q)))
+         ／ᵣ₊ ℚ₊→ℝ₊ (negativeInterval q a<q)
+
+     originalSlope : ∀ q → (a<q : a ℚ.< q) → ℝ
+     originalSlope q a<q =
+       (fst (u₊ ^ℚ q) -ᵣ fst (u₊ ^ℚ a))
+         ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ a q a<q)
+
+     negativeNumeratorPath : ∀ q →
+       -ᵣ (fst (1/u₊ ^ℚ (ℚ.- a)) -ᵣ
+         fst (1/u₊ ^ℚ (ℚ.- q))) ≡
+       fst (u₊ ^ℚ q) -ᵣ fst (u₊ ^ℚ a)
+     negativeNumeratorPath q = ?
+
+     negativeIntervalPath : ∀ q (a<q : a ℚ.< q) →
+       negativeInterval q a<q ≡ ℚ.<→ℚ₊ a q a<q
+     negativeIntervalPath q a<q = ℚ₊≡ ℚ!
+
+     negativeSlopePath : ∀ q (a<q : a ℚ.< q) →
+       -ᵣ inverseSlope q a<q ≡ originalSlope q a<q
+     negativeSlopePath q a<q =
+       sym
+         (-ᵣ·
+           (fst (1/u₊ ^ℚ (ℚ.- a)) -ᵣ
+             fst (1/u₊ ^ℚ (ℚ.- q)))
+           (fst (invℝ₊ (ℚ₊→ℝ₊ (negativeInterval q a<q)))))
+       ∙ cong₂ (λ difference interval →
+           difference ／ᵣ₊ ℚ₊→ℝ₊ interval)
+           (negativeNumeratorPath q)
+           (negativeIntervalPath q a<q)
+
+     equalInverseOrder : b ≡ c →
+       inverseSlope c a<c ≤ᵣ inverseSlope b a<b
+     equalInverseOrder b=c = ?
+
+     strictInverseOrder : b ℚ.< c →
+       inverseSlope c a<c ≤ᵣ inverseSlope b a<b
+     strictInverseOrder b<c = rawStrict
+       where
+       rawStrict :
+         ((fst (1/u₊ ^ℚ (ℚ.- a)) -ᵣ fst (1/u₊ ^ℚ (ℚ.- c)))
+           ／ᵣ₊ ℚ₊→ℝ₊
+             (ℚ.<→ℚ₊ (ℚ.- c) (ℚ.- a)
+               (ℚ.minus-< a c a<c))) ≤ᵣ
+         ((fst (1/u₊ ^ℚ (ℚ.- a)) -ᵣ fst (1/u₊ ^ℚ (ℚ.- b)))
+           ／ᵣ₊ ℚ₊→ℝ₊
+             (ℚ.<→ℚ₊ (ℚ.- b) (ℚ.- a)
+               (ℚ.minus-< a b a<b)))
+       rawStrict =
+         ?
+
+     inverseOrder : inverseSlope c a<c ≤ᵣ inverseSlope b a<b
+     inverseOrder =
+       ⊎.rec equalInverseOrder strictInverseOrder
+         (ℚ.≤→≡⊎< b c b≤c)
+
+     negatedInverseOrder :
+       -ᵣ inverseSlope b a<b ≤ᵣ -ᵣ inverseSlope c a<c
+     negatedInverseOrder =
+       -ᵣ≤ᵣ (inverseSlope c a<c) (inverseSlope b a<b) inverseOrder
+
+     leftPath : -ᵣ inverseSlope b a<b ≡ originalSlope b a<b
+     leftPath = negativeSlopePath b a<b
+
+     rightPath : -ᵣ inverseSlope c a<c ≡ originalSlope c a<c
+     rightPath = negativeSlopePath c a<c
+-}
 
 
-     ww'' : (b ≡ c) →   ((fst (1/u₊ ^ℚ (ℚ.- a)) -ᵣ fst (1/u₊ ^ℚ (ℚ.- c)))
-                                  ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ (ℚ.- c) (ℚ.- a) (ℚ.minus-< a c a<c)))
-                                   ≤ᵣ
-                                ((fst (1/u₊ ^ℚ (ℚ.- a)) -ᵣ fst (1/u₊ ^ℚ (ℚ.- b)))
-                                  ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ (ℚ.- b) (ℚ.- a) (ℚ.minus-< a b a<b) ))
-     ww'' b=c = ≡ᵣWeaken≤ᵣ _ _ (
-             cong
-               (λ (b , -b<-a) →
-                 ((fst (1/u₊ ^ℚ (ℚ.- a)) -ᵣ fst (1/u₊ ^ℚ (ℚ.- b))) ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ (ℚ.- b) (ℚ.- a) -b<-a)))
-               (Σ≡Prop {B = λ b → (ℚ.- b) ℚ.< (ℚ.- a)} (λ _ → ℚ.isProp< _ _) (sym b=c)))
-
-
+{-
    w .ℚ.TrichotomyRec.eq-case _ = ≡ᵣWeaken≤ᵣ _ _
              (Rℝ.0LeftAnnihilates' _ _
                  (Rℝ.+InvR' _ _ (cong (fst ∘ (_^ℚ b)) (ℝ₊≡ refl) ∙ cong fst (1^ℚ≡1 b)
@@ -553,9 +1378,35 @@ opaque
                    ∙ sym (cong (fst ∘ (_^ℚ a)) (ℝ₊≡ refl) ∙ cong fst (1^ℚ≡1 a)))))))
    w .ℚ.TrichotomyRec.gt-case u 1<u 0<u =
      slope-incr** (rat u , 0<u) (<ℚ→<ᵣ _ _ 1<u) a b c a<b b≤c a<c
+-}
+   w .ℚ.TrichotomyRec.eq-case _ = ≡ᵣWeaken≤ᵣ _ _
+     (Rℝ.0LeftAnnihilates' _ _
+       (Rℝ.+InvR' _ _
+         (cong (fst ∘ (_^ℚ b)) (ℝ₊≡ refl)
+         ∙ cong fst (1^ℚ≡1 b)
+         ∙ sym
+             (cong (fst ∘ (_^ℚ a)) (ℝ₊≡ refl)
+             ∙ cong fst (1^ℚ≡1 a))))
+     ∙ sym
+         (Rℝ.0LeftAnnihilates' _ _
+           (Rℝ.+InvR' _ _
+             (cong (fst ∘ (_^ℚ c)) (ℝ₊≡ refl)
+             ∙ cong fst (1^ℚ≡1 c)
+             ∙ sym
+                 (cong (fst ∘ (_^ℚ a)) (ℝ₊≡ refl)
+                 ∙ cong fst (1^ℚ≡1 a))))))
+   w .ℚ.TrichotomyRec.gt-case u 1<u 0<u =
+     slope-incr** (rat u , 0<u) (<ℚ→<ᵣ 1 u 1<u)
+       a b c a<b b≤c a<c
 
-
-
+   rationalComparison : ∀ u (0<u : 0 <ᵣ rat u) →
+     powerSecantSlope a b a<b (rat u) 0<u ≤ᵣ
+     powerSecantSlope a c a<c (rat u) 0<u
+   rationalComparison u 0<u =
+     subst2 _≤ᵣ_
+       (sym (powerSecantSlope-formula a b a<b (rat u) 0<u))
+       (sym (powerSecantSlope-formula a c a<c (rat u) 0<u))
+       (ℚ.byTrichotomy 1 {A = comparisonFamily} w u 0<u)
 
 slope-incr' : (z : ℝ₊) → (a b c : ℚ)
   → (a≤b : a ℚ.≤ b) → (b<c : b ℚ.< c) →  (a<c : a ℚ.< c) →
@@ -702,37 +1553,94 @@ slope-monotone-strict' z 1<z a b a' b' a<b a'<b' a<a' b≤b' =
     (slope-incr z a b b' a<b b≤b' (ℚ.isTrans<≤ _ _ _ a<b b≤b'))
       (slope-incr'-strict z 1<z a a' b' a<a' a'<b' (ℚ.isTrans<≤ _ _ _ a<b b≤b'))
 
+{-
 opaque
  unfolding invℝ
  bernoulli's-ineq-^ℚ-r<1 : ∀ x r → 1 <ᵣ fst x → 0 ℚ.< r → r ℚ.< 1 → fst (x ^ℚ r) <ᵣ 1 +ᵣ rat r ·ᵣ (fst x -ᵣ 1)
  bernoulli's-ineq-^ℚ-r<1 x r 1<x 0<r r<1 =
-   isTrans<≡ᵣ _ _ _ (a-b<c⇒a<c+b _ 1 _
-       ((fst (z/y<x₊≃z<y₊·x _ _ _)
-             (slope-incr-strict x 1<x 0 r 1
-                0<r r<1 ℚ.decℚ<?))))
-              (+ᵣComm _ _ ∙ cong (1 +ᵣ_)
-                (cong₂ _·ᵣ_ (cong rat (ℚ.+IdR _))
-                  (Rℝ.·IdR' _ _
-                   (cong (fst ∘ invℝ₊) (ℝ₊≡ (cong rat (ℚ.+IdR _)))
-                   ∙ cong fst invℝ₊1)
-                   ∙ cong₂ (_-ᵣ_) (cong fst (^ℚ-1 x)) (cong fst (1^ℚ≡1 0)))))
+   isTrans<≡ᵣ _ _ _ addBound
+     (+ᵣComm (rat r ·ᵣ (fst x -ᵣ 1)) 1)
+   where
+   strictSlope :
+     ((fst (x ^ℚ r) -ᵣ fst (x ^ℚ 0))
+       ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 r 0<r)) <ᵣ
+     ((fst (x ^ℚ 1) -ᵣ fst (x ^ℚ 0))
+       ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 1 ℚ.decℚ<?))
+   strictSlope =
+     slope-incr-strict-opaque x 1<x 0 r 1 0<r r<1 ℚ.decℚ<?
+
+   unscaledBound :
+     fst (x ^ℚ r) -ᵣ fst (x ^ℚ 0) <ᵣ
+     fst (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 r 0<r)) ·ᵣ
+       ((fst (x ^ℚ 1) -ᵣ fst (x ^ℚ 0))
+         ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 1 ℚ.decℚ<?))
+   unscaledBound =
+     fst
+       (z/y<x₊≃z<y₊·x
+         ((fst (x ^ℚ 1) -ᵣ fst (x ^ℚ 0))
+           ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 1 ℚ.decℚ<?))
+         (fst (x ^ℚ r) -ᵣ fst (x ^ℚ 0))
+         (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 r 0<r)))
+       strictSlope
+
+   zeroPowerPath : fst (x ^ℚ 0) ≡ 1
+   zeroPowerPath = cong fst (^ℚ-zero x)
+
+   onePowerPath : fst (x ^ℚ 1) ≡ fst x
+   onePowerPath = cong fst (^ℚ-1 x)
+
+   differenceRPath :
+     fst (x ^ℚ r) -ᵣ fst (x ^ℚ 0) ≡
+     fst (x ^ℚ r) -ᵣ 1
+   differenceRPath =
+     cong (λ y → fst (x ^ℚ r) -ᵣ y) zeroPowerPath
+
+   intervalRPath :
+     fst (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 r 0<r)) ≡ rat r
+   intervalRPath = cong rat ℚ!
+
+   intervalOnePath :
+     ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 1 ℚ.decℚ<?) ≡ 1
+   intervalOnePath = ℝ₊≡ (cong rat ℚ!)
+
+   intervalOneInversePath :
+     fst (invℝ₊ (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 1 ℚ.decℚ<?))) ≡ 1
+   intervalOneInversePath =
+     cong (fst ∘ invℝ₊) intervalOnePath ∙ cong fst invℝ₊1
+
+   oneDifferencePath :
+     fst (x ^ℚ 1) -ᵣ fst (x ^ℚ 0) ≡ fst x -ᵣ 1
+   oneDifferencePath = cong₂ _-ᵣ_ onePowerPath zeroPowerPath
+
+   slopeOnePath :
+     ((fst (x ^ℚ 1) -ᵣ fst (x ^ℚ 0))
+       ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 1 ℚ.decℚ<?)) ≡
+     fst x -ᵣ 1
+   slopeOnePath =
+     cong₂ _·ᵣ_ oneDifferencePath intervalOneInversePath
+     ∙ ·IdR (fst x -ᵣ 1)
+
+   scaledSlopePath :
+     fst (ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 r 0<r)) ·ᵣ
+       ((fst (x ^ℚ 1) -ᵣ fst (x ^ℚ 0))
+         ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ 0 1 ℚ.decℚ<?)) ≡
+     rat r ·ᵣ (fst x -ᵣ 1)
+   scaledSlopePath = cong₂ _·ᵣ_ intervalRPath slopeOnePath
+
+   normalizedBound :
+     fst (x ^ℚ r) -ᵣ 1 <ᵣ rat r ·ᵣ (fst x -ᵣ 1)
+   normalizedBound =
+     subst2 _<ᵣ_ differenceRPath scaledSlopePath unscaledBound
+
+   addBound :
+     fst (x ^ℚ r) <ᵣ rat r ·ᵣ (fst x -ᵣ 1) +ᵣ 1
+   addBound =
+     a-b<c⇒a<c+b (fst (x ^ℚ r)) 1
+       (rat r ·ᵣ (fst x -ᵣ 1)) normalizedBound
 
  bernoulli's-ineq-^ℚ : ∀ x r → 1 <ᵣ fst x
   → 1 ℚ.< r → 1 +ᵣ rat r ·ᵣ (fst x -ᵣ 1)  <ᵣ fst (x ^ℚ r)
- bernoulli's-ineq-^ℚ x r 1<x 1<r =
-   isTrans≡<ᵣ _ _ _
-        (cong (1 +ᵣ_) (cong₂ _·ᵣ_
-          (sym (cong rat (ℚ.+IdR _)))
-          (cong₂ (_-ᵣ_) (sym (cong fst (^ℚ-1 x))) (cong fst (sym (1^ℚ≡1 0)))
-           ∙ sym (Rℝ.·IdR' _ _
-             (cong (fst ∘ invℝ₊) (ℝ₊≡ (cong rat (ℚ.+IdR _)))
-             ∙ cong fst invℝ₊1))))
-          ∙ +ᵣComm _ _)
-        (a<b-c⇒a+c<b _ _ 1 (fst (z<x/y₊≃y₊·z<x _ _ _)
-         (slope-incr-strict x 1<x 0 1 r ℚ.decℚ<?
-          1<r (ℚ.isTrans< _ 1 _ ℚ.decℚ<? 1<r))))
-
-
+ bernoulli's-ineq-^ℚ x r 1<x 1<r = ?
 power-slope-Δ : (z : ℝ₊) (1<z : 1 <ᵣ fst z) → (a b : ℚ) → a ℚ.< b →
    (Δ : ℚ₊) →
   fst (z ^ℚ b) -ᵣ fst (z ^ℚ a) <ᵣ
@@ -934,3 +1842,4 @@ opaque
            (IsContinuousWP∘ pred0< _ _ _
              (curry (snd ∘ (_^ℚ fst B))) (AsContinuousWithPred _ _  IsContinuous-ᵣ)
                (IsContinuous^ℚ _)))
+-}

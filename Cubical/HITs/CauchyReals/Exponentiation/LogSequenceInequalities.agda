@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Exponentiation.LogSequenceInequalities where
 
 open import Cubical.Foundations.Prelude
@@ -39,6 +37,32 @@ private
   2₊ : ℚ₊
   2₊ = fromNat 2
 
+  opaque
+    halfViaInverse : ℝ
+    halfViaInverse = 1 ·ᵣ fst (invℝ₊ 2ℝ₊)
+
+    rationalHalf : ℝ
+    rationalHalf = rat [ 1 / 2 ]
+
+  opaque
+    unfolding halfViaInverse rationalHalf invℝ
+    halfInverseTwoPath : halfViaInverse ≡ rationalHalf
+    halfInverseTwoPath =
+      Rℝ.·IdL (fst (invℝ₊ 2ℝ₊))
+      ∙ cong (fst ∘ invℝ₊) (ℝ₊≡ {2ℝ₊} {ℚ₊→ℝ₊ 2₊} refl)
+      ∙ invℝ₊-rat 2₊
+      ∙ cong rat (invℚ₊-fromNat 1)
+
+  opaque
+    halfInverseTwo≤ : ∀ y →
+      rationalHalf ≤ᵣ y → halfViaInverse ≤ᵣ y
+    halfInverseTwo≤ y half≤y =
+      isTrans≤ᵣ
+        halfViaInverse rationalHalf y
+        (≡ᵣWeaken≤ᵣ
+          halfViaInverse rationalHalf halfInverseTwoPath)
+        half≤y
+
 open import Cubical.HITs.CauchyReals.Exponentiation.LogSequenceSquares
 
 sq-bound-alg : ∀ t →
@@ -67,11 +91,15 @@ lhs-sq/x-alg t u t·u≡1 = sym $
   (t -ᵣ 1) -ᵣ (1 -ᵣ u) ∎
 
 opaque
- unfolding invℝ
+ unfolding invℝ halfViaInverse rationalHalf
  x+1/x-bound : ∀ (x : ℝ₊) → rat [ 1 / 2 ] ≤ᵣ fst x →
     (fst x -ᵣ 1) -ᵣ (1 -ᵣ fst (invℝ₊ x))  ≤ᵣ (2 ·ᵣ (fst x -ᵣ 1)) ·ᵣ (fst x -ᵣ 1)
  x+1/x-bound x 1/2≤x =
-   isTrans≡≤ᵣ _ _ _ (lhs-sq/x-alg xℝ invx (x·invℝ₊[x] x)) sq/x≤rhs
+   isTrans≡≤ᵣ
+     ((xℝ -ᵣ 1) -ᵣ (1 -ᵣ invx))
+     (sq ·ᵣ invx) rhs
+     (lhs-sq/x-alg xℝ invx (x·invℝ₊[x] x))
+     sq/x≤rhs
 
   where
   xℝ : ℝ
@@ -83,30 +111,44 @@ opaque
   sq : ℝ
   sq = (xℝ -ᵣ 1) ·ᵣ (xℝ -ᵣ 1)
 
+  factor : ℝ
+  factor = (2 ·ᵣ xℝ) -ᵣ 1
+
   rhs : ℝ
   rhs = (2 ·ᵣ (xℝ -ᵣ 1)) ·ᵣ (xℝ -ᵣ 1)
 
   half-inv≤x : 1 ·ᵣ fst (invℝ₊ 2ℝ₊) ≤ᵣ xℝ
-  half-inv≤x = isTrans≡≤ᵣ _ _ _
-    (Rℝ.·IdL _
-     ∙ cong (fst ∘ invℝ₊) (ℝ₊≡ {2ℝ₊} {ℚ₊→ℝ₊ 2₊} refl)
-     ∙ invℝ₊-rat 2₊
-     ∙ cong rat (invℚ₊-fromNat 1))
-    1/2≤x
+  half-inv≤x = halfInverseTwo≤ xℝ 1/2≤x
 
   0≤2x-1 : 0 ≤ᵣ (2 ·ᵣ xℝ) -ᵣ 1
-  0≤2x-1 = fst (x≤y≃0≤y-x _ _)
+  0≤2x-1 = fst (x≤y≃0≤y-x 1 (2 ·ᵣ xℝ))
     (fst (z/y≤x₊≃z≤y₊·x xℝ 1 2ℝ₊) half-inv≤x)
 
+  zero≤sq : 0 ≤ᵣ sq
+  zero≤sq = 0≤x·ᵣx (xℝ -ᵣ 1)
+
+  zeroProductBound : 0 ·ᵣ 0 ≤ᵣ sq ·ᵣ factor
+  zeroProductBound =
+    ≤ᵣ₊Monotone·ᵣ 0 sq 0 factor
+      zero≤sq (≤ᵣ-refl 0) zero≤sq 0≤2x-1
+
+  zero≤product : 0 ≤ᵣ sq ·ᵣ factor
+  zero≤product =
+    isTrans≡≤ᵣ 0 (0 ·ᵣ 0) (sq ·ᵣ factor)
+      (rat·ᵣrat 0 0) zeroProductBound
+
   h :  0  ≤ᵣ (fst x -ᵣ 1) ·ᵣ (fst x -ᵣ 1) ·ᵣ ((2 ·ᵣ x .fst) -ᵣ 1)
-  h = isTrans≡≤ᵣ _ _ _ (rat·ᵣrat 0 0)
-      (≤ᵣ₊Monotone·ᵣ 0 _ 0 _
-        (0≤x·ᵣx _) (≤ᵣ-refl 0)
-        (0≤x·ᵣx _) 0≤2x-1)
+  h = zero≤product
+
+  differenceNonnegative : 0 ≤ᵣ (xℝ ·ᵣ rhs) -ᵣ sq
+  differenceNonnegative =
+    isTrans≤≡ᵣ 0 (sq ·ᵣ factor) ((xℝ ·ᵣ rhs) -ᵣ sq)
+      zero≤product (sq-bound-alg xℝ)
 
   sq≤x·rhs : sq ≤ᵣ xℝ ·ᵣ rhs
-  sq≤x·rhs = invEq (x≤y≃0≤y-x sq (xℝ ·ᵣ rhs))
-    (isTrans≤≡ᵣ _ _ _ h (sq-bound-alg xℝ))
+  sq≤x·rhs =
+    invEq (x≤y≃0≤y-x sq (xℝ ·ᵣ rhs)) differenceNonnegative
 
   sq/x≤rhs : sq ·ᵣ invx ≤ᵣ rhs
-  sq/x≤rhs = invEq (z/y≤x₊≃z≤y₊·x rhs sq x) sq≤x·rhs
+  sq/x≤rhs =
+    invEq (z/y≤x₊≃z≤y₊·x rhs sq x) sq≤x·rhs

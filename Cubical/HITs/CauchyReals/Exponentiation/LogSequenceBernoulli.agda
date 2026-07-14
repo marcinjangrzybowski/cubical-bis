@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Exponentiation.LogSequenceBernoulli where
 
 open import Cubical.Foundations.Prelude
@@ -59,6 +57,7 @@ open import Cubical.HITs.CauchyReals.LiftingExpr
 
 open import Cubical.HITs.CauchyReals.Exponentiation.Core
 open import Cubical.HITs.CauchyReals.Exponentiation.Convexity
+open import Cubical.HITs.CauchyReals.Exponentiation.Bernoulli
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
@@ -90,14 +89,51 @@ opaque
   →
    ((fromNat (suc (suc n))) ℚ.· (x ℚ.- 1)) ℚ.+ 1  ℚ.< (x ℚ^ⁿ (suc (suc n)))
  bernoulli's-ineq-^ℚⁿ x n 1<x =
-  <ᵣ→<ℚ _ _
-    (subst2 _<ᵣ_
-      (cong (1 +ᵣ_) (sym (rat·ᵣrat _ _)) ∙  +ᵣComm _ _) (^ⁿ-ℚ^ⁿ (suc (suc n)) x)
-      (bernoulli's-ineq-^ℚ (ℚ₊→ℝ₊ (x ,
-        ℚ<→0< _ (ℚ.isTrans< 0 1 _ (ℚ.0<pos  _ _) 1<x)))
-        (fromNat (suc (suc n))) (<ℚ→<ᵣ _ _ 1<x)
-          (<ℤ→<ℚ _ _ (ℤ.ℕ<→pos-<-pos _ _
-            (ℕ.suc-≤-suc (ℕ.zero-<-suc {n}))))))
+  <ᵣ→<ℚ lowerBound upperBound realBound
+  where
+  exponent : ℚ
+  exponent = fromNat (suc (suc n))
 
+  lowerBound : ℚ
+  lowerBound = (exponent ℚ.· (x ℚ.- 1)) ℚ.+ 1
 
+  upperBound : ℚ
+  upperBound = x ℚ^ⁿ (suc (suc n))
 
+  basePositive : 0 ℚ.< x
+  basePositive = ℚ.isTrans< 0 1 x ℚ.decℚ<? 1<x
+
+  base : ℝ₊
+  base = ℚ₊→ℝ₊ (x , ℚ<→0< x basePositive)
+
+  one<base : 1 <ᵣ fst base
+  one<base = <ℚ→<ᵣ 1 x 1<x
+
+  one<exponent : 1 ℚ.< exponent
+  one<exponent =
+    <ℤ→<ℚ 1 (pos (suc (suc n)))
+      (ℤ.ℕ<→pos-<-pos 1 (suc (suc n))
+        (ℕ.suc-≤-suc (ℕ.zero-<-suc {n})))
+
+  bernoulliBound :
+    1 +ᵣ rat exponent ·ᵣ (fst base -ᵣ 1) <ᵣ
+    fst (base ^ℚ exponent)
+  bernoulliBound =
+    bernoulli's-ineq-^ℚ base exponent one<base one<exponent
+
+  lowerPath :
+    1 +ᵣ rat exponent ·ᵣ (fst base -ᵣ 1) ≡ rat lowerBound
+  lowerPath =
+    cong (λ difference → 1 +ᵣ rat exponent ·ᵣ difference)
+      (-ᵣ-rat₂ x 1)
+    ∙ cong (1 +ᵣ_) (sym (rat·ᵣrat exponent (x ℚ.- 1)))
+    ∙ +ᵣComm 1 (rat (exponent ℚ.· (x ℚ.- 1)))
+    ∙ +ᵣ-rat (exponent ℚ.· (x ℚ.- 1)) 1
+
+  upperPath : fst (base ^ℚ exponent) ≡ rat upperBound
+  upperPath = ^ⁿ-ℚ^ⁿ (suc (suc n)) x
+
+  realBound : rat lowerBound <ᵣ rat upperBound
+  realBound =
+    subst2 (λ left right → left <ᵣ right)
+      lowerPath upperPath bernoulliBound

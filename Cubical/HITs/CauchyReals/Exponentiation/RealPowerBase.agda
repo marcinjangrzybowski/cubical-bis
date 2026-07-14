@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Exponentiation.RealPowerBase where
 
 open import Cubical.Foundations.Prelude
@@ -241,19 +239,36 @@ module +GrAutomorphism (A : ⟨ (Aut[ +Groupℝ ]) ⟩) where
 
   w' : ∀ n m → rat [ ℤ.pos m , (1+ n) ] ·ᵣ fun x ≡ fun (rat [ ℤ.pos m , (1+ n) ] ·ᵣ x)
   w' n m = cong₂ _·ᵣ_ (cong rat (ℚ.[/]≡· (ℤ.pos m) (1+ n))
-      ∙ rat·ᵣrat _ _ ∙ ·ᵣComm  _ _)
+      ∙ rat·ᵣrat [ ℤ.pos m / 1 ] [ pos 1 / 1+ n ]
+      ∙ ·ᵣComm (rat [ ℤ.pos m / 1 ]) (rat [ pos 1 / 1+ n ]))
     refl ∙
     (sym (·ᵣAssoc _ _ _) ∙
      cong (rat [ pos 1 / 1+ n ] ·ᵣ_)
-       (w'' _ _)) ∙
+       (w'' x m)) ∙
         cong (rat [ pos 1 / 1+ n ] ·ᵣ_)
           (cong fun (cong (_·ᵣ x)
-           (cong rat (sym (m·n/m n m)) ∙ rat·ᵣrat _ _)
-           ∙ sym (·ᵣAssoc _ _ _)) ∙ sym (w'' _ _)) ∙ ·ᵣAssoc _ _ _
-          ∙ cong₂ _·ᵣ_ (sym (rat·ᵣrat _ _)
-           ∙ cong rat (ℚ.·Comm _ _
+           (cong rat (sym (m·n/m n m))
+             ∙ rat·ᵣrat
+                 [ pos (suc n) / 1 ]
+                 [ ℤ.pos m / 1+ n ])
+           ∙ sym (·ᵣAssoc
+               (fromNat (suc n))
+               (rat [ ℤ.pos m / 1+ n ])
+               x))
+           ∙ sym (w'' (rat [ ℤ.pos m / 1+ n ] ·ᵣ x) (suc n)))
+          ∙ ·ᵣAssoc _ _ _
+          ∙ cong₂ _·ᵣ_
+             (sym (rat·ᵣrat
+               [ pos 1 / 1+ n ]
+               [ pos (suc n) / 1 ])
+           ∙ cong rat (ℚ.·Comm
+              [ pos 1 / 1+ n ] [ pos (suc n) / 1 ]
             ∙ sym (ℚ.[/]≡· (pos (suc n)) (1+ n)) ∙
-            eq/ _ _ (ℤ.·Comm _ _))) refl ∙ ·IdLᵣ _
+            eq/
+              (pos (suc n) , 1+ n)
+              (pos 1 , 1)
+              (ℤ.·Comm (pos (suc n)) (pos 1))))
+            refl ∙ ·IdLᵣ _
 
 
   w : ElimProp (λ z → rat z ·ᵣ fun x ≡ fun (rat z ·ᵣ x))
@@ -275,26 +290,30 @@ module +GrAutomorphism (A : ⟨ (Aut[ +Groupℝ ]) ⟩) where
  Σfun' = fromLipschitz' (fun ∘ rat)
   (PT.map
      (λ (δ , <δ , δ<) →
-      let δ₊ = δ , <ᵣ→<ℚ _ _ (isTrans≤<ᵣ _ _ _
+      let δ₊ : ℚ₊
+          δ₊ = δ , <ᵣ→<ℚ _ _ (isTrans≤<ᵣ _ _ _
               (0≤absᵣ _) <δ)
-      in δ₊ , λ q r ε x x₁ →
-          let u = ℚ.absFrom<×< (fst ε) (q ℚ.- r) x x₁
-          in invEq (∼≃abs<ε _ _ _)
+
+          lip : Lipschitz-ℚ→ℝ δ₊ (fun ∘ rat)
+          lip q r ε -ε<q-r q-r<ε =
+           let u = ℚ.absFrom<×< (fst ε) (q ℚ.- r) -ε<q-r q-r<ε
+           in invEq (∼≃abs<ε _ _ _)
                 (isTrans≡<ᵣ _ _ _
                   (cong absᵣ (cong₂ _-ᵣ_ (fun-rat q) (fun-rat r)
                    ∙ sym (Rℝ.·DistL- _ _ _))
                     ∙ ·absᵣ _ _ ∙
                      ·ᵣComm _ _ ∙
                       cong (absᵣ α ·ᵣ_)
-                      (cong absᵣ (-ᵣ-rat₂ _ _) ∙ absᵣ-rat _ ) )
+                      (cong absᵣ (-ᵣ-rat₂ q r) ∙
+                       absᵣ-rat (q ℚ.- r)) )
                   (isTrans≤<ᵣ _ _ _
                     (isTrans≤≡ᵣ _ _ _
                       (≤ᵣ-·ᵣo _ _ _
-                        (≤ℚ→≤ᵣ _ _ (0≤abs _) )
+                        (≤ℚ→≤ᵣ _ _ (0≤abs (q ℚ.- r)) )
                         (<ᵣWeaken≤ᵣ _ _ <δ))
                       (sym (rat·ᵣrat _ _)))
                     (<ℚ→<ᵣ _ _ (ℚ.<-o· _ _ _ (snd δ₊) u))))
-         )
+      in δ₊ , lip)
      (denseℚinℝ (absᵣ α) ((absᵣ α) +ᵣ 1)
        (isTrans≡<ᵣ _ _ _
          (sym (+IdR (absᵣ α)))
@@ -307,7 +326,7 @@ module +GrAutomorphism (A : ⟨ (Aut[ +Groupℝ ]) ⟩) where
  fun'-cont : IsContinuous fun'
  fun'-cont = PT.rec
   (isPropIsContinuous _)
-  (λ x → Lipschitz→IsContinuous _ _ (snd x))
+  (λ x → Lipschitz→IsContinuous (fst x) fun' (snd x))
   (snd Σfun')
 
  fun'· : ∀ x → fun' x ≡ x ·ᵣ α
@@ -321,9 +340,13 @@ module +GrAutomorphism (A : ⟨ (Aut[ +Groupℝ ]) ⟩) where
 intervalℙ→dist< : ∀ a b x y → x ∈ intervalℙ a b → y ∈ intervalℙ a b
                    → absᵣ (x -ᵣ y) ≤ᵣ b -ᵣ a
 intervalℙ→dist< a b x y (a≤x , x≤b) (a≤y , y≤b) =
-  isTrans≡≤ᵣ _ _ _ (abs-max _ ∙ cong (maxᵣ _) (-[x-y]≡y-x _ _) )
-    (max≤-lem _ _ _ (≤ᵣMonotone+ᵣ _ _ _ _ x≤b (-ᵣ≤ᵣ _ _ a≤y))
-                    ((≤ᵣMonotone+ᵣ _ _ _ _ y≤b (-ᵣ≤ᵣ _ _ a≤x))))
+  isTrans≡≤ᵣ _ _ _
+    (abs-max (x -ᵣ y))
+    (max≤-lem (x -ᵣ y) (-ᵣ (x -ᵣ y)) (b -ᵣ a)
+      (≤ᵣMonotone+ᵣ _ _ _ _ x≤b (-ᵣ≤ᵣ _ _ a≤y))
+      (isTrans≡≤ᵣ _ _ _
+        (-[x-y]≡y-x x y)
+        (≤ᵣMonotone+ᵣ _ _ _ _ y≤b (-ᵣ≤ᵣ _ _ a≤x))))
 
 
 
@@ -344,18 +367,34 @@ opaque
  1≤x⊔1/x : ∀ x → 1 ≤ᵣ maxᵣ (fst x) (fst (invℝ₊ x))
  1≤x⊔1/x =
    uncurry (continuousOpenLowerComparison {0}
-     (AsContinuousWithPred _ _
-       (IsContinuousConst _))
-        (contDiagNE₂WP maxR _ _ _
-          (AsContinuousWithPred _ _
-            IsContinuousId) IsContinuousWithPred-invℝ₊)
+     (AsContinuousWithPred posℙ (λ _ → 1)
+       (IsContinuousConst 1))
+        (contDiagNE₂WP maxR posℙ
+          (λ x _ → x)
+          (λ x 0<x → fst (invℝ₊ (x , 0<x)))
+          (AsContinuousWithPred posℙ (λ x → x)
+            IsContinuousId)
+          IsContinuousWithPred-invℝ₊)
               λ u 0<u →
-                subst (1 ≤ᵣ_) (sym (maxᵣ-rat _ _)
-                  ∙ cong (maxᵣ (rat u))
-                  (sym (invℝ'-rat _ _ _)
-                   ∙ sym (cong fst (invℝ₊-impl (rat u , 0<u)))))
-                  (≤ℚ→≤ᵣ _ _ (
-                   (ℚ1≤x⊔1/x (u , <ᵣ→<ℚ _ _ 0<u)))))
+                let u₊ : ℚ₊
+                    u₊ = u , <ᵣ→<ℚ 0 u 0<u
+
+                    inverse-path :
+                      rat (fst (invℚ₊ u₊)) ≡
+                      fst (invℝ₊ (rat u , 0<u))
+                    inverse-path =
+                      sym (invℝ'-rat u (snd u₊) 0<u) ∙
+                      sym (cong fst (invℝ₊-impl (rat u , 0<u)))
+
+                    max-path :
+                      rat (ℚ.max u (fst (invℚ₊ u₊))) ≡
+                      maxᵣ (rat u) (fst (invℝ₊ (rat u , 0<u)))
+                    max-path =
+                      sym (maxᵣ-rat u (fst (invℚ₊ u₊))) ∙
+                      cong (maxᵣ (rat u)) inverse-path
+                in subst (1 ≤ᵣ_) max-path
+                  (≤ℚ→≤ᵣ 1 (ℚ.max u (fst (invℚ₊ u₊)))
+                    (ℚ1≤x⊔1/x u₊)))
 
 
 ℚ1<x+1/x : ∀ x → 1 ℚ.< fst x ℚ.+ fst (invℚ₊ x)
@@ -375,11 +414,14 @@ opaque
  1≤x+1/x : ∀ x → 1 ≤ᵣ fst x +ᵣ fst (invℝ₊ x)
  1≤x+1/x =
    uncurry (continuousOpenLowerComparison {0}
-     (AsContinuousWithPred _ _
-       (IsContinuousConst _))
-        (contDiagNE₂WP sumR _ _ _
-          (AsContinuousWithPred _ _
-            IsContinuousId) IsContinuousWithPred-invℝ₊)
+     (AsContinuousWithPred posℙ (λ _ → 1)
+       (IsContinuousConst 1))
+        (contDiagNE₂WP sumR posℙ
+          (λ x _ → x)
+          (λ x 0<x → fst (invℝ₊ (x , 0<x)))
+          (AsContinuousWithPred posℙ (λ x → x)
+            IsContinuousId)
+          IsContinuousWithPred-invℝ₊)
               λ u 0<u →
                 subst (1 ≤ᵣ_) (sym (+ᵣ-rat _ _)
                   ∙ cong (rat u +ᵣ_)
@@ -398,19 +440,20 @@ opaque
         ((fst z -ᵣ 1) ／ᵣ₊ z)
        <ᵣ
    ((fst (z ^ℚ y₁) -ᵣ fst (z ^ℚ y₀))
-     ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ _ _  y₀<y₁ ))
+     ／ᵣ₊ ℚ₊→ℝ₊ (ℚ.<→ℚ₊ y₀ y₁ y₀<y₁))
  slope-lower-bound z B 1<z y₀ y₁ y₀<y₁ (-B≤y₀ , y₀≤B) (-B≤y₁ , y₁≤B) =
    isTrans<≡ᵣ _ _ _
      (≤<ᵣ₊Monotone·ᵣ
        ((z ^ℚ (ℚ.- (fst B)))) (fst (z ^ℚ y₀))
-       (_ ,
+       (((fst z -ᵣ 1) ／ᵣ₊ z) ,
          isTrans≡≤ᵣ _ _ _ (sym (Rℝ.0LeftAnnihilates _))
             (≤ᵣ-·ᵣo 0 _ _
              (<ᵣWeaken≤ᵣ _ _ (snd (invℝ₊ (fst z , z .snd))))
               (<ᵣWeaken≤ᵣ _ _ (x<y→0<y-x _ _ 1<z))))
                ((fst (z ^ℚ (fst h₊)) -ᵣ 1) ／ᵣ₊ ℚ₊→ℝ₊ h₊)
 
-       (^ℚ-MonotoneR {z} (ℚ.- (fst B)) y₀ -B≤y₀ (<ᵣWeaken≤ᵣ _ _ 1<z))
+       (^ℚ-MonotoneR {x = z} (ℚ.- (fst B)) y₀ -B≤y₀
+         (<ᵣWeaken≤ᵣ _ _ 1<z))
 
         (invEq (z/y'<x/y≃y₊·z<y'₊·x _ _ _ _)
            brn )
@@ -418,11 +461,11 @@ opaque
        (·ᵣAssoc _ _ _
         ∙ cong (_·ᵣ
          fst (invℝ₊ (ℚ₊→ℝ₊ h₊)))
-          (sym (factor-xᵃ-xᵇ z _ _) ))
+          (sym (factor-xᵃ-xᵇ z y₁ y₀) ))
 
   where
    h₊ : ℚ₊
-   h₊ = ℚ.<→ℚ₊ _ _ y₀<y₁
+   h₊ = ℚ.<→ℚ₊ y₀ y₁ y₀<y₁
 
    brn : fst (ℚ₊→ℝ₊ h₊) ·ᵣ (fst z -ᵣ 1)   <ᵣ
          fst z ·ᵣ (fst (z ^ℚ fst h₊) -ᵣ rat [ pos 1 / 1+ 0 ])
@@ -434,12 +477,12 @@ opaque
              ∙ +ᵣComm (rat (fst h₊ ℚ.+ [ pos 1 / 1+ 0 ]) ·ᵣ
        (fst z -ᵣ rat [ pos 1 / 1+ 0 ])) 1) (bernoulli's-ineq-^ℚ z (fst h₊ ℚ.+ 1)
              1<z (subst (1 ℚ.<_) (ℚ.+Comm 1 (fst h₊))
-              (ℚ≤→<+₊ _ _ h₊ (ℚ.isRefl≤ 1))) )))))
+              (ℚ≤→<+₊ 1 1 h₊ (ℚ.isRefl≤ 1))) )))))
              (sym (+ᵣAssoc (fst (z ^ℚ (fst h₊ ℚ.+ 1))) _ _) ∙
               cong₂ _+ᵣ_
                 (cong fst (sym (^ℚ-+ z (fst h₊) 1))
                   ∙ ·ᵣComm _ _ ∙
-                    cong (_·ᵣ (z ^ℚ fst h₊) .fst) (cong fst (^ℚ-1 _) ))
+                    cong (_·ᵣ (z ^ℚ fst h₊) .fst) (cong fst (^ℚ-1 z) ))
                 ((sym (-ᵣDistr _ _) ∙
                   cong (-ᵣ_) (cong (1 +ᵣ_) (·IdLᵣ _)
                     ∙ (+ᵣComm 1 (fst z -ᵣ 1)
@@ -465,15 +508,26 @@ slope-upper-bound z B y₀ y₁ y₀<y₁ (-B≤y₀ , y₀≤B) (-B≤y₁ , y�
        y₀<y₁ B<B+1 y₀≤B
          (ℚ.isTrans≤ _ _ _ y₁≤B (ℚ.<Weaken≤ _ _ B<B+1))
          )
-     (Rℝ.·IdR' _ _ (cong (fst ∘ invℝ₊)
-       (ℝ₊≡ (cong rat ℚ!)) ∙ cong fst invℝ₊1) ∙
+     (Rℝ.·IdR'
+       (fst (z ^ℚ (fst B ℚ.+ 1)) -ᵣ fst (z ^ℚ fst B))
+       (fst (invℝ₊ (ℚ₊→ℝ₊ Bstep₊)))
+       invBstep≡1 ∙
         factor-xᵃ-xᵇ z (fst B ℚ.+ 1) (fst B) ∙
           cong (λ u → fst (z ^ℚ fst B) ·ᵣ (fst u -ᵣ 1))
-           (cong (z ^ℚ_) ℚ! ∙ ^ℚ-1 z))
+           (cong (z ^ℚ_) B+1-B≡1 ∙ ^ℚ-1 z))
 
  where
   h₊ = ℚ.<→ℚ₊ _ _ y₀<y₁
   B<B+1 = ℚ≤→<+₊ _ _ 1 (ℚ.isRefl≤ (fst B))
+  Bstep₊ : ℚ₊
+  Bstep₊ = ℚ.<→ℚ₊ (fst B) (fst B ℚ.+ 1) B<B+1
+  B+1-B≡1 : (fst B ℚ.+ 1) ℚ.- fst B ≡ 1
+  B+1-B≡1 = ℚ!
+  Bstep-rat≡1 : fst Bstep₊ ≡ 1
+  Bstep-rat≡1 = B+1-B≡1
+  invBstep≡1 : fst (invℝ₊ (ℚ₊→ℝ₊ Bstep₊)) ≡ 1
+  invBstep≡1 = cong (fst ∘ invℝ₊)
+    (ℝ₊≡ (cong rat Bstep-rat≡1)) ∙ cong fst invℝ₊1
 
 slUpBd : ℕ → ℕ → ℚ₊
 slUpBd Z m = (ℚ._ℚ₊^ⁿ_ (fromNat (suc (suc Z))) (suc m)) ·₊ fromNat (suc Z)
@@ -491,22 +545,22 @@ monotone^ℚ' q q' q'' q≤q' q'≤q'' u 0<u =
    (λ 1≤u →
      isTrans≤ᵣ _ _ _ (min≤ᵣ (fst ((rat u , 0<u) ^ℚ q))
             (fst ((rat u , 0<u) ^ℚ q'')))
-        (^ℚ-MonotoneR {(rat u , 0<u)} q q'
+        (^ℚ-MonotoneR {x = (rat u , 0<u)} q q'
            q≤q'
         (≤ℚ→≤ᵣ _ _ 1≤u)))
    (λ u<1 → isTrans≤ᵣ _ _ _
      (min≤ᵣ' (fst ((rat u , 0<u) ^ℚ q))
             (fst ((rat u , 0<u) ^ℚ q'')))
-       let xx = (^ℚ-MonotoneR {invℝ₊ (rat u , 0<u)}
-               _ _  (ℚ.minus-≤ _ _ q'≤q'')
+       let xx = (^ℚ-MonotoneR {x = invℝ₊ (rat u , 0<u)}
+               (ℚ.- q'') (ℚ.- q') (ℚ.minus-≤ q' q'' q'≤q'')
                    (isTrans≤≡ᵣ _ _ _
                     (invEq (z≤x/y₊≃y₊·z≤x 1 1 (rat u , 0<u))
                       (isTrans≡≤ᵣ _ _ _ (·IdR _)
                         (≤ℚ→≤ᵣ _ _ (ℚ.<Weaken≤ _ _ u<1))))
                     (·IdLᵣ _)))
        in subst2 _≤ᵣ_
-            (cong fst (sym (^ℚ-minus _ _)))
-            (cong fst (sym (^ℚ-minus _ _)))
+            (cong fst (sym (^ℚ-minus (rat u , 0<u) q'')))
+            (cong fst (sym (^ℚ-minus (rat u , 0<u) q')))
             xx)
    (ℚ.Dichotomyℚ 1 u)
 
@@ -520,7 +574,9 @@ opaque
   → minᵣ (fst (z ^ℚ q)) (fst (z ^ℚ q'')) ≤ᵣ fst (z ^ℚ q')
  monotone^ℚ q q' q'' q≤q' q'≤q'' =
    uncurry (continuousOpenLowerComparison {0}
-     (contDiagNE₂WP minR _ _ _
+     (contDiagNE₂WP minR posℙ
+       (curry (fst ∘ (_^ℚ q)))
+       (curry (fst ∘ (_^ℚ q'')))
        (IsContinuous^ℚ q)
        (IsContinuous^ℚ q''))
      (IsContinuous^ℚ q')

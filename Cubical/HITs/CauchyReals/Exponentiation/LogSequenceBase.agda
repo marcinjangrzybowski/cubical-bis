@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Exponentiation.LogSequenceBase where
 
 open import Cubical.Foundations.Prelude
@@ -74,6 +72,19 @@ module 𝐙' = RingTheory (CR.CommRing→Ring ℤCRing.ℤCommRing )
   subst (λ z → z ℚ.< y ℚ.+ fst ε) (ℚ.+IdR x)
     (ℚ.≤<Monotone+ x y 0 (fst ε) x≤y (snd ε))
 
+one≤max-invℚ₊ : ∀ x → 1 ℚ.≤ ℚ.max (fst x) (fst (x ⁻¹₊))
+one≤max-invℚ₊ x =
+  ⊎.rec
+    (λ 1≤x →
+      ℚ.isTrans≤ 1 (fst x) (ℚ.max (fst x) (fst (x ⁻¹₊)))
+        1≤x (ℚ.≤max (fst x) (fst (x ⁻¹₊))))
+    (λ x<1 →
+      ℚ.isTrans≤ 1 (fst (x ⁻¹₊))
+        (ℚ.max (fst x) (fst (x ⁻¹₊)))
+        (ℚ.invℚ₊≤invℚ₊ 1 x (ℚ.<Weaken≤ (fst x) 1 x<1))
+        (ℚ.≤max' (fst x) (fst (x ⁻¹₊))))
+    (ℚ.Dichotomyℚ 1 (fst x))
+
 private
   2ℝ₊ : ℝ₊
   2ℝ₊ = fromNat 2
@@ -81,46 +92,61 @@ private
   2₊ : ℚ₊
   2₊ = fromNat 2
 
+  opaque
+    positiveMaxInverse : ∀ x → 0 <ᵣ x → ℝ
+    positiveMaxInverse x 0<x = maxᵣ x (fst invℝ' x 0<x)
+
+  opaque
+    unfolding positiveMaxInverse maxᵣ
+    positiveMaxInverse-continuous :
+      IsContinuousWithPred posℙ positiveMaxInverse
+    positiveMaxInverse-continuous =
+      contDiagNE₂WP maxR posℙ
+        (λ x _ → x)
+        (λ x 0<x → fst invℝ' x 0<x)
+        (AsContinuousWithPred posℙ (λ x → x) IsContinuousId)
+        (snd invℝ')
+
 opaque
- unfolding invℝ
+ unfolding invℝ positiveMaxInverse
 
  1≤x-⊔-x⁻¹ : ∀ x → 1 ≤ᵣ fst (maxᵣ₊ x (invℝ₊ x))
  1≤x-⊔-x⁻¹ (x , 0<x) =
-  subst (1 ≤ᵣ_)
-    (cong (maxᵣ x)
-      (cong (fst invℝ' x) (isProp<ᵣ _ _ _ 0<x)
-       ∙ sym (cong fst (invℝ₊-impl (x , 0<x)))))
-    (continuousOpenLowerComparison {0}
-      {f₀ = λ _ _ → 1}
-      {f₁ = λ y 0<y → maxᵣ y (fst invℝ' y 0<y)}
-      (AsContinuousWithPred _ _ (IsContinuousConst 1))
-      (contDiagNE₂WP maxR _ _ _
-        (AsContinuousWithPred _ _ (IsContinuousId))
-          (snd invℝ'))
-      (λ u 0<u →
-        ⊎.rec
-          (λ 1≤u →
-            isTrans≤ᵣ _ _ _
-              (≤ℚ→≤ᵣ 1 u 1≤u)
-              (≤maxᵣ (rat u) (fst invℝ' (rat u) 0<u)))
-          (λ u≤1 →
-            let u₊ = ℚ<→0< u (<ᵣ→<ℚ 0 u 0<u)
-                invBound : 1 ≤ᵣ fst invℝ' (rat u) 0<u
-                invBound =
-                  isTrans≤≡ᵣ _ _ _
-                    (≤ℚ→≤ᵣ 1 (fst ((u , u₊) ⁻¹₊))
-                      (ℚ.invℚ₊≤invℚ₊ 1 (u , u₊) u≤1))
-                    (sym (invℝ'-rat u u₊ 0<u))
-            in isTrans≤≡ᵣ _ _ _
-                (isTrans≤ᵣ _ _ _ invBound
-                  (≤maxᵣ (fst invℝ' (rat u) 0<u) (rat u)))
-                (maxᵣComm (fst invℝ' (rat u) 0<u) (rat u)))
-          (ℚ.≤cases 1 u))
-      x 0<x)
+   isTrans≤≡ᵣ
+     1
+     (positiveMaxInverse x 0<x)
+     (fst (maxᵣ₊ (x , 0<x) (invℝ₊ (x , 0<x))))
+     abstractBound targetPath
+   where
+   rationalComparison : ∀ u (0<u : 0 <ᵣ rat u) →
+     1 ≤ᵣ positiveMaxInverse (rat u) 0<u
+   rationalComparison u 0<u =
+     subst (1 ≤ᵣ_)
+       (sym (maxᵣ-rat u (fst (u₊ ⁻¹₊)))
+       ∙ cong (maxᵣ (rat u))
+           (sym (invℝ'-rat u (snd u₊) 0<u)))
+       (≤ℚ→≤ᵣ 1 (ℚ.max u (fst (u₊ ⁻¹₊)))
+         (one≤max-invℚ₊ u₊))
+     where
+     u₊ : ℚ₊
+     u₊ = u , <ᵣ→<ℚ 0 u 0<u
 
+   abstractBound : 1 ≤ᵣ positiveMaxInverse x 0<x
+   abstractBound =
+     continuousOpenLowerComparison
+       {x₀ = 0}
+       {f₀ = λ _ _ → 1}
+       {f₁ = positiveMaxInverse}
+       (AsContinuousWithPred posℙ (λ _ → 1) (IsContinuousConst 1))
+       positiveMaxInverse-continuous
+       rationalComparison x 0<x
 
-
-
+   targetPath :
+     positiveMaxInverse x 0<x ≡
+     fst (maxᵣ₊ (x , 0<x) (invℝ₊ (x , 0<x)))
+   targetPath =
+     cong (maxᵣ x)
+       (sym (cong fst (invℝ₊-impl (x , 0<x))))
 Lipschitz-·R : ∀ q a → absᵣ a ≤ᵣ rat (fst q) → Lipschitz-ℝ→ℝ q (_·ᵣ a)
 Lipschitz-·R q a a<q u v ε u∼v =
    invEq (∼≃abs<ε _ _ _) (

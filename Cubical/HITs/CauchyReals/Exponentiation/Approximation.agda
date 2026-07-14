@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Exponentiation.Approximation where
 
 open import Cubical.Foundations.Prelude
@@ -198,8 +196,15 @@ module EquivFromRestr
       λ fw=fx →
          cong fst (invEq (congEquiv
        {x = w , ointervalℙ⊆-max n m w N}
-       {y = x , ointervalℙ⊆-max' n m x M} (_ , equiv-restr (ℕ.max n m)))
-         (Σ≡Prop (∈-isProp _) fw=fx)))
+       {y = x , ointervalℙ⊆-max' n m x M}
+       ((λ (z , z∈) → f z , f∈ₙ (ℕ.max n m) z z∈) ,
+         equiv-restr (ℕ.max n m)))
+         (Σ≡Prop
+           (∈-isProp
+             (ointervalℙ
+               (f (rat (ℚ.- fromNat (suc (ℕ.max n m)))))
+               (f (rat (fromNat (suc (ℕ.max n m)))))))
+           fw=fx)))
     (clamp' w) (clamp' x)
 
  isEmbedding-f' : isEmbedding f'
@@ -212,8 +217,11 @@ module EquivFromRestr
  isSurjection-f' : isSurjection f'
  isSurjection-f' = λ (x , x∈) →
    PT.map (λ (n , N) →
-    let (y , y∈) = invEq (_ , equiv-restr n) (_ , N)
-    in y , Σ≡Prop (∈-isProp _) (cong fst (secEq (_ , equiv-restr n) (_ , N))))
+    let restrEquiv =
+          (λ (z , z∈) → f z , f∈ₙ n z z∈) , equiv-restr n
+        (y , y∈) = invEq restrEquiv (x , N)
+    in y , Σ≡Prop (∈-isProp Bℙ)
+      (cong fst (secEq restrEquiv (x , N))))
     x∈
 
  equiv-fromRestr : isEquiv f'
@@ -226,35 +234,42 @@ module EquivFromRestr
 ℚApproxℙ''→ℚApproxℙ' P Q f X q q∈P =
   (λ ε → fst (X q q∈P (ε /2₊)))
   , (λ ε → fst (snd (X q q∈P (ε /2₊)))) , zz ,
+    eqℝ
+      (lim (λ δ → rat (fst (X q q∈P (δ /2₊)))) zz)
+      (fst (f (rat q) q∈P))
+      λ ε →
+      let half = ε /2₊
+          quarter = half /2₊
+          eighth = quarter /2₊
+          limε = (half +₊ quarter) +₊ eighth
 
-    eqℝ _ _ λ ε →
-       let z = triangle∼ {ε = (ε /2₊ +₊ (ε /2₊) /2₊) +₊ (((ε /2₊) /2₊) /2₊)}
-                    (lim-rat (λ δ → rat (fst (X q q∈P (δ /2₊)))) _ _
-                      ((ε /2₊) /2₊)
-                      _ (subst 0<_
-                         (sym (Rℚ.plusMinus _ _)
-                            ∙ cong (ℚ._- fst ((ε /2₊) /2₊)) (
-                               sym (ℚ.+Assoc _ _ _)
-                              ∙∙ cong (fst (ε /2₊) ℚ.+_) (ℚ.+Comm _ _)
-                               ∙∙ ℚ.+Assoc _ _ _) )
-                         (snd ((ε /2₊) +₊ (((ε /2₊) /2₊) /2₊))  )) (refl∼ _ _))
+          diffEq : fst (half +₊ eighth) ≡ fst limε ℚ.- fst quarter
+          diffEq = ℚ!
 
-                  (snd (snd (X q q∈P (((ε /2₊) /2₊) /2₊))))
-       in subst∼ (sym (ℚ.+Assoc _ _ _)
-               ∙∙ cong ((fst (ε /2₊) ℚ.+ fst ((ε /2₊) /2₊)) ℚ.+_)
-                     (1/2∈ℚ./2+/2≡id (fst ((ε /2₊) /2₊)))
-               ∙∙ (sym (ℚ.+Assoc _ _ _)
-                ∙∙ cong (fst (ε /2₊) ℚ.+_) (1/2∈ℚ./2+/2≡id (fst (ε /2₊)))
-                ∙∙ 1/2∈ℚ./2+/2≡id (fst ε))) z
+          diffPositive : 0 ℚ.< fst limε ℚ.- fst quarter
+          diffPositive = subst 0<_ diffEq (snd (half +₊ eighth))
+
+          totalEq : fst (limε +₊ eighth) ≡ fst ε
+          totalEq = ℚ!
+
+          lim-close =
+            lim-rat (λ δ → rat (fst (X q q∈P (δ /2₊))))
+              (fst (X q q∈P eighth)) limε quarter zz diffPositive
+              (refl∼ (rat (fst (X q q∈P eighth)))
+                (fst limε ℚ.- fst quarter , diffPositive))
+      in subst∼ totalEq
+           (triangle∼ lim-close (snd (snd (X q q∈P eighth))))
  where
  zz : (δ ε : ℚ₊) →
       rat (fst (X q q∈P (δ /2₊))) ∼[ δ +₊ ε ]
       rat (fst (X q q∈P (ε /2₊)))
- zz δ ε = ∼-monotone< (
-       subst (ℚ._< fst (δ +₊ ε)) (ℚ.·DistR+ _ _ _) (/2₊<id (δ +₊ ε)))
-   (triangle∼ (snd (snd ((X q q∈P) (δ /2₊)))) --((snd ((X q q∈P) (δ /2₊))))
-     (sym∼ _ _ _ (snd ((snd ((X q q∈P) (ε /2₊))))) --((snd ((X q q∈P) (ε /2₊))))
-     ))
+ zz δ ε = ∼-monotone<
+   (subst (ℚ._< fst (δ +₊ ε))
+     (ℚ.·DistR+ (fst δ) (fst ε) [ 1 / 2 ])
+     (/2₊<id (δ +₊ ε)))
+   (triangle∼
+     (snd (snd (X q q∈P (δ /2₊))))
+     (sym∼ _ _ _ (snd (snd (X q q∈P (ε /2₊))))))
 
 
 
@@ -266,7 +281,7 @@ clamp-abs L L' x L≤L' = ⊎.rec
      (sym (ℚO.0≤→abs≡id _ 0≤))
        (ℚ.isTrans≤ _ _ _ (ℚ.clamp≤ L L' x)
         (ℚ.isTrans≤ _ _ _
-          (≤abs _) (ℚ.≤max' _ _))))
+          (≤abs _) (ℚ.≤max' (abs L) (abs L')))))
   (λ <0 →
      subst (ℚ._≤ ℚ.max (abs L) (abs L'))
        (sym (ℚO.<0→abs≡- _ <0))
@@ -274,7 +289,7 @@ clamp-abs L L' x L≤L' = ⊎.rec
          (ℚ.isTrans≤ _ _ _
           (ℚ.minus-≤ _ _ (ℚ.≤clamp L L' x L≤L'))
           (-≤abs L))
-         (ℚ.≤max _ _)))
+         (ℚ.≤max (abs L) (abs L'))))
   (ℚ.Dichotomyℚ 0 (ℚ.clamp L L' x))
 
 module _ (f : ℚ → ℝ) (B : ℕ → ℚ₊)  where
@@ -304,14 +319,15 @@ module _ (f : ℚ → ℝ) (B : ℕ → ℚ₊)  where
       (ℚ.clamp≤ (clampL n) (clampU n) x)
 
   flₙ : ∀ n → Σ (Σ (ℝ → ℝ) (Lipschitz-ℝ→ℝ (B n))) (IsContinuous ∘ fst)
-  flₙ n = fl , uncurry (Lipschitz→IsContinuous _) fl
+  flₙ n = fl , uncurry (Lipschitz→IsContinuous (B n)) fl
    where
    L≤U : clampL n ℚ.≤ clampU n
    L≤U = clampL≤clampU n
 
    fl = fromLipschitz (B n)
      (f ∘ ℚ.clamp (clampL n) (clampU n) ,
-        Lipschitz-ℚ→ℝ'→Lipschitz-ℚ→ℝ _ _
+        Lipschitz-ℚ→ℝ'→Lipschitz-ℚ→ℝ (B n)
+          (f ∘ ℚ.clamp (clampL n) (clampU n))
           λ q r →
             isTrans≤ᵣ _ _ _
                 (bl n
@@ -321,7 +337,7 @@ module _ (f : ℚ → ℝ) (B : ℕ → ℚ₊)  where
                   (clampAbs≤ n q))
               (≤ℚ→≤ᵣ _ _
                 (ℚ.≤-o· _ _ _ (ℚ.0≤ℚ₊ (B n))
-                  (ℚ.clampDist _ _ _ _))))
+                  (ℚ.clampDist (clampL n) (clampU n) r q))))
 
   flₙ-rat : ∀ n q →
     fst (fst (flₙ n)) (rat q) ≡
@@ -369,11 +385,13 @@ module _ (f : ℚ → ℝ) (B : ℕ → ℚ₊)  where
        x x∈ x'∈
 
 
-  open Seq⊆→.FromIntersection Seq⊆→Power
-    isSetℝ (λ _ → Unit , isPropUnit) Seq⊆-abs<N-s⊇-⊤Pred public
+  module PowerIntersection = Seq⊆→.FromIntersection Seq⊆→Power
+    isSetℝ ⊤Pred Seq⊆-abs<N-s⊇-⊤Pred
+
+  open PowerIntersection public
 
   𝒇 : ℝ → ℝ
-  𝒇 x = ∩$ x _
+  𝒇 x = PowerIntersection.∩$ x tt
 
 
 
@@ -384,14 +402,16 @@ module _ (f : ℚ → ℝ) (B : ℕ → ℚ₊)  where
           (∈intervalℙ→∈ℚintervalℙ _ _ _
              (<ᵣWeaken≤ᵣ _ _ (fst (fst (snd y))) ,
               <ᵣWeaken≤ᵣ _ _ (snd (fst (snd y))))))))
-    (∩$-lem (rat q) _)
+    (PowerIntersection.∩$-lem (rat q) tt)
 
   𝒇-cont : IsContinuous 𝒇
-  𝒇-cont = contDropPred 𝒇 (∩$-cont _ _ (λ _ → openIintervalℙ _ _)
-     _ _ λ n → AsContinuousWithPred (λ _ → _ ,
-         isProp× _ _)
-                 (fst (fst (flₙ n)))
-                  (snd (flₙ n)))
+  𝒇-cont = contDropPred 𝒇
+    (∩$-cont ⊤Pred Seq⊆-abs<N (λ _ → openIintervalℙ _ _)
+      Seq⊆→Power Seq⊆-abs<N-s⊇-⊤Pred
+      λ n → AsContinuousWithPred
+        (ointervalℙ (fromNeg (suc n)) (fromNat (suc n)))
+        (fst (fst (flₙ n)))
+        (snd (flₙ n)))
   module Equiv𝒇₊ (f∈ : ∀ n x x∈ → fst (fst (flₙ n)) x ∈
                    ointervalℙ (𝒇 (fromNeg (suc n)))
                              (𝒇 (fromNat (suc n))))
@@ -418,7 +438,8 @@ module _ (f : ℚ → ℝ) (B : ℕ → ℚ₊)  where
     snd
      (propBiimpl→Equiv (isSetℝ _ _) (isSetℝ₊ _ _)
       (cong 𝒇₊)
-      ((∩$-elimProp2 w _ x _ {λ u v → u ≡ v → w ≡ x}
+      ((PowerIntersection.∩$-elimProp2 w tt x tt
+        {λ u v → u ≡ v → w ≡ x}
        (λ _ _ → isProp→ (isSetℝ _ _))
         λ n w∈ x∈ p → cong fst
           (invEq (congEquiv {x = _ , w∈} {y = _ , x∈}
@@ -434,7 +455,7 @@ module _ (f : ℚ → ℝ) (B : ℕ → ℚ₊)  where
      PT.map (λ (n , b∈) →
        let (y , y∈) = invEq (_ , isEquivFₙ n) (b , b∈)
        in y , ℝ₊≡
-            (∩$-∈ₙ _ _ n y∈
+            (PowerIntersection.∩$-∈ₙ _ tt n y∈
            ∙ cong fst (secEq (_ , isEquivFₙ n) (b , b∈))))
        (exN' b b∈')
 

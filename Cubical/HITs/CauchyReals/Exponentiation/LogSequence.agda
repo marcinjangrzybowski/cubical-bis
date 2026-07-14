@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.HITs.CauchyReals.Exponentiation.LogSequence where
 
 open import Cubical.Foundations.Prelude
@@ -95,87 +93,181 @@ module expPreDer (Z : ℕ) where
 
 
 
+  private
+   diff : ℝ₊ → ℕ → ℝ
+   diff u n = lnSeq u n -ᵣ lnSeq' u n
+
+   z⊔z⁻¹ : ℝ₊
+   z⊔z⁻¹ = maxᵣ₊ z (invℝ₊ z)
+
+   z⊔z⁻¹≤Z : fst z⊔z⁻¹ ≤ᵣ fromNat (suc (suc Z))
+   z⊔z⁻¹≤Z =
+    max≤-lem
+      (fst z) (fst (invℝ₊ z)) (fromNat (suc (suc Z)))
+      z≤Z
+      (subst2 _≤ᵣ_
+        (·IdR _) (·IdR _)
+        (fst
+          (z/y'≤x/y≃y₊·z≤y'₊·x
+            1 1 (invℝ₊ z) (fromNat (suc (suc Z))))
+          (subst2 _≤ᵣ_
+            ((sym (invℝ₊-rat (fromNat (suc (suc Z))))
+            ∙ cong (fst ∘ invℝ₊) (ℝ₊≡ refl))
+            ∙ sym (·IdLᵣ _))
+            (cong fst (sym (invℝ₊Invol z)) ∙ sym (·IdLᵣ _))
+            1/Z≤z)))
+
+   opaque
+    unfolding _+ᵣ_
+    diff-continuous : ∀ n →
+      IsContinuousWithPred pred0<
+        (λ u 0<u → diff (u , 0<u) n)
+    diff-continuous n =
+      contDiagNE₂WP
+        sumR pred0<
+        (λ u 0<u → lnSeq (u , 0<u) n)
+        (λ u 0<u → -ᵣ lnSeq' (u , 0<u) n)
+        (lnSeqCont n)
+        (IsContinuousWP∘'
+          pred0<
+          -ᵣ_
+          (λ u 0<u → lnSeq' (u , 0<u) n)
+          IsContinuous-ᵣ
+          (lnSeq'Cont n))
+
+   diff-rational-inverse : ∀ n r 0<r →
+     diff (ℚ₊→ℝ₊ (r , 0<r)) n ≡
+       diff (invℝ₊ (ℚ₊→ℝ₊ (r , 0<r))) n
+   diff-rational-inverse n r 0<r =
+     +ᵣComm _ _
+     ∙ cong₂ _+ᵣ_
+         (lnSeq'[z]≡lnSeq[1/x] n (ℚ₊→ℝ₊ (r , 0<r)))
+         (lnSeq[z]≡lnSeq'[1/x] n (ℚ₊→ℝ₊ (r , 0<r)))
+
+   opaque
+    unfolding maxᵣ
+    diff-rational-max : ∀ n r 0<r →
+      diff (ℚ₊→ℝ₊ (r , 0<r)) n ≡
+        diff
+          (maxᵣ₊
+            (ℚ₊→ℝ₊ (r , 0<r))
+            (ℚ₊→ℝ₊ (invℚ₊ (r , 0<r))))
+          n
+    diff-rational-max n r 0<r =
+      ⊎.rec
+        (λ inverse≤r →
+          cong (flip diff n)
+            (ℝ₊≡
+              {ℚ₊→ℝ₊ (r , 0<r)}
+              {maxᵣ₊
+                (ℚ₊→ℝ₊ (r , 0<r))
+                (ℚ₊→ℝ₊ (invℚ₊ (r , 0<r)))}
+              (sym
+                (maxᵣComm
+                  (fst (ℚ₊→ℝ₊ (r , 0<r)))
+                  (fst (ℚ₊→ℝ₊ (invℚ₊ (r , 0<r))))
+                ∙ ≤ᵣ→≡
+                  (≤ℚ→≤ᵣ
+                    (fst (invℚ₊ (r , 0<r))) r inverse≤r)))))
+        (λ r≤inverse →
+          diff-rational-inverse n r 0<r
+          ∙ cong (flip diff n)
+              (ℝ₊≡
+                (invℝ₊-rat (r , 0<r)
+                ∙ sym
+                    (≤ᵣ→≡
+                      (≤ℚ→≤ᵣ
+                        r (fst (invℚ₊ (r , 0<r))) r≤inverse)))))
+        (ℚ.≤cases (fst (invℚ₊ (r , 0<r))) r)
+
+   diff-max : ∀ n u →
+     diff u n ≡ diff (maxᵣ₊ u (invℝ₊ u)) n
+   diff-max n (u , 0<u) =
+     ≡ContinuousWithPred
+       pred0< pred0<
+       (openPred< 0) (openPred< 0)
+       (λ r 0<r → diff (r , 0<r) n)
+       (λ r 0<r →
+         diff (maxᵣ₊ (r , 0<r) (invℝ₊ (r , 0<r))) n)
+       (diff-continuous n)
+       max-diff-continuous
+       rational-case
+       u 0<u 0<u
+    where
+    max-function : (r : ℝ) → 0 <ᵣ r → ℝ
+    max-function r 0<r =
+      fst (maxᵣ₊ (r , 0<r) (invℝ₊ (r , 0<r)))
+
+    max-positive : ∀ r 0<r → 0 <ᵣ max-function r 0<r
+    max-positive r 0<r =
+      snd (maxᵣ₊ (r , 0<r) (invℝ₊ (r , 0<r)))
+
+    opaque
+     unfolding maxᵣ
+     max-continuous : IsContinuousWithPred pred0< max-function
+     max-continuous =
+       contDiagNE₂WP
+         maxR pred0<
+         (λ r _ → r)
+         (λ r 0<r → fst (invℝ₊ (r , 0<r)))
+         (AsContinuousWithPred pred0< (λ r → r) IsContinuousId)
+         IsContinuousWithPred-invℝ₊
+
+    max-diff-continuous :
+      IsContinuousWithPred pred0<
+        (λ r 0<r →
+          diff (maxᵣ₊ (r , 0<r) (invℝ₊ (r , 0<r))) n)
+    max-diff-continuous =
+      IsContinuousWP∘
+        pred0< pred0<
+        (λ r 0<r → diff (r , 0<r) n)
+        max-function
+        max-positive
+        (diff-continuous n)
+        max-continuous
+
+    rational-case : ∀ r r∈ r∈' →
+      diff (rat r , r∈) n ≡
+        diff (maxᵣ₊ (rat r , r∈') (invℝ₊ (rat r , r∈'))) n
+    rational-case r r∈ r∈' =
+      cong (flip diff n)
+        (ℝ₊≡
+          {(rat r , r∈)}
+          {ℚ₊→ℝ₊ r₊}
+          refl)
+      ∙ diff-rational-max n r 0<r
+      ∙ cong (flip diff n)
+          (cong₂ maxᵣ₊
+            (ℝ₊≡
+              {ℚ₊→ℝ₊ r₊}
+              {(rat r , r∈')}
+              refl)
+            (ℝ₊≡
+              {ℚ₊→ℝ₊ (invℚ₊ r₊)}
+              {invℝ₊ (rat r , r∈')}
+              (sym (invℝ₊-rat r₊)
+              ∙ cong (fst ∘ invℝ₊)
+                  (ℝ₊≡ {ℚ₊→ℝ₊ r₊} {(rat r , r∈')} refl))))
+     where
+     0<r : 0 ℚ.< r
+     0<r = <ᵣ→<ℚ 0 r r∈'
+
+     r₊ : ℚ₊
+     r₊ = r , 0<r
+
   seqΔ : ∀ (ε : ℚ₊) →
      (∀ n → (fst (seqΔ-δ Z ε)) ℕ.< n →
         lnSeq z n -ᵣ lnSeq' z n <ᵣ (rat (fst ε)))
 
   seqΔ ε n a<n =
-      isTrans≡<ᵣ _ _ _ (w' n z)
-        (seqΔ-pos z⊔z⁻¹ Z z⊔z⁻¹≤Z (1≤x-⊔-x⁻¹ z) ε n a<n)
+    isTrans≡<ᵣ
+      (diff z n)
+      (diff z⊔z⁻¹ n)
+      (rat (fst ε))
+      (diff-max n z)
+      (seqΔ-pos
+        z⊔z⁻¹ Z z⊔z⁻¹≤Z (1≤x-⊔-x⁻¹ z) ε n a<n)
 
-   where
-     diff : ℝ₊ → ℕ → ℝ
-     diff z n = lnSeq z n -ᵣ lnSeq' z n
-
-     z⊔z⁻¹ : ℝ₊
-     z⊔z⁻¹ = maxᵣ₊ z (invℝ₊ z)
-
-     z⊔z⁻¹≤Z : fst z⊔z⁻¹ ≤ᵣ fromNat (suc (suc Z))
-     z⊔z⁻¹≤Z = max≤-lem _ _ _ z≤Z
-      (subst2 _≤ᵣ_
-        (·IdR _) (·IdR _)
-        (fst (z/y'≤x/y≃y₊·z≤y'₊·x 1 1 (invℝ₊ z) (fromNat (suc (suc Z))))
-         (subst2 _≤ᵣ_
-        ((sym (invℝ₊-rat (fromNat (suc (suc Z)))) ∙
-         cong (fst ∘ invℝ₊) (ℝ₊≡ refl))
-         ∙ sym (·IdLᵣ _)) (cong fst (sym (invℝ₊Invol z)) ∙ sym (·IdLᵣ _))
-         1/Z≤z)))
-     opaque
-      unfolding _+ᵣ_
-      wC : ∀ n →
-        IsContinuousWithPred pred0<
-          (λ z 0<z → diff (z , 0<z) n)
-      wC n = contDiagNE₂WP sumR pred0<  _ _
-                (lnSeqCont n)
-                (IsContinuousWP∘' pred0< _ _ IsContinuous-ᵣ
-                 (lnSeq'Cont n))
-
-     w-r<1 : ∀ n r 0<r → diff (ℚ₊→ℝ₊ (r , 0<r)) n ≡
-                        diff (invℝ₊ (ℚ₊→ℝ₊ (r , 0<r))) n
-     w-r<1 n r 0<r =
-        +ᵣComm _ _ ∙ cong₂ _+ᵣ_
-          (lnSeq'[z]≡lnSeq[1/x] n (ℚ₊→ℝ₊ (r , 0<r)))
-          (lnSeq[z]≡lnSeq'[1/x] n (ℚ₊→ℝ₊ (r , 0<r)))
-
-
-     opaque
-      unfolding maxᵣ
-      w-r : ∀ n r 0<r → diff (ℚ₊→ℝ₊ (r , 0<r)) n ≡
-                         diff (maxᵣ₊ (ℚ₊→ℝ₊ (r , 0<r)) (ℚ₊→ℝ₊ (invℚ₊ (r , 0<r)))) n
-      w-r n r 0<r = ⊎.rec
-          (λ ≤r → cong (flip diff n)
-                   (ℝ₊≡ {ℚ₊→ℝ₊ (r , 0<r)}
-                        {maxᵣ₊ (ℚ₊→ℝ₊ (r , 0<r)) (ℚ₊→ℝ₊ (invℚ₊ (r , 0<r)))}
-                     ((sym (maxᵣComm (fst ((ℚ₊→ℝ₊ (r , 0<r))))
-                                (fst (ℚ₊→ℝ₊ (invℚ₊ (r , 0<r))))
-                      ∙ ≤ᵣ→≡ (≤ℚ→≤ᵣ _ _ ≤r)))))) -- ≤ℚ→≤ᵣ _ _ ≤r
-
-           (λ r≤ → w-r<1 n r 0<r ∙
-
-            cong (flip diff n) (ℝ₊≡
-             (invℝ₊-rat _ ∙ sym (≤ᵣ→≡  (≤ℚ→≤ᵣ r _  r≤))))
-             )
-          (ℚ.≤cases (fst (invℚ₊ (r , 0<r))) r)
-
-      w' : ∀ n z → diff z n ≡ diff (maxᵣ₊ z (invℝ₊ z)) n
-      w' n (z , 0<z) =
-       ≡ContinuousWithPred
-                  pred0< pred0< (openPred< 0) (openPred< 0) _ _ (wC n)
-                  (IsContinuousWP∘ pred0< pred0< _ _
-                    (λ r x → snd (maxᵣ₊ (r , x) (invℝ₊ (r , x))))  (wC n)
-                    ((contDiagNE₂WP maxR _ _ _
-                    (AsContinuousWithPred _ _ (IsContinuousId))
-                      IsContinuousWithPred-invℝ₊)))
-                  (λ r r∈ r∈' → cong (flip diff n) (ℝ₊≡ refl)
-                       ∙ w-r n r (ℚ<→0< _ (<ᵣ→<ℚ _ _ r∈'))
-                   ∙ cong (flip diff n)
-                    (cong₂ maxᵣ₊
-                      (ℝ₊≡ refl)
-                      (ℝ₊≡ {_} {_ , snd ((invℝ₊ (fst (ℚ₊→ℝ₊
-                       (r , ℚ<→0< r (<ᵣ→<ℚ [ pos 0 / 1 ] r r∈'))) , r∈')))}
-                       (sym (invℝ₊-rat _) ∙ cong (fst ∘ invℝ₊)
-                        (ℝ₊≡ refl) ))) )
-                  z 0<z 0<z
 
   ca-lnSeq : IsCauchySequence' (lnSeq z)
   ca-lnSeq ε =
@@ -199,15 +291,25 @@ module expPreDer (Z : ℕ) where
   preLn≤lnSeq n =
     x<y+δ→x≤y  _ _ λ ε →
           let (m , M) = fromCauchySequence'-lim _ ca-lnSeq ε
+
+              index : ℕ
+              index = ℕ.max (suc m) n
+
+              m<index : m ℕ.< index
+              m<index = ℕ.left-≤-max {suc m} {n}
+
+              n≤index : n ℕ.≤ index
+              n≤index = ℕ.right-≤-max {n} {suc m}
+
               ii = isTrans≤<ᵣ _ _ _ (≤absᵣ _)
                    (isTrans≡<ᵣ _ _ _
                     (minusComm-absᵣ _ _)
-                    (M (ℕ.max (suc m) n) ℕ.left-≤-max))
+                    (M index m<index))
           in isTrans<≤ᵣ _ _ _
                (a-b<c⇒a<c+b _ _ _ ii)
                (isTrans≤≡ᵣ _ _ _
                  (≤ᵣ-o+ _ _ (rat (fst ε))
-                   (lnSeq≤lnSeq z _ _ ℕ.right-≤-max))
+                   (lnSeq≤lnSeq z index n n≤index))
                  (+ᵣComm _ _))
 
   lnSeq'≤preLn : ∀ n →  lnSeq' z n ≤ᵣ preLn
@@ -240,32 +342,86 @@ module expPreDer (Z : ℕ) where
  0=preLn : (1≤ : fst 1 ≤ᵣ fromNat (suc (suc Z)))
            (≤1 : rat [ pos 1 / 2+ Z ] ≤ᵣ 1)
            → 0 ≡ preLn 1 1≤ ≤1
- 0=preLn 1≤ ≤1 = sym (limConstRat 0 λ _ _ → refl∼ _ _)
-  ∙ congLim _ _ _ _ λ q → sym (Rℝ.0LeftAnnihilates' _ _
-     (Rℝ.+InvR' (fst (1 ^ℚ [ 1 / 2+ _ ])) 1 (cong fst (1^ℚ≡1 _))))
+ 0=preLn 1≤ ≤1 = sym
+   (fromCauchySequence'-≡
+      (lnSeq 1)
+      (λ _ → 0)
+      (ca-lnSeq 1 1≤ ≤1)
+      (isCauchySequence'-const 0)
+      lnSeq-one
+    ∙ fromCauchySequence'-const 0 (isCauchySequence'-const 0))
+
+ private
+  opaque
+   inverse-lnSeq-error-path :
+     (z : ℝ₊)
+     (z≤Z : fst z ≤ᵣ fromNat (suc (suc Z)))
+     (1/Z≤z : rat [ 1 / fromNat (suc (suc Z)) ] ≤ᵣ fst z)
+     (n : ℕ)
+     → absᵣ
+         (lnSeq (invℝ₊ z) n -ᵣ -ᵣ preLn z z≤Z 1/Z≤z)
+       ≡ preLn z z≤Z 1/Z≤z -ᵣ lnSeq' z n
+   inverse-lnSeq-error-path z z≤Z 1/Z≤z n =
+     cong
+       (λ x → absᵣ (x -ᵣ -ᵣ preLn z z≤Z 1/Z≤z))
+       (sym (lnSeq'[z]≡lnSeq[1/x] n z))
+     ∙ cong absᵣ
+         (cong
+            ((-ᵣ lnSeq' z n) +ᵣ_)
+            (-ᵣInvol (preLn z z≤Z 1/Z≤z))
+         ∙ +ᵣComm
+             (-ᵣ lnSeq' z n)
+             (preLn z z≤Z 1/Z≤z))
+     ∙ absᵣNonNeg
+         (preLn z z≤Z 1/Z≤z -ᵣ lnSeq' z n)
+         (x≤y→0≤y-x
+           (lnSeq' z n)
+           (preLn z z≤Z 1/Z≤z)
+           (lnSeq'≤preLn z z≤Z 1/Z≤z n))
+
+  opaque
+   inverse-lnSeq-error-bound :
+     (z : ℝ₊)
+     (z≤Z : fst z ≤ᵣ fromNat (suc (suc Z)))
+     (1/Z≤z : rat [ 1 / fromNat (suc (suc Z)) ] ≤ᵣ fst z)
+     (n : ℕ)
+     → absᵣ
+         (lnSeq (invℝ₊ z) n -ᵣ -ᵣ preLn z z≤Z 1/Z≤z)
+       ≤ᵣ lnSeq z n -ᵣ lnSeq' z n
+   inverse-lnSeq-error-bound z z≤Z 1/Z≤z n =
+     isTrans≡≤ᵣ
+       (absᵣ
+         (lnSeq (invℝ₊ z) n -ᵣ -ᵣ preLn z z≤Z 1/Z≤z))
+       (preLn z z≤Z 1/Z≤z -ᵣ lnSeq' z n)
+       (lnSeq z n -ᵣ lnSeq' z n)
+       (inverse-lnSeq-error-path z z≤Z 1/Z≤z n)
+       (≤ᵣ-+o
+         (preLn z z≤Z 1/Z≤z)
+         (lnSeq z n)
+         (-ᵣ lnSeq' z n)
+         (preLn≤lnSeq z z≤Z 1/Z≤z n))
 
  preLn-inv : (z : ℝ₊)
           (z≤Z : fst z ≤ᵣ fromNat (suc (suc Z)))
           (1/Z≤z :  rat [ 1 / fromNat (suc (suc Z)) ] ≤ᵣ fst z)
           (1/z≤Z : fst (invℝ₊ z) ≤ᵣ fromNat (suc (suc Z)))
-          (1/Z≤1/z :  rat [ 1 / fromNat (suc (suc Z)) ] ≤ᵣ fst (invℝ₊ z))
+           (1/Z≤1/z :  rat [ 1 / fromNat (suc (suc Z)) ] ≤ᵣ fst (invℝ₊ z))
            → preLn (invℝ₊ z) 1/z≤Z 1/Z≤1/z ≡ -ᵣ (preLn z z≤Z 1/Z≤z)
  preLn-inv z z≤Z 1/Z≤z 1/z≤Z 1/Z≤1/z =
-   fromCauchySequence'≡ _ _ _
-     λ ε → ∣ (fst (seqΔ-δ Z ε)) ,
-          (λ n <n →
-            isTrans≡<ᵣ _ (preLn z z≤Z 1/Z≤z -ᵣ lnSeq' z n) _
-              (cong (λ xx → absᵣ (xx -ᵣ -ᵣ preLn z z≤Z 1/Z≤z))
-                  (sym (lnSeq'[z]≡lnSeq[1/x] n z))
-                ∙ cong absᵣ
-                    (cong ((-ᵣ lnSeq' z n) +ᵣ_)
-                      (-ᵣInvol (preLn z z≤Z 1/Z≤z))
-                    ∙ +ᵣComm (-ᵣ lnSeq' z n) (preLn z z≤Z 1/Z≤z))
-                ∙ absᵣNonNeg _ (x≤y→0≤y-x _ _ (lnSeq'≤preLn _ _ _ n )))
-              (isTrans≤<ᵣ _ _ _
-                (≤ᵣ-+o (preLn z z≤Z 1/Z≤z) _ (-ᵣ lnSeq' z n)
-                  (preLn≤lnSeq _ _ _ n))
-                (seqΔ z z≤Z 1/Z≤z ε n <n))) ∣₁
+   fromCauchySequence'≡
+     (lnSeq (invℝ₊ z))
+     (ca-lnSeq (invℝ₊ z) 1/z≤Z 1/Z≤1/z)
+     (-ᵣ preLn z z≤Z 1/Z≤z)
+     λ ε →
+       ∣ fst (seqΔ-δ Z ε) ,
+         (λ n threshold<n →
+           isTrans≤<ᵣ
+             (absᵣ
+               (lnSeq (invℝ₊ z) n -ᵣ -ᵣ preLn z z≤Z 1/Z≤z))
+             (lnSeq z n -ᵣ lnSeq' z n)
+             (rat (fst ε))
+             (inverse-lnSeq-error-bound z z≤Z 1/Z≤z n)
+             (seqΔ z z≤Z 1/Z≤z ε n threshold<n)) ∣₁
 
  preLn<0 : (z : ℝ₊)
           (z≤Z : fst z ≤ᵣ fromNat (suc (suc Z)))
@@ -298,9 +454,6 @@ module expPreDer (Z : ℕ) where
     fst (1/x<1≃1<x (invℝ₊ z))
       (isTrans≡<ᵣ _ _ _ (cong fst (invℝ₊Invol z)) z<1)
 
-
-
-
  monotonePreLn : (z z' : ℝ₊)
           (z≤Z : fst z ≤ᵣ fromNat (suc (suc Z)))
           (1/Z≤z :  rat [ 1 / fromNat (suc (suc Z)) ] ≤ᵣ fst z)
@@ -313,8 +466,138 @@ module expPreDer (Z : ℕ) where
    fromCauchySequence'≤ _ _ _ _
      (lnSeqMonInZ z z' z≤z')
 
+ private
+  positiveIntervalWidth :
+    (a b : ℝ₊) → fst a <ᵣ fst b → ℝ₊
+  positiveIntervalWidth a b a<b =
+    (fst b -ᵣ fst a , x<y→0<y-x (fst a) (fst b) a<b)
 
+  opaque
+   lnSeq-difference-shift :
+     (u v : ℝ) → u -ᵣ v ≡ (u -ᵣ 1) -ᵣ (v -ᵣ 1)
+   lnSeq-difference-shift u v = Simpleℝ.solve!
 
+  opaque
+   lnSeq-slope-path : (x y d : ℝ₊) (n : ℕ) →
+     fromNat (suc (suc n)) ·ᵣ
+       ((fst (root (1+ (suc n)) y) -ᵣ
+         fst (root (1+ (suc n)) x)) ／ᵣ₊ d)
+       ≡ (lnSeq y n -ᵣ lnSeq x n) ／ᵣ₊ d
+   lnSeq-slope-path x y d n =
+     ·ᵣAssoc _ _ _
+     ∙ cong (_／ᵣ₊ d)
+         (cong
+            (fromNat (suc (suc n)) ·ᵣ_)
+            (cong₂ _-ᵣ_ (sym (·IdR _)) (sym (·IdR _))
+            ∙ lnSeq-difference-shift
+                (fst (y ^ℚ fst (stepℚ₊ n)))
+                (fst (x ^ℚ fst (stepℚ₊ n))))
+         ∙ ·ᵣComm _ _
+         ∙ Rℝ.·DistL- _ _ _)
+
+  opaque
+   lnSeq-slope-antitone :
+     (a b a' b' : ℝ₊)
+     (a<b : fst a <ᵣ fst b)
+     (a'<b' : fst a' <ᵣ fst b')
+     (a≤a' : fst a ≤ᵣ fst a')
+     (b≤b' : fst b ≤ᵣ fst b')
+     (n : ℕ)
+     → ((lnSeq b' n -ᵣ lnSeq a' n) ／ᵣ₊
+          positiveIntervalWidth a' b' a'<b')
+       ≤ᵣ ((lnSeq b n -ᵣ lnSeq a n) ／ᵣ₊
+          positiveIntervalWidth a b a<b)
+   lnSeq-slope-antitone a b a' b' a<b a'<b' a≤a' b≤b' n =
+     subst2 _≤ᵣ_
+       (lnSeq-slope-path a' b' (positiveIntervalWidth a' b' a'<b') n)
+       (lnSeq-slope-path a b (positiveIntervalWidth a b a<b) n)
+       (≤ᵣ-o·ᵣ
+         ((fst (root (1+ (suc n)) b') -ᵣ
+           fst (root (1+ (suc n)) a')) ／ᵣ₊
+             positiveIntervalWidth a' b' a'<b')
+         ((fst (root (1+ (suc n)) b) -ᵣ
+           fst (root (1+ (suc n)) a)) ／ᵣ₊
+             positiveIntervalWidth a b a<b)
+         (fromNat (suc (suc n)))
+         (≤ℚ→≤ᵣ
+           0 [ pos (suc (suc n)) / 1 ]
+           (ℚ.0≤pos (suc (suc n)) 1))
+         (slope-monotone-ₙ√
+           (suc n) a b a' b' a<b a'<b' a≤a' b≤b'))
+
+  opaque
+   unfolding _+ᵣ_ -ᵣ_
+   preLn-slope-limit-path :
+     (a b : ℝ₊)
+     (a≤Z : fst a ≤ᵣ fromNat (suc (suc Z)))
+     (1/Z≤a : rat [ 1 / fromNat (suc (suc Z)) ] ≤ᵣ fst a)
+     (b≤Z : fst b ≤ᵣ fromNat (suc (suc Z)))
+     (1/Z≤b : rat [ 1 / fromNat (suc (suc Z)) ] ≤ᵣ fst b)
+     (a<b : fst a <ᵣ fst b)
+     (L : ℚ₊)
+     (lip : Lipschitz-ℝ→ℝ L
+       (_·ᵣ fst (invℝ₊ (positiveIntervalWidth a b a<b))))
+     → Σ[ caSlope ∈ IsCauchySequence'
+          (λ n → (lnSeq b n -ᵣ lnSeq a n) ／ᵣ₊
+            positiveIntervalWidth a b a<b) ]
+         fromCauchySequence'
+           (λ n → (lnSeq b n -ᵣ lnSeq a n) ／ᵣ₊
+             positiveIntervalWidth a b a<b)
+           caSlope
+         ≡ (preLn b b≤Z 1/Z≤b -ᵣ preLn a a≤Z 1/Z≤a) ／ᵣ₊
+             positiveIntervalWidth a b a<b
+   preLn-slope-limit-path a b a≤Z 1/Z≤a b≤Z 1/Z≤b a<b L lip =
+     fst slopeMapped ,
+       sym (snd slopeMapped)
+       ∙ cong (_／ᵣ₊ width)
+           (sym (snd differenceMapped)
+           ∙ cong
+               (preLn b b≤Z 1/Z≤b +ᵣ_)
+               (sym (snd negativeMapped)))
+    where
+    width : ℝ₊
+    width = positiveIntervalWidth a b a<b
+
+    negativeMapped :
+      Σ[ caNegative ∈ IsCauchySequence' ((-ᵣ_) ∘ lnSeq a) ]
+        -ᵣ preLn a a≤Z 1/Z≤a
+          ≡ fromCauchySequence' ((-ᵣ_) ∘ lnSeq a) caNegative
+    negativeMapped =
+      map-fromCauchySequence'
+        1 (lnSeq a) (ca-lnSeq a a≤Z 1/Z≤a) -ᵣ_ (snd -ᵣR)
+
+    differenceMapped :
+      Σ[ caDifference ∈ IsCauchySequence'
+          (λ n → lnSeq b n -ᵣ lnSeq a n) ]
+        preLn b b≤Z 1/Z≤b
+          +ᵣ fromCauchySequence'
+              ((-ᵣ_) ∘ lnSeq a)
+              (fst negativeMapped)
+          ≡ fromCauchySequence'
+              (λ n → lnSeq b n -ᵣ lnSeq a n)
+              caDifference
+    differenceMapped =
+      mapNE-fromCauchySequence'
+        sumR
+        (lnSeq b) (ca-lnSeq b b≤Z 1/Z≤b)
+        ((-ᵣ_) ∘ lnSeq a) (fst negativeMapped)
+
+    slopeMapped :
+      Σ[ caSlope ∈ IsCauchySequence'
+          (λ n → (lnSeq b n -ᵣ lnSeq a n) ／ᵣ₊ width) ]
+        (fromCauchySequence'
+          (λ n → lnSeq b n -ᵣ lnSeq a n)
+          (fst differenceMapped) ／ᵣ₊ width)
+          ≡ fromCauchySequence'
+              (λ n → (lnSeq b n -ᵣ lnSeq a n) ／ᵣ₊ width)
+              caSlope
+    slopeMapped =
+      map-fromCauchySequence'
+        L
+        (λ n → lnSeq b n -ᵣ lnSeq a n)
+        (fst differenceMapped)
+        (_·ᵣ fst (invℝ₊ width))
+        lip
 
  opaque
   unfolding -ᵣ_
@@ -331,78 +614,59 @@ module expPreDer (Z : ℕ) where
   slope-monotone-preLn a b a' b'
     a≤Z 1/Z≤a b≤Z 1/Z≤b a'≤Z 1/Z≤a' b'≤Z 1/Z≤b'
       a<b a'<b' a≤a' b≤b' =
-        PT.rec2 (isProp≤ᵣ _ _)
-                          ww
-          (∃Lipschitz-·R (fst (invℝ₊ b'-a')))
-          (∃Lipschitz-·R (fst (invℝ₊ b-a)))
-
-
+        PT.rec2
+          (isProp≤ᵣ _ _)
+          compareLimits
+          (∃Lipschitz-·R (fst (invℝ₊ width')))
+          (∃Lipschitz-·R (fst (invℝ₊ width)))
     where
+    width' : ℝ₊
+    width' = positiveIntervalWidth a' b' a'<b'
 
+    width : ℝ₊
+    width = positiveIntervalWidth a b a<b
 
-     b'-a' : ℝ₊
-     b'-a' = (_ , x<y→0<y-x _ _ a'<b' )
-     b-a : ℝ₊
-     b-a = (_ , x<y→0<y-x _ _ a<b )
-     opaque
-      unfolding _+ᵣ_
-      ww : Σ ℚ₊ (λ L → Lipschitz-ℝ→ℝ L (_·ᵣ fst (invℝ₊ b'-a'))) →
-           Σ ℚ₊ (λ L → Lipschitz-ℝ→ℝ L (_·ᵣ fst (invℝ₊ b-a))) →
-              ((preLn b' b'≤Z 1/Z≤b' -ᵣ preLn a' a'≤Z 1/Z≤a') ／ᵣ₊
-                  (fst b' +ᵣ -ᵣ fst a' , x<y→0<y-x (fst a') (fst b') a'<b'))
-                 ≤ᵣ
-                 ((preLn b b≤Z 1/Z≤b -ᵣ preLn a a≤Z 1/Z≤a) ／ᵣ₊
-                  (fst b +ᵣ -ᵣ fst a , x<y→0<y-x (fst a) (fst b) a<b))
-      ww (_ , lip·') (_ , lip·) = subst2 _≤ᵣ_
-        (sym (snd (map-fromCauchySequence' _ _ _ _ lip·'))
-               ∙ cong (_／ᵣ₊ b'-a')
-                   (sym (snd (mapNE-fromCauchySequence' sumR _ _ _ _))
-                      ∙ cong ((preLn b' b'≤Z 1/Z≤b') +ᵣ_)
-                       (sym (snd (map-fromCauchySequence' _ _ _ _ (snd -ᵣR))))))
-        (sym (snd (map-fromCauchySequence' _ _ _ _ lip·))
-               ∙ cong (_／ᵣ₊ b-a)
-                   (sym (snd (mapNE-fromCauchySequence' sumR _ _ _ _))
-                     ∙ cong ((preLn b b≤Z 1/Z≤b) +ᵣ_)
-                       (sym (snd (map-fromCauchySequence' _ _ _ _ (snd -ᵣR))))))
-            (fromCauchySequence'≤ _ _ _ _ w)
+    compareLimits :
+      Σ[ L' ∈ ℚ₊ ] Lipschitz-ℝ→ℝ L'
+        (_·ᵣ fst (invℝ₊ width'))
+      → Σ[ L ∈ ℚ₊ ] Lipschitz-ℝ→ℝ L
+        (_·ᵣ fst (invℝ₊ width))
+      → ((preLn b' b'≤Z 1/Z≤b' -ᵣ preLn a' a'≤Z 1/Z≤a')
+          ／ᵣ₊ width')
+        ≤ᵣ ((preLn b b≤Z 1/Z≤b -ᵣ preLn a a≤Z 1/Z≤a)
+          ／ᵣ₊ width)
+    compareLimits (L' , lip') (L , lip) =
+      subst2 _≤ᵣ_
+        (snd leftLimit)
+        (snd rightLimit)
+        (fromCauchySequence'≤
+          (λ n → (lnSeq b' n -ᵣ lnSeq a' n) ／ᵣ₊ width')
+          (fst leftLimit)
+          (λ n → (lnSeq b n -ᵣ lnSeq a n) ／ᵣ₊ width)
+          (fst rightLimit)
+          (lnSeq-slope-antitone
+            a b a' b' a<b a'<b' a≤a' b≤b'))
+     where
+     leftLimit :
+       Σ[ caSlope ∈ IsCauchySequence'
+          (λ n → (lnSeq b' n -ᵣ lnSeq a' n) ／ᵣ₊ width') ]
+         fromCauchySequence'
+           (λ n → (lnSeq b' n -ᵣ lnSeq a' n) ／ᵣ₊ width')
+           caSlope
+         ≡ (preLn b' b'≤Z 1/Z≤b' -ᵣ preLn a' a'≤Z 1/Z≤a')
+             ／ᵣ₊ width'
+     leftLimit =
+       preLn-slope-limit-path
+         a' b' a'≤Z 1/Z≤a' b'≤Z 1/Z≤b' a'<b' L' lip'
 
-       where
-
-
-
-       diff-shift-1 : ∀ u v → u -ᵣ v ≡ (u -ᵣ 1) -ᵣ (v -ᵣ 1)
-       diff-shift-1 u v = sym (
-         cong ((u -ᵣ 1) +ᵣ_)
-           (-ᵣDistr v (-ᵣ 1) ∙ cong ((-ᵣ v) +ᵣ_) (-ᵣInvol 1))
-         ∙ sym (+ᵣAssoc u (-ᵣ 1) ((-ᵣ v) +ᵣ 1))
-         ∙ cong (u +ᵣ_)
-             (+ᵣAssoc (-ᵣ 1) (-ᵣ v) 1
-             ∙ cong (_+ᵣ 1) (+ᵣComm (-ᵣ 1) (-ᵣ v))
-             ∙ sym (+ᵣAssoc (-ᵣ v) (-ᵣ 1) 1)
-             ∙ cong ((-ᵣ v) +ᵣ_) (+ᵣComm (-ᵣ 1) 1 ∙ +-ᵣ 1)
-             ∙ +IdR (-ᵣ v)))
-
-       lnSeq-slope-rewrite : ∀ x y d n →
-         (fromNat (suc (suc n)) ·ᵣ
-           ((fst (root (1+ (suc n)) y) -ᵣ fst (root (1+ (suc n)) x)) ／ᵣ₊ d))
-           ≡ ((lnSeq y n -ᵣ lnSeq x n) ／ᵣ₊ d)
-       lnSeq-slope-rewrite x y d n =
-         ·ᵣAssoc _ _ _
-           ∙ cong (_／ᵣ₊ d)
-             ((cong (fromNat (suc (suc n)) ·ᵣ_)
-               (cong₂ _-ᵣ_ (sym (·IdR _)) (sym (·IdR _))
-                ∙ diff-shift-1
-                    (fst (y ^ℚ [ 1 / 2+ n ]))
-                    (fst (x ^ℚ [ 1 / 2+ n ])))
-             ∙ ·ᵣComm _ _
-             ∙ Rℝ.·DistL- _ _ _))
-
-       w : (n : ℕ) →
-                (((lnSeq b' n) -ᵣ (lnSeq a' n)) ／ᵣ₊ b'-a')
-             ≤ᵣ (((lnSeq b n) -ᵣ (lnSeq a n)) ／ᵣ₊ b-a)
-       w n = subst2 _≤ᵣ_
-         (lnSeq-slope-rewrite a' b' b'-a' n)
-         (lnSeq-slope-rewrite a b b-a n)
-         (≤ᵣ-o·ᵣ _ _ _ (≤ℚ→≤ᵣ _ _ (ℚ.0≤pos _ _))
-           (slope-monotone-ₙ√ (suc n) _ _ _ _
-             a<b a'<b' a≤a' b≤b'))
+     rightLimit :
+       Σ[ caSlope ∈ IsCauchySequence'
+          (λ n → (lnSeq b n -ᵣ lnSeq a n) ／ᵣ₊ width) ]
+         fromCauchySequence'
+           (λ n → (lnSeq b n -ᵣ lnSeq a n) ／ᵣ₊ width)
+           caSlope
+         ≡ (preLn b b≤Z 1/Z≤b -ᵣ preLn a a≤Z 1/Z≤a)
+             ／ᵣ₊ width
+     rightLimit =
+       preLn-slope-limit-path
+         a b a≤Z 1/Z≤a b≤Z 1/Z≤b a<b L lip
