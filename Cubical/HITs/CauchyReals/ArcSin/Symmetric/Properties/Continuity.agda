@@ -8,11 +8,11 @@ open import Cubical.Data.NatPlusOne
 open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
 open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (_^ⁿ_)
 
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.OrderBounds
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Inverse
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
 
 open import Cubical.HITs.CauchyReals.ArcSin.Positive.Continuity using
   ( IsContinuousWithPredArcSin )

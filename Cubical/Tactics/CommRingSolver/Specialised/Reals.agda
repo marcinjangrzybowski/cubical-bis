@@ -41,16 +41,16 @@ open import Cubical.Data.NatPlusOne
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 open PositiveRationals
 
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Closeness
-open import Cubical.HITs.CauchyReals.Lipschitz
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Closeness
+open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 
 
 
-open import Cubical.HITs.CauchyReals.LiftingExpr
+open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
 
 
 open import Cubical.Algebra.CommRing

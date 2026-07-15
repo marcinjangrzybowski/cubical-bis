@@ -12,21 +12,22 @@ open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
 
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.RationalsImports using (ℚ₊)
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.OrderBounds
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.Derivative
-open import Cubical.HITs.CauchyReals.Partition using (rtp-1/n)
-open import Cubical.HITs.CauchyReals.Integration
-open import Cubical.HITs.CauchyReals.IntegrationMore
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Rationals using (ℚ₊)
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base
+open import Cubical.HITs.CauchyReals.Calculus.Integration.Partition.Base using (rtp-1/n)
+open import Cubical.HITs.CauchyReals.Calculus.Integration.Base
+open import Cubical.HITs.CauchyReals.Calculus.Integration.Properties
+open import Cubical.HITs.CauchyReals.Calculus.Integration.Uniform
 open IntegrationUC rtp-1/n
-open import Cubical.HITs.CauchyReals.FundamentalTheoremOfCalculus using
+open import Cubical.HITs.CauchyReals.Calculus.Integration.FundamentalTheorem using
   ( Integral-additive* )
-open import Cubical.HITs.CauchyReals.PiNumber
+open import Cubical.HITs.CauchyReals.Trigonometry.Pi
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 

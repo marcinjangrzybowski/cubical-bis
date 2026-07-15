@@ -10,16 +10,16 @@ open import Cubical.Data.Rationals.Order as ℚ
 open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ
 open import Cubical.Data.Rationals.Order.Algebra as ℚ
 
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Closeness
-open import Cubical.HITs.CauchyReals.InverseLipschitz.Base
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Inverse using (<ᵣ-o·ᵣ)
-open import Cubical.HITs.CauchyReals.RationalsImports
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Closeness
+open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Inverse.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Inverse using (<ᵣ-o·ᵣ)
+open import Cubical.HITs.CauchyReals.Foundation.Rationals
 
-open import Cubical.HITs.CauchyReals.Exponentiation.Approximation
+open import Cubical.HITs.CauchyReals.Exponentiation.Approximation.Base
 
 module _ (f : ℚ → ℝ) (B : ℕ → ℚ₊)
   (bl : boundedLipschitz f B) where

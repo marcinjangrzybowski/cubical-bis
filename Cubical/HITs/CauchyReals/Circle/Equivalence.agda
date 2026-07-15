@@ -21,27 +21,27 @@ open import Cubical.Data.Rationals as ℚ using ([_/_])
 open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ hiding (x+x≡2x)
 open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (_^ⁿ_ ; ^ⁿ-even)
 
-open import Cubical.HITs.CauchyReals.RationalsImports using (ℚ₊ ; fromNatℚ₊)
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Closeness using (isSetℝ)
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Power
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.PiNumber
+open import Cubical.HITs.CauchyReals.Foundation.Rationals using (ℚ₊ ; fromNatℚ₊)
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Closeness using (isSetℝ)
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Trigonometry.Pi
 
-open import Cubical.HITs.CauchyReals.TrigBase using
+open import Cubical.HITs.CauchyReals.Trigonometry.Base using
   ( sin
   ; cos
   ; sin·sin+cos·cos=1
   ; cos-even
   ; sin-odd
   )
-open import Cubical.HITs.CauchyReals.TrigonometricIdentities
+open import Cubical.HITs.CauchyReals.Trigonometry.Identities
 
 open import Cubical.HITs.SetQuotients as SQ renaming ([_] to [_]/)
-open import Cubical.HITs.CauchyReals.Circle
+open import Cubical.HITs.CauchyReals.Circle.Core
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 

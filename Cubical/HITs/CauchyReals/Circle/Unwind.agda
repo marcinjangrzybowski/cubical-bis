@@ -40,20 +40,21 @@ open import Cubical.Data.Rationals.Order.Floor as ℚ
 open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (_^ⁿ_ ; ^ⁿ-even)
 
 
-open import Cubical.HITs.CauchyReals.RationalsImports using (ℚ₊ ; fromNatℚ₊)
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Closeness
-open import Cubical.HITs.CauchyReals.Lipschitz
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Power
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.Sequence
-open import Cubical.HITs.CauchyReals.Derivative using (interpℝ)
-open import Cubical.HITs.CauchyReals.Exponentiation.Core using (_₀₊+₀₊ᵣ_)
-open import Cubical.HITs.CauchyReals.PiNumber
-open import Cubical.HITs.CauchyReals.NthRoot using (invℚ₊ ; isEquiv-₊^ⁿ)
+open import Cubical.HITs.CauchyReals.Foundation.Rationals using (ℚ₊ ; fromNatℚ₊)
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Closeness
+open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds using (abs<→ointerval)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
+open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base using (interpℝ)
+open import Cubical.HITs.CauchyReals.Exponentiation.RationalPower.Core using (_₀₊+₀₊ᵣ_)
+open import Cubical.HITs.CauchyReals.Trigonometry.Pi
+open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base using (invℚ₊ ; isEquiv-₊^ⁿ)
 
 open import Cubical.Algebra.Ring.BigOps
 
@@ -61,10 +62,11 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.CommRing.Properties
 open import Cubical.Algebra.CommRing.Base
-open import Cubical.HITs.CauchyReals.Metric
+open import Cubical.HITs.CauchyReals.Analysis.Metric.Base
+open import Cubical.HITs.CauchyReals.Analysis.Metric.PNorm
 import Cubical.Data.FinData as FD
 
-open import Cubical.HITs.CauchyReals.TrigBase using
+open import Cubical.HITs.CauchyReals.Trigonometry.Base using
   ( sin
   ; cos
   ; sin·sin+cos·cos=1
@@ -74,24 +76,23 @@ open import Cubical.HITs.CauchyReals.TrigBase using
   ; cos-even
   ; sin-odd
   )
-open import Cubical.HITs.CauchyReals.TrigonometricIdentities
+open import Cubical.HITs.CauchyReals.Trigonometry.Identities
 open import Cubical.HITs.CauchyReals.ArcSin.Prelim.Basic using
   ( ∣x∣<π/2→0<cos[x] )
 open import Cubical.HITs.CauchyReals.ArcSin.Symmetric.Base using
   ( arcSin⟨⟩
   ; arcSin⟨⟩∈
-  ; abs<→ointerval
   )
 open import Cubical.HITs.CauchyReals.ArcSin.Symmetric.Properties.Inverse using
   ( sin∘arcSin⟨⟩
   ; arcSin⟨⟩∘sin
   )
-open import Cubical.HITs.CauchyReals.LiftingExpr
+open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
 
 open import Cubical.HITs.SetQuotients as SQ renaming ([_] to [_]/)
 open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.Nullary
-open import Cubical.HITs.CauchyReals.Circle
+open import Cubical.HITs.CauchyReals.Circle.Core
 open import Cubical.HITs.CauchyReals.Circle.Equivalence public
 open import Cubical.HITs.CauchyReals.Circle.Group public
 open import Cubical.HITs.CauchyReals.Circle.Chart public

@@ -6,14 +6,14 @@ open import Cubical.Data.Int as ℤ using (pos)
 open import Cubical.Data.NatPlusOne
 open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
 
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.OrderBounds
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.TrigBase
-open import Cubical.HITs.CauchyReals.PiNumber
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Trigonometry.Base
+open import Cubical.HITs.CauchyReals.Trigonometry.Pi
 
 open import Cubical.HITs.CauchyReals.ArcSin.Prelim.Basic
 open import Cubical.HITs.CauchyReals.ArcSin.Prelim.Monotone.Quarter

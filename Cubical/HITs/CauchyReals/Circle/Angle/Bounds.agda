@@ -16,16 +16,16 @@ open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.RationalsImports
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Power
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.Sequence
-open import Cubical.HITs.CauchyReals.Exponentiation.Core using (^ℤ-rat)
-open import Cubical.HITs.CauchyReals.NthRoot
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Rationals
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
+open import Cubical.HITs.CauchyReals.Exponentiation.RationalPower.Core using (^ℤ-rat)
+open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 

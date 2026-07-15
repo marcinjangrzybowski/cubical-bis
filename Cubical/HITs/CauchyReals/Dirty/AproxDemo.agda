@@ -30,14 +30,14 @@ open import Cubical.HITs.PropositionalTruncation.Monad
 open import Cubical.Data.NatPlusOne
 
 
-open import Cubical.HITs.CauchyReals.Base
+open import Cubical.HITs.CauchyReals.Foundation.Base
 
-open import Cubical.HITs.CauchyReals.Closeness
-open import Cubical.HITs.CauchyReals.Lipschitz
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Inverse
+open import Cubical.HITs.CauchyReals.Foundation.Closeness
+open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
 import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.CommRing.Instances.Int.Fast
 open import Cubical.Algebra.CommRing.Properties
@@ -47,9 +47,9 @@ import Cubical.Data.FinData as FD
 
 open import Cubical.HITs.PropositionalTruncation.MagicTrick
 open import Cubical.Foundations.Pointed.Homogeneous
-open import Cubical.HITs.CauchyReals.RationalsImports 
-open import Cubical.HITs.CauchyReals.Sequence 
--- open import Cubical.HITs.CauchyReals.TrigBase
+open import Cubical.HITs.CauchyReals.Foundation.Rationals
+open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
+-- open import Cubical.HITs.CauchyReals.Trigonometry.Base
 
 open ℚ using (_⁻¹₊)
 
@@ -57,8 +57,8 @@ open ℚ using (_⁻¹₊)
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 
-open import Cubical.HITs.CauchyReals.LiftingExpr
-open import Cubical.HITs.CauchyReals.Aproximations
+open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.HITs.CauchyReals.Approximation.Recovery
 
 open import Cubical.Data.Rationals.Bisection
 
@@ -257,4 +257,3 @@ module Aprox-𝓮 where
 
 -- -- -- -- -- -- --   -- 𝑒N : ℝ
 -- -- -- -- -- -- --   -- 𝑒N = {!𝑒!}
-

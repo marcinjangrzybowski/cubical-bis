@@ -77,7 +77,7 @@ root constructions duplicate the checked `Bisection`/`NthRoot` development.
 | anonymous `_` declarations | Decimal/rational evaluator requests. | All check except the explicit `ℕ` hole near the end. |
 | `Aprox-𝓮.eAprox`, `Aprox-𝓮.𝑒Aprox`, `Aprox-𝓮.e-dgts` | Computed and hard-coded approximations of Euler's number. | Checked experiments; one adjacent anonymous goal is a hole. |
 | `c1` | Reduced numerator/denominator inspection for a root approximation. | Commented experiment, apparently complete. |
-| `digits` | Local rational decimal extraction. | Source-complete but superseded by active `Aproximations.digits`. |
+| `digits` | Local rational decimal extraction. | Source-complete but superseded by active `Approximation.Recovery.digits`. |
 | `ℯDigits` | Decimal extraction from the old exponential fraction sequence; local values are `frac`, `num`, `den`, `integerPart`, and `fractionalPart`. | Source-complete evaluator tied to old sequence names. No theorem migration value. |
 | `ttt`, `zzz`, `zzzz`, `sinAprox`, `zz` | Scratch values and evaluator holes. | Incomplete experiments. |
 | two `𝑒N` sketches | Incompatible sketches for an approximation witness and for `𝑒` itself. | Commented holes; discard. |
@@ -96,8 +96,8 @@ alternative exponential construction.
 | live `eAprox` and anonymous results | Evaluations of the conditional extension. | One anonymous rational hole; experimental only. |
 | commented `eAprox'`, `eAprox` and anonymous goals | Alternative nested exponential evaluations. | Incomplete experiments. |
 
-Use `ExponentialSeries.expℝ` for actual mathematics. Porting this file would be a
-redesign of a test, not recovery of a missing theorem.
+Use `Exponentiation.Series.Base.expℝ` for actual mathematics. Porting this file
+would be a redesign of a test, not recovery of a missing theorem.
 
 ### `Dirty/NthRootEvalTest.agda`
 
@@ -129,21 +129,22 @@ TODO notes; they are not disabled APIs.
 The cleanup resolved the previous catalogue as follows:
 
 - Integration scaling is active as `integral'-pre·<` and `integral'-pre·` in
-  `Integration.agda`.
-- Predicate-indexed order extension moved to `ContinuousOrder.agda`.
+  `Calculus/Integration/Base.agda`.
+- Predicate-indexed order extension moved to `Analysis/Continuity/Order.agda`.
 - Rational power order reflection and exponent monotonicity moved to
-  `PowerOrder.agda`.
-- The Cauchy-real universal property moved to `UniversalProperty.agda`.
+  `Algebra/Power/Order.agda`.
+- The Cauchy-real universal property moved to `Foundation/UniversalProperty.agda`.
 - Positive-base real-power continuity, factorization, and strict monotonicity moved to
-  `Exponentiation/RealPowerBaseContinuity.agda`,
-  `Exponentiation/RealPowerLaws.agda`, and
-  `Exponentiation/RealPowerBaseOrder.agda`.
+  `Exponentiation/RealPower/BaseContinuity.agda`,
+  `Exponentiation/RealPower/Laws.agda`, and
+  `Exponentiation/RealPower/BaseOrder.agda`.
 - The nonzero-real group decomposition moved to
-  `Exponentiation/NonzeroRealGroup.agda`.
-- `preLn<0` is active in `Exponentiation/LogSequence.agda`, and the positive
-  unit-fraction bound is active as `∃UnitFractionBelowℝ₊` in `OrderBounds.agda`.
+  `Exponentiation/RealPower/NonzeroRealGroup.agda`.
+- `preLn<0` is active in `Exponentiation/Logarithm/Sequence/Limit.agda`, and
+  the positive unit-fraction bound is active as `∃UnitFractionBelowℝ₊` in
+  `Foundation/Order/Bounds.agda`.
 - Bernoulli's strict rational-power estimate was already checked in
-  `Exponentiation/Convexity.agda`.
+  `Exponentiation/RationalPower/Convexity.agda`.
 - Old sequence, finite-sum, closeness, power, inverse, approximation, partition, and
   logarithm drafts were either replaced by the checked APIs above or removed after
   being shown false, malformed, redundant, or evaluator-only.

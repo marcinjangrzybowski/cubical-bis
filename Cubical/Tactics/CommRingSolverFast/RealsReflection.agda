@@ -36,11 +36,11 @@ open import Cubical.Algebra.CommRing.Instances.Rationals.Fast
 open import Cubical.Data.Rationals.Fast as ℚ
 import Cubical.Data.NatPlusOne as NatPlusOne
 import Cubical.HITs.SetQuotients as SetQuotient
-open import Cubical.HITs.CauchyReals.Base
-import Cubical.HITs.CauchyReals.Multiplication as ℝ
-import Cubical.HITs.CauchyReals.Lipschitz as ℝ
-import Cubical.HITs.CauchyReals.Continuous as ℝ
-import Cubical.HITs.CauchyReals.Order as ℝ
+open import Cubical.HITs.CauchyReals.Foundation.Base
+import Cubical.HITs.CauchyReals.Algebra.Multiplication as ℝ
+import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base as ℝ
+import Cubical.HITs.CauchyReals.Analysis.Continuity.Base as ℝ
+import Cubical.HITs.CauchyReals.Foundation.Order.Base as ℝ
 open import Cubical.Tactics.CommRingSolverFast.RationalsReflection using (doNotUnfoldsℚ)
 
 open import Agda.Builtin.Reflection hiding (Type)

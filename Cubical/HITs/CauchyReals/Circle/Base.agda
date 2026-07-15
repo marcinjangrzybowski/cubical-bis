@@ -20,17 +20,17 @@ open import Cubical.Data.Rationals as ℚ using ([_/_])
 open import Cubical.Data.Rationals.Order as ℚ using (0<_)
 open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (_^ⁿ_)
 
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Closeness
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Power
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.Sequence
-open import Cubical.HITs.CauchyReals.Exponentiation
-open import Cubical.HITs.CauchyReals.NthRoot
-open import Cubical.HITs.CauchyReals.RationalsImports using (ℚ₊ ; <≤ℚ! ; [_/_]₊)
-open import Cubical.HITs.CauchyReals.LiftingExpr
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Closeness
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
+open import Cubical.HITs.CauchyReals.Exponentiation.Base
+open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base
+open import Cubical.HITs.CauchyReals.Foundation.Rationals using (ℚ₊ ; <≤ℚ! ; [_/_]₊)
+open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 

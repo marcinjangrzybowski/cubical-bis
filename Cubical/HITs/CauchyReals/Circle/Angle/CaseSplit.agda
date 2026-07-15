@@ -17,18 +17,18 @@ open import Cubical.Data.Rationals as ℚ using ([_/_])
 open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (_^ⁿ_ ; ^ⁿ-even)
 
 
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Power
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.Sequence using (Dichotomyℝ')
-open import Cubical.HITs.CauchyReals.PiNumber
-open import Cubical.HITs.CauchyReals.Positive
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base using (Dichotomyℝ')
+open import Cubical.HITs.CauchyReals.Trigonometry.Pi
+open import Cubical.HITs.CauchyReals.Foundation.Order.Positive
 
-open import Cubical.HITs.CauchyReals.TrigBase using (sin ; cos)
-open import Cubical.HITs.CauchyReals.TrigonometricIdentities
+open import Cubical.HITs.CauchyReals.Trigonometry.Base using (sin ; cos)
+open import Cubical.HITs.CauchyReals.Trigonometry.Identities
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 open import Cubical.HITs.CauchyReals.Circle.Base public

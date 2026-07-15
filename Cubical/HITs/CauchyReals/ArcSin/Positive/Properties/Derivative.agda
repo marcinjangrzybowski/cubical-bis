@@ -20,24 +20,24 @@ open import Cubical.Data.Rationals as ℚ using (ℚ ; [_/_])
 open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (_^ⁿ_)
 
 
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.RationalsImports using (ℚ₊)
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.OrderBounds
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Power
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.Derivative
-open import Cubical.HITs.CauchyReals.Integration
-open import Cubical.HITs.CauchyReals.FundamentalTheoremOfCalculus using
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Rationals using (ℚ₊)
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base
+open import Cubical.HITs.CauchyReals.Calculus.Integration.Base
+open import Cubical.HITs.CauchyReals.Calculus.Integration.FundamentalTheorem using
   ( FTOC⇒* )
-open import Cubical.HITs.CauchyReals.Exponentiation
-open import Cubical.HITs.CauchyReals.TrigBase
-open import Cubical.HITs.CauchyReals.PiNumber
-open import Cubical.HITs.CauchyReals.NthRoot using (isEquiv-₊^ⁿ)
+open import Cubical.HITs.CauchyReals.Exponentiation.Base
+open import Cubical.HITs.CauchyReals.Trigonometry.Base
+open import Cubical.HITs.CauchyReals.Trigonometry.Pi
+open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base using (isEquiv-₊^ⁿ)
 
-open import Cubical.HITs.CauchyReals.TrigonometricIdentities
+open import Cubical.HITs.CauchyReals.Trigonometry.Identities
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 

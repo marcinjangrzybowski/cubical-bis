@@ -10,122 +10,125 @@ including completeness and migration estimates, see
 
 ## Core real infrastructure
 
-- `Base.agda`
+- `Foundation/Base.agda`
   Defines the Cauchy real HIT `ℝ`, closeness `_∼[_]_`, eliminators and
   recursors for `ℝ`, and basic substitution/transport helpers for closeness.
 
-- `Closeness.agda`
+- `Foundation/Closeness.agda`
   Basic algebra and order-facing lemmas for the closeness relation.
 
-- `Order.agda`
+- `Foundation/Order/Base.agda`
   Order relations on `ℝ`, negation/subtraction, absolute value, positive
   subtypes `ℝ₊` and `ℝ₀₊`, interval predicates, rational decision bridges, and
   `clampᵣ`.
 
-- `OrderBounds.agda`
+- `Foundation/Order/Bounds.agda`
   Reusable min/max and interval-bound lemmas for order proofs, including the
   Archimedean positive unit-fraction bound `∃UnitFractionBelowℝ₊`.
 
-- `RationalsImports.agda`
+- `Foundation/Rationals.agda`
   Project-local rational and positive-rational import facade, including
   numerals and common operations used throughout the Cauchy-real development.
 
-- `LiftingExpr.agda`
+- `Algebra/Expression/Lifting.agda`
   Reflection helpers and solver wrappers for transporting rational/algebraic
   equalities into Cauchy-real goals.
 
-- `Positive.agda`
+- `Foundation/Order/Positive.agda`
   Small positive-real helpers factored out from later developments.
 
-- `UniversalProperty.agda`
+- `Foundation/UniversalProperty.agda`
   Cauchy presentations, their limit map, and the set-valued factorization and
   uniqueness theorem corresponding to HoTT Book Lemma 11.3.11.
 
 ## Continuity, Lipschitz maps, and algebra
 
-- `Lipschitz.agda`
+- `Analysis/Lipschitz/Base.agda`
   Lipschitz and non-expanding function interfaces, extension from rational
   functions, and closeness preservation lemmas.
 
-- `Continuous.agda`
+- `Analysis/Continuity/Base.agda`
   Pointwise and predicate-indexed continuity, composition combinators,
   continuity of clamp, negation, min/max, and the general
   `IsContinuousWithPred-ᵣ` lemma.
 
-- `ContinuousOrder.agda`
+- `Analysis/Continuity/Order.agda`
   Generic closed-lower, open-lower, and closed-interval order comparisons for
   continuous functions, factored out of exponentiation-specific modules.
 
-- `FunctionOrder.agda`
+- `Analysis/Order/Functions.agda`
   Reusable `IsStrictlyIncreasingOn` and `IsNondecreasingOn` predicates.
 
-- `ContinuousApart.agda`
+- `Analysis/Continuity/Apart.agda`
   Extends inequalities proved away from zero across zero by continuity.
 
-- `ContinuousAdditiveAutomorphism.agda`
+- `Analysis/Continuity/AdditiveAutomorphism.agda`
   Scalar additive automorphisms, extraction of the scalar at one, and the
   theorem that every continuous additive automorphism acts by that scalar.
 
-- `EndpointExtension.agda`
+- `Analysis/Continuity/EndpointExtension.agda`
   Uniformly continuous monotone extension from strict half-lines to their
   closed endpoints, in both left- and right-end forms.
 
-- `Pasting.agda`, `Pasting/StrictLower.agda`, and
-  `Pasting/ClosedLower.agda`
+- `Analysis/Pasting/Base.agda`, `Analysis/Pasting/StrictLower.agda`, and
+  `Analysis/Pasting/ClosedLower.agda`
   Function pasting at a closed cut and strict/closed lower-domain variants,
   with checked left/right computation laws. Previous names were `pasting`,
   `pasting<`, and `pasting≤`.
 
-- `Multiplication.agda`
+- `Algebra/Multiplication.agda`
   Construction of multiplication on `ℝ`, commutative-ring structure, powers,
   multiplication continuity, rational homomorphism lemmas, and square algebra.
 
-- `Inverse.agda`
+- `Algebra/Inverse.agda`
   Apartness, inverse on nonzero and positive reals, division operations,
   sign lemmas, and inverse continuity.
 
-- `InverseLipschitz/Base.agda`
+- `Analysis/Lipschitz/Inverse/Base.agda`
   Predicate-indexed inverse-Lipschitz maps and their injectivity theorem.
 
-- `InverseLipschitz.agda`
+- `Analysis/Lipschitz/Inverse.agda`
   Lower-Lipschitz bounds and conversion to inverse-Lipschitz estimates.
 
-- `Power.agda`
+- `Algebra/Power/Base.agda`
   Integer/natural power support over `ℝ`, parity lemmas, absolute-value power
   lemmas, and zero/one power simplifications.
 
-- `PowerOrder.agda`
+- `Algebra/Power/Order.agda`
   Rational natural-power order reflection and strict monotonicity in the
   exponent for bases greater than one.
 
-- `PowerDerivative.agda`
+- `Calculus/Derivative/Power.agda`
   New-style derivative statements for ordinary power functions.
 
-- `InverseDerivative.agda`
+- `Calculus/Derivative/Inverse.agda`
   New-style derivative results for inverse functions and interval-restricted
   inverse derivatives.
 
 ## Sequences, summation, and approximations
 
-- `Sequence.agda`
+- `Analysis/Sequence/Base.agda`
   Real dichotomy helpers, sequence type `Seq`, sequence sums, geometric
   progressions, Cauchy sequence infrastructure, limits, series convergence,
   and finite stitching helpers.
 
-- `Sequence/Limits.agda`
+- `Analysis/Sequence/Limits.agda`
   Smaller limit-oriented sequence facts factored out from the larger sequence
   module.
 
-- `Sequence/AlternatingSeries.agda`
+- `Analysis/Sequence/AlternatingSeries.agda`
   Alternating rational sequences, parity bounds on partial sums, and the
   Cauchy criterion for decreasing magnitudes tending to zero.
 
-- `Summation.agda`
+- `Calculus/Integration/Summation.agda`
   Finite sums over `Fin`, fold/zip algebra, finite-sum inequalities, powers of
   two, and injection helpers for finite indices.
 
-- `Aproximations.agda`
-  Digit/extraction utilities and approximation-facing helpers for evaluating
+- `Approximation.agda`
+  Public approximation facade.
+
+- `Approximation/Recovery.agda`
+  Digit/extraction utilities and recovery-based helpers for evaluating
   concrete Cauchy reals.
 
 ## Metric spaces
@@ -133,98 +136,105 @@ including completeness and migration estimates, see
 - `Metric.agda`
   Public metric facade for the Cauchy-real metric modules.
 
-- `Metric/Base.agda`
+- `Analysis/Metric/Base.agda`
   `IsMetric`, `MetricSpaceStr`, `MetricSpace`, uniform-continuous maps,
   subspace metrics, interval metric spaces, and basic metric combinators.
 
-- `Metric/PNorm.agda`
+- `Analysis/Metric/PNorm.agda`
   Product metrics, p-norm estimates, pair maps, and the `ℝ × ℝ` metric
   structure.
 
-- `Metric/Discrete.agda`
+- `Analysis/Metric/Discrete.agda`
   Discrete metric structure, the trivial one-point metric space, and uniform
   continuity from the trivial metric space.
 
 ## Partitions and integration
 
-- `Partition.agda`
+- `Calculus/Integration/Partition/Base.agda`
   Partitions and tagged partitions with the newer endpoint-oriented design,
   equal partitions, mesh estimates, partition transformations, clamping of
   tagged partitions, Riemann sums, and refinable tagged partitions.
 
-- `TaggedPartitionConcatenation.agda`
+- `Calculus/Integration/Partition/Concatenation.agda`
   Concatenation of partitions/tagged partitions and Riemann-sum algebra for
   splitting integrals across adjacent intervals.
 
 - `Integration.agda`
+  Public facade for the complete integration layer.
+
+- `Calculus/Integration/Base.agda`
   Definitions of `on[_,_]IntegralOf_is_` and `on[_,_]IntegralOf_is'_`,
   uniqueness, substitution, translation, positive input-scaling substitution
   (`integral'-pre·<` and `integral'-pre·`), and preintegration machinery.
 
-- `IntegrationMore.agda`
-  Active legacy integration lemmas still used by checked modules: clamp
-  transport, integral inequalities, linearity, constants, and uniform
-  integration helpers. This still needs a future split; it was not moved to
-  `Dirty/` because active cleaned modules import it.
+- `Calculus/Integration/Properties.agda`
+  Clamp transport, integral inequalities, linearity, constants, and additive
+  interval laws.
 
-- `FundamentalTheoremOfCalculus.agda`
+- `Calculus/Integration/Uniform.agda`
+  Construction and algebra of integrals for uniformly continuous functions.
+
+- `Calculus/Integration/FundamentalTheorem.agda`
   FTOC statements in the new derivative style, additive integral lemmas,
   Cauchy sequences of integrals/derivatives, and endpoint-weak versions using
   non-strict interval assumptions.
 
 ## Derivatives and mean value
 
-- `Derivative.agda`
+- `Calculus/Derivative/Base.agda`
   Bishop-style derivative definitions using two points `x` and `y`, local and
   uniform derivative variants, derivative algebra, continuity consequences,
   and null-derivative lemmas.
 
-- `Derivative/Uniqueness.agda`
+- `Calculus/Derivative/Uniqueness.agda`
   Uniqueness of Bishop-style derivative values and transport across equal
   functions.
 
-- `Derivative/Scaling.agda`
+- `Calculus/Derivative/Scaling.agda`
   Bishop-style derivative rules for scaling the input of a function.
 
-- `MeanValue.agda`
+- `Calculus/Derivative/MeanValue.agda`
   Bishop proposition 7, Rolle's theorem, mean value theorem, endpoint-weak
   mean value theorem, and null-derivative-to-constant results using the new
   derivative definitions.
 
 ## Uniform convergence and uniform continuity
 
-- `Uniform.agda`
+- `Analysis/Uniform.agda`
   Dependency-light uniform-continuity and uniform-convergence infrastructure:
   boundedness on intervals, pointwise extraction, Cauchy function sequences,
   uniformly convergent series, and dichotomy helpers.
 
-- `LipschitzSequence.agda`
+- `Analysis/Sequence/Lipschitz.agda`
   Lipschitz estimates for sequences of functions.
 
 ## Bisection, roots, and exponentiation
 
-- `Bisection.agda`
+- `Approximation/Bisection.agda`
   New Cauchy-real bisection/inverse construction based on rational bisection,
   lower-slope/inverse-Lipschitz hypotheses, and compact-interval inverse
   machinery.
 
-- `NthRoot.agda`
+- `Transcendental/Roots/Base.agda`
   Nth-root construction using the new bisection module, continuity of roots,
   root/power equivalences, and rational root approximation helpers.
 
-- `NthRoot/NonNegative.agda`
+- `Transcendental/Roots/NonNegative.agda`
   Nonnegative nth-root variants and supporting inequalities.
 
 - `Exponentiation.agda`
-  Public exponentiation facade for the split exponentiation modules. It still
-  imports modules with lossy-unification flags; keep this in mind when working
-  on the next cleanup pass.
+  Public facade for the complete exponentiation, real-power, and logarithm
+  stack. Implementations import `Exponentiation/Base.agda` or a narrower leaf.
 
-- `Exponentiation/Core.agda`
+- `Exponentiation/Base.agda`
+  Facade for the rational/integer exponentiation construction and its
+  approximation, convexity, Bernoulli, and derivative layers.
+
+- `Exponentiation/RationalPower/Core.agda`
   Positive integer powers, integer powers, roots, root/power algebra,
   continuity of integer powers, and positive/nonnegative coercions.
 
-- `Exponentiation/Approximation.agda`
+- `Exponentiation/Approximation/Base.agda`
   Approximation machinery for exponentiation and rational approximation over
   bounded intervals.
 
@@ -233,98 +243,117 @@ including completeness and migration estimates, see
   estimates for the corresponding real approximants. This split checks
   without lossy unification.
 
-- `Exponentiation/Convexity.agda`
+- `Exponentiation/RationalPower/Convexity.agda`
   AM-GM, slope monotonicity, and convexity-style inequalities for powers.
 
-- `Exponentiation/Derivative.agda`
+- `Exponentiation/RationalPower/Derivative.agda`
   New-style derivative results for positive powers and integer powers.
 
-- `Exponentiation/LogSequence*.agda`
+- `Exponentiation/Logarithm/Sequence/*.agda`
   Logarithm sequence construction and its elementary, Bernoulli, delta,
   inequality, and square estimates.
 
-- `Exponentiation/RealPowerBase.agda`
+- `Exponentiation/RealPower/Infrastructure.agda`
   Multiplicative group structure for positive/nonzero reals, automorphism
   infrastructure, interval inverse-Lipschitz helpers, and real-power support.
 
-- `Exponentiation/RealPower.agda`
+- `Exponentiation/RealPower/Construction.agda`
   Real-power construction from the logarithm sequence machinery.
 
-- `Exponentiation/RealPowerBaseContinuity.agda`
+- `Exponentiation/RealPower/Definition.agda`
+  Public operations for real powers and logarithms, their continuity, and
+  basic identities.
+
+- `Exponentiation/RealPower.agda`
+  Public real-power facade.
+
+- `Exponentiation/RealPower/BaseContinuity.agda`
   The exp-log representation of real powers and continuity of `x ↦ x ^ y` on
   positive bases.
 
-- `Exponentiation/RealPowerLaws.agda`
+- `Exponentiation/RealPower/Laws.agda`
   Difference factorization for real powers.
 
-- `Exponentiation/RealPowerBaseOrder.agda`
+- `Exponentiation/RealPower/BaseOrder.agda`
   Strict monotonicity of positive-base real power for positive exponents.
 
-- `Exponentiation/NonzeroRealGroup.agda`
+- `Exponentiation/RealPower/NonzeroRealGroup.agda`
   Group isomorphism decomposing nonzero reals into a positive magnitude and a
   Boolean sign.
 
-- `Exponentiation/RealPowerBounds.agda` and
-  `Exponentiation/RealPowerLowerLipschitz.agda`
+- `Exponentiation/RealPower/Bounds.agda` and
+  `Exponentiation/RealPower/LowerLipschitz.agda`
   Compact-interval upper and lower slope estimates, lower-Lipschitz bounds,
   and inverse-Lipschitz consequences for real exponentiation.
 
-- `Exponentiation/RealPowerDerivative.agda` and
-  `Exponentiation/RealPowerDerivativeEverywhere.agda`
+- `Exponentiation/RealPower/Derivative.agda` and
+  `Exponentiation/RealPower/DerivativeEverywhere.agda`
   Bishop-style differentiability of a bounded real-power approximant at zero
   and at every real exponent.
 
-- `Exponentiation/RealPowerCalculusProof.agda` and
-  `Exponentiation/RealPowerCalculus.agda`
+- `Exponentiation/RealPower/CalculusProof.agda` and
+  `Exponentiation/RealPower/Calculus.agda`
   Global Bishop-style derivative of `x ^ y` with respect to `y`, and the
   logarithm power law, replacing the old quotient-slope results.
 
-- `Exponentiation/NormalizedBase.agda`, `NormalizedBaseLaw.agda`, and
-  `NormalizedBaseIndependence.agda`
+- `Exponentiation/RealPower/Composition.agda`
+  Composition of real powers, `(x ^ a) ^ b = x ^ (a · b)`.
+
+- `Exponentiation/Normalized/Base.agda`,
+  `Exponentiation/Normalized/BaseLaw.agda`, and
+  `Exponentiation/Normalized/BaseIndependence.agda`
   Construction and characterization of the normalized exponential base and
   independence from its auxiliary starting base.
 
-- `Exponentiation/NormalizedExponential*.agda`
+- `Exponentiation/Normalized/Exponential.agda` and
+  `Exponentiation/Normalized/Exponential/*.agda`
   Normalized real exponential, logarithm inverse laws, algebraic laws, order
   behavior, and the public normalized-exponential facade.
 
-- `Exponentiation/LogarithmLaws.agda`
+- `Exponentiation/Logarithm.agda`
+  Public logarithm facade.
+
+- `Exponentiation/Logarithm/StrictMonotonicity.agda` and
+  `Exponentiation/Logarithm/Injectivity.agda`
+  Strict order estimates for logarithm and the inverse-Lipschitz proof of
+  injectivity.
+
+- `Exponentiation/Logarithm/Order.agda` and
+  `Exponentiation/Logarithm/Laws.agda`
   Product/additive logarithm laws and global order consequences.
 
-- `Exponentiation/LogarithmDerivativeBounded.agda` and
-  `Exponentiation/LogarithmDerivative.agda`
+- `Exponentiation/Logarithm/DerivativeBounds.agda` and
+  `Exponentiation/Logarithm/Derivative.agda`
   Bounded-interval estimates and the Bishop-style derivative of logarithm.
 
-- `Exponentiation/ExpLogDerivative.agda`, `ExpLog.agda`, and
-  `ExpLogGroup.agda`
+- `Exponentiation/ExpLog/Derivative.agda`, `Exponentiation/ExpLog.agda`, and
+  `Exponentiation/ExpLog/Group.agda`
   Derivative of normalized exponential, public exp/log facade, and the
   additive-to-positive-multiplicative group isomorphism.
 
-- `ExponentiationMore.agda`
-  Remaining checked real-power/logarithm construction, real-power laws,
-  monotonicity, and an opaque inverse-Lipschitz proof. It still carries the
-  pre-existing lossy-unification option. The independent positive-base secant
-  slope theorem, whose rational convexity prerequisite is absent, is catalogued
-  separately.
+- The former `ExponentiationMore.agda` catchall is now split among
+  `RealPower/Definition.agda`, `RealPower/Composition.agda`,
+  `Logarithm/StrictMonotonicity.agda`, and `Logarithm/Injectivity.agda`.
+  None of these modules uses lossy unification.
 
-- `ExponentialSeries.agda`
+- `Exponentiation/Series/Base.agda`
   Exponential series construction, convergence, positivity, and uniform
   continuity of the exponential series.
 
-- `ExponentialSeriesDerivative.agda`
+- `Exponentiation/Series/Derivative.agda`
   New-style derivative support for the exponential series.
 
 ## Trigonometry and pi
 
-- `TrigBase.agda`
+- `Trigonometry/Base.agda`
   Sine and cosine series, convergence, derivative facts in the new derivative
   style, continuity, bounds by exponential series, and Pythagorean identities.
 
-- `TrigonometricIdentities.agda`
+- `Trigonometry/Identities.agda`
   Values at `π/2`, phase-shift identities, periodicity, double-angle
   identities, and supporting rational-injection lemmas.
 
-- `PiNumber.agda`
+- `Trigonometry/Pi.agda`
   Construction and estimates around `π`, sine/cosine boundedness, integrals of
   sine and cosine, ratio-test tools, and trigonometric Lipschitz bounds.
 
@@ -443,18 +472,20 @@ Deleted obsolete modules:
   commented migration reference.
 - `ArcSin/Positive/Properties/Base.agda`: empty re-export wrapper.
 - `ArcSin/Positive/Properties/Extras.agda`: its only general lemma moved to
-  `Continuous.agda`.
+  `Analysis/Continuity/Base.agda`.
 - `CircleMore.agda`: compatibility re-export wrapper after the circle split.
 - `Dirty/Bisect.agda`: superseded by the rational-backed inverse construction
-  and interval isomorphism in `Bisection.agda`.
-- `Dirty/TrigBaseQ.agda`: its completed material was split among `Signs.agda`,
-  `Power.agda`, `Uniform.agda`, `ExponentialSeries*.agda`, `TrigBase.agda`,
-  `FundamentalTheoremOfCalculus.agda`, and `NthRoot/NonNegative.agda`.
+  and interval isomorphism in `Approximation/Bisection.agda`.
+- `Dirty/TrigBaseQ.agda`: its completed material was split among
+  `Algebra/Signs.agda`, `Algebra/Power/Base.agda`, `Analysis/Uniform.agda`,
+  `Exponentiation/Series/*.agda`, `Trigonometry/Base.agda`,
+  `Calculus/Integration/FundamentalTheorem.agda`, and
+  `Transcendental/Roots/NonNegative.agda`.
 - `Dirty/Alternating.agda`: its theorem core moved to
-  `Sequence/AlternatingSeries.agda`; unrelated evaluator experiments were not
+  `Analysis/Sequence/AlternatingSeries.agda`; unrelated evaluator experiments were not
   retained in the analysis hierarchy.
 - `Dirty/PreviouslyInUniform.agda`: endpoint extension moved to
-  `EndpointExtension.agda`; its nth-root and FTOC material was already present
+  `Analysis/Continuity/EndpointExtension.agda`; its nth-root and FTOC material was already present
   in checked modules, leaving no unique definitions.
 - `Dirty/ExpLog.agda`: all valid exp/log and scalar-action results had already
   migrated; its remaining additive-automorphism classification statement was

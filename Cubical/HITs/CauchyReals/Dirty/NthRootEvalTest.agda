@@ -27,20 +27,20 @@ open import Cubical.HITs.SetQuotients as SQ hiding ([_])
 open import Cubical.Data.NatPlusOne
 
 
-open import Cubical.HITs.CauchyReals.Base
+open import Cubical.HITs.CauchyReals.Foundation.Base
 
-open import Cubical.HITs.CauchyReals.Closeness
-open import Cubical.HITs.CauchyReals.Lipschitz
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.Sequence
-open import Cubical.HITs.CauchyReals.Bisection
-open import Cubical.HITs.CauchyReals.RationalsImports
+open import Cubical.HITs.CauchyReals.Foundation.Closeness
+open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
+open import Cubical.HITs.CauchyReals.Approximation.Bisection
+open import Cubical.HITs.CauchyReals.Foundation.Rationals
 open import Cubical.Data.Rationals.Bisection as ℚB
-open import Cubical.HITs.CauchyReals.NthRoot
-open import Cubical.HITs.CauchyReals.Aproximations
+open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base
+open import Cubical.HITs.CauchyReals.Approximation.Recovery
 
 open ℚ using (invℚ)
 
@@ -56,4 +56,3 @@ module _ where
 
   t0' : fst (root 2 (ℚ₊→ℝ₊ 4)) d🪄 2
   t0' = {!t0!}
-

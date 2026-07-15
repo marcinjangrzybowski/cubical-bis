@@ -1,7 +1,10 @@
 module Cubical.HITs.CauchyReals.Exponentiation where
 
-open import Cubical.HITs.CauchyReals.Exponentiation.Approximation public
-open import Cubical.HITs.CauchyReals.Exponentiation.Core public
-open import Cubical.HITs.CauchyReals.Exponentiation.Convexity public
-open import Cubical.HITs.CauchyReals.Exponentiation.Bernoulli public
-open import Cubical.HITs.CauchyReals.Exponentiation.Derivative public
+-- Public facade for the complete exponentiation/logarithm stack.  Internal
+-- modules import Exponentiation.Base or a RealPower/Logarithm leaf instead.
+open import Cubical.HITs.CauchyReals.Exponentiation.Base public
+open import Cubical.HITs.CauchyReals.Exponentiation.RealPower public
+open import Cubical.HITs.CauchyReals.Exponentiation.Logarithm public
+open import Cubical.HITs.CauchyReals.Exponentiation.Normalized.Exponential public
+open import Cubical.HITs.CauchyReals.Exponentiation.ExpLog public
+open import Cubical.HITs.CauchyReals.Exponentiation.Series public

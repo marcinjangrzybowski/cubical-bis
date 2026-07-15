@@ -41,35 +41,36 @@ open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (_^ⁿ_)
 open import Cubical.Data.Rationals.Inverse as ℚ using ()
 
 
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.RationalsImports using (ℚ₊ ; _+₊_ ; _·₊_ ; _/2₊ ; min₊)
-open import Cubical.HITs.CauchyReals.Closeness
-open import Cubical.HITs.CauchyReals.Lipschitz
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.OrderBounds
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Power
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.Sequence
-open import Cubical.HITs.CauchyReals.Derivative
-open import Cubical.HITs.CauchyReals.Partition using (ℚ<→0< ; rtp-1/n ; riemannSum-empty)
-open import Cubical.HITs.CauchyReals.Integration
-open import Cubical.HITs.CauchyReals.IntegrationMore
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Rationals using (ℚ₊ ; _+₊_ ; _·₊_ ; _/2₊ ; min₊)
+open import Cubical.HITs.CauchyReals.Foundation.Closeness
+open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
+open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base
+open import Cubical.HITs.CauchyReals.Calculus.Integration.Partition.Base using (ℚ<→0< ; rtp-1/n ; riemannSum-empty)
+open import Cubical.HITs.CauchyReals.Calculus.Integration.Base
+open import Cubical.HITs.CauchyReals.Calculus.Integration.Properties
+open import Cubical.HITs.CauchyReals.Calculus.Integration.Uniform
 open IntegrationUC rtp-1/n
-open import Cubical.HITs.CauchyReals.MeanValue
-open import Cubical.HITs.CauchyReals.FundamentalTheoremOfCalculus using
+open import Cubical.HITs.CauchyReals.Calculus.Derivative.MeanValue
+open import Cubical.HITs.CauchyReals.Calculus.Integration.FundamentalTheorem using
   ( Integral-additive
   ; FTOC⇒*
   ; FTOC⇐''
   )
-open import Cubical.HITs.CauchyReals.Exponentiation
-open import Cubical.HITs.CauchyReals.ExponentiationMore
-open import Cubical.HITs.CauchyReals.Uniform
-open import Cubical.HITs.CauchyReals.TrigBase
-open import Cubical.HITs.CauchyReals.PiNumber
-open import Cubical.HITs.CauchyReals.NthRoot hiding (invℚ₊ ; _ℚ₊^ⁿ_)
-open import Cubical.HITs.CauchyReals.Summation
+open import Cubical.HITs.CauchyReals.Exponentiation.Base
+open import Cubical.HITs.CauchyReals.Exponentiation.RealPower.Definition
+open import Cubical.HITs.CauchyReals.Analysis.Uniform
+open import Cubical.HITs.CauchyReals.Trigonometry.Base
+open import Cubical.HITs.CauchyReals.Trigonometry.Pi
+open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base hiding (invℚ₊ ; _ℚ₊^ⁿ_)
+open import Cubical.HITs.CauchyReals.Calculus.Integration.Summation
 
 open import Cubical.Algebra.Ring.BigOps
 
@@ -78,8 +79,8 @@ open import Cubical.Algebra.CommRing.Properties
 open import Cubical.Algebra.CommRing.Base
 import Cubical.Data.FinData as FD
 
-open import Cubical.HITs.CauchyReals.TrigonometricIdentities
-open import Cubical.HITs.CauchyReals.LiftingExpr
+open import Cubical.HITs.CauchyReals.Trigonometry.Identities
+open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 

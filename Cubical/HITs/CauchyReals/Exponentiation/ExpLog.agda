@@ -1,6 +1,7 @@
 module Cubical.HITs.CauchyReals.Exponentiation.ExpLog where
 
-open import Cubical.HITs.CauchyReals.Exponentiation.NormalizedExponential public
-open import Cubical.HITs.CauchyReals.Exponentiation.LogarithmLaws public
-open import Cubical.HITs.CauchyReals.Exponentiation.ExpLogDerivative public
-open import Cubical.HITs.CauchyReals.Exponentiation.LogarithmDerivative public
+open import Cubical.HITs.CauchyReals.Exponentiation.Normalized.Exponential public
+open import Cubical.HITs.CauchyReals.Exponentiation.Logarithm.Laws public
+open import Cubical.HITs.CauchyReals.Exponentiation.ExpLog.Derivative public
+open import Cubical.HITs.CauchyReals.Exponentiation.Logarithm.Derivative public
+open import Cubical.HITs.CauchyReals.Exponentiation.ExpLog.Group public

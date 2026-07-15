@@ -19,18 +19,18 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.PropositionalTruncation.Monad
 open import Cubical.HITs.PropositionalTruncation.Properties using (propTruncIdempotent≃)
 
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.RationalsImports using (ℚ₊)
-open import Cubical.HITs.CauchyReals.Closeness using (isSetℝ)
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.OrderBounds
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.Partition using (ℚ<→0<)
-open import Cubical.HITs.CauchyReals.Positive
-open import Cubical.HITs.CauchyReals.TrigBase
-open import Cubical.HITs.CauchyReals.PiNumber
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Rationals using (ℚ₊)
+open import Cubical.HITs.CauchyReals.Foundation.Closeness using (isSetℝ)
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Calculus.Integration.Partition.Base using (ℚ<→0<)
+open import Cubical.HITs.CauchyReals.Foundation.Order.Positive
+open import Cubical.HITs.CauchyReals.Trigonometry.Base
+open import Cubical.HITs.CauchyReals.Trigonometry.Pi
 
 open import Cubical.HITs.CauchyReals.ArcSin.Symmetric.Properties.Rational public
 open import Cubical.HITs.CauchyReals.ArcSin.Symmetric.Properties.Continuity public

@@ -12,17 +12,17 @@ open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (_^ⁿ_)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎
 
-open import Cubical.HITs.CauchyReals.Base
-open import Cubical.HITs.CauchyReals.RationalsImports using (ℚ₊)
-open import Cubical.HITs.CauchyReals.Order
-open import Cubical.HITs.CauchyReals.OrderBounds
-open import Cubical.HITs.CauchyReals.Continuous
-open import Cubical.HITs.CauchyReals.Multiplication
-open import Cubical.HITs.CauchyReals.Inverse
-open import Cubical.HITs.CauchyReals.Positive
-open import Cubical.HITs.CauchyReals.TrigBase
-open import Cubical.HITs.CauchyReals.PiNumber
-open import Cubical.HITs.CauchyReals.TrigonometricIdentities using (sin[π/2]≡1)
+open import Cubical.HITs.CauchyReals.Foundation.Base
+open import Cubical.HITs.CauchyReals.Foundation.Rationals using (ℚ₊)
+open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Foundation.Order.Positive
+open import Cubical.HITs.CauchyReals.Trigonometry.Base
+open import Cubical.HITs.CauchyReals.Trigonometry.Pi
+open import Cubical.HITs.CauchyReals.Trigonometry.Identities using (sin[π/2]≡1)
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
