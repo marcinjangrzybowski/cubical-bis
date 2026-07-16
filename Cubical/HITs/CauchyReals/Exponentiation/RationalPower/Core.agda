@@ -53,6 +53,7 @@ open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Order
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Order.Positive
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Approximation.Bisection
 open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base
@@ -438,13 +439,10 @@ _₀₊+ᵣ_ : ℝ₊ → ℝ₀₊ → ℝ₊
  (isTrans≡<ᵣ _ _ _ (sym (+ᵣ-rat _ _)) $ <≤ᵣMonotone+ᵣ _ _ _ _ 0<x 0≤y)
 
 _₀₊+₀₊ᵣ_ : ℝ₀₊ → ℝ₀₊ → ℝ₀₊
-(x , 0≤x) ₀₊+₀₊ᵣ (y , 0≤y) = x +ᵣ y ,
- (isTrans≡≤ᵣ _ _ _ (sym (+ᵣ-rat _ _)) $ ≤ᵣMonotone+ᵣ _ _ _ _ 0≤x 0≤y)
+_₀₊+₀₊ᵣ_ = NonNegativeReals._+₀₊_
 
 _₀₊·₀₊ᵣ_ : ℝ₀₊ → ℝ₀₊ → ℝ₀₊
-(x , 0≤x) ₀₊·₀₊ᵣ (y , 0≤y) = x ·ᵣ y ,
- (isTrans≡≤ᵣ _ _ _ (rat·ᵣrat 0 0)
-   $ ≤ᵣ₊Monotone·ᵣ _ _ _ _ 0≤x (≤ᵣ-refl 0) 0≤x 0≤y)
+_₀₊·₀₊ᵣ_ = NonNegativeReals._·₀₊_
 
 
 

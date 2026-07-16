@@ -62,6 +62,9 @@ open PositiveHalvesℚ
 open OrderedCommRingTheory ℚOrderedCommRing hiding (_#_)
 open import Cubical.Data.Rationals.Order.AbsoluteValue
 
+maxNeg≡negMin : ∀ x y → max (- x) (- y) ≡ - (min x y)
+maxNeg≡negMin = joinNeg≡negMeet
+
 ≤→<+₊ : ∀ x y (ε : ℚ₊) → x ≤ y → x < y + fst ε
 ≤→<+₊ x y ε x≤y =
   subst (λ z → z < y + fst ε) (+IdR x)

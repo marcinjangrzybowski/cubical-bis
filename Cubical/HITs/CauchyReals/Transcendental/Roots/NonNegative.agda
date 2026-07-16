@@ -48,6 +48,7 @@ open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Order.Positive
 open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base hiding (invℚ₊ ; _ℚ^ⁿ_ ; _ℚ₊^ⁿ_)
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base hiding (invℚ₊)
@@ -106,7 +107,7 @@ nth-rootNonNeg0 n p = sym (fst (fst (snd (nth-rootNonNegDef n))))
    (isProp≤ᵣ 0 0 (≤ᵣ-refl 0) p)
 
 _₀₊^ⁿ_ : ℝ₀₊ → ℕ → ℝ₀₊
-(x , 0≤x) ₀₊^ⁿ n  = (x ^ⁿ n) , 0≤x^ⁿ x n 0≤x
+_₀₊^ⁿ_ = NonNegativeReals._^₀₊_
 
 max-rat₀₊ : (q : ℚ) →
   (maxᵣ 0 (rat q) , ≤maxᵣ 0 (rat q)) ≡
@@ -168,23 +169,24 @@ nth-pow-root-iso₀₊ n .Iso.sec (x , 0≤x) = ww
 
 nth-pow-root-iso₀₊ n .Iso.ret (x , 0≤x) = ww
  where
+ pow₀₊ : ℝ₀₊ → ℝ₀₊
+ pow₀₊ z = z ₀₊^ⁿ (ℕ₊₁→ℕ n)
+
  opaque
   unfolding maxᵣ
   ww : ((nth-rootNonNeg n ((x , 0≤x)  ₀₊^ⁿ (ℕ₊₁→ℕ n)))) ≡ (x , 0≤x)
-  ww = (cong ((nth-rootNonNeg n) ∘
-      (λ (x , 0≤x) → x ^ⁿ (ℕ₊₁→ℕ n) , 0≤x^ⁿ x (ℕ₊₁→ℕ n) 0≤x ))
+  ww = (cong ((nth-rootNonNeg n) ∘ pow₀₊)
         (sym (ℝ₀₊≡ (≤→maxᵣ 0 x 0≤x))) ∙
         ℝ₀₊≡ (≡Continuous
             (λ x →
               (fst (nth-rootNonNeg n
-                ((maxᵣ 0 x) ^ⁿ (ℕ₊₁→ℕ n) , 0≤x^ⁿ (maxᵣ 0 x) (ℕ₊₁→ℕ n) (≤maxᵣ 0 x))
-                 ))
+                (pow₀₊ (maxᵣ 0 x , ≤maxᵣ 0 x))))
                )
             (maxᵣ 0)
             (IsContinuousWithPred∘IsContinuous (pred≥ 0)
              (λ x x∈ → fst (nth-rootNonNeg n (x , x∈)))
-             (λ x → (maxᵣ 0 x) ^ⁿ (ℕ₊₁→ℕ n))
-             (λ x → 0≤x^ⁿ (maxᵣ 0 x) (ℕ₊₁→ℕ n) (≤maxᵣ 0 x))
+             (λ x → fst (pow₀₊ (maxᵣ 0 x , ≤maxᵣ 0 x)))
+             (λ x → snd (pow₀₊ (maxᵣ 0 x , ≤maxᵣ 0 x)))
              (IsUContinuousℙ→pointwiseℙ (pred≥ 0)
                (λ x x∈ → fst (nth-rootNonNeg n (x , x∈)))
                    (snd (snd (nth-rootNonNegDef n))))
@@ -196,27 +198,22 @@ nth-pow-root-iso₀₊ n .Iso.ret (x , 0≤x) = ww
               )
             (IsContinuousMaxL 0)
             (λ q → subst
-              (λ z → fst (nth-rootNonNeg n
-                ((fst z ^ⁿ (ℕ₊₁→ℕ n)) , 0≤x^ⁿ (fst z) (ℕ₊₁→ℕ n) (snd z)))
-                ≡ fst z)
+              (λ z → fst (nth-rootNonNeg n (pow₀₊ z)) ≡ fst z)
               (sym (max-rat₀₊ q))
               (byDichotomyMax 0
               {λ r r∈ →
-                 (fst (nth-rootNonNeg n (rat r ^ⁿ (ℕ₊₁→ℕ n) ,
-                  0≤x^ⁿ (rat r) (ℕ₊₁→ℕ n) r∈)))
-                  ≡ rat r }
+                 fst (nth-rootNonNeg n (pow₀₊ (rat r , r∈))) ≡ rat r }
               w q (≤ℚ→≤ᵣ 0 (ℚ.max 0 q) (ℚ.≤max 0 q))))
             x
         ∙
         (≤→maxᵣ 0 x 0≤x)))
    where
    w : DichotomyRec {ℓ = ℓ-zero} 0 λ m ≤m →
-         fst (nth-rootNonNeg n
-           ((rat m ^ⁿ ℕ₊₁→ℕ n) , 0≤x^ⁿ (rat m) (ℕ₊₁→ℕ n) ≤m)) ≡ rat m
+         fst (nth-rootNonNeg n (pow₀₊ (rat m , ≤m))) ≡ rat m
    w .DichotomyRec.eq-case =
        cong (fst ∘ nth-rootNonNeg n)
          (ℝ₀₊≡
-          {x = (0 ^ⁿ (ℕ₊₁→ℕ n) , 0≤x^ⁿ 0 (ℕ₊₁→ℕ n) (≤ᵣ-refl 0))}
+          {x = pow₀₊ (0 , ≤ᵣ-refl 0)}
           {y = (0 , ≤ᵣ-refl 0)}
           (0^ⁿ (n .ℕ₊₁.n)))
      ∙ fst (fst (snd (nth-rootNonNegDef n)))
@@ -224,11 +221,9 @@ nth-pow-root-iso₀₊ n .Iso.ret (x , 0≤x) = ww
      let mⁿ = rat m ^ⁿ (ℕ₊₁→ℕ n)
          0<mⁿ : 0 <ᵣ mⁿ
          0<mⁿ = 0<x^ⁿ (rat m) (ℕ₊₁→ℕ n) m>0
-         0≤mⁿ : 0 ≤ᵣ mⁿ
-         0≤mⁿ = 0≤x^ⁿ (rat m) (ℕ₊₁→ℕ n) (<ᵣWeaken≤ᵣ 0 (rat m) m>0)
      in (cong (fst ∘ nth-rootNonNeg n)
        (ℝ₀₊≡
-        {x = (mⁿ , 0≤mⁿ)}
+        {x = pow₀₊ (rat m , <ᵣWeaken≤ᵣ 0 (rat m) m>0)}
         {y = (mⁿ , <ᵣWeaken≤ᵣ 0 mⁿ 0<mⁿ)}
         refl)
     ∙ (snd (fst (snd (nth-rootNonNegDef n))) (mⁿ , 0<mⁿ)))

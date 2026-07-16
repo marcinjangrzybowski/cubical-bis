@@ -107,11 +107,7 @@ Invᵣ-restr η = (fromLipschitzGo ((η ·₊ η) ⁻¹₊))
 
 
 ℚmax-min-minus : ∀ x y → ℚ.max (ℚ.- x) (ℚ.- y) ≡ ℚ.- (ℚ.min x y)
-ℚmax-min-minus = ℚ.elimBy≤
- (λ x y p → ℚ.maxComm (ℚ.- y) (ℚ.- x) ∙∙ p ∙∙ cong ℚ.-_ (ℚ.minComm x y))
-  λ x y x≤y →
-    ℚ.maxComm (ℚ.- x) (ℚ.- y) ∙∙ ℚ.≤→max (ℚ.- y) (ℚ.- x) (ℚ.minus-≤ x y x≤y)
-      ∙∙ cong ℚ.-_ (sym (ℚ.≤→min _ _ x≤y))
+ℚmax-min-minus = ℚ.maxNeg≡negMin
 
 
 

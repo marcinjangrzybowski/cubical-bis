@@ -52,11 +52,11 @@ cleanup.
 
 ## Current next slice
 
-Finish the rational-helper portion of Phase 2. Replace
-`Continuity.Base.ℚabs-abs≤abs-` with a generic ordered-commutative-ring reverse
-triangle inequality, and move `m·n/m` plus `Inverse.ℚmax-min-minus` to the
-appropriate rational modules. Retain compatibility aliases and check their
-direct consumers before the layered facades.
+Continue the operation portion of Phase 3 by migrating internal consumers of
+`_₀₊+₀₊ᵣ_`, `_₀₊·₀₊ᵣ_`, and `_₀₊^ⁿ_` to `NonNegativeReals`. Start with the
+Circle modules that import a compatibility operator only, then migrate
+`Analysis.Metric.PNorm` without changing its public statements. Keep the old
+operators available through the layered facades.
 
 ## Phase 1: ordered algebra structure
 
@@ -121,8 +121,9 @@ local implementations verbatim.
 - [x] Generalize the duplicated rational/real `^ⁿ-even` and `^ⁿ-odd` laws in
   `CommRing.Properties.Exponentiation`.
 - [x] Generalize or deduplicate `-1ⁿ`, `-1ⁿ·`, and their absolute-value laws.
-- Move rational arithmetic helpers such as `ℚmax-min-minus`, `m·n/m`, and
-  `ℚabs-abs≤abs-` to the rational modules when no generic result exists.
+- [x] Move rational arithmetic helpers such as `ℚmax-min-minus`, `m·n/m`, and
+      `ℚabs-abs≤abs-` to generic ordered-ring or rational modules, retaining
+      the Cauchy-real names as compatibility aliases.
 
 ### Dead or empty modules
 
@@ -142,14 +143,19 @@ After `ℝOrderedCommRing` exists:
 - [x] Expose the generic positive and nonnegative subtypes for `ℝ`.
 - [x] Verify that the existing `ℝ₊` and `ℝ₀₊` are definitionally equal to the
       generic subtypes, allowing compatibility names to be preserved.
-- [ ] Replace `_₊+ᵣ_`, `_₊·ᵣ_`, `_₊^ⁿ_`, and nonnegative operations with the
-      generic structures.
+- [ ] Replace `_₊+ᵣ_`, `_₊·ᵣ_`, and `_₊^ⁿ_` with the generic positive-real
+      operations after untangling their current dependency on `Inverse`.
+- [x] Replace the nonnegative addition and multiplication implementations in
+      `RationalPower.Core` and the nonnegative power implementation in
+      `Roots.NonNegative` with `NonNegativeReals` operations.
+- [ ] Migrate internal consumers to the canonical nonnegative operations while
+      retaining the existing operator spellings at compatibility boundaries.
 - [ ] Keep inverse/division on positive reals in a field/inverse-specific
       module until an appropriate generic ordered-field abstraction exists.
 
 ## Phase 4: generic ordered-ring theory
 
-Status: pending.
+Status: in progress.
 
 ### Arithmetic and absolute values
 
@@ -161,9 +167,14 @@ Move or replace the following families with `OrderedCommRing.Properties`:
 - square nonnegativity and square/absolute-value identities;
 - triangle and reverse-triangle inequalities;
 - cancellation equivalences such as `x + y ≤ z + y ≃ x ≤ z`.
+- [x] Add the generic reverse-triangle inequality and the negation De Morgan
+      law for joins and meets; expose the rational `max`/`min` spelling from
+      rational order algebra.
 
 ### Powers
 
+- [x] Add generic positive/nonnegative power preservation and power operations
+      on the corresponding ordered-ring subtypes.
 - Put purely commutative-ring power laws in `CommRing.Properties`.
 - Put power positivity and monotonicity on nonnegative elements in ordered-ring
   power theory.
@@ -297,3 +308,16 @@ cleanup.
 - 2026-07-16: added generic alternating-sign iteration, ring-homomorphism
   preservation, and ordered-ring absolute-value laws; rational and Cauchy-real
   sign APIs now use aliases or thin rational-embedding adapters.
+- 2026-07-16: committed the endpoint-elimination and alternating-sign batch as
+  `3e1689f53`.
+- 2026-07-16: added generic `abs-abs≤abs-` and `joinNeg≡negMeet`; exposed the
+  rational `maxNeg≡negMin` spelling, generalized denominator cancellation as
+  `[c/1]·[n/c]≡[n/1]`, retained the three Cauchy-real compatibility names, and
+  migrated the real-power consumer to the rational API.
+- 2026-07-16: added generic positive/nonnegative power preservation and
+  subtype powers; changed the nonnegative real addition, multiplication, and
+  power operators to compatibility aliases, and removed a proof-relevant
+  unfolding of nonnegative power from the root/power equivalence proof.
+- 2026-07-16: checked every changed Agda module plus the `Algebra`,
+  `Exponentiation`, `NthRoot`, and `Calculus` facades with no holes, metas,
+  constraints, or warnings.

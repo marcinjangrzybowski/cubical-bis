@@ -546,6 +546,13 @@ _//_.squash/ x x₁ p q i i₁ · z =
 [1/n]·[1/m]≡[1/n·m] : ∀ n m → [ 1 / n ] · [ 1 / m ] ≡ [ 1 / n ·₊₁ m ]
 [1/n]·[1/m]≡[1/n·m] n m = eq/ _ _ refl
 
+[c/1]·[n/c]≡[n/1] : ∀ c n →
+  [ ℕ₊₁→ℤ c / 1 ] · [ pos n / c ] ≡ [ pos n / 1 ]
+[c/1]·[n/c]≡[n/1] c n =
+  eq/ _ _
+    ((λ i → ℤ.·IdR (ℤ.·Comm (ℕ₊₁→ℤ c) (pos n) i) i)
+    ∙ cong ((pos n ℤ.·_) ∘ ℕ₊₁→ℤ) (sym (·₊₁-identityˡ c)))
+
 
 [n/n]≡[m/m] : ∀ n m → [ ℤ.pos (suc n) / 1+ n ] ≡ [ ℤ.pos (suc m) / 1+ m ]
 [n/n]≡[m/m] n m = eq/ _ _ ℤ!

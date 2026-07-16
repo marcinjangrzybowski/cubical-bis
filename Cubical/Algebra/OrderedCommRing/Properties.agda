@@ -149,6 +149,20 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
     ·MonoL≤ x y z 0≤z x≤y = begin≤
       z · x ≡→≤⟨ ·Comm z x ⟩ x · z ≤⟨ ·MonoR≤ x y z 0≤z x≤y ⟩ y · z ≡→≤⟨ ·Comm y z ⟩ z · y ◾
 
+    powPositive : ∀ x n → 0r < x → 0r < x ^ n
+    powPositive x zero    0<x = 0<1
+    powPositive x (suc n) 0<x = begin<
+      0r              ≡→≤⟨ sym (0LeftAnnihilates (x ^ n)) ⟩
+      0r · (x ^ n)      <⟨ ·MonoR< 0r x (x ^ n) (powPositive x n 0<x) 0<x ⟩
+      x · (x ^ n)       ◾
+
+    powNonnegative : ∀ x n → 0r ≤ x → 0r ≤ x ^ n
+    powNonnegative x zero    0≤x = 0≤1
+    powNonnegative x (suc n) 0≤x = begin≤
+      0r              ≡→≤⟨ sym (0LeftAnnihilates (x ^ n)) ⟩
+      0r · (x ^ n)      ≤⟨ ·MonoR≤ 0r x (x ^ n) (powNonnegative x n 0≤x) 0≤x ⟩
+      x · (x ^ n)       ◾
+
     ·CancelL≤ : ∀ x y z → 0r < z → z · x ≤ z · y → x ≤ y
     ·CancelL≤ x y z 0<z zx≤zy = ¬<→≥ y x $ ≤→¬> _ _ zx≤zy ∘ ·MonoL< _ _ z 0<z
 
@@ -228,6 +242,22 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
       x + (- x - y)   ≤⟨ +MonoR≤ x y (- x - y) x≤y ⟩
       y + (- x - y) ≡→≤⟨ solve! RCR ⟩
       - x             ◾
+
+    joinNeg≡negMeet : ∀ x y → (- x) ⊔ (- y) ≡ - (x ⊓ y)
+    joinNeg≡negMeet x y = is-antisym _ _
+      (⊔LUB (-Flip≤ (x ⊓ y) x ⊓≤L) (-Flip≤ (x ⊓ y) y ⊓≤R))
+      (begin≤
+        - (x ⊓ y)                 ≤⟨ -Flip≤ _ _ (⊓GLB
+          (begin≤
+            - ((- x) ⊔ (- y))     ≤⟨ -Flip≤ _ _ L≤⊔ ⟩
+            - (- x)             ≡→≤⟨ solve! RCR ⟩
+            x                     ◾)
+          (begin≤
+            - ((- x) ⊔ (- y))     ≤⟨ -Flip≤ _ _ R≤⊔ ⟩
+            - (- y)             ≡→≤⟨ solve! RCR ⟩
+            y                     ◾)) ⟩
+        - (- ((- x) ⊔ (- y)))   ≡→≤⟨ solve! RCR ⟩
+        (- x) ⊔ (- y)             ◾)
 
     0<→-<0 : ∀ x → 0r < x → - x < 0r
     0<→-<0 x = subst (- x <_) (solve! RCR) ∘ -Flip< 0r x
@@ -384,6 +414,13 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
         - (x + y)    ≡→≤⟨ solve! RCR ⟩
         (- x) - y      ≤⟨ +Mono≤ _ _ _ _ (-≤abs x) (-≤abs y) ⟩
         abs x + abs y ◾)
+
+    abs-abs≤abs- : ∀ x y → abs x - abs y ≤ abs (x - y)
+    abs-abs≤abs- x y =
+      subst2 _≤_
+        (cong (λ z → abs z - abs y) (solve! RCR))
+        (solve! RCR)
+        (+MonoR≤ _ _ (- abs y) (triangularInequality (x - y) y))
 
     triangularInequality- : ∀ x y z → abs (x - y) ≤ abs (x - z) + abs (z - y)
     triangularInequality- x y z = begin≤
@@ -766,6 +803,11 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
     open CommMonoidStr (snd R₊MultiplicativeCommMonoid) public hiding (_·_) renaming (
       ε to 1₊ ; ·Assoc to ·₊Assoc ; ·IdR to ·₊IdR ; ·Comm to ·₊Comm)
 
+    infix 9 _^₊_
+    _^₊_ : R₊ → ℕ → R₊
+    (x ^₊ n) .fst = ⟨ x ⟩₊ ^ n
+    (x ^₊ n) .snd = powPositive ⟨ x ⟩₊ n (snd x)
+
     selfSeparated : ∀ (x y : R) → (∀ (z : R₊) → abs(x - y) < ⟨ z ⟩₊) → x ≡ y
     selfSeparated x y ∀[•]∣x-y∣<• =
       let
@@ -852,6 +894,11 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
       ; ·Assoc to ·₀₊Assoc ; ·IdL to ·₀₊IdL ; ·IdR to ·₀₊IdR ; ·Comm to ·₀₊Comm
       ; ·DistL+ to ·₀₊DistL+₀₊ ; ·DistR+ to ·₀₊DistR+₀₊
       ; AnnihilL to AnnihilL₀₊ ; AnnihilR to AnnihilR₀₊)
+
+    infix 9 _^₀₊_
+    _^₀₊_ : R₀₊ → ℕ → R₀₊
+    (x ^₀₊ n) .fst = ⟨ x ⟩₀₊ ^ n
+    (x ^₀₊ n) .snd = powNonnegative ⟨ x ⟩₀₊ n (snd x)
 
     _⊔₀₊_ : R₀₊ → R₀₊ → R₀₊
     (x ⊔₀₊ y) .fst = ⟨ x ⟩₀₊ ⊔ ⟨ y ⟩₀₊

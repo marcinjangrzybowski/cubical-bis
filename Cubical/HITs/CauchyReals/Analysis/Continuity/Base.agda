@@ -158,9 +158,7 @@ opaque
 
 
 m·n/m : ∀ m n → [ pos (suc m) / 1 ] ℚ.· [ pos n / 1+ m ] ≡ [ pos n / 1 ]
-m·n/m m n =
-  eq/ _ _ ((λ i → ℤ.·IdR (ℤ.·Comm (pos (suc m)) (pos n) i) i)
-       ∙ cong ((pos n ℤ.·_) ∘ ℤ.ℕ₊₁→ℤ) (sym (·₊₁-identityˡ (1+ m))))
+m·n/m m n = ℚ.[c/1]·[n/c]≡[n/1] (1+ m) n
 
 
 
@@ -186,13 +184,7 @@ abs'q≤Δ₁' q n n< = (ℚ.isTrans≤ (ℚ.abs' q) (fromNat (suc n)) _
 
 
 ℚabs-abs≤abs- : (x y : ℚ) → (abs x ℚ.- abs y) ℚ.≤ abs (x ℚ.- y)
-ℚabs-abs≤abs- x y =
- subst2 ℚ._≤_
-  (cong {x = ((x ℚ.- y) ℚ.+ y)} {y = x} ((ℚ._+ (ℚ.- (abs y))) ∘ abs) ℚ!! )
-   ℚ!!
-  (ℚ.≤-+o
-   (abs ((x ℚ.- y) ℚ.+ y))
-   (abs (x ℚ.- y) ℚ.+ abs y) (ℚ.- (abs y)) (triangularInequality (x ℚ.- y) y))
+ℚabs-abs≤abs- = abs-abs≤abs-
 
 opaque
  unfolding absᵣ _<ᵣ_

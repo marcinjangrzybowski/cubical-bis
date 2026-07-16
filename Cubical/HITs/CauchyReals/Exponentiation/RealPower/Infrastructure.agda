@@ -247,7 +247,7 @@ module +GrAutomorphism (A : ⟨ (Aut[ +Groupℝ ]) ⟩) where
        (w'' x m)) ∙
         cong (rat [ pos 1 / 1+ n ] ·ᵣ_)
           (cong fun (cong (_·ᵣ x)
-           (cong rat (sym (m·n/m n m))
+           (cong rat (sym (ℚ.[c/1]·[n/c]≡[n/1] (1+ n) m))
              ∙ rat·ᵣrat
                  [ pos (suc n) / 1 ]
                  [ ℤ.pos m / 1+ n ])
