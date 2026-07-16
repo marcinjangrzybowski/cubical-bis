@@ -411,43 +411,28 @@ fromNat-^ m (suc n) =
    ℕ·→ℚ· m (m ℕ.^ n)
 
 -1ⁿ : ℕ → ℚ
--1ⁿ zero = 1
--1ⁿ (suc zero) = -1
--1ⁿ (suc (suc x)) = -1ⁿ x
+-1ⁿ = ℚR.alternatingSign
 
 abs[-1ⁿ]≡1 : ∀ n → abs (-1ⁿ n) ≡ 1
-abs[-1ⁿ]≡1 zero = refl
-abs[-1ⁿ]≡1 (suc zero) = refl
-abs[-1ⁿ]≡1 (suc (suc n)) = abs[-1ⁿ]≡1 n
+abs[-1ⁿ]≡1 = abs-alternatingSign
 
 -1ⁿ· : ℕ → ℚ → ℚ
--1ⁿ· zero x = x
--1ⁿ· (suc zero) = -_
--1ⁿ· (suc (suc n)) = -1ⁿ· n
+-1ⁿ· = ℚR.alternate
 
 -1ⁿ·-suc : ∀ n x → -1ⁿ· (suc n) x ≡ - (-1ⁿ· n x)
--1ⁿ·-suc zero x = refl
--1ⁿ·-suc (suc zero) x = sym (-Invol x)
--1ⁿ·-suc (suc (suc n)) x = -1ⁿ·-suc n x
+-1ⁿ·-suc = ℚR.alternate-suc
 
 -1ⁿ·-·2 : ∀ n x → -1ⁿ· (n ℕ.· 2) x ≡ x
--1ⁿ·-·2 zero x = refl
--1ⁿ·-·2 (suc n) x = -1ⁿ·-·2 n x
+-1ⁿ·-·2 = ℚR.alternate-even
 
 -1ⁿ-suc : ∀ n →  (-1ⁿ (suc n)) ≡ - ((-1ⁿ n))
--1ⁿ-suc zero = refl
--1ⁿ-suc (suc zero) = refl
--1ⁿ-suc (suc (suc n)) = -1ⁿ-suc n
+-1ⁿ-suc = ℚR.alternatingSign-suc
 
 -1ⁿ·≡· : ∀ n x → -1ⁿ· n x ≡  (-1ⁿ n) · x
--1ⁿ·≡· zero x = sym (ℚR.·IdL _)
--1ⁿ·≡· (suc zero) x = refl
--1ⁿ·≡· (suc (suc n)) x = -1ⁿ·≡· n x
+-1ⁿ·≡· = ℚR.alternate≡alternatingSign·
 
 absᵣ∘-1ⁿ· : ∀ n x → abs (-1ⁿ· n x) ≡ abs x
-absᵣ∘-1ⁿ· zero x = refl
-absᵣ∘-1ⁿ· (suc zero) x = abs- x
-absᵣ∘-1ⁿ· (suc (suc n)) x = absᵣ∘-1ⁿ· n x
+absᵣ∘-1ⁿ· = abs-alternate
 
 
 ^ⁿ-odd : ∀ n x → - (x ^ⁿ suc (n ℕ.· 2)) ≡ ((- x) ^ⁿ suc (n ℕ.· 2))

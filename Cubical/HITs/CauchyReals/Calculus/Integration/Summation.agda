@@ -21,7 +21,9 @@ open import Cubical.Data.Int as ℤ using (pos)
 import Cubical.Data.Int.Order as ℤ
 open import Cubical.Data.Sigma
 open import Cubical.Data.Fin
+  hiding (ElimFinSS; go-tail-finj; go-tail-flast)
 import Cubical.Data.Fin.Properties as FinP
+open FinP public using (ElimFinSS; go-tail-finj; go-tail-flast)
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
@@ -646,45 +648,3 @@ lemFin[2+n-k] : ∀ n (k : Fin (2 ℕ.+ n)) → fst k ≡ (suc (suc n) ∸ (suc 
 lemFin[2+n-k] n k =
   bounded∸-reflect (fst k) (suc (suc n))
     (ℕ.<-weaken (ℕ.<ᵗ→< (snd k)))
- 
-
-module _ (A : Type) where
-
-
- record ElimFinSS  (n : ℕ) : Type where
-  no-eta-equality
-  field
-   a₀ : A
-   f : Fin n → A
-   aₙ : A
-
-
-  pre-go : (k : Fin (2 ℕ.+ n)) → ∀ N-k → (fst k) ≡ᵗ (n ∸ suc N-k)  → A
-  pre-go  (zero , _) _ _ = a₀
-  pre-go  (suc fst₁ , _) zero _ = aₙ
-  pre-go  (suc k , 0<k) (suc x₁) z =
-    f (k , ℕ.<→<ᵗ
-      (subst (λ u → u ℕ.≤ n) (sym (ℕ.≡ᵇ→≡ z))
-        (ℕ.∸-≤ n (suc (suc x₁)))))
-
-  go-tail : ∀ n → (Fin n → A) → A → Fin (suc n) → A
-  go-tail zero f a (zero , _) = a
-  go-tail zero f a (suc k , ())
-  go-tail (suc n) f a (zero , _) = f fzero
-  go-tail (suc n) f a (suc k , p) = go-tail n (f ∘ fsuc) a (k , p)
-
-  go : Fin (2 ℕ.+ n) → A
-  go (zero , _) = a₀
-  go (suc k , p) = go-tail n f aₙ (k , p)
-
-go-tail-finj : ∀ {A n₀} (R : ElimFinSS A n₀) n (f : Fin n → A) a (j : Fin n) →
-  ElimFinSS.go-tail R n f a (finj j) ≡ f j
-go-tail-finj R zero f a ()
-go-tail-finj R (suc n) f a (zero , _) = refl
-go-tail-finj R (suc n) f a (suc k , p) =
-  go-tail-finj R n (f ∘ fsuc) a (k , p)
-
-go-tail-flast : ∀ {A n₀} (R : ElimFinSS A n₀) n (f : Fin n → A) a →
-  ElimFinSS.go-tail R n f a (flast {k = n}) ≡ a
-go-tail-flast R zero f a = refl
-go-tail-flast R (suc n) f a = go-tail-flast R n (f ∘ fsuc) a

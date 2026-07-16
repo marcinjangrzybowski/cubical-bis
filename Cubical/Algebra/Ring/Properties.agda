@@ -147,6 +147,33 @@ module RingTheory (R' : Ring ℓ) where
           x + (- x)                 ≡⟨ +InvR _ ⟩
           0r ∎)
 
+  alternate : ℕ.ℕ → R → R
+  alternate ℕ.zero x = x
+  alternate (ℕ.suc ℕ.zero) x = - x
+  alternate (ℕ.suc (ℕ.suc n)) x = alternate n x
+
+  alternate-suc : ∀ n x → alternate (ℕ.suc n) x ≡ - alternate n x
+  alternate-suc ℕ.zero x = refl
+  alternate-suc (ℕ.suc ℕ.zero) x = sym (-Idempotent x)
+  alternate-suc (ℕ.suc (ℕ.suc n)) x = alternate-suc n x
+
+  alternate-even : ∀ n x → alternate (n ℕ.· 2) x ≡ x
+  alternate-even ℕ.zero x = refl
+  alternate-even (ℕ.suc n) x = alternate-even n x
+
+  alternatingSign : ℕ.ℕ → R
+  alternatingSign n = alternate n 1r
+
+  alternatingSign-suc : ∀ n → alternatingSign (ℕ.suc n) ≡ - alternatingSign n
+  alternatingSign-suc n = alternate-suc n 1r
+
+  alternate≡alternatingSign· : ∀ n x →
+    alternate n x ≡ alternatingSign n · x
+  alternate≡alternatingSign· ℕ.zero x = sym (·IdL x)
+  alternate≡alternatingSign· (ℕ.suc ℕ.zero) x = -IsMult-1 x
+  alternate≡alternatingSign· (ℕ.suc (ℕ.suc n)) x =
+    alternate≡alternatingSign· n x
+
   translatedDifference : (x a b : R) → a - b ≡ (x + a) - (x + b)
   translatedDifference x a b =
               a - b                       ≡⟨ congR _+_ (sym (+IdL _)) ⟩
@@ -350,6 +377,16 @@ module RingHomTheory {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) where
       _ = snd S
     f = fst φ
 
+  private
+    module RSign = RingTheory R
+    module SSign = RingTheory S
+
+  pres-alternatingSign : ∀ n →
+    f (RSign.alternatingSign n) ≡ SSign.alternatingSign n
+  pres-alternatingSign ℕ.zero = pres1
+  pres-alternatingSign (ℕ.suc ℕ.zero) = pres- _ ∙ cong -_ pres1
+  pres-alternatingSign (ℕ.suc (ℕ.suc n)) = pres-alternatingSign n
+
   ker≡0→inj : ({x : ⟨ R ⟩} → f x ≡ 0r → x ≡ 0r)
             → ({x y : ⟨ R ⟩} → f x ≡ f y → x ≡ y)
   ker≡0→inj ker≡0 {x} {y} p = equalByDifference _ _ (ker≡0 path)
@@ -405,4 +442,3 @@ recPT→Ring � σ compCoh = rec→Gpd isGroupoidRing �
   (3-ConstantCompChar � (λ x y → uaRing (σ x y))
                           λ x y z → sym (  cong uaRing (compCoh x y z)
                                          ∙ uaCompRingEquiv (σ x y) (σ y z)))
-

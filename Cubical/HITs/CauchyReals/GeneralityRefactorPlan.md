@@ -52,10 +52,11 @@ cleanup.
 
 ## Current next slice
 
-Move the endpoint/middle `Fin` eliminator (`ElimFinSS` and its computation
-lemmas) out of `Calculus.Integration.Summation` into `Data.Fin.Properties`.
-Retain compatibility names and check `Partition.Base` plus the `Calculus`
-facade before migrating its consumers to the canonical import.
+Finish the rational-helper portion of Phase 2. Replace
+`Continuity.Base.ℚabs-abs≤abs-` with a generic ordered-commutative-ring reverse
+triangle inequality, and move `m·n/m` plus `Inverse.ℚmax-min-minus` to the
+appropriate rational modules. Retain compatibility aliases and check their
+direct consumers before the layered facades.
 
 ## Phase 1: ordered algebra structure
 
@@ -106,8 +107,8 @@ local implementations verbatim.
   indexing until an explicit compatibility path is supplied.
 - [x] Replace local parity machinery `_∣2` and `∣2-cases` with
   `Data.Nat.IsEven`.
-- Move genuinely missing utilities such as endpoint/middle Fin elimination to
-  `Data.Fin.Properties`; do not keep them in integration modules.
+- [x] Move genuinely missing utilities such as endpoint/middle Fin elimination
+  to `Data.Fin.Properties`; do not keep them in integration modules.
 - Remove local natural-power laws when the semiring exponent laws suffice.
 
 ### Rational infrastructure
@@ -119,7 +120,7 @@ local implementations verbatim.
 - [x] Replace `ℚ^ⁿ-dist·` with the generic commutative-ring exponent law.
 - [x] Generalize the duplicated rational/real `^ⁿ-even` and `^ⁿ-odd` laws in
   `CommRing.Properties.Exponentiation`.
-- [ ] Generalize or deduplicate `-1ⁿ`, `-1ⁿ·`, and their absolute-value laws.
+- [x] Generalize or deduplicate `-1ⁿ`, `-1ⁿ·`, and their absolute-value laws.
 - Move rational arithmetic helpers such as `ℚmax-min-minus`, `m·n/m`, and
   `ℚabs-abs≤abs-` to the rational modules when no generic result exists.
 
@@ -288,3 +289,11 @@ cleanup.
   compatibility aliases.
 - 2026-07-16: moved `Fin-∀A⊎∃B` to `Data.Fin.Properties`, generalized its
   universe levels, and retained the old `Derivative.MeanValue` name.
+- 2026-07-16: committed that checkpoint as `42eb22e7a`.
+- 2026-07-16: moved `ElimFinSS`, `go-tail-finj`, and `go-tail-flast` from
+  integration summation to `Data.Fin.Properties`, generalized the carrier
+  universe, retained the old `Summation` reexport, and migrated
+  `Partition.Base` to the canonical `Data.Fin` import.
+- 2026-07-16: added generic alternating-sign iteration, ring-homomorphism
+  preservation, and ordered-ring absolute-value laws; rational and Cauchy-real
+  sign APIs now use aliases or thin rational-embedding adapters.

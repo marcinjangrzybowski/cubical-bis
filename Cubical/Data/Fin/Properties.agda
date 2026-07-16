@@ -873,6 +873,47 @@ elimFinβ {m = suc (suc m)} {A = A} max f =
              refl
              (elimFinβ {m = (suc m)} {A = λ x → A (fsuc x)} max _ .snd)
 
+-- Eliminate a finite index by distinguishing its two endpoints from the
+-- intervening Fin n indices.
+record ElimFinSS (A : Type ℓ) (n : ℕ) : Type ℓ where
+  no-eta-equality
+  field
+    a₀ : A
+    f : Fin n → A
+    aₙ : A
+
+  pre-go : (k : Fin (2 + n)) → ∀ N-k → fst k ≡ᵗ (n ∸ suc N-k) → A
+  pre-go (zero , _) _ _ = a₀
+  pre-go (suc _ , _) zero _ = aₙ
+  pre-go (suc k , k<) (suc N-k) k≡ =
+    f (k , <→<ᵗ
+      (subst (λ u → u ≤ n) (sym (≡ᵇ→≡ k≡))
+        (∸-≤ n (suc (suc N-k)))))
+
+  go-tail : ∀ n → (Fin n → A) → A → Fin (suc n) → A
+  go-tail zero f a (zero , _) = a
+  go-tail zero f a (suc k , ())
+  go-tail (suc n) f a (zero , _) = f fzero
+  go-tail (suc n) f a (suc k , p) = go-tail n (f ∘ fsuc) a (k , p)
+
+  go : Fin (2 + n) → A
+  go (zero , _) = a₀
+  go (suc k , p) = go-tail n f aₙ (k , p)
+
+go-tail-finj : ∀ {A : Type ℓ} {n₀} (R : ElimFinSS A n₀)
+  → ∀ n (f : Fin n → A) a (j : Fin n)
+  → ElimFinSS.go-tail R n f a (finj j) ≡ f j
+go-tail-finj R zero f a ()
+go-tail-finj R (suc n) f a (zero , _) = refl
+go-tail-finj R (suc n) f a (suc k , p) =
+  go-tail-finj R n (f ∘ fsuc) a (k , p)
+
+go-tail-flast : ∀ {A : Type ℓ} {n₀} (R : ElimFinSS A n₀)
+  → ∀ n (f : Fin n → A) a
+  → ElimFinSS.go-tail R n f a (flast {k = n}) ≡ a
+go-tail-flast R zero f a = refl
+go-tail-flast R (suc n) f a = go-tail-flast R n (f ∘ fsuc) a
+
 inhabitedFibres?Fin : ∀ {ℓ} {A : Type ℓ}
   (da : Discrete A) (n : ℕ) (f : Fin n → A)
   → inhabitedFibres? f

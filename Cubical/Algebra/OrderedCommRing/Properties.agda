@@ -319,6 +319,11 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
       x ⊔ (- x)       ≡⟨⟩
       abs x           ∎
 
+    abs-alternate : ∀ n x → abs (alternate n x) ≡ abs x
+    abs-alternate zero x = refl
+    abs-alternate (suc zero) x = abs- x
+    abs-alternate (suc (suc n)) x = abs-alternate n x
+
     0≤→abs≡id : ∀ x → 0r ≤ x → abs x ≡ x
     0≤→abs≡id x 0≤x = is-antisym (abs x) x
       (⊔LUB (is-refl x) (begin≤ - x ≤⟨ 0≤→-≤0 x 0≤x ⟩ 0r ≤⟨ 0≤x ⟩ x ◾))
@@ -399,6 +404,9 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
 
     abs1 : abs 1r ≡ 1r
     abs1 = 0≤→abs≡id 1r 0≤1
+
+    abs-alternatingSign : ∀ n → abs (alternatingSign n) ≡ 1r
+    abs-alternatingSign n = abs-alternate n 1r ∙ abs1
 
   -- TO DO:
   -- - Move the definitions and basic properties of Hom/Mono to a "Mappings" module

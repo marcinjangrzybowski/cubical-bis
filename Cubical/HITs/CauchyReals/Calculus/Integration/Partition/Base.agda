@@ -39,6 +39,7 @@ open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base
 open import Cubical.HITs.CauchyReals.Calculus.Integration.Summation
+  hiding (ElimFinSS; go-tail-finj; go-tail-flast)
 
 
 open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
