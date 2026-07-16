@@ -62,6 +62,11 @@ open PositiveHalvesℚ
 open OrderedCommRingTheory ℚOrderedCommRing hiding (_#_)
 open import Cubical.Data.Rationals.Order.AbsoluteValue
 
+≤→<+₊ : ∀ x y (ε : ℚ₊) → x ≤ y → x < y + fst ε
+≤→<+₊ x y ε x≤y =
+  subst (λ z → z < y + fst ε) (+IdR x)
+    (≤<Monotone+ x y 0 (fst ε) x≤y (snd ε))
+
 elimBy≡⊎<' : ∀ {ℓ} {A : ℚ → ℚ → Type ℓ}
   → (∀ x y → A x y → A y x)
   → (∀ x → A x x)

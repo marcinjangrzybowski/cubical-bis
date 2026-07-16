@@ -26,9 +26,7 @@ private
   ℚ₊fromSucNat m = fromNat (suc m)
 
 invℚ₊-fromNat : ∀ m → fst (ℚ⁻¹._⁻¹₊ (ℚ₊fromSucNat m)) ≡ [ pos 1 / 1+ m ]
-invℚ₊-fromNat m =
-  sym (ℚ.·IdL _) ∙
-  cong₂ [_/_] (ℤ.·IdR (pos 1)) (·₊₁-identityˡ (1+ m))
+invℚ₊-fromNat = ℚ⁻¹.invℚ₊-fromNat
 
 private
   2ℝ₊ : ℝ₊

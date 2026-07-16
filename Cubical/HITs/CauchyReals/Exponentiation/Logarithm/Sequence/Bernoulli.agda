@@ -72,9 +72,7 @@ import Cubical.Algebra.CommRing.Properties as CR
 module 𝐙' = RingTheory (CR.CommRing→Ring ℤCRing.ℤCommRing )
 
 ℚ≤→<+₊ : ∀ x y (ε : ℚ₊) → x ℚ.≤ y → x ℚ.< y ℚ.+ fst ε
-ℚ≤→<+₊ x y ε x≤y =
-  subst (λ z → z ℚ.< y ℚ.+ fst ε) (ℚ.+IdR x)
-    (ℚ.≤<Monotone+ x y 0 (fst ε) x≤y (snd ε))
+ℚ≤→<+₊ = ℚ.≤→<+₊
 
 private
   2ℝ₊ : ℝ₊

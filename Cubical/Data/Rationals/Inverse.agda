@@ -14,7 +14,7 @@ open import Cubical.Data.Int.Fast.Base as ℤ using (ℤ; pos; negsuc; ℕ₊₁
 open import Cubical.Data.Int.Fast.Properties as ℤ using ()
 open import Cubical.Data.Int.Fast.Order as ℤ using ()
 open import Cubical.Data.Rationals.Base as ℚ
-open import Cubical.Data.Rationals.Properties
+open import Cubical.Data.Rationals.Properties as ℚP
 open import Cubical.Data.Rationals.Order
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Rationals
@@ -48,6 +48,12 @@ x·invℚ₊[x] x = ℚ!
 
 invℚ₊[x]·x : ∀ x →  fst (x ⁻¹₊) · fst x ≡ 1
 invℚ₊[x]·x x = ℚ!
+
+invℚ₊-fromNat : ∀ m →
+  fst ((fromNat (suc m)) ⁻¹₊) ≡ [ pos 1 / 1+ m ]
+invℚ₊-fromNat m =
+  sym (ℚP.·IdL _) ∙
+  cong₂ [_/_] (ℤ.·IdR (pos 1)) (·₊₁-identityˡ (1+ m))
 
 [y·x]/y : ∀ y x → fst (y ⁻¹₊) · (fst y · x) ≡ x
 [y·x]/y y x = ℚ!

@@ -431,9 +431,7 @@ sameDenomSubSucc : ∀ m d →
 sameDenomSubSucc m d = eq/ _ _ ℤ!
 
 invℚ₊-fromNat : ∀ m → fst (invℚ₊ (fromNat (suc m))) ≡ [ pos 1 / 1+ m ]
-invℚ₊-fromNat m =
-  sym (ℚ.·IdL _) ∙
-  cong₂ [_/_] (ℤ.·IdR (pos 1)) (·₊₁-identityˡ (1+ m))
+invℚ₊-fromNat = ℚ.invℚ₊-fromNat
 
 u+[v-u]≡v : ∀ u v → u +ᵣ (v -ᵣ u) ≡ v
 u+[v-u]≡v u v = +ᵣComm u (v -ᵣ u) ∙ Rℝ.minusPlus v u

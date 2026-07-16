@@ -139,9 +139,7 @@ AM-GM₂ z 1<z x Δ = isTrans<≡ᵣ _ _ _ (isTrans≡<ᵣ _ _ _
  w' = fst (x<y≃0<y-x _ _) (1<^ℚ z Δ 1<z)
 
 invℚ₊-fromNat : ∀ m → fst (invℚ₊ (fromNat (suc m))) ≡ [ pos 1 / 1+ m ]
-invℚ₊-fromNat m =
-  sym (ℚ.·IdL [ pos 1 / 1+ m ]) ∙
-  cong₂ [_/_] (ℤ.·IdR (pos 1)) (·₊₁-identityˡ (1+ m))
+invℚ₊-fromNat = ℚ.invℚ₊-fromNat
 
 invℚ₊-[/] : ∀ n m → [ n / 1 ] ℚ.· fst (invℚ₊ (fromNat (suc m))) ≡ [ n / 1+ m ]
 invℚ₊-[/] n m =

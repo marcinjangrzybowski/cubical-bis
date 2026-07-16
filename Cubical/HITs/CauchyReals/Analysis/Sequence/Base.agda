@@ -38,6 +38,14 @@ open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Order.Properties public using
+  ( Dichotomyℝ'
+  ; x<δ→x≤0
+  ; x<y+δ→x≤y
+  ; ≤ᵣ→≯ᵣ
+  ; ≯ᵣ→≤ᵣ
+  ; ≤ᵣ≃≯ᵣ
+  )
 
 
 
@@ -62,42 +70,6 @@ open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
 
 
-
-
-Dichotomyℝ' : ∀ x y z → x <ᵣ z →
-              ∥ (y <ᵣ z) ⊎ (x <ᵣ y) ∥₁
-Dichotomyℝ' x y z x<z =
-  PT.map2
-   (λ (q  , x<q  , q<x+Δ)
-      (q' , y-Δ<q' , q'<y)
-     → ⊎.map
-         (λ q'≤q →
-           isTrans<ᵣ _ _ _
-             (a-b<c⇒a<c+b _ _ _ y-Δ<q')
-             (isTrans<≡ᵣ _ _ _
-               (<ᵣ-+o _ _ _
-                 ((isTrans≤<ᵣ _ _ _ (≤ℚ→≤ᵣ q' _ q'≤q)
-                  q<x+Δ ))) ℝ!))
-         (λ q<q' →
-           isTrans<ᵣ _ _ _ (isTrans<ᵣ _ _ _
-               x<q
-               (<ℚ→<ᵣ q _ q<q'))
-             q'<y)
-         (ℚ.Dichotomyℚ q' q))
-    (denseℚinℝ x (x +ᵣ (fst Δ₊))
-      (isTrans≡<ᵣ _ _ _
-        (sym (+IdR x)) (<ᵣ-o+ _ _ _ (snd Δ₊))))
-    (denseℚinℝ (y -ᵣ (fst Δ₊)) y
-      (isTrans<≡ᵣ _ _ _
-         (<ᵣ-o+ _ _ _
-           (isTrans<≡ᵣ _ _ _ (-ᵣ<ᵣ _ _ (snd Δ₊)) (-ᵣ-rat 0)))
-         (+IdR y)))
-
- where
- Δ₊ : ℝ₊
- Δ₊ = (z -ᵣ x , x<y→0<y-x _ _ x<z) ₊·ᵣ ℚ₊→ℝ₊ ([ 1 / 2 ]₊)
-
-
 fromPositive·ᵣ : ∀ {a b} → 0 ≤ᵣ a → 0 ≤ᵣ b → 0 <ᵣ a ·ᵣ b  → 0 <ᵣ b
 fromPositive·ᵣ {a} {b} 0≤a 0≤b 0<a·b =
  PT.rec (isProp<ᵣ _ _) (⊎.rec
@@ -110,55 +82,12 @@ fromPositive·ᵣ {a} {b} 0≤a 0≤b 0<a·b =
    (Dichotomyℝ' 0 a 1 decℚ<ᵣ?)
 
 
--- opaque
---  unfolding _<ᵣ_
-x<δ→x≤0 : ∀ x → ((ε : ℚ₊) → x <ᵣ (rat (fst ε))) → x ≤ᵣ 0
-x<δ→x≤0 x p = ≡→≤ᵣ (eqℝ _ _
-  λ ε → invEq (∼≃abs<ε _ _ _)
-    (isTrans≡<ᵣ _ _ _
-
-        (cong absᵣ (ℝ! ∙ maxᵣComm _ _)
-          ∙ (absᵣNonNeg _ (≤maxᵣ 0 x)) ∙ maxᵣComm _ _)
-          (p' ε)))
-  where
-  p' : (ε : ℚ₊) → maxᵣ x 0 <ᵣ (rat (fst ε))
-  p' ε = max<-lem _ _ _  (p ε) (snd (ℚ₊→ℝ₊ ε))
-
-
-x<y+δ→x≤y : ∀ x y → ((ε : ℚ₊) → x <ᵣ y +ᵣ (rat (fst ε))) → x ≤ᵣ y
-x<y+δ→x≤y x y p = invEq (x≤y≃0≤y-x _ _)
- ( isTrans≤≡ᵣ _ _ _
-   (isTrans≡≤ᵣ _ _ _ ℝ! (-ᵣ≤ᵣ _ 0 (x<δ→x≤0 _ (a<c+b⇒a-c<b _ _ _ ∘ p)))) --
-   (-[x-y]≡y-x _ _))
-
-
 absᵣ-triangle-midpt
        : (x z y : ℝ) →  absᵣ (x -ᵣ y) ≤ᵣ absᵣ (x -ᵣ z) +ᵣ absᵣ (z -ᵣ y)
 absᵣ-triangle-midpt x z y =
   isTrans≡≤ᵣ _ _ _
     (cong absᵣ ℝ!)
     (absᵣ-triangle (x -ᵣ z) (z -ᵣ y))
-
-
-≤ᵣ→≯ᵣ : ∀ x y →  x ≤ᵣ y → (y <ᵣ x) → ⊥
-≤ᵣ→≯ᵣ x y x≤y y<x =
- let x=y = isAntisym≤ᵣ x y x≤y (<ᵣWeaken≤ᵣ _ _ y<x)
- in isAsym<ᵣ y x y<x (subst2 _<ᵣ_ (sym x=y) x=y y<x)
-
-
-
-≯ᵣ→≤ᵣ : ∀ x y →  ((y <ᵣ x) → ⊥) → x ≤ᵣ y
-≯ᵣ→≤ᵣ x y f = x<y+δ→x≤y _ _
-  λ ε → PT.rec (isProp<ᵣ _ _)
-      (⊎.rec (idfun _) (⊥.rec ∘ f ))
-       (Dichotomyℝ' y x (y +ᵣ (rat (fst ε)))
-        (isTrans≡<ᵣ _ _ _ (sym (+IdR _)) (<ᵣ-o+ _ _ _ (snd (ℚ₊→ℝ₊ ε)))))
-
-≤ᵣ≃≯ᵣ : ∀ x y →  (x ≤ᵣ y) ≃ ((y <ᵣ x) → ⊥)
-≤ᵣ≃≯ᵣ _ _ = propBiimpl→Equiv (isProp≤ᵣ _ _)
-  (isPropΠ λ _ → isProp⊥)
-  (≤ᵣ→≯ᵣ _ _) (≯ᵣ→≤ᵣ _ _)
-
 
 
 ≡-byContracdition : ∀ x y → ((ε : ℚ₊) → rat (fst ε) <ᵣ absᵣ (x -ᵣ y) → ⊥ )
