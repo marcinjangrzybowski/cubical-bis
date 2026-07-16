@@ -118,7 +118,10 @@ concatPartitionPts≤pts a b c a≤b b≤c
 concatPartitionPts≤pts a b c a≤b b≤c
   p-ab@record { len = zero }
   p-bc@record { len = suc m } (suc j , j<m) =
-  p-bc .pts≤pts (j , j<m)
+  subst2 _≤ᵣ_
+    (cong (p-bc .pts) (toℕ-injective {k = suc m} refl))
+    (cong (p-bc .pts) (toℕ-injective {k = suc m} refl))
+    (p-bc .pts≤pts (j , j<m))
 concatPartitionPts≤pts a b c a≤b b≤c
   p-ab@record { len = suc n }
   p-bc@record { len = m } k

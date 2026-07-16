@@ -1,11 +1,33 @@
 module Cubical.Data.Nat.IsEven where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
-open import Cubical.Data.Sum
+import Cubical.Data.Nat.Mod as Mod
+open import Cubical.Data.Sum as Sum
+open import Cubical.Data.Sigma
+
+mod2 : ℕ → ℕ
+mod2 = Mod._mod 2
+
+mod2-cases : ∀ k →
+  ((mod2 k ≡ 0) × (mod2 (suc k) ≡ 1) ×
+    (Σ[ k' ∈ ℕ ] k' · 2 ≡ k))
+  ⊎
+  ((mod2 k ≡ 1) × (mod2 (suc k) ≡ 0) ×
+    (Σ[ k' ∈ ℕ ] suc (k' · 2) ≡ k))
+mod2-cases zero = inl (refl , refl , 0 , refl)
+mod2-cases (suc zero) = inr (refl , refl , 0 , refl)
+mod2-cases (suc (suc k)) =
+  Sum.map nextEven nextOdd (mod2-cases k)
+  where
+  nextEven = map-snd (map-snd
+    (λ (k' , p) → suc k' , cong (suc ∘ suc) p))
+  nextOdd = map-snd (map-snd
+    (λ (k' , p) → suc k' , cong (suc ∘ suc) p))
 
 -- negation result
 ¬IsEvenFalse : (n : ℕ) → (isEven n ≡ false) → isOdd n ≡ true

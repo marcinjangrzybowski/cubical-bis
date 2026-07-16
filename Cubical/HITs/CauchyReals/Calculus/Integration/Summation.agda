@@ -21,6 +21,7 @@ open import Cubical.Data.Int as ℤ using (pos)
 import Cubical.Data.Int.Order as ℤ
 open import Cubical.Data.Sigma
 open import Cubical.Data.Fin
+import Cubical.Data.Fin.Properties as FinP
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
@@ -459,11 +460,13 @@ deltas-sum (suc n) f =
  ∙ ·-distribʳ (2^ n) _ (2^ m)
 
 injectFin+ : {m n : ℕ} → Fin m → Fin (n ℕ.+ m)
-injectFin+ {n = n} x = (n ℕ.+ fst x) ,  ℕ.<→<ᵗ (ℕ.<-k+ {k = n} (ℕ.<ᵗ→< (snd x)))
+injectFin+ {m} {n} x =
+  Iso.inv (FinP.Fin+≅Fin⊎Fin n m) (inr x)
 
 
 injectFin+' : {m n : ℕ} → Fin n → Fin (n ℕ.+ m)
-injectFin+' {m} {n = n} x = fst x , ℕ.<→<ᵗ {fst x}  (ℕ.<≤-trans {fst x} (ℕ.<ᵗ→< {fst x} {n} (snd x)) ℕ.≤SumLeft) 
+injectFin+' {m} {n} x =
+  Iso.inv (FinP.Fin+≅Fin⊎Fin n m) (inl x)
 
 fsuc∘inj' : {n m : ℕ} → ∀ x → fsuc  {n ℕ.+ (suc m)} (injectFin+' {suc m} {n} x) ≡
                  injectFin+' {suc m} {suc n} (fsuc x)
@@ -488,94 +491,55 @@ finj∘inj {n} {m} x p = toℕ-injective {suc (n ℕ.+ m)} refl
 
 
 Fin+→⊎ : ∀ n m → Fin (n ℕ.+ m) → (Fin n ⊎ Fin m)
-Fin+→⊎ zero m = inr
-Fin+→⊎ (suc n) m (zero , snd₁) = inl fzero
-Fin+→⊎ (suc n) m (suc k , p) = ⊎.map fsuc
-  (idfun _) (Fin+→⊎ n m (k , p))
+Fin+→⊎ n m = Iso.fun (FinP.Fin+≅Fin⊎Fin n m)
 
 
 rec⊎-injectFin+' : ∀ {A : Type} {m} {n} f g x →
   ⊎.rec {C = A} f g (Fin+→⊎ n m (injectFin+' {m} {n} x))
                        ≡ f x
-rec⊎-injectFin+' {n = zero} f g x = ⊥.rec (¬Fin0 x)
-rec⊎-injectFin+' {n = suc n} f g (zero , snd₁) = refl 
-rec⊎-injectFin+' {m = m} {n = suc n} f g (suc k , p) = (cong (λ k → ⊎.rec f g
-      (⊎.map fsuc (λ x → x)
-       (Fin+→⊎ n m k))) (toℕ-injective {n ℕ.+ m} refl)
-       ∙ (rec-map f g fsuc (idfun _) (Fin+→⊎ n m (injectFin+' {n = n} (k , p)))))
-    ∙ rec⊎-injectFin+' {n = n} (f ∘ fsuc) g (k , p)
+rec⊎-injectFin+' {m = m} {n = n} f g x =
+  cong (⊎.rec f g) (Iso.sec (FinP.Fin+≅Fin⊎Fin n m) (inl x))
 
 
 
 Fin+→⊎∘injectFin+' : ∀ n m x → inl x ≡ Fin+→⊎ n m (injectFin+' {m} {n} x)
-Fin+→⊎∘injectFin+' zero m x = ⊥.rec (¬Fin0 x)
-Fin+→⊎∘injectFin+' (suc n) m (zero , _) = refl
-  -- cong inl (toℕ-injective refl)
-Fin+→⊎∘injectFin+' (suc n) m (suc k , p) =
-  cong (⊎.map fsuc (λ x → x))
-    (Fin+→⊎∘injectFin+' n m (k , p))
-    ∙ cong (λ p → ⊎.map (fsuc {n}) (λ x → x) (Fin+→⊎ n m ((k , p))))
-        (ℕ.isProp<ᵗ {k} {n ℕ.+ m} (snd ((injectFin+' {m = m} {n = n} (k , p))))
-           (injectFin+'  {m = m} {n = suc n} (suc k , p) .snd))
+Fin+→⊎∘injectFin+' n m x =
+  sym (Iso.sec (FinP.Fin+≅Fin⊎Fin n m) (inl x))
 
 Fin+→⊎∘injectFin+ : ∀ n m x → inr x ≡ Fin+→⊎ n m (injectFin+ {m} {n} x)
-Fin+→⊎∘injectFin+ zero m x = cong inr (toℕ-injective {m} refl)
-Fin+→⊎∘injectFin+ (suc n) m x =
-  cong (⊎.map fsuc (λ x → x)) (Fin+→⊎∘injectFin+ n m x
-   ∙ cong (Fin+→⊎ n m) (toℕ-injective {n ℕ.+ m} refl)
-   )
+Fin+→⊎∘injectFin+ n m x =
+  sym (Iso.sec (FinP.Fin+≅Fin⊎Fin n m) (inr x))
 
 rec⊎-injectFin+ : ∀ {A : Type} {m} {n} f g x →
   ⊎.rec {C = A} f g (Fin+→⊎ n m (injectFin+ {m} {n} x))
                        ≡ g x
-rec⊎-injectFin+ {m = m} {n = zero}  f g x = cong g (toℕ-injective {m} refl)
-rec⊎-injectFin+ {m = m} {n = suc n} f g x =
-
-  cong (λ k → ⊎.rec f g
-      (⊎.map fsuc (λ x₁ → x₁)
-       (Fin+→⊎ n m k))) (toℕ-injective {n ℕ.+ m} refl)
-   ∙ (rec-map f g fsuc (idfun _) (Fin+→⊎ n m (injectFin+ {m} {n} x)))
-  ∙ rec⊎-injectFin+ {n = n} (f ∘ fsuc) g x
+rec⊎-injectFin+ {m = m} {n = n} f g x =
+  cong (⊎.rec f g) (Iso.sec (FinP.Fin+≅Fin⊎Fin n m) (inr x))
 
 injectFin+'-flast : ∀ n m k p p' →
   Fin+→⊎ n m (injectFin+' {m} {n} (k , p)) ≡
     inl (k , p')
-
-injectFin+'-flast zero m k () p'
-injectFin+'-flast (suc n) m zero p p' = refl
-injectFin+'-flast (suc n) m (suc k) p p' =
-  cong (⊎.map fsuc (λ x → x))
-    (cong (Fin+→⊎ n m)  (toℕ-injective {n ℕ.+ m} refl)
-     ∙ injectFin+'-flast n m k p p')
+injectFin+'-flast n m k p p' =
+  Iso.sec (FinP.Fin+≅Fin⊎Fin n m) (inl (k , p))
+  ∙ cong inl (toℕ-injective {n} refl)
    
 
 
 Iso-Fin+⊎-leftInv : ∀ n m a → ⊎.rec (injectFin+' {m} {n}) (injectFin+ {m} {n}) (Fin+→⊎ n m a) ≡ a
-Iso-Fin+⊎-leftInv zero m a = toℕ-injective {m} refl
-Iso-Fin+⊎-leftInv (suc n) m (zero , p) = toℕ-injective {suc n ℕ.+ m} refl
-Iso-Fin+⊎-leftInv (suc n) m (suc k ,  p) = 
-     h
-       (Fin+→⊎ n m
-        (k , p))
-  ∙ cong fsuc
-     (Iso-Fin+⊎-leftInv n m (k , p))
-  
- where
-
- h : ∀ x →
-       ⊎.rec (injectFin+' {m} {suc n}) (injectFin+ {m} {suc n})
-           (⊎.map fsuc (idfun (Fin m)) x)
-       ≡
-       fsuc (⊎.rec (injectFin+' {m} {n}) (injectFin+ {m} {n}) x)
- h (inl x) = toℕ-injective {suc n ℕ.+ m} refl
- h (inr x) = toℕ-injective {suc n ℕ.+ m} refl
+Iso-Fin+⊎-leftInv n m a =
+  cong (λ f → f (Fin+→⊎ n m a)) invCompat
+  ∙ Iso.ret (FinP.Fin+≅Fin⊎Fin n m) a
+  where
+  invCompat :
+    ⊎.rec (injectFin+' {m} {n}) (injectFin+ {m} {n})
+      ≡ Iso.inv (FinP.Fin+≅Fin⊎Fin n m)
+  invCompat = funExt λ
+    { (inl x) → refl
+    ; (inr x) → refl
+    }
 
 Iso-Fin+⊎ : ∀ n m → Iso (Fin (n ℕ.+ m)) (Fin n ⊎ Fin m)
-Iso-Fin+⊎ n m .Iso.fun = Fin+→⊎ n m
-Iso-Fin+⊎ n m .Iso.inv = ⊎.rec (injectFin+' {m} {n}) (injectFin+ {m} {n})
-Iso-Fin+⊎ n m .Iso.sec (inl x) = sym (Fin+→⊎∘injectFin+' n m _)
-Iso-Fin+⊎ n m .Iso.sec (inr x) = sym (Fin+→⊎∘injectFin+ n m _)
-Iso-Fin+⊎ n m .Iso.ret = Iso-Fin+⊎-leftInv n m
+Iso-Fin+⊎ = FinP.Fin+≅Fin⊎Fin
 
 injectFin+'-flast≡injectFin+-fzero :
  ∀ n m →

@@ -3,7 +3,7 @@ module Cubical.HITs.CauchyReals.Analysis.Sequence.AlternatingSeries where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Data.Nat as ℕ hiding (_·_;_+_)
-import Cubical.Data.Nat.Mod as ℕ
+import Cubical.Data.Nat.IsEven as Parity
 import Cubical.Data.Nat.Order as ℕ
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎
@@ -23,14 +23,11 @@ AlternatesPositiveFirst s =
   ∀ k → (0 ℚ.< s (k ℕ.· 2)) × (s (suc (k ℕ.· 2)) ℚ.< 0)
 
 _∣2 : ℕ → ℕ
-_∣2 = ℕ._mod 2
+_∣2 = Parity.mod2
 
 ∣2-cases : ∀ k → ((k ∣2 ≡ 0) × ((suc k) ∣2 ≡ 1) × (Σ[ k' ∈ ℕ ] (k' ℕ.· 2 ≡ k)))
                ⊎.⊎ ((k ∣2 ≡ 1) × ((suc k) ∣2 ≡ 0) × (Σ[ k' ∈ ℕ ] (suc (k' ℕ.· 2) ≡ k)) ) 
-∣2-cases zero = inl (refl , refl , (0 , refl))
-∣2-cases (suc zero) = inr (refl , refl ,(0 , refl))
-∣2-cases (suc (suc k)) = ⊎.map (map-snd (map-snd (λ (k' , p) → (suc k') , cong (suc ∘ suc) p)))
-    ((map-snd (map-snd (λ (k' , p) → (suc k') , cong (suc ∘ suc) p)))) (∣2-cases k)
+∣2-cases = Parity.mod2-cases
 
 StrictlyDecreasingAlternating : (ℕ → ℚ) → Type
 StrictlyDecreasingAlternating s = ∀ k → ((ℚ.- (s (suc (k ℕ.· 2))) ℚ.< s (k ℕ.· 2))

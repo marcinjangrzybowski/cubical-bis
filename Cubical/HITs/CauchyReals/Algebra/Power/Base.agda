@@ -27,11 +27,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Rationals
 ^ⁿ-odd : ∀ n x → -ᵣ (x ^ⁿ suc (n ℕ.· 2)) ≡ ((-ᵣ x) ^ⁿ suc (n ℕ.· 2))
 ^ⁿ-even : ∀ n x → (x ^ⁿ (n ℕ.· 2)) ≡ ((-ᵣ x) ^ⁿ (n ℕ.· 2))
 
-^ⁿ-even zero x = refl
-^ⁿ-even (suc n) x = ·ᵣAssoc _ _ _ ∙ cong₂ _·ᵣ_ (sym (-ᵣ·-ᵣ x x)) (^ⁿ-even n x)
-  ∙ sym (·ᵣAssoc _ _ _)
-
-^ⁿ-odd n x = sym (-ᵣ· _ _) ∙ cong ((-ᵣ x) ·ᵣ_) (^ⁿ-even n x)
+^ⁿ-even = Exponentiationᵣ.^-even
+^ⁿ-odd = Exponentiationᵣ.^-odd
 
 x·x≡∣x∣·∣x∣ : ∀ x → x ·ᵣ x ≡ absᵣ x ·ᵣ absᵣ x
 x·x≡∣x∣·∣x∣ x = ≡Cont₂

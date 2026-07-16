@@ -149,17 +149,7 @@ Lipschitz-ℝ→ℝ→IsUContinuousℙ L f fLip P ε =
 
 
 ℚ^ⁿ-dist· : ∀ p q n → (p ℚ.· q) ℚ.^ⁿ n ≡ (p ℚ.^ⁿ n) ℚ.· (q ℚ.^ⁿ n)
-ℚ^ⁿ-dist· p q zero = refl
-ℚ^ⁿ-dist· p q (suc n) =
-  let pn = p ℚ.^ⁿ n
-      qn = q ℚ.^ⁿ n
-  in cong ((p ℚ.· q) ℚ.·_) (ℚ^ⁿ-dist· p q n)
-     ∙ sym (ℚ.·Assoc p q (pn ℚ.· qn))
-     ∙ cong (p ℚ.·_)
-        (ℚ.·Assoc q pn qn
-         ∙ cong (λ z → z ℚ.· qn) (ℚ.·Comm q pn)
-         ∙ sym (ℚ.·Assoc pn q qn))
-     ∙ ℚ.·Assoc p pn (q ℚ.· qn)
+ℚ^ⁿ-dist· = ℚ.Exponentiationℚ.^-ldist-·
 
 ^ⁿ-MonotoneR-inv
         : (x : ℝ) → 0 ≤ᵣ x → x ≤ᵣ 1 →  (m n : ℕ) →

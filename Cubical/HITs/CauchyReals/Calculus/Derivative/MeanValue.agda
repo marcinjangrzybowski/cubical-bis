@@ -20,7 +20,8 @@ open import Cubical.Data.Int.Fast.Base as ℤ using (pos; ℕ₊₁→ℤ; _·_;
 import Cubical.Data.Int.Fast.Properties as ℤ
 import Cubical.Data.Int.Fast.Order as ℤ
 open import Cubical.Data.Sigma
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin hiding (Fin-∀A⊎∃B)
+import Cubical.Data.Fin.Properties as FinP
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
@@ -94,19 +95,7 @@ Bishop-Proposition7 (suc n) f x =
 Fin-∀A⊎∃B : ∀ n → (A B : Fin n → Type₀)
            → (∀ k → ∥ A k ⊎ B k ∥₁)
            → ∥ (∀ k → A k) ⊎ Σ (Fin n) B ∥₁
-
-Fin-∀A⊎∃B zero A B ab? = ∣ inl (⊥.rec ∘ ¬Fin0) ∣₁
-Fin-∀A⊎∃B (suc n) A B ab? =
-  PT.map2
-     (⊎.rec (λ a0 →
-       ⊎.map (λ ∀kA →
-              λ x → ⊎.rec
-                (λ p → subst A p a0)
-                (λ (k , p) → subst A p (∀kA k))
-                (fsplit x))
-        λ (k , bk) → fsuc k , bk) (λ b0 _ → inr (fzero , b0)))
-    (ab? fzero)
-    (Fin-∀A⊎∃B n (A ∘ fsuc) (B ∘ fsuc) (ab? ∘ fsuc))
+Fin-∀A⊎∃B = FinP.Fin-∀A⊎∃B
 
 ε<abs→ε<⊎<-ε : ∀ (ε : ℝ₊) x → fst ε <ᵣ absᵣ x →
                         (x <ᵣ -ᵣ (fst ε)) ⊎ (fst ε <ᵣ x)

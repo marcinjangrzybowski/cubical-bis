@@ -52,12 +52,10 @@ cleanup.
 
 ## Current next slice
 
-Continue Phase 2 with the integration-local `Fin` infrastructure in
-`Calculus.Integration.Summation`. First compare its injection orientation and
-computation lemmas with `Data.Fin.Properties.Fin+≅Fin⊎Fin`; then replace the
-local implementation behind compatibility names without forcing downstream
-partition proofs to change all at once. Check `Summation`,
-`Partition.Concatenation`, and the `Calculus` facade after that slice.
+Move the endpoint/middle `Fin` eliminator (`ElimFinSS` and its computation
+lemmas) out of `Calculus.Integration.Summation` into `Data.Fin.Properties`.
+Retain compatibility names and check `Partition.Base` plus the `Calculus`
+facade before migrating its consumers to the canonical import.
 
 ## Phase 1: ordered algebra structure
 
@@ -100,11 +98,13 @@ local implementations verbatim.
 
 ### Fin and natural-number infrastructure
 
-- Replace `injectFin+`, `injectFin+'`, `Fin+→⊎`, `Iso-Fin+⊎`, and their
+- [x] Replace `injectFin+`, `injectFin+'`, `Fin+→⊎`, `Iso-Fin+⊎`, and their
   compatibility proofs with `Data.Fin.Properties.Fin+≅Fin⊎Fin`,
   `Iso-Fin⊎Fin-Fin+`, or `Data.Fin.Recursive.Properties.sumIso`.
-- Replace `Fin^2·` with `factorEquiv` or `Iso-Fin×Fin-Fin·`.
-- Replace local parity machinery `_∣2` and `∣2-cases` with
+- [ ] Replace `Fin^2·` with `factorEquiv` or `Iso-Fin×Fin-Fin·`. The generic
+  `factorEquiv` uses the opposite coordinate significance; preserve the local
+  indexing until an explicit compatibility path is supplied.
+- [x] Replace local parity machinery `_∣2` and `∣2-cases` with
   `Data.Nat.IsEven`.
 - Move genuinely missing utilities such as endpoint/middle Fin elimination to
   `Data.Fin.Properties`; do not keep them in integration modules.
@@ -116,9 +116,10 @@ local implementations verbatim.
   ordered-algebra API.
 - [x] Centralize the five copies of `ℚ≤→<+₊` in
   `Cubical.Data.Rationals.Order.Algebra`.
-- Replace `ℚ^ⁿ-dist·` with the generic commutative-ring exponent law.
-- Generalize or deduplicate sign alternation (`-1ⁿ`, `-1ⁿ·`, and absolute-value
-  laws), currently implemented independently for rationals and reals.
+- [x] Replace `ℚ^ⁿ-dist·` with the generic commutative-ring exponent law.
+- [x] Generalize the duplicated rational/real `^ⁿ-even` and `^ⁿ-odd` laws in
+  `CommRing.Properties.Exponentiation`.
+- [ ] Generalize or deduplicate `-1ⁿ`, `-1ⁿ·`, and their absolute-value laws.
 - Move rational arithmetic helpers such as `ℚmax-min-minus`, `m·n/m`, and
   `ℚabs-abs≤abs-` to the rational modules when no generic result exists.
 
@@ -176,7 +177,7 @@ Move or replace the following families with `OrderedCommRing.Properties`:
 - Put algebraic fold laws in `Semiring.BigOps` or `Ring.BigOps`.
 - Put finite-sum monotonicity, positive-summand existence, and absolute-value
   bounds in ordered-ring big-operator theory.
-- Move the generic finite-logic theorem `Fin-∀A⊎∃B` to
+- [x] Move the generic finite-logic theorem `Fin-∀A⊎∃B` to
   `Data.Fin.Properties`.
 
 ## Phase 5: clamp, intervals, and subset mappings
@@ -272,3 +273,18 @@ cleanup.
 - 2026-07-16: checked every changed Agda module plus the `Algebra`, `Sequence`,
   `Exponentiation`, and `Calculus` facades with no holes, metas, constraints,
   or warnings.
+- 2026-07-16: committed that checkpoint as `83ae5ce84`.
+- 2026-07-16: replaced the integration-local `Fin` sum splitter, injections,
+  isomorphism, and recursive inverse proofs with `Fin+≅Fin⊎Fin`; retained all
+  compatibility names and checked `Summation`, `Partition.Concatenation`, and
+  `Calculus`.
+- 2026-07-16: moved the modulo-two decomposition behind `_∣2` and
+  `∣2-cases` to `Data.Nat.IsEven` and retained compatibility aliases in
+  `AlternatingSeries`.
+- 2026-07-16: replaced the local `ℚ^ⁿ-dist·` induction in `Trigonometry.Pi`
+  with the generic commutative-ring exponentiation theorem.
+- 2026-07-16: generalized `^ⁿ-even` and `^ⁿ-odd` as `^-even` and `^-odd` in
+  `CommRing.Properties.Exponentiation`; the rational and real names are now
+  compatibility aliases.
+- 2026-07-16: moved `Fin-∀A⊎∃B` to `Data.Fin.Properties`, generalized its
+  universe levels, and retained the old `Derivative.MeanValue` name.

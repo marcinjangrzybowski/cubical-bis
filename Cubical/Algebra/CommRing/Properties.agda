@@ -262,6 +262,16 @@ module Exponentiation (R' : CommRing ℓ) where
          f · (f ^ n) · g · (g ^ n)   ≡⟨ sym (·Assoc _ _ _) ⟩
          f · (f ^ n) · (g · (g ^ n)) ∎
 
+ ^-even : (n : ℕ) (x : R) → x ^ (n ·ℕ 2) ≡ (- x) ^ (n ·ℕ 2)
+ ^-even zero x = refl
+ ^-even (suc n) x =
+   ·Assoc _ _ _
+   ∙ cong₂ _·_ (sym (-Dist· x x)) (^-even n x)
+   ∙ sym (·Assoc _ _ _)
+
+ ^-odd : (n : ℕ) (x : R) → - (x ^ suc (n ·ℕ 2)) ≡ (- x) ^ suc (n ·ℕ 2)
+ ^-odd n x = sym (-DistL· x _) ∙ cong ((- x) ·_) (^-even n x)
+
  ^-rdist-·ℕ : (f : R) (n m : ℕ) → f ^ (n ·ℕ m) ≡ (f ^ n) ^ m
  ^-rdist-·ℕ f zero m = sym (1ⁿ≡1 m)
  ^-rdist-·ℕ f (suc n) m =  sym (·-of-^-is-^-of-+ f m (n ·ℕ m))

@@ -11,7 +11,8 @@ open import Cubical.Foundations.Transport
 open import Cubical.Functions.Embedding
 open import Cubical.Functions.Surjection
 
-open import Cubical.HITs.PropositionalTruncation renaming (rec to ∥∥rec) hiding (elimFin)
+open import Cubical.HITs.PropositionalTruncation as PT
+  renaming (rec to ∥∥rec) hiding (elimFin)
 
 open import Cubical.Data.Fin.Base as Fin
 open import Cubical.Data.Nat
@@ -71,6 +72,25 @@ discreteFin : ∀ {n} → Discrete (Fin n)
 discreteFin {n} (x , hx) (y , hy) with discreteℕ x y
 ... | yes prf = yes (Σ≡Prop (λ z → isProp<ᵗ {z} {n}) prf)
 ... | no prf = no λ h → prf (cong fst h)
+
+Fin-∀A⊎∃B : ∀ {a b} n → (A : Fin n → Type a) (B : Fin n → Type b)
+  → (∀ k → ∥ A k ⊎ B k ∥₁)
+  → ∥ (∀ k → A k) ⊎ Σ (Fin n) B ∥₁
+Fin-∀A⊎∃B zero A B ab? = ∣ inl (Empty.rec ∘ ¬Fin0) ∣₁
+Fin-∀A⊎∃B (suc n) A B ab? =
+  PT.map2
+    (⊎.rec
+      (λ a0 →
+        ⊎.map
+          (λ ∀kA x →
+            ⊎.rec
+              (λ p → subst A p a0)
+              (λ (k , p) → subst A p (∀kA k))
+              (fsplit x))
+          (λ (k , bk) → fsuc k , bk))
+      (λ b0 _ → inr (fzero , b0)))
+    (ab? fzero)
+    (Fin-∀A⊎∃B n (A ∘ fsuc) (B ∘ fsuc) (ab? ∘ fsuc))
 
 inject<-ne : ∀ {n} (i : Fin n) → ¬ injectSuc i ≡ flast {k = n}
 inject<-ne {n} (k , k<nᵗ) p = <→≢ (<ᵗ→< k<nᵗ) (cong fst p)

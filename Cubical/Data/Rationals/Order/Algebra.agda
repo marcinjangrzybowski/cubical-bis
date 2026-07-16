@@ -453,12 +453,8 @@ absᵣ∘-1ⁿ· (suc (suc n)) x = absᵣ∘-1ⁿ· n x
 ^ⁿ-odd : ∀ n x → - (x ^ⁿ suc (n ℕ.· 2)) ≡ ((- x) ^ⁿ suc (n ℕ.· 2))
 ^ⁿ-even : ∀ n x → (x ^ⁿ (n ℕ.· 2)) ≡ ((- x) ^ⁿ (n ℕ.· 2))
 
-^ⁿ-even zero x = refl
-^ⁿ-even (suc n) x = ·Assoc x x _ ∙
-  cong₂ _·_ (sym (-·- x x)) (^ⁿ-even n x)
-  ∙ sym (·Assoc (- x) (- x) _)
-
-^ⁿ-odd n x =  sym (ℚR.-DistL· x _) ∙ cong ((- x) ·_)  (^ⁿ-even n x) 
+^ⁿ-even = Exponentiationℚ.^-even
+^ⁿ-odd = Exponentiationℚ.^-odd
 
 
 seqSumUpTo : (ℕ → ℚ) → ℕ →  ℚ
