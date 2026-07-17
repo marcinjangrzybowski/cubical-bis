@@ -52,12 +52,12 @@ cleanup.
 
 ## Current next slice
 
-Move the concrete real ring-theory namespace `Rℝ` out of `Algebra.Inverse`
-into a dependency-light module such as `Algebra.Ring`. Reexport it from
-`Inverse` for compatibility, expose the new module through the layered
-`Algebra` facade, and migrate direct consumers. This should remove another
-large class of spurious `Inverse` imports before the clamp helpers are handled
-in Phase 5.
+Split the remaining absolute-value and apartness prerequisites out of
+`Algebra.Inverse`. Introduce focused `Algebra.Order.AbsoluteValue` and
+`Algebra.Order.Apartness` modules for lemmas such as `absᵣNonPos`, `absᵣNeg`,
+`_＃_`, `isProp＃`, `rat＃`, and `decCut`, while retaining compatibility
+reexports. Then migrate the narrowed geometry and metric consumers; leave the
+clamp-specific helpers for Phase 5.
 
 ## Phase 1: ordered algebra structure
 
@@ -67,13 +67,17 @@ Archimedean instance remain.
 Proposed internal organization:
 
 ```text
-Cubical/HITs/CauchyReals/Algebra/Order/
-  Addition.agda
-  Multiplication.agda
-  Instance.agda
-  Properties.agda
-  Positive.agda
-  Archimedean.agda
+Cubical/HITs/CauchyReals/Algebra/
+  Ring.agda
+  Order/
+    Addition.agda
+    AbsoluteValue.agda
+    Apartness.agda
+    Multiplication.agda
+    Instance.agda
+    Properties.agda
+    Positive.agda
+    Archimedean.agda
 ```
 
 Work items:
@@ -82,7 +86,7 @@ Work items:
 - [x] Isolate or prove the missing strict-order compatibility fields.
 - [x] Define `ℝOrderedCommRing` without broad API changes.
 - [x] Reexport the instance from the appropriate algebra facade.
-- [ ] Move the `Rℝ` ring-structure/theory namespace out of `Inverse` and
+- [x] Move the `Rℝ` ring-structure/theory namespace out of `Inverse` and
       migrate its direct consumers to the canonical module.
 - [ ] Move ordinary ordered-ring lemmas out of `Continuity.Base` and
       `Inverse` or replace them with generic theorem aliases.
@@ -358,4 +362,19 @@ cleanup.
   unrelated inverse dependencies.
 - 2026-07-17: checked all seven changed Agda modules plus the `Algebra`,
   `Exponentiation`, `ArcSin`, and `Circle` facades with no holes, metas,
+  constraints, or warnings.
+- 2026-07-17: committed the order-only inverse-import migration as
+  `ef367b5ae`.
+- 2026-07-17: introduced `Algebra.Ring`, moved the `Rℝ` namespace there, and
+  reexported it through both `Algebra` and `Algebra.Inverse` for layered and
+  backwards-compatible imports.
+- 2026-07-17: replaced the real-specific continuity proof of
+  `-ᵣ≡[-1·ᵣ]` with the generic ring theorem plus the rational `-1` adapter,
+  and moved the compatibility theorem to `Algebra.Ring`.
+- 2026-07-17: migrated `Algebra.Signs`, integration summation, two circle-angle
+  modules, and `RealPower.CalculusProof` to the canonical ring import. The
+  first-quadrant module now lists its two remaining `Inverse` helpers
+  explicitly.
+- 2026-07-17: checked all eight changed Agda modules plus the `Algebra`,
+  `Calculus`, `Exponentiation`, and `Circle` facades with no holes, metas,
   constraints, or warnings.

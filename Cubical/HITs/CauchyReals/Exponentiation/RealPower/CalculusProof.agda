@@ -13,7 +13,7 @@ open import Cubical.Data.Rationals.Order as ℚ
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Ring
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base hiding (invℚ₊)
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Uniqueness
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Scaling

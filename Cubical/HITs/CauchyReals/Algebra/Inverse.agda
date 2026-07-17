@@ -18,10 +18,6 @@ open import Cubical.Data.Nat
 open import Cubical.Data.NatPlusOne
 
 
-import Cubical.Algebra.CommRing as CR
-import Cubical.Algebra.Ring as RP
-
-
 open import Cubical.Relation.Binary
 
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -33,6 +29,7 @@ open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Ring public
 open import Cubical.HITs.CauchyReals.Algebra.Order.Addition public using
   (<ᵣMonotone+ᵣ; ≤<ᵣMonotone+ᵣ; <≤ᵣMonotone+ᵣ; ℝ₊+
   ; a<c+b⇒a-c<b; <-o+-cancel; 0<y-x→x<y; x≤y≃0≤y-x)
@@ -58,12 +55,6 @@ open ℚ using (_⁻¹₊)
 
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
-
-module Rℝ where
- ℝRing = (CR.CommRing→Ring ℝcommRing)
- open CR.CommRingStr (snd (ℝcommRing)) public
- open RP.RingTheory ℝRing public
- open CR.CommRingTheory ℝcommRing public
 
 
 Invᵣ-restrℚ : (η : ℚ₊) →
@@ -735,15 +726,6 @@ opaque
                            (fst (∼≃abs<ε _ _ _) (sym∼ _ _ _ v∼u))) (sym (-ᵣ-rat q))))))))
                    (λ _ → refl∼ _ _) v∈P)
               (denseℚinℝ u 0 u<0))
-
-
-
--ᵣ≡[-1·ᵣ] : ∀ x → -ᵣ x ≡ (-1) ·ᵣ x
--ᵣ≡[-1·ᵣ] = ≡Continuous _ _
-   IsContinuous-ᵣ
-   (IsContinuous·ᵣL -1)
-   λ r → -ᵣ-rat _ ∙ rat·ᵣrat _ _
-
 
 
 
