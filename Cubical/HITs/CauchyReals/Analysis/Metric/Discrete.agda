@@ -17,7 +17,7 @@ open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
   using (≤ᵣ-o+)
   renaming (+IdL to +ᵣIdL ; +IdR to +ᵣIdR)
 open import Cubical.HITs.CauchyReals.Algebra.Inverse using (isIrrefl<ᵣ)
-open import Cubical.HITs.CauchyReals.Exponentiation.RationalPower.Core using (_₀₊+₀₊ᵣ_)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Positive
 open import Cubical.HITs.CauchyReals.Analysis.Metric.Base
 
 DiscreteMetricStr : ∀ {ℓ} {A : Type ℓ} → Discrete A → MetricSpaceStr A
@@ -47,7 +47,8 @@ DiscreteMetricStr _≟_ = ww
       discDist x z d ≤ᵣ
       discDist x y d' +ᵣ discDist y z d''
  discDistTriangle x y z (yes p) d' d'' =
-   snd ((_ , discDistNonNeg x y d') ₀₊+₀₊ᵣ (_ , discDistNonNeg y z d''))
+   snd (NonNegativeReals._+₀₊_
+     (_ , discDistNonNeg x y d') (_ , discDistNonNeg y z d''))
  discDistTriangle x y z (no ¬p) (yes p) (yes p₁) = ⊥.rec (¬p (p ∙ p₁))
  discDistTriangle x y z (no ¬p) (yes p) (no ¬p₁) =
    ≡ᵣWeaken≤ᵣ _ _ (sym (+ᵣIdL _))

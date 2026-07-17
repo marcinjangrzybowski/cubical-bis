@@ -52,7 +52,6 @@ open import Cubical.HITs.CauchyReals.Algebra.Power.Base
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base using (interpℝ)
-open import Cubical.HITs.CauchyReals.Exponentiation.RationalPower.Core using (_₀₊+₀₊ᵣ_)
 open import Cubical.HITs.CauchyReals.Trigonometry.Pi
 open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base using (invℚ₊ ; isEquiv-₊^ⁿ)
 

@@ -52,11 +52,12 @@ cleanup.
 
 ## Current next slice
 
-Continue the operation portion of Phase 3 by migrating internal consumers of
-`_₀₊+₀₊ᵣ_`, `_₀₊·₀₊ᵣ_`, and `_₀₊^ⁿ_` to `NonNegativeReals`. Start with the
-Circle modules that import a compatibility operator only, then migrate
-`Analysis.Metric.PNorm` without changing its public statements. Keep the old
-operators available through the layered facades.
+Prepare the positive-operation portion of Phase 3 by untangling the dependency
+that currently prevents `Inverse._₊+ᵣ_`, `_₊·ᵣ_`, and `_₊^ⁿ_` from becoming
+aliases to `PositiveReals`. In particular, isolate the positive multiplication
+and strict multiplicative-monotonicity facts needed by `Algebra.Order.Instance`
+from the rest of `Inverse`, then keep the old operator spellings at a later
+compatibility boundary.
 
 ## Phase 1: ordered algebra structure
 
@@ -148,7 +149,7 @@ After `ℝOrderedCommRing` exists:
 - [x] Replace the nonnegative addition and multiplication implementations in
       `RationalPower.Core` and the nonnegative power implementation in
       `Roots.NonNegative` with `NonNegativeReals` operations.
-- [ ] Migrate internal consumers to the canonical nonnegative operations while
+- [x] Migrate internal consumers to the canonical nonnegative operations while
       retaining the existing operator spellings at compatibility boundaries.
 - [ ] Keep inverse/division on positive reals in a field/inverse-specific
       module until an appropriate generic ordered-field abstraction exists.
@@ -321,3 +322,9 @@ cleanup.
 - 2026-07-16: checked every changed Agda module plus the `Algebra`,
   `Exponentiation`, `NthRoot`, and `Calculus` facades with no holes, metas,
   constraints, or warnings.
+- 2026-07-16: committed the ordered/rational and first nonnegative-operation
+  batch as `01594118c`.
+- 2026-07-16: removed five dead Circle imports of `RationalPower.Core`, changed
+  `Metric.Discrete` to use `NonNegativeReals._+₀₊_` directly, and migrated
+  `Metric.PNorm` to the canonical `_+₀₊_`, `_·₀₊_`, and `_^₀₊_` notation.
+  All changed modules and the `Circle` facade checked cleanly.

@@ -33,6 +33,8 @@ open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Power.Base
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Order.Positive
+open NonNegativeReals using (_+₀₊_ ; _·₀₊_ ; _^₀₊_)
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Exponentiation.Base
 open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base
@@ -49,12 +51,12 @@ open import Cubical.HITs.CauchyReals.Analysis.Metric.Base
 
 nth-rootNonNegDist· : ∀ n x y →
  fst (nth-rootNonNeg n x) ·ᵣ fst (nth-rootNonNeg n y)
-   ≡ fst (nth-rootNonNeg n (x ₀₊·₀₊ᵣ y))
+   ≡ fst (nth-rootNonNeg n (x ·₀₊ y))
 nth-rootNonNegDist· (1+ n) x y = cong fst $
  sym (invEq≡→equivFun≡ (invEquiv (nth-pow-root-equiv₀₊ (1+ n)))
-   {b = ((nth-rootNonNeg (1+ n)) x) ₀₊·₀₊ᵣ (nth-rootNonNeg (1+ n)) y}
+   {b = ((nth-rootNonNeg (1+ n)) x) ·₀₊ (nth-rootNonNeg (1+ n)) y}
   (ℝ₀₊≡ (^ⁿ-ldist-· _ _ (suc n)) ∙
-   cong₂ _₀₊·₀₊ᵣ_
+   cong₂ _·₀₊_
      (Iso.sec (nth-pow-root-iso₀₊ (1+ n)) x)
      (Iso.sec (nth-pow-root-iso₀₊ (1+ n)) y)))
 
@@ -102,9 +104,9 @@ nth-rootNonNegMonotoneStrict (1+ n) (x , 0≤x) (y , 0≤y) x<y =
 𝒑-norm×-lem : ∀ n → ℕ₊₁→ℕ n ℕ.≤ 2 → ∀ ab bc a'b' b'c' →
    ((fst ab +ᵣ fst bc) ^ⁿ ℕ₊₁→ℕ n) +ᵣ
       ((fst a'b' +ᵣ fst b'c') ^ⁿ ℕ₊₁→ℕ n)
-     ≤ᵣ ((fst (nth-rootNonNeg n ((ab ₀₊^ⁿ ℕ₊₁→ℕ n) ₀₊+₀₊ᵣ (a'b' ₀₊^ⁿ ℕ₊₁→ℕ n)))
+     ≤ᵣ ((fst (nth-rootNonNeg n ((ab ^₀₊ ℕ₊₁→ℕ n) +₀₊ (a'b' ^₀₊ ℕ₊₁→ℕ n)))
           +ᵣ fst (nth-rootNonNeg n
-            ((bc ₀₊^ⁿ ℕ₊₁→ℕ n) ₀₊+₀₊ᵣ (b'c' ₀₊^ⁿ ℕ₊₁→ℕ n)))) ^ⁿ ℕ₊₁→ℕ n)
+            ((bc ^₀₊ ℕ₊₁→ℕ n) +₀₊ (b'c' ^₀₊ ℕ₊₁→ℕ n)))) ^ⁿ ℕ₊₁→ℕ n)
 𝒑-norm×-lem one x ab bc a'b' b'c' =
   ≡ᵣWeaken≤ᵣ _ _
    (  (cong₂ _+ᵣ_ (Rℝ.·IdR _) (Rℝ.·IdR _)
@@ -135,7 +137,7 @@ nth-rootNonNegMonotoneStrict (1+ n) (x , 0≤x) (y , 0≤y) x<y =
     (isTrans≤≡ᵣ _ _ _
       (isTrans≡≤ᵣ _ _ _
         (sym (cong fst (Iso.ret (nth-pow-root-iso₀₊ 2)
-          ((ab ₀₊·₀₊ᵣ bc) ₀₊+₀₊ᵣ (a'b' ₀₊·₀₊ᵣ b'c')))))
+          ((ab ·₀₊ bc) +₀₊ (a'b' ·₀₊ b'c')))))
        (nth-rootNonNegMonotone 2 _ _
         (isTrans≡≤ᵣ _ _ _
          ([a+b]^ⁿ2≡[a^ⁿ2+b^ⁿ2]+2ab _ _ )
@@ -163,7 +165,7 @@ nth-rootNonNegMonotoneStrict (1+ n) (x , 0≤x) (y , 0≤y) x<y =
   ⊥.rec (ℕ.<-asym x (ℕ.≤-k+ {k = 2} ℕ.zero-≤))
 
 0≡ℝ₀₊+ℝ₀₊→both≡0 : ∀ (x y : ℝ₀₊)
-   → 0 ≡ fst (x ₀₊+₀₊ᵣ y)
+   → 0 ≡ fst (x +₀₊ y)
    → (0 ≡ fst x) × (0 ≡ fst y)
 0≡ℝ₀₊+ℝ₀₊→both≡0 x y 0≡x+y =
     isAntisym≤ᵣ 0 (fst x) (snd x)
@@ -174,12 +176,12 @@ nth-rootNonNegMonotoneStrict (1+ n) (x , 0≤x) (y , 0≤y) x<y =
        (isTrans≤≡ᵣ _ _ _  (-ᵣ≤ᵣ _ _ (snd x)) (-ᵣ-rat 0)))
 
 0<ℝ₀₊+ℝ₀₊→atLeastOne>0 : ∀ (x y : ℝ₀₊)
-   → 0 <ᵣ fst (x ₀₊+₀₊ᵣ y)
+   → 0 <ᵣ fst (x +₀₊ y)
    → ∥ (0 <ᵣ fst x) ⊎ (0 <ᵣ fst y) ∥₁
 0<ℝ₀₊+ℝ₀₊→atLeastOne>0 (x , 0≤x) (y , 0≤y) 0<x+y =
   PT.map w (Dichotomyℝ' _ x _ 0<x+y)
  where
- w : (x <ᵣ fst ((x , 0≤x) ₀₊+₀₊ᵣ (y , 0≤y))) ⊎ (0 <ᵣ x)
+ w : (x <ᵣ fst ((x , 0≤x) +₀₊ (y , 0≤y))) ⊎ (0 <ᵣ x)
     → (0 <ᵣ x) ⊎ (0 <ᵣ y)
  w (inl x<x+y) = inr
    (Cubical.HITs.CauchyReals.Algebra.Inverse.<-o+-cancel _ _ x
@@ -199,8 +201,8 @@ module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'}
  𝒑-norm-dist : ℕ₊₁ → A × A' → A × A' → ℝ
  𝒑-norm-dist n (a , a') (b , b') =
     fst (nth-rootNonNeg n
-      ((MA.𝑑₊[ a , b ] ₀₊^ⁿ (ℕ₊₁→ℕ n) ) ₀₊+₀₊ᵣ
-        (MA'.𝑑₊[ a' , b' ] ₀₊^ⁿ (ℕ₊₁→ℕ n) )))
+      ((MA.𝑑₊[ a , b ] ^₀₊ (ℕ₊₁→ℕ n) ) +₀₊
+        (MA'.𝑑₊[ a' , b' ] ^₀₊ (ℕ₊₁→ℕ n) )))
 
  𝒑-norm-× :  (n : ℕ₊₁) → ℕ₊₁→ℕ n ℕ.≤ 2
 
@@ -213,8 +215,8 @@ module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'}
   w .is-set = isSet× MA.is-set MA'.is-set
   w .𝑑-nonNeg (a , a') (b , b') =
     snd (nth-rootNonNeg n
-      ((MA.𝑑₊[ a , b ] ₀₊^ⁿ (ℕ₊₁→ℕ n) ) ₀₊+₀₊ᵣ
-        (MA'.𝑑₊[ a' , b' ] ₀₊^ⁿ (ℕ₊₁→ℕ n) )))
+      ((MA.𝑑₊[ a , b ] ^₀₊ (ℕ₊₁→ℕ n) ) +₀₊
+        (MA'.𝑑₊[ a' , b' ] ^₀₊ (ℕ₊₁→ℕ n) )))
   w .𝑑-sym (a , a') (b , b') =
     cong (fst ∘ nth-rootNonNeg n)
       (ℝ₀₊≡ (cong₂ _+ᵣ_ (cong (_^ⁿ (ℕ₊₁→ℕ n)) (MA.𝑑-sym a b))
@@ -228,13 +230,13 @@ module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'}
             (sym $ nth-rootNonNeg0 n _)
             (cong fst (Iso.ret (nth-pow-root-iso₀₊ n) _))
             (nth-rootNonNegMonotoneStrict n (0 , decℚ≤ᵣ?)
-              ((MA.𝑑₊[ a , b ] ₀₊^ⁿ ℕ₊₁→ℕ (1+ n'))) 0<d))
+              ((MA.𝑑₊[ a , b ] ^₀₊ ℕ₊₁→ℕ (1+ n'))) 0<d))
         (λ 0<d →
           subst2 _<ᵣ_
             (sym $ nth-rootNonNeg0 n _)
             (cong fst (Iso.ret (nth-pow-root-iso₀₊ n) _))
             (nth-rootNonNegMonotoneStrict n (0 , decℚ≤ᵣ?)
-              ((MA'.𝑑₊[ a' , b' ] ₀₊^ⁿ ℕ₊₁→ℕ (1+ n'))) 0<d))))
+              ((MA'.𝑑₊[ a' , b' ] ^₀₊ ℕ₊₁→ℕ (1+ n'))) 0<d))))
         ((0<ℝ₀₊+ℝ₀₊→atLeastOne>0
          (Iso.fun (nth-pow-root-iso₀₊ n) (MA.𝑑₊[ a , b ]))
          (Iso.fun (nth-pow-root-iso₀₊ n) (MA'.𝑑₊[ a' , b' ]))
@@ -242,8 +244,8 @@ module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'}
     where
     ww : 0 <ᵣ
           fst
-          ((MA.𝑑₊[ a , b ] ₀₊^ⁿ ℕ₊₁→ℕ (1+ n')) ₀₊+₀₊ᵣ
-           (MA'.𝑑₊[ a' , b' ] ₀₊^ⁿ ℕ₊₁→ℕ (1+ n')))
+          ((MA.𝑑₊[ a , b ] ^₀₊ ℕ₊₁→ℕ (1+ n')) +₀₊
+           (MA'.𝑑₊[ a' , b' ] ^₀₊ ℕ₊₁→ℕ (1+ n')))
     ww = isTrans≡<ᵣ _ _ _
           (sym (0^ⁿ n'))
           (isTrans<≡ᵣ _ _ _ (^ⁿ-StrictMonotone (suc n') ℕ.zero-<-suc
@@ -268,11 +270,11 @@ module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'}
            {b = _ , ≤ᵣ-refl 0})
           (ℝ₀₊≡ (sym (snd ww)))))))
    where
-    ww : (0 ≡ fst (MA.𝑑₊[ a , b ] ₀₊^ⁿ ℕ₊₁→ℕ n)) ×
-          (0 ≡ fst (MA'.𝑑₊[ a' , b' ] ₀₊^ⁿ ℕ₊₁→ℕ n))
+    ww : (0 ≡ fst (MA.𝑑₊[ a , b ] ^₀₊ ℕ₊₁→ℕ n)) ×
+          (0 ≡ fst (MA'.𝑑₊[ a' , b' ] ^₀₊ ℕ₊₁→ℕ n))
     ww =  0≡ℝ₀₊+ℝ₀₊→both≡0
-            (MA.𝑑₊[ a , b ] ₀₊^ⁿ ℕ₊₁→ℕ n)
-            (MA'.𝑑₊[ a' , b' ] ₀₊^ⁿ ℕ₊₁→ℕ n)
+            (MA.𝑑₊[ a , b ] ^₀₊ ℕ₊₁→ℕ n)
+            (MA'.𝑑₊[ a' , b' ] ^₀₊ ℕ₊₁→ℕ n)
             (sym (0^ⁿ (predℕ (ℕ₊₁→ℕ n)))
       ∙ cong fst (fst (equivAdjointEquiv (nth-pow-root-equiv₀₊ n))
          (ℝ₀₊≡ {_ , decℚ≤ᵣ?} 0≡d)))
@@ -299,14 +301,14 @@ module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'}
       (cong fst (Iso.ret (nth-pow-root-iso₀₊ n)
        ((_ , snd
          (fst (nth-rootNonNegDef n)
-          ((MA.𝑑₊[ a , b ] ₀₊^ⁿ ℕ₊₁→ℕ n) ₀₊+₀₊ᵣ
-           (MA'.𝑑₊[ a' , b' ] ₀₊^ⁿ ℕ₊₁→ℕ n)))
+          ((MA.𝑑₊[ a , b ] ^₀₊ ℕ₊₁→ℕ n) +₀₊
+           (MA'.𝑑₊[ a' , b' ] ^₀₊ ℕ₊₁→ℕ n)))
          )
-         ₀₊+₀₊ᵣ
+         +₀₊
         (_ , snd
          (fst (nth-rootNonNegDef n)
-          ((MA.𝑑₊[ b , c ] ₀₊^ⁿ ℕ₊₁→ℕ n) ₀₊+₀₊ᵣ
-           (MA'.𝑑₊[ b' , c' ] ₀₊^ⁿ ℕ₊₁→ℕ n)))
+          ((MA.𝑑₊[ b , c ] ^₀₊ ℕ₊₁→ℕ n) +₀₊
+           (MA'.𝑑₊[ b' , c' ] ^₀₊ ℕ₊₁→ℕ n)))
          ))))
 
   ww : MetricSpaceStr (_ × _)
