@@ -18,7 +18,7 @@ open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Inverse using (x≤→clampᵣ≡)
 open import Cubical.HITs.CauchyReals.Foundation.Order.Positive
 open import Cubical.HITs.CauchyReals.Trigonometry.Base
 open import Cubical.HITs.CauchyReals.Trigonometry.Pi

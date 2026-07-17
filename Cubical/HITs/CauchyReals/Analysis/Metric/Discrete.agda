@@ -16,7 +16,7 @@ open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
   using (≤ᵣ-o+)
   renaming (+IdL to +ᵣIdL ; +IdR to +ᵣIdR)
-open import Cubical.HITs.CauchyReals.Algebra.Inverse using (isIrrefl<ᵣ)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Properties using (isIrrefl<ᵣ)
 open import Cubical.HITs.CauchyReals.Algebra.Order.Positive
 open import Cubical.HITs.CauchyReals.Analysis.Metric.Base
 

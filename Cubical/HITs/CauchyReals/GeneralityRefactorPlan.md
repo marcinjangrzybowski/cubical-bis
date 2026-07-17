@@ -52,12 +52,12 @@ cleanup.
 
 ## Current next slice
 
-Migrate implementation modules that import `Algebra.Inverse` only for the
-newly isolated ordered-addition and ordered-multiplication lemmas to
-`Algebra.Order.Addition`, `Algebra.Order.Multiplication`, or
-`Algebra.Order.Properties`. Start with explicit `using` imports and
-`Algebra.Power.Order`, then audit the remaining broad imports without removing
-`Inverse` where inverse or division results are genuinely used.
+Move the concrete real ring-theory namespace `Rℝ` out of `Algebra.Inverse`
+into a dependency-light module such as `Algebra.Ring`. Reexport it from
+`Inverse` for compatibility, expose the new module through the layered
+`Algebra` facade, and migrate direct consumers. This should remove another
+large class of spurious `Inverse` imports before the clamp helpers are handled
+in Phase 5.
 
 ## Phase 1: ordered algebra structure
 
@@ -82,6 +82,8 @@ Work items:
 - [x] Isolate or prove the missing strict-order compatibility fields.
 - [x] Define `ℝOrderedCommRing` without broad API changes.
 - [x] Reexport the instance from the appropriate algebra facade.
+- [ ] Move the `Rℝ` ring-structure/theory namespace out of `Inverse` and
+      migrate its direct consumers to the canonical module.
 - [ ] Move ordinary ordered-ring lemmas out of `Continuity.Base` and
       `Inverse` or replace them with generic theorem aliases.
 - [ ] Later define `ℝArchimedeanRing` and move applicable bounds into
@@ -344,3 +346,16 @@ cleanup.
 - 2026-07-17: checked every changed Agda module plus the `Algebra`,
   `Exponentiation`, `NthRoot`, `Calculus`, and `Circle` facades with no holes,
   metas, constraints, or warnings.
+- 2026-07-17: committed the ordered-addition, ordered-multiplication, and
+  positive-operation extraction as `2c9394ff6`.
+- 2026-07-17: migrated the order-only `Inverse` imports in `Algebra.Power.Order`,
+  `Metric.Discrete`, `Approximation.InverseLipschitz`, `RealPower.BaseOrder`,
+  and `Circle.Base` to the new order modules. Removed a dead import from
+  `ArcSin.Symmetric.Base` and narrowed the symmetric rational module to its
+  single remaining clamp-helper dependency.
+- 2026-07-17: the import audit identified `Rℝ`, a general ring-theory namespace
+  currently declared in `Algebra.Inverse`, as the next major source of
+  unrelated inverse dependencies.
+- 2026-07-17: checked all seven changed Agda modules plus the `Algebra`,
+  `Exponentiation`, `ArcSin`, and `Circle` facades with no holes, metas,
+  constraints, or warnings.

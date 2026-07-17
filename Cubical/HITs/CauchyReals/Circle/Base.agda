@@ -25,7 +25,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Power.Base
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Order.Properties using
+  (Dichotomyℝ'; isIrrefl<ᵣ)
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Exponentiation.Base
 open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base

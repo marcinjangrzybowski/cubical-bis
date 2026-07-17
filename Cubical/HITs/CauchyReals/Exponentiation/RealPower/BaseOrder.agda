@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
 open import Cubical.HITs.CauchyReals.Foundation.Rationals hiding (_^_)
 open import Cubical.HITs.CauchyReals.Exponentiation.RealPower.Definition using (_^ᵣ_; ln)

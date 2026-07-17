@@ -16,7 +16,7 @@ open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Inverse.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
-open import Cubical.HITs.CauchyReals.Algebra.Inverse using (<ᵣ-o·ᵣ)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication using (<ᵣ-o·ᵣ)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
 
 open import Cubical.HITs.CauchyReals.Exponentiation.Approximation.Base
