@@ -33,6 +33,14 @@ open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition public using
+  (<ᵣMonotone+ᵣ; ≤<ᵣMonotone+ᵣ; <≤ᵣMonotone+ᵣ; ℝ₊+
+  ; a<c+b⇒a-c<b; <-o+-cancel; 0<y-x→x<y; x≤y≃0≤y-x)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication public using
+  (≤ᵣ-·ᵣo; ≤ᵣ-o·ᵣ; ≤ᵣ₊Monotone·ᵣ; ℝ₊·; <ᵣ-·ᵣo; <ᵣ-o·ᵣ)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Properties public using
+  (isIrrefl<ᵣ)
+import Cubical.HITs.CauchyReals.Algebra.Order.Positive as OrderPositive
 
 
 open import Cubical.Tactics.CommRingSolver
@@ -119,31 +127,6 @@ absᵣNonPos x p = abs-max x ∙ ≤ᵣ→≡ z
 
 
 -- TODO: this is overcomplciated! it follows simply form density...
-
-<ᵣMonotone+ᵣ : ∀ m n o s → m <ᵣ n → o <ᵣ s → (m +ᵣ o) <ᵣ (n +ᵣ s)
-<ᵣMonotone+ᵣ m n o s m<n o<s =
-  isTrans<ᵣ _ _ _ (<ᵣ-+o m n o m<n) (<ᵣ-o+ o s n o<s)
-
-≤<ᵣMonotone+ᵣ : ∀ m n o s → m ≤ᵣ n → o <ᵣ s → (m +ᵣ o) <ᵣ (n +ᵣ s)
-≤<ᵣMonotone+ᵣ m n o s m≤n o<s =
-  isTrans≤<ᵣ _ _ _ (≤ᵣ-+o m n o m≤n) (<ᵣ-o+ o s n o<s)
-
-<≤ᵣMonotone+ᵣ : ∀ m n o s → m <ᵣ n → o ≤ᵣ s → (m +ᵣ o) <ᵣ (n +ᵣ s)
-<≤ᵣMonotone+ᵣ m n o s m<n o≤s =
-  isTrans<≤ᵣ _ _ _ (<ᵣ-+o m n o m<n) (≤ᵣ-o+ o s n o≤s)
-
-
-
-ℝ₊+ : (m : ℝ₊) (n : ℝ₊) → 0 <ᵣ (fst m) +ᵣ (fst n)
-ℝ₊+ (m , <m) (n , <n) = isTrans≡<ᵣ _ _ _ (sym (+ᵣ-rat  _ _)) (<ᵣMonotone+ᵣ 0 m 0 n <m <n)
-
-
-opaque
- unfolding _<ᵣ_
- isIrrefl<ᵣ : BinaryRelation.isIrrefl _<ᵣ_
- isIrrefl<ᵣ a = PT.rec isProp⊥
-   λ ((q , q') , (a≤q , q<q' , q'≤a)) →
-     ℚ.≤→≯ _ _ (≤ᵣ→≤ℚ _ _ (isTrans≤ᵣ (rat q') _ _ q'≤a a≤q)) q<q'
 
 _＃_ : ℝ → ℝ → Type
 x ＃ y = (x <ᵣ y) ⊎ (y <ᵣ x)
@@ -280,10 +263,6 @@ opaque
      ℝ!
       (≤ᵣ-+o _ _ b p)
 
- a<c+b⇒a-c<b : ∀ a b c → a <ᵣ c +ᵣ b  → a -ᵣ c <ᵣ b
- a<c+b⇒a-c<b a b c p =
-   subst ((a -ᵣ c) <ᵣ_) ℝ! (<ᵣ-+o _ _ (-ᵣ c) p)
-
  a<c+b⇒a-b<c : ∀ a b c → a <ᵣ c +ᵣ b  → a -ᵣ b <ᵣ c
  a<c+b⇒a-b<c a b c p =
    a<c+b⇒a-c<b a c b (isTrans<≡ᵣ _ _ _ p ℝ!)
@@ -327,12 +306,6 @@ opaque
       subst2 (_≤ᵣ_) ℝ! ℝ!
       (≤ᵣ-o+ _ _ (-ᵣ o) p)
 
- <-o+-cancel : ∀ m n o →  o +ᵣ m <ᵣ o +ᵣ n → m <ᵣ n
- <-o+-cancel m n o p =
-      subst2 (_<ᵣ_) ℝ! ℝ!
-      (<ᵣ-o+ _ _ (-ᵣ o) p)
-
-
  ≤-+o-cancel : ∀ m n o →  m +ᵣ o ≤ᵣ n +ᵣ o → m ≤ᵣ n
  ≤-+o-cancel m n o p =
       subst2 (_≤ᵣ_) ℝ! ℝ!
@@ -350,20 +323,6 @@ opaque
  x≤y→0≤y-x x y p =
    subst (_≤ᵣ y +ᵣ (-ᵣ x)) (+-ᵣ x) (≤ᵣ-+o x y (-ᵣ x) p)
 
-
-
- 0<y-x→x<y : ∀ x y → 0 <ᵣ y +ᵣ (-ᵣ x) → x <ᵣ y
- 0<y-x→x<y x y p =
-   subst2 (_<ᵣ_)
-    (+IdL x) ℝ!
-     (<ᵣ-+o 0 (y +ᵣ (-ᵣ x)) x p)
-
- x≤y≃0≤y-x : ∀ x y → (x ≤ᵣ y) ≃ (0 ≤ᵣ y -ᵣ x)
- x≤y≃0≤y-x x y =   propBiimpl→Equiv (isProp≤ᵣ _ _) (isProp≤ᵣ _ _)
-    (x≤y→0≤y-x x y)
-     λ p →  subst2 (_≤ᵣ_)
-    (+IdL x) ℝ!
-     (≤ᵣ-+o 0 (y +ᵣ (-ᵣ x)) x p)
 
 
  x<y≃0<y-x : ∀ x y → (x <ᵣ y) ≃ (0 <ᵣ y -ᵣ x)
@@ -1108,90 +1067,11 @@ opaque
    ∙ -invℝ _ _  ∙ sym (invℝ₊≡invℝ (-ᵣ x , -ᵣ<ᵣ x _ x₁) _)
     ∙ cong (fst ∘ invℝ₊) (ℝ₊≡ (sym (absᵣNeg _ x₁)))
 
-
-
-opaque
- unfolding _≤ᵣ_ maxᵣ 
-
-
- ≤ᵣ-·ᵣo : ∀ m n o → 0 ≤ᵣ o  →  m ≤ᵣ n → (m ·ᵣ o ) ≤ᵣ (n ·ᵣ o)
- ≤ᵣ-·ᵣo m n o 0≤o m≤n = subst (λ o →
-    (m ·ᵣ o ) ≤ᵣ (n ·ᵣ o)) 0≤o (w ∙
-       cong (_·ᵣ maxᵣ (rat [ pos 0 / 1+ 0 ]) o) m≤n)
-  where
-  w : maxᵣ (m ·ᵣ maxᵣ 0 o ) (n ·ᵣ maxᵣ 0 o) ≡  (maxᵣ m n ·ᵣ maxᵣ 0 o)
-  w = ≡Continuous _ _
-      (cont₂maxᵣ _ _
-        ((IsContinuous∘ _ _
-          (IsContinuous·ᵣL m) (IsContinuousMaxL 0)  ))
-        ((IsContinuous∘ _ _
-          (IsContinuous·ᵣL n) (IsContinuousMaxL 0)  )))
-      (IsContinuous∘ _ _
-          (IsContinuous·ᵣL _) (IsContinuousMaxL 0)  )
-       (λ o' →
-         ≡Continuous _ _
-           (IsContinuous∘ _ _ (IsContinuousMaxR ((n ·ᵣ maxᵣ 0 (rat o'))))
-                 (IsContinuous·ᵣR (maxᵣ 0 (rat o'))) )
-           (IsContinuous∘ _ _  (IsContinuous·ᵣR (maxᵣ 0 (rat o')))
-                                 (IsContinuousMaxR n))
-           (λ m' →
-             ≡Continuous
-               (λ n → maxᵣ (rat m' ·ᵣ maxᵣ 0 (rat o') ) (n ·ᵣ maxᵣ 0 (rat o')))
-               (λ n →  maxᵣ (rat m') n ·ᵣ maxᵣ 0 (rat o'))
-               ((IsContinuous∘ _ _
-                 (IsContinuousMaxL (((rat m') ·ᵣ maxᵣ 0 (rat o'))))
-                 (IsContinuous·ᵣR (maxᵣ 0 (rat o'))) ))
-               (IsContinuous∘ _ _ ((IsContinuous·ᵣR (maxᵣ 0 (rat o'))))
-                   (IsContinuousMaxL (rat m')))
-               (λ n' →
-                  ℚℝ!
-                   ∙∙ cong rat (sym (ℚ.·MaxDistrℚ' m' n' (ℚ.max 0 o')
-                       (ℚ.≤max 0 o'))) ∙∙
-                   ℚℝ!
-                  ) n) m) o
-
- ≤ᵣ-o·ᵣ : ∀ m n o → 0 ≤ᵣ o →  m ≤ᵣ n → (o ·ᵣ m   ) ≤ᵣ (o ·ᵣ n)
- ≤ᵣ-o·ᵣ m n o 0≤o p = subst2 _≤ᵣ_
-   (·ᵣComm _ _)
-   (·ᵣComm _ _)
-   (≤ᵣ-·ᵣo m n o 0≤o p)
-
-≤ᵣ₊Monotone·ᵣ : ∀ m n o s → 0 ≤ᵣ n → 0 ≤ᵣ o
-       → m ≤ᵣ n → o ≤ᵣ s
-       → (m ·ᵣ o) ≤ᵣ (n ·ᵣ s)
-≤ᵣ₊Monotone·ᵣ m n o s 0≤n 0≤o m≤n o≤s =
-  isTrans≤ᵣ _ _ _ (≤ᵣ-·ᵣo m n o 0≤o m≤n)
-    (≤ᵣ-o·ᵣ o s n 0≤n o≤s)
-
-opaque
- unfolding _<ᵣ_
-
- ℝ₊· : (m : ℝ₊) (n : ℝ₊) → 0 <ᵣ (fst m) ·ᵣ (fst n)
- ℝ₊· (m , 0<m) (n , 0<n) = PT.map2
-   (λ ((q , q') , 0≤q , q<q' , q'≤m) →
-    λ ((r , r') , 0≤r , r<r' , r'≤n) →
-     let 0<r' = ℚ.isTrans≤< _ _ _ (≤ᵣ→≤ℚ 0 r 0≤r) r<r'
-         qr₊ = (q' ,  (ℚ.isTrans≤< _ _ _ (≤ᵣ→≤ℚ 0 q 0≤q) q<q'))
-                ·₊ (r' ,  0<r')
-
-     in (fst ( qr₊ /2₊) , fst qr₊) ,
-          ≤ℚ→≤ᵣ _ _ (ℚ.0≤ℚ₊ ( qr₊ /2₊)) ,
-            /2₊<id qr₊  ,
-            subst (_≤ᵣ (m ·ᵣ n))
-              (sym (rat·ᵣrat q' r'))
-               (≤ᵣ₊Monotone·ᵣ (rat q')
-                 (m) (rat r') n (<ᵣWeaken≤ᵣ 0 _ 0<m)
-                                (<ᵣWeaken≤ᵣ 0 _ (<ℚ→<ᵣ _ _ 0<r'))
-                              q'≤m r'≤n) ) 0<m 0<n
-
-
-
 _₊+ᵣ_ : ℝ₊ → ℝ₊ → ℝ₊
-(m , 0<m) ₊+ᵣ (n , 0<n) = m +ᵣ n ,
- isTrans≡<ᵣ _ _ _ (sym (+ᵣ-rat _ _)) (<ᵣMonotone+ᵣ 0 m 0 n 0<m 0<n)
+_₊+ᵣ_ = OrderPositive.PositiveReals._+₊_
 
 _₊·ᵣ_ : ℝ₊ → ℝ₊  → ℝ₊
-(m , 0<m) ₊·ᵣ (n , 0<n) = _ , ℝ₊· (m , 0<m) (n , 0<n)
+_₊·ᵣ_ = OrderPositive.PositiveReals._·₊_
 
 _₊／ᵣ₊_ : ℝ₊ → ℝ₊  → ℝ₊
 (q , 0<q) ₊／ᵣ₊ (r , 0<r) = (q ／ᵣ[ r , inl (0<r) ] ,
@@ -1211,7 +1091,7 @@ _₊／ᵣ₊_ : ℝ₊ → ℝ₊  → ℝ₊
 
 
 _₊^ⁿ_ : ℝ₊ → ℕ → ℝ₊
-(x , 0<x) ₊^ⁿ n  = (x ^ⁿ n) , 0<x^ⁿ x n 0<x
+_₊^ⁿ_ = OrderPositive.PositiveReals._^₊_
 
 
 
@@ -1224,18 +1104,6 @@ _₊^ⁿ_ : ℝ₊ → ℕ → ℝ₊
 
 0<1/x' : ∀ x (0<x : 0 <ᵣ x) → 0 <ᵣ invℝ x (inl 0<x)
 0<1/x' x 0<x = 0<1/x x (inl 0<x) 0<x
-
-<ᵣ-·ᵣo : ∀ m n (o : ℝ₊) →  m <ᵣ n → (m ·ᵣ (fst o)) <ᵣ (n ·ᵣ (fst o))
-<ᵣ-·ᵣo m n (o , 0<o) p =
-  let z = subst (0 <ᵣ_) (·DistR+ n (-ᵣ m) o ∙
-                   cong ((n ·ᵣ o) +ᵣ_) (-ᵣ· m o))
-           (ℝ₊· (_ , x<y→0<y-x _ _ p) (o , 0<o))
-  in 0<y-x→x<y _ _ z
-
-<ᵣ-o·ᵣ : ∀ m n (o : ℝ₊) →  m <ᵣ n → ((fst o) ·ᵣ m) <ᵣ ((fst o) ·ᵣ n )
-<ᵣ-o·ᵣ m n (o , 0<o) p =
-  subst2 (_<ᵣ_)
-    (·ᵣComm _ _) (·ᵣComm _ _) (<ᵣ-·ᵣo m n (o , 0<o) p)
 
 denseℝ : ∀ u v → u <ᵣ v → Σ[ r ∈ ℝ ] ((u <ᵣ r) × (r <ᵣ v))
 denseℝ u v u<v =

@@ -227,6 +227,11 @@ nth-pow-root-iso₀₊ n .Iso.ret (x , 0≤x) = ww
         {y = (mⁿ , <ᵣWeaken≤ᵣ 0 mⁿ 0<mⁿ)}
         refl)
     ∙ (snd (fst (snd (nth-rootNonNegDef n))) (mⁿ , 0<mⁿ)))
+    ∙ cong (fst ∘ root n)
+       (ℝ₊≡
+        {x = (mⁿ , 0<mⁿ)}
+        {y = (rat m , m>0) ₊^ⁿ (ℕ₊₁→ℕ n)}
+        refl)
     ∙ cong fst  (nth-pow-root-iso n .Iso.ret
        (rat m , m>0))
 

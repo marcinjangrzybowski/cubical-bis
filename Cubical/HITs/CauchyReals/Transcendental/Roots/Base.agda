@@ -575,8 +575,8 @@ module NthRoot (m : ℕ) where
            cong (_^ⁿ (2 ℕ.+ m)) rootSeq⊆→-fun ∙ 𝒇=f _ _ (rootInv∈ n x x∈)
         ∙ rootMap-rootInv n x x∈
 
-  ⁿ√∘^ⁿ : ∀ x 0<x → fst (nth-root (x  ^ⁿ (2 ℕ.+ m) , 0<x^ⁿ x (2 ℕ.+ m) 0<x)) ≡ x
-  ⁿ√∘^ⁿ  x 0<x = (∩$-elimProp _ (0<x^ⁿ x (suc (suc  m)) 0<x)
+  ⁿ√∘^ⁿ : ∀ x 0<x → fst (nth-root ((x , 0<x) ₊^ⁿ (2 ℕ.+ m))) ≡ x
+  ⁿ√∘^ⁿ x 0<x = (∩$-elimProp _ (snd ((x , 0<x) ₊^ⁿ (2 ℕ.+ m)))
     {B = λ a → a ≡ x}
     (λ a → isSetℝ a x)
      λ n x∈' →
@@ -637,8 +637,7 @@ module NthRoot (m : ℕ) where
 
 
  nth-pow-root-iso₊₂ : Iso ℝ₊ ℝ₊
- nth-pow-root-iso₊₂ .Iso.fun (x , 0<x) =
-   (x ^ⁿ (2 ℕ.+ m)) , 0<x^ⁿ x (2 ℕ.+ m) 0<x
+ nth-pow-root-iso₊₂ .Iso.fun x = x ₊^ⁿ (2 ℕ.+ m)
  nth-pow-root-iso₊₂ .Iso.inv = nth-root
  nth-pow-root-iso₊₂ .Iso.sec =
    ℝ₊≡ ∘ uncurry ^ⁿ∘ⁿ√
@@ -667,7 +666,7 @@ IsContinuousRoot (2+ n) = NthRoot.nth-root-cont n
 
 
 nth-pow-root-iso : ℕ₊₁ → Iso ℝ₊ ℝ₊
-nth-pow-root-iso k .Iso.fun (x , 0<x) = (x ^ⁿ ℕ₊₁→ℕ k) , 0<x^ⁿ x (ℕ₊₁→ℕ k) 0<x
+nth-pow-root-iso k .Iso.fun x = x ₊^ⁿ ℕ₊₁→ℕ k
 nth-pow-root-iso k .Iso.inv = root k
 nth-pow-root-iso one .Iso.sec _ = ℝ₊≡ (·IdR _)
 nth-pow-root-iso (2+ n) .Iso.sec = Iso.sec

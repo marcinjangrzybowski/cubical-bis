@@ -4,14 +4,21 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.NatPlusOne
 
+import Cubical.Algebra.CommRing as CR
+import Cubical.Algebra.Ring as RP
 open import Cubical.Algebra.OrderedCommRing.Properties
 
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition
+open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Order.Instance
+
+
+private
+  module ℝRing = RP.RingTheory (CR.CommRing→Ring ℝcommRing)
 
 
 positiveAddClosed : ∀ x y → 0 <ᵣ x → 0 <ᵣ y → 0 <ᵣ x +ᵣ y
@@ -34,7 +41,7 @@ nonNegativeAddClosed x y 0≤x 0≤y =
 nonNegativeMulClosed : ∀ x y → 0 ≤ᵣ x → 0 ≤ᵣ y → 0 ≤ᵣ x ·ᵣ y
 nonNegativeMulClosed x y 0≤x 0≤y =
   isTrans≡≤ᵣ 0 (0 ·ᵣ y) (x ·ᵣ y)
-    (sym (Rℝ.0LeftAnnihilates y))
+    (sym (ℝRing.0LeftAnnihilates y))
     (≤ᵣ-·ᵣo 0 x y 0≤y 0≤x)
 
 module NonNegativeReals =

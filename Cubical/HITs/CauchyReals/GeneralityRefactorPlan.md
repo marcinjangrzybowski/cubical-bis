@@ -52,12 +52,12 @@ cleanup.
 
 ## Current next slice
 
-Prepare the positive-operation portion of Phase 3 by untangling the dependency
-that currently prevents `Inverse._₊+ᵣ_`, `_₊·ᵣ_`, and `_₊^ⁿ_` from becoming
-aliases to `PositiveReals`. In particular, isolate the positive multiplication
-and strict multiplicative-monotonicity facts needed by `Algebra.Order.Instance`
-from the rest of `Inverse`, then keep the old operator spellings at a later
-compatibility boundary.
+Migrate implementation modules that import `Algebra.Inverse` only for the
+newly isolated ordered-addition and ordered-multiplication lemmas to
+`Algebra.Order.Addition`, `Algebra.Order.Multiplication`, or
+`Algebra.Order.Properties`. Start with explicit `using` imports and
+`Algebra.Power.Order`, then audit the remaining broad imports without removing
+`Inverse` where inverse or division results are genuinely used.
 
 ## Phase 1: ordered algebra structure
 
@@ -68,6 +68,8 @@ Proposed internal organization:
 
 ```text
 Cubical/HITs/CauchyReals/Algebra/Order/
+  Addition.agda
+  Multiplication.agda
   Instance.agda
   Properties.agda
   Positive.agda
@@ -133,7 +135,8 @@ local implementations verbatim.
 
 ## Phase 3: positive and nonnegative elements
 
-Status: compatibility layer established; operation migration remains.
+Status: subtype and operation compatibility layers established; inverse and
+division remain at the field-specific boundary.
 
 Current `ℝ₊`, `ℝ₀₊`, their equality/set proofs, and their operations duplicate
 the `Positive`, `NonNegative`, and `PositiveHalves` modules in
@@ -144,8 +147,8 @@ After `ℝOrderedCommRing` exists:
 - [x] Expose the generic positive and nonnegative subtypes for `ℝ`.
 - [x] Verify that the existing `ℝ₊` and `ℝ₀₊` are definitionally equal to the
       generic subtypes, allowing compatibility names to be preserved.
-- [ ] Replace `_₊+ᵣ_`, `_₊·ᵣ_`, and `_₊^ⁿ_` with the generic positive-real
-      operations after untangling their current dependency on `Inverse`.
+- [x] Replace `_₊+ᵣ_`, `_₊·ᵣ_`, and `_₊^ⁿ_` with the generic positive-real
+      operations after untangling their former dependency on `Inverse`.
 - [x] Replace the nonnegative addition and multiplication implementations in
       `RationalPower.Core` and the nonnegative power implementation in
       `Roots.NonNegative` with `NonNegativeReals` operations.
@@ -328,3 +331,16 @@ cleanup.
   `Metric.Discrete` to use `NonNegativeReals._+₀₊_` directly, and migrated
   `Metric.PNorm` to the canonical `_+₀₊_`, `_·₀₊_`, and `_^₀₊_` notation.
   All changed modules and the `Circle` facade checked cleanly.
+- 2026-07-17: committed the nonnegative-operation consumer migration as
+  `6574f4d1d`.
+- 2026-07-17: split real-specific ordered addition and multiplication lemmas
+  out of `Algebra.Inverse` into `Algebra.Order.Addition` and
+  `Algebra.Order.Multiplication`; moved strict-order irreflexivity to
+  `Algebra.Order.Properties`. This removed the `Inverse` dependency from the
+  ordered-ring instance, properties, and positive/nonnegative subtype layer.
+- 2026-07-17: changed `Inverse._₊+ᵣ_`, `_₊·ᵣ_`, and `_₊^ⁿ_` into
+  compatibility aliases for `PositiveReals`, adapting the few root and
+  rational-power proofs that observed proof-carrying subtype values.
+- 2026-07-17: checked every changed Agda module plus the `Algebra`,
+  `Exponentiation`, `NthRoot`, `Calculus`, and `Circle` facades with no holes,
+  metas, constraints, or warnings.

@@ -15,7 +15,7 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Order.Properties
 
 private

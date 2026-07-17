@@ -20,9 +20,21 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition
+open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
+
+
+opaque
+ unfolding _<ᵣ_
+
+ isIrrefl<ᵣ : BinaryRelation.isIrrefl _<ᵣ_
+ isIrrefl<ᵣ a = PT.rec isProp⊥
+   λ ((q , q') , (a≤q , q<q' , q'≤a)) →
+     ℚ.≤→≯ _ _ (≤ᵣ→≤ℚ _ _ (isTrans≤ᵣ _ _ _ q'≤a a≤q)) q<q'
+
 
 Dichotomyℝ' : ∀ x y z → x <ᵣ z →
               ∥ (y <ᵣ z) ⊎ (x <ᵣ y) ∥₁
@@ -54,7 +66,9 @@ Dichotomyℝ' x y z x<z =
          (+IdR y)))
  where
  Δ₊ : ℝ₊
- Δ₊ = (z -ᵣ x , x<y→0<y-x _ _ x<z) ₊·ᵣ ℚ₊→ℝ₊ ([ 1 / 2 ]₊)
+ Δ₊ =
+   ( (z -ᵣ x) ·ᵣ fst (ℚ₊→ℝ₊ [ 1 / 2 ]₊)
+   , ℝ₊· (z -ᵣ x , x<y→0<y-x _ _ x<z) (ℚ₊→ℝ₊ [ 1 / 2 ]₊))
 
 
 x<δ→x≤0 : ∀ x → ((ε : ℚ₊) → x <ᵣ (rat (fst ε))) → x ≤ᵣ 0

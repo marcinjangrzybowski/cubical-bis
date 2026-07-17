@@ -138,7 +138,7 @@ IsContinuous^ℤ (ℤ.negsuc n) =
 ₊^ⁿ-invℝ₊ n x =
     ℝ₊≡ (cong (_^ⁿ n) (invℝ₊≡invℝ _ (inl (snd x))) ∙∙
        ^ⁿ-invℝ n (x .fst) (inl (snd x))  _
-       ∙∙ sym (invℝ₊≡invℝ (x .fst ^ⁿ n , 0<x^ⁿ (x .fst) n (x .snd)) (inl (snd (x ₊^ⁿ n)))) )
+       ∙∙ sym (invℝ₊≡invℝ (x ₊^ⁿ n) (inl (snd (x ₊^ⁿ n)))) )
 
 1₊^ⁿ≡1 : ∀ k → 1 ₊^ⁿ k ≡ 1
 1₊^ⁿ≡1 k = ℝ₊≡ (Exponentiationᵣ.1ⁿ≡1 k)
@@ -179,11 +179,16 @@ pos+negsuc a b = ℤ.+Comm (pos a) (ℤ.negsuc b) ∙∙
   ∙ cong (x ^ℤ_) (pos-suc+negsuc0 a)
 ^ℤ-minus x (suc a) (suc b) =
   let z = ^ℤ-minus x a b
+      pow-suc : x ₊·ᵣ (x ₊^ⁿ suc b) ≡ x ₊^ⁿ suc (suc b)
+      pow-suc = ℝ₊≡ refl
   in ℝ₊≡
+       {x = (x ^ℤ (pos (suc a))) ₊·ᵣ (x ^ℤ (ℤ.negsuc (suc b)))}
+       {y = x ^ℤ (pos (suc a) ℤ.+ ℤ.negsuc (suc b))}
        (sym (·ᵣAssoc _ _ _)
        ∙ cong (fst x ·ᵣ_)
            (cong (fst (x ₊^ⁿ a) ·ᵣ_)
-             (cong fst (invℝ₊· x (x ₊^ⁿ suc b))))
+             (cong (fst ∘ invℝ₊) (sym pow-suc)
+             ∙ cong fst (invℝ₊· x (x ₊^ⁿ suc b))))
        ∙ cong (fst x ·ᵣ_)
            (·ᵣAssoc _ _ _
            ∙ cong (_·ᵣ fst (invℝ₊ (x ₊^ⁿ suc b))) (·ᵣComm _ _)
@@ -191,9 +196,9 @@ pos+negsuc a b = ℤ.+Comm (pos a) (ℤ.negsuc b) ∙∙
        ∙ ·ᵣAssoc _ _ _
        ∙ cong (_·ᵣ (fst (x ₊^ⁿ a) ·ᵣ fst (invℝ₊ (x ₊^ⁿ suc b))))
            (x·invℝ₊[x] x)
-       ∙ ·IdLᵣ _)
-       ∙∙ z ∙∙
-     cong (x ^ℤ_) (pos+negsuc a b)
+       ∙ ·IdLᵣ _
+       ∙∙ cong fst z
+       ∙∙ cong fst (cong (x ^ℤ_) (pos+negsuc a b)))
 
 ^ℤ-+ : ∀ x a b → ((x ^ℤ a) ₊·ᵣ (x ^ℤ b)) ≡ (x ^ℤ (a ℤ.+ b))
 ^ℤ-+ x (pos n) (pos n₁) = ^ℕ-+ x n n₁ ∙ cong (x ^ℤ_) (ℤ.pos+ n n₁)
@@ -406,8 +411,15 @@ invCommRoot x b =
 pow-root-comm₊ : ∀ x a b → (root b x) ₊^ⁿ a ≡ root b (x ₊^ⁿ a)
 pow-root-comm₊ x zero b = sym (ₙ√1 b)
 pow-root-comm₊ x (suc a) b =
-    cong (root b x ₊·ᵣ_) (pow-root-comm₊ x a b)
-  ∙ ·DistRoot x (x ₊^ⁿ a) b
+  let left-suc : root b x ₊·ᵣ (root b x ₊^ⁿ a)
+                   ≡ root b x ₊^ⁿ suc a
+      left-suc = ℝ₊≡ refl
+      right-suc : x ₊·ᵣ (x ₊^ⁿ a) ≡ x ₊^ⁿ suc a
+      right-suc = ℝ₊≡ refl
+  in sym left-suc
+   ∙ cong (root b x ₊·ᵣ_) (pow-root-comm₊ x a b)
+   ∙ ·DistRoot x (x ₊^ⁿ a) b
+   ∙ cong (root b) right-suc
 
 
 pow-root-comm : ∀ x a b → (root b x) ^ℤ a ≡ root b (x ^ℤ a)
