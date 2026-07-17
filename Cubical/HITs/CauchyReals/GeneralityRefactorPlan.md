@@ -52,12 +52,12 @@ cleanup.
 
 ## Current next slice
 
-Split the remaining absolute-value and apartness prerequisites out of
-`Algebra.Inverse`. Introduce focused `Algebra.Order.AbsoluteValue` and
-`Algebra.Order.Apartness` modules for lemmas such as `absᵣNonPos`, `absᵣNeg`,
-`_＃_`, `isProp＃`, `rat＃`, and `decCut`, while retaining compatibility
-reexports. Then migrate the narrowed geometry and metric consumers; leave the
-clamp-specific helpers for Phase 5.
+Start Phase 5 by isolating the Cauchy-real clamp API in a focused continuity
+module. Move `x≤→clampᵣ≡`, `≤x→clampᵣ≡`, `min-monotone-≤ᵣ`,
+`max-monotone-≤ᵣ`, and `clamp-monotone-≤ᵣ` out of `Algebra.Inverse`,
+retain compatibility reexports, and migrate the remaining symmetric arcsine
+consumer to the canonical import. Keep generic lattice generalization as a
+separate follow-up after the real-specific dependency boundary is clean.
 
 ## Phase 1: ordered algebra structure
 
@@ -204,10 +204,12 @@ Move or replace the following families with `OrderedCommRing.Properties`:
 
 ## Phase 5: clamp, intervals, and subset mappings
 
-Status: pending.
+Status: ready to start after the absolute-value/apartness extraction.
 
 Split this work by required structure:
 
+- [ ] Isolate the existing Cauchy-real clamp lemmas from `Algebra.Inverse` in
+      a focused continuity module and migrate their direct consumers.
 - Define clamp itself and its lattice membership/monotonicity laws in a
   generic pseudolattice/order module.
 - Put translation and nonexpansiveness/distance laws in ordered-ring theory.
@@ -378,3 +380,15 @@ cleanup.
 - 2026-07-17: checked all eight changed Agda modules plus the `Algebra`,
   `Calculus`, `Exponentiation`, and `Circle` facades with no holes, metas,
   constraints, or warnings.
+- 2026-07-17: committed the `Algebra.Ring` extraction and its consumer
+  migrations as `0894f45e3`.
+- 2026-07-17: split absolute-value and apartness prerequisites out of
+  `Algebra.Inverse` into `Algebra.Order.AbsoluteValue` and
+  `Algebra.Order.Apartness`, retaining compatibility reexports through both
+  `Algebra.Order` and `Algebra.Inverse`.
+- 2026-07-17: migrated `Analysis.Continuity.Apart` and
+  `Circle.Angle.FirstQuadrant` from the inverse implementation to the focused
+  order modules; selected clamp isolation as the next implementation slice.
+- 2026-07-17: checked all six changed Agda modules plus the `Algebra`,
+  `ArcSin`, `Calculus`, `Exponentiation`, and `Circle` facades with no holes,
+  metas, constraints, or warnings.

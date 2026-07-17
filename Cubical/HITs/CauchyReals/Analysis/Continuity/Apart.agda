@@ -10,7 +10,7 @@ open import Cubical.Data.Sum as ⊎
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Order.Apartness using (_＃_)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
 
 private
