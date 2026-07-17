@@ -52,12 +52,13 @@ cleanup.
 
 ## Current next slice
 
-Start Phase 5 by isolating the Cauchy-real clamp API in a focused continuity
-module. Move `x≤→clampᵣ≡`, `≤x→clampᵣ≡`, `min-monotone-≤ᵣ`,
-`max-monotone-≤ᵣ`, and `clamp-monotone-≤ᵣ` out of `Algebra.Inverse`,
-retain compatibility reexports, and migrate the remaining symmetric arcsine
-consumer to the canonical import. Keep generic lattice generalization as a
-separate follow-up after the real-specific dependency boundary is clean.
+Complete the real-specific clamp boundary in `Analysis.Continuity.Clamp`.
+Move `clampᵣ∈ℚintervalℙ`, `≡clampᵣ→∈intervalℙ`, and `clampDistᵣ'` out of
+`Algebra.Inverse`, reconcile the duplicate interval-membership helper in
+`Approximation.Bisection`, and retain compatibility aliases where needed.
+Then migrate continuity, integration, and approximation consumers whose only
+remaining inverse dependency is this clamp API. Keep generic lattice and
+ordered-ring generalization as a separate follow-up.
 
 ## Phase 1: ordered algebra structure
 
@@ -204,12 +205,16 @@ Move or replace the following families with `OrderedCommRing.Properties`:
 
 ## Phase 5: clamp, intervals, and subset mappings
 
-Status: ready to start after the absolute-value/apartness extraction.
+Status: in progress.
 
 Split this work by required structure:
 
-- [ ] Isolate the existing Cauchy-real clamp lemmas from `Algebra.Inverse` in
-      a focused continuity module and migrate their direct consumers.
+- [x] Isolate the clamp endpoint and monotonicity lemmas from
+      `Algebra.Inverse` in `Analysis.Continuity.Clamp`, retain compatibility
+      reexports, and migrate the focused symmetric-arcsine consumer.
+- [ ] Move the remaining interval-membership and distance adapters from
+      `Algebra.Inverse` into the focused clamp module and migrate their direct
+      consumers.
 - Define clamp itself and its lattice membership/monotonicity laws in a
   generic pseudolattice/order module.
 - Put translation and nonexpansiveness/distance laws in ordered-ring theory.
@@ -392,3 +397,12 @@ cleanup.
 - 2026-07-17: checked all six changed Agda modules plus the `Algebra`,
   `ArcSin`, `Calculus`, `Exponentiation`, and `Circle` facades with no holes,
   metas, constraints, or warnings.
+- 2026-07-17: committed the absolute-value/apartness extraction as
+  `3d520a037`.
+- 2026-07-17: introduced `Analysis.Continuity.Clamp`, moved the endpoint and
+  monotonicity lemmas out of `Algebra.Inverse`, retained compatibility
+  reexports, exposed the module through the layered `Analysis` facade, and
+  migrated `ArcSin.Symmetric.Properties.Rational` to the canonical import.
+- 2026-07-17: checked all four changed Agda modules plus the `Algebra`,
+  `ArcSin`, and `Calculus` facades with no holes, metas, constraints, or
+  warnings.
