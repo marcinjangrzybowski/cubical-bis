@@ -31,6 +31,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
+  (clampᵣ∈intervalℙ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
@@ -61,7 +63,7 @@ open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 clampᵣ-IntegralOf' : ∀ a b → (a≤b : a ≤ᵣ b) → ∀ (f : (x : ℝ) → x ∈ intervalℙ a b → ℝ) s
    → on[ a , b ]IntegralOf
-      (λ x → f (clampᵣ a b x) (clampᵣ∈ℚintervalℙ a b a≤b x)) is' s
+      (λ x → f (clampᵣ a b x) (clampᵣ∈intervalℙ a b a≤b x)) is' s
    ≃ on[ a , b ]IntegralOf curry ∘ f is s
 
 clampᵣ-IntegralOf' a b a≤b f s =

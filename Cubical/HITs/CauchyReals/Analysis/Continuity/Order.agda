@@ -11,7 +11,8 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
+  (clampᵣ∈intervalℙ)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
 
 opaque
@@ -133,19 +134,19 @@ opaque
     clamped₀ : ℝ → ℝ
     clamped₀ z =
       f₀ (clampᵣ (rat x₀) (rat x₁) z)
-        (clampᵣ∈ℚintervalℙ _ _ (≤ℚ→≤ᵣ x₀ x₁ x₀≤x₁) z)
+        (clampᵣ∈intervalℙ _ _ (≤ℚ→≤ᵣ x₀ x₁ x₀≤x₁) z)
 
     clamped₁ : ℝ → ℝ
     clamped₁ z =
       f₁ (clampᵣ (rat x₀) (rat x₁) z)
-        (clampᵣ∈ℚintervalℙ _ _ (≤ℚ→≤ᵣ x₀ x₁ x₀≤x₁) z)
+        (clampᵣ∈intervalℙ _ _ (≤ℚ→≤ᵣ x₀ x₁ x₀≤x₁) z)
 
     clamped₀-cont : IsContinuous clamped₀
     clamped₀-cont =
       IsContinuousWithPred∘IsContinuous
         (intervalℙ (rat x₀) (rat x₁)) f₀
         (clampᵣ (rat x₀) (rat x₁))
-        (clampᵣ∈ℚintervalℙ _ _ (≤ℚ→≤ᵣ x₀ x₁ x₀≤x₁)) f₀C
+        (clampᵣ∈intervalℙ _ _ (≤ℚ→≤ᵣ x₀ x₁ x₀≤x₁)) f₀C
         (IsContinuousClamp (rat x₀) (rat x₁))
 
     clamped₁-cont : IsContinuous clamped₁
@@ -153,14 +154,14 @@ opaque
       IsContinuousWithPred∘IsContinuous
         (intervalℙ (rat x₀) (rat x₁)) f₁
         (clampᵣ (rat x₀) (rat x₁))
-        (clampᵣ∈ℚintervalℙ _ _ (≤ℚ→≤ᵣ x₀ x₁ x₀≤x₁)) f₁C
+        (clampᵣ∈intervalℙ _ _ (≤ℚ→≤ᵣ x₀ x₁ x₀≤x₁)) f₁C
         (IsContinuousClamp (rat x₀) (rat x₁))
 
     compare-rat : ∀ u → clamped₀ (rat u) ≤ᵣ clamped₁ (rat u)
     compare-rat u =
       let
         I = intervalℙ (rat x₀) (rat x₁)
-        cl∈ = clampᵣ∈ℚintervalℙ
+        cl∈ = clampᵣ∈intervalℙ
           (rat x₀) (rat x₁) (≤ℚ→≤ᵣ x₀ x₁ x₀≤x₁) (rat u)
         cl≡ = clampᵣ-rat x₀ x₁ u
       in

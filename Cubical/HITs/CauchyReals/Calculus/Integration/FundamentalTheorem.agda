@@ -25,6 +25,8 @@ open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
+  (clampᵣ∈intervalℙ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
@@ -313,10 +315,10 @@ FTOC⇒' : ∀ a b → a ≤ᵣ b
                         is f)
 FTOC⇒' a b a≤b f ucf ε = do
  (δ , X) ← FTOC⇒ a (λ x → f (clampᵣ a b x)
-       (clampᵣ∈ℚintervalℙ a b a≤b x))
+       (clampᵣ∈intervalℙ a b a≤b x))
        (map-snd (λ X u v u∼v →
-        X _ _ (clampᵣ∈ℚintervalℙ a b a≤b u)
-              (clampᵣ∈ℚintervalℙ a b a≤b v)
+        X _ _ (clampᵣ∈intervalℙ a b a≤b u)
+              (clampᵣ∈intervalℙ a b a≤b v)
                (clampᵣ∼ u∼v)) ∘ ucf) ε
  ∣ δ , (λ x x∈ h h∈ ∣h-x∣≤δ →
     let z = X x (fst x∈) h (fst h∈)
@@ -404,7 +406,7 @@ FTOC⇐' : ∀ a b (a≤b : a ≤ᵣ b) (f F : ∀ x → x ∈ intervalℙ a b �
               ≡ F b (a≤b , ≤ᵣ-refl b)
                   -ᵣ F a (≤ᵣ-refl a , a≤b)
 FTOC⇐' a b a≤b f F ucf udc =
-  let f∘clamp = λ x → f (clampᵣ a b x) (clampᵣ∈ℚintervalℙ a b a≤b x)
+  let f∘clamp = λ x → f (clampᵣ a b x) (clampᵣ∈intervalℙ a b a≤b x)
       ucfℙ∘clamp : IsUContinuous f∘clamp
       ucfℙ∘clamp ε =
         map-snd

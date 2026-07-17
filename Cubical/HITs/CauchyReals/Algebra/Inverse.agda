@@ -30,7 +30,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp public using
   (x≤→clampᵣ≡; ≤x→clampᵣ≡; min-monotone-≤ᵣ; max-monotone-≤ᵣ
-  ; clamp-monotone-≤ᵣ)
+  ; clamp-monotone-≤ᵣ; clampᵣ∈ℚintervalℙ; ≡clampᵣ→∈intervalℙ
+  ; clampDistᵣ')
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Ring public
 open import Cubical.HITs.CauchyReals.Algebra.Order.Addition public using
@@ -1399,34 +1400,3 @@ opaque
 ≤Weaken<+ᵣ x y z x≤y =
   isTrans≡<ᵣ _ _ _ (sym (+IdR _))
    (≤<ᵣMonotone+ᵣ x y 0 (fst z) x≤y (snd z))
-
-
-
-
-clampᵣ∈ℚintervalℙ : ∀ a b → (a ≤ᵣ b) → ∀ x →
-  clampᵣ a b x ∈ intervalℙ a b
-clampᵣ∈ℚintervalℙ a b a≤b x =
-        ≤clampᵣ _ _ _ a≤b , min≤ᵣ' (maxᵣ a x) b
-
-≡clampᵣ→∈intervalℙ : ∀ a b → (a ≤ᵣ b) → ∀ x →
-  x ≡ clampᵣ a b x → x ∈ intervalℙ a b
-≡clampᵣ→∈intervalℙ a b a≤b x p =
-        subst-∈ (intervalℙ a b ) (sym p) (clampᵣ∈ℚintervalℙ a b a≤b x)
-
-opaque
-
- clampDistᵣ' : ∀ L L' x y →
-     absᵣ (clampᵣ (rat L) (rat L') y -ᵣ clampᵣ (rat L) (rat L') x) ≤ᵣ absᵣ (y -ᵣ x)
- clampDistᵣ' L L' = ≤Cont₂
-
-
-           (cont∘₂ IsContinuousAbsᵣ
-              (IsContinuous-₂∘ (asIsContinuous₂-snd _ (IsContinuousClamp (rat L) (rat L')))
-                ((asIsContinuous₂-fst _ (IsContinuousClamp (rat L) (rat L'))))))
-           (cont∘₂ IsContinuousAbsᵣ (snd IsContinuous-₂ , fst IsContinuous-₂))
-           λ u u' →
-              subst2 _≤ᵣ_ (sym (cong rat (sym
-                   (ℚ.abs'≡abs (ℚ.clamp L L' u' ℚ.- ℚ.clamp L L' u)))) ∙
-                    ℚℝ!)
-                ( sym (absᵣ-rat _) ∙ cong absᵣ (sym (-ᵣ-rat₂ _ _)))
-                (≤ℚ→≤ᵣ _ _ (ℚ.clampDist L L' u u'))

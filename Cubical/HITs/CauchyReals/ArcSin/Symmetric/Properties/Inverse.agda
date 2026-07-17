@@ -25,8 +25,9 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness using (isSetℝ)
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
+  (clampᵣ∈intervalℙ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Calculus.Integration.Partition.Base using (ℚ<→0<)
 open import Cubical.HITs.CauchyReals.Foundation.Order.Positive
 open import Cubical.HITs.CauchyReals.Trigonometry.Base
@@ -68,7 +69,7 @@ opaque
                           subst (λ -Q → clampᵣ (rat (ℚ.- Q)) (rat Q) x ∈
                             intervalℙ -Q (rat Q))
                             (sym (-ᵣ-rat Q))
-                             ((clampᵣ∈ℚintervalℙ (rat (ℚ.- Q)) (rat Q)
+                             ((clampᵣ∈intervalℙ (rat (ℚ.- Q)) (rat Q)
                                (isTrans≡≤ᵣ _ _ _
                                  (sym (-ᵣ-rat Q))
                                  (<ᵣWeaken≤ᵣ _ _ (-ℝ₊<ℝ₊ (ℚ₊→ℝ₊ Q₊) (ℚ₊→ℝ₊ Q₊)))) x))))))
@@ -86,7 +87,7 @@ opaque
               let z = sym (clampᵣ-rat (ℚ.- Q) Q q)
                   q∈ = (subst-∈ (intervalℙ (-ᵣ rat Q) (rat Q))
                        ((cong clampᵣ (-ᵣ-rat Q) ≡$ rat Q ≡$ rat q) ∙ sym z)
-                       (clampᵣ∈ℚintervalℙ _ (rat Q)
+                       (clampᵣ∈intervalℙ _ (rat Q)
                          (<ᵣWeaken≤ᵣ _ _ (-ℝ₊<ℝ₊ (ℚ₊→ℝ₊ Q₊) (ℚ₊→ℝ₊ Q₊))) (rat q)))
                   sinq∈ : sin (rat (ℚ.clamp (ℚ.- Q) Q q)) ∈ ointervalℙ -1 1
                   sinq∈ = ⟨-π/2,π/2⟩→sin∈⟨-1,1⟩ _
@@ -116,7 +117,7 @@ opaque
         q₊ = q , ℚ<→0< q (<ᵣ→<ℚ _ _ (isTrans≤<ᵣ _ _ _ (0≤absᵣ _) ∣x∣<q))
         p = ∈ℚintervalℙ→clampᵣ≡ (-ᵣ (rat q)) (rat q) x
               (abs≤→interval x (rat q) (<ᵣWeaken≤ᵣ _ _ ∣x∣<q))
-        hh = clampᵣ∈ℚintervalℙ _ _
+        hh = clampᵣ∈intervalℙ _ _
                   (<ᵣWeaken≤ᵣ _ _ (-ℝ₊<ℝ₊ (ℚ₊→ℝ₊ q₊) (ℚ₊→ℝ₊ q₊)))
     ∣ cong sin (cong (uncurry arcSin⟨⟩)
          (Σ≡Prop (∈-isProp (ointervalℙ _ _))

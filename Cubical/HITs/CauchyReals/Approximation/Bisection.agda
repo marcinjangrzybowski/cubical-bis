@@ -18,6 +18,7 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp as Clamp
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
@@ -47,8 +48,7 @@ elimInClampsᵣ {P = P} L U X x x∈ =
 
 clampᵣ∈intervalℙ : ∀ L U → L ≤ᵣ U → ∀ x →
   clampᵣ L U x ∈ intervalℙ L U
-clampᵣ∈intervalℙ L U L≤U x =
-  ≤clampᵣ L U x L≤U , clamp≤ᵣ L U x
+clampᵣ∈intervalℙ = Clamp.clampᵣ∈intervalℙ
 
 Lipschitz-ℚ→ℚℙ : ℚ₊ → (P : ℙ ℚ) → (ℚ → ℚ) → Type
 Lipschitz-ℚ→ℚℙ L P f =

@@ -52,13 +52,14 @@ cleanup.
 
 ## Current next slice
 
-Complete the real-specific clamp boundary in `Analysis.Continuity.Clamp`.
-Move `clampᵣ∈ℚintervalℙ`, `≡clampᵣ→∈intervalℙ`, and `clampDistᵣ'` out of
-`Algebra.Inverse`, reconcile the duplicate interval-membership helper in
-`Approximation.Bisection`, and retain compatibility aliases where needed.
-Then migrate continuity, integration, and approximation consumers whose only
-remaining inverse dependency is this clamp API. Keep generic lattice and
-ordered-ring generalization as a separate follow-up.
+Add a generic clamp layer for pseudolattices. Introduce a focused module under
+`Cubical.Relation.Binary.Order.Pseudolattice` with clamp, endpoint,
+monotonicity, and interval-membership laws derived from meet and join. Reexport
+it through the pseudolattice facade, then express the corresponding
+Cauchy-real lemmas in `Analysis.Continuity.Clamp` through
+`ℝ≤Pseudolattice`, retaining the established real names and definitions.
+Leave translation and distance/nonexpansiveness generalization for the
+subsequent ordered-ring slice.
 
 ## Phase 1: ordered algebra structure
 
@@ -212,11 +213,11 @@ Split this work by required structure:
 - [x] Isolate the clamp endpoint and monotonicity lemmas from
       `Algebra.Inverse` in `Analysis.Continuity.Clamp`, retain compatibility
       reexports, and migrate the focused symmetric-arcsine consumer.
-- [ ] Move the remaining interval-membership and distance adapters from
+- [x] Move the remaining interval-membership and distance adapters from
       `Algebra.Inverse` into the focused clamp module and migrate their direct
       consumers.
-- Define clamp itself and its lattice membership/monotonicity laws in a
-  generic pseudolattice/order module.
+- [ ] Define clamp itself and its lattice membership/monotonicity laws in a
+      generic pseudolattice/order module, and adapt the real lemmas to it.
 - Put translation and nonexpansiveness/distance laws in ordered-ring theory.
 - Reuse or extend `Relation.Binary.Order.Poset.Interval` instead of maintaining
   real-only `intervalℙ`, `ointervalℙ`, and half-open predicate constructors.
@@ -406,3 +407,17 @@ cleanup.
 - 2026-07-17: checked all four changed Agda modules plus the `Algebra`,
   `ArcSin`, and `Calculus` facades with no holes, metas, constraints, or
   warnings.
+- 2026-07-18: committed the first clamp extraction as `74289b4a2`.
+- 2026-07-18: moved real clamp interval membership and the rational-endpoint
+  distance adapter into `Analysis.Continuity.Clamp`; introduced the clearer
+  canonical names `clampᵣ∈intervalℙ` and `clampDistᵣ-rat`, while retaining
+  `clampᵣ∈ℚintervalℙ` and `clampDistᵣ'` as compatibility aliases through
+  `Algebra.Inverse`.
+- 2026-07-18: replaced the duplicate bisection membership proof with a
+  compatibility alias, migrated every implementation consumer to the
+  canonical clamp names, and removed the `Algebra.Inverse` dependency from
+  `Analysis.Continuity.Order`, `ArcSin.Symmetric.Properties.Inverse`, and
+  `Calculus.Integration.Uniform`.
+- 2026-07-18: checked all eleven changed Agda modules plus the `Algebra`,
+  `Analysis`, `Approximation`, `ArcSin`, `Calculus`, and `Exponentiation`
+  facades with no holes, metas, constraints, or warnings.

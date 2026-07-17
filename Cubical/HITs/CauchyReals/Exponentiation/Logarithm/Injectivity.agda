@@ -54,10 +54,13 @@ open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Inverse.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
+  (clampᵣ∈intervalℙ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Approximation.Bisection
+  hiding (clampᵣ∈intervalℙ)
 open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base hiding (invℚ₊)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals hiding (_^_)
@@ -356,14 +359,14 @@ opaque
            x*∈ : clp (rat x) ∈  (intervalℙ (rat [ 1 /  (2+ (suc Z)) ])
                           (rat [ pos (suc (suc (suc Z))) / 1 ]))
            x*∈ =
-            let (≤x , x≤) = ((clampᵣ∈ℚintervalℙ _ _ 1/SSZ≤SSZ (rat x)))
+            let (≤x , x≤) = ((clampᵣ∈intervalℙ _ _ 1/SSZ≤SSZ (rat x)))
             in isTrans≤ᵣ _ _ _ 1/SSSZ≤1/SSZ ≤x , isTrans≤ᵣ _ _ _ x≤
               (≤ℚ→≤ᵣ _ _ SSZ≤SSSZ)
 
            y*∈ : clp (rat y) ∈ (intervalℙ (rat [ 1 /  (2+ (suc Z)) ])
                           (rat [ pos (suc (suc (suc Z))) / 1 ]))
            y*∈ =
-            let (≤y , y≤) = ((clampᵣ∈ℚintervalℙ _ _ 1/SSZ≤SSZ (rat y)))
+            let (≤y , y≤) = ((clampᵣ∈intervalℙ _ _ 1/SSZ≤SSZ (rat y)))
             in (isTrans≤ᵣ _ _ _ 1/SSSZ≤1/SSZ ≤y) ,
                  isTrans≤ᵣ _ _ _ y≤ ((≤ℚ→≤ᵣ _ _ SSZ≤SSSZ))
 
@@ -387,7 +390,7 @@ opaque
                 (snd y*∈) (fst y*∈)
                 (snd 2+Z∈) (fst 2+Z∈)
                 (snd 3+Z∈) (fst 3+Z∈)
-                x<y (<ℚ→<ᵣ _ _ Z<SZ) (snd ((clampᵣ∈ℚintervalℙ _ _ 1/SSZ≤SSZ (rat x)))) (snd y*∈))
+                x<y (<ℚ→<ᵣ _ _ Z<SZ) (snd ((clampᵣ∈intervalℙ _ _ 1/SSZ≤SSZ (rat x)))) (snd y*∈))
 
            positive-diff :
              0 <ᵣ clp (rat y) -ᵣ clp (rat x)

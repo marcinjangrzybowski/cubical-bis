@@ -34,6 +34,12 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
+  ( clampᵣ∈intervalℙ
+  ; x≤→clampᵣ≡
+  ; ≤x→clampᵣ≡
+  ; clamp-monotone-≤ᵣ
+  )
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
@@ -207,7 +213,7 @@ record Partition[_,_] (a b : ℝ) : Type₀ where
   riemannSum-clamp : (f : ∀ r → r ∈ intervalℙ a b → ℝ)
     → riemannSum (curry ∘ f) ≡
       riemannSum'
-      (λ x₁ →  f (clampᵣ a b x₁) (clampᵣ∈ℚintervalℙ a b a≤b x₁))
+      (λ x₁ →  f (clampᵣ a b x₁) (clampᵣ∈intervalℙ a b a≤b x₁))
   riemannSum-clamp f =
     cong (λ g → foldlFin {n = 1 ℕ.+ len}
         g 0)
