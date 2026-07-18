@@ -24,6 +24,16 @@ private
   variable
     ℓ ℓ' ℓ'' ℓ''' ℓ₀ ℓ₁ : Level
 
+
+PredicatePoset : (P : Poset ℓ ℓ') → (S : ⟨ P ⟩ → hProp ℓ'')
+  → Poset (ℓ-max ℓ ℓ'') ℓ'
+PredicatePoset P S =
+  poset _ _
+    (isPosetInduced
+      (PosetStr.isPoset (P .snd)) _
+      (EmbeddingΣProp λ x → S x .snd))
+
+
 module _
   (P : Poset ℓ ℓ')
   where

@@ -52,12 +52,13 @@ cleanup.
 
 ## Current next slice
 
-Add reusable predicate-subtype order constructors and a strict analogue of
-`IsIsotone` in the generic poset/quoset mapping layers. Express the
-Cauchy-real `IsNondecreasingOn` and `IsStrictlyIncreasingOn` predicates through
-`uncurry f` on the ordered predicate subtype while preserving their existing
-dependent-function API. Migrate the focused real-power consumers and keep
-analytic monotonicity proofs under `CauchyReals`.
+Extract the purely rational alternating-series core from
+`Analysis.Sequence.AlternatingSeries` into
+`Cubical.Data.Rationals.Series.Alternating`, exposed through a focused
+`Cubical.Data.Rationals.Series` facade. Move the sign/decrease predicates,
+parity helpers, partial-sum bounds, and the rational `cauchyByAlt` estimate;
+leave the `rat`-lifting `IsCauchySequence'` proof under `CauchyReals` and retain
+the old import path as a compatibility reexport.
 
 ## Phase 1: ordered algebra structure
 
@@ -204,8 +205,7 @@ Move or replace the following families with `OrderedCommRing.Properties`:
 
 ## Phase 5: clamp, intervals, and subset mappings
 
-Status: generic clamp and interval-predicate layers are completed;
-function-on-subset mappings remain.
+Status: completed.
 
 Split this work by required structure:
 
@@ -223,14 +223,14 @@ Split this work by required structure:
       predicate, its subtype equivalence, and endpoint-monotone containment.
 - [x] Generalize `ointervalℙ` and the half-open predicates in the weakest
       sufficient strict-order layer, `Quoset.Interval`.
-- [ ] Express `IsNondecreasingOn` through the order on a predicate subtype and
+- [x] Express `IsNondecreasingOn` through the order on a predicate subtype and
       the existing `IsIsotone`; add a generic strict analogue for
       `IsStrictlyIncreasingOn`.
 - Retain continuity of real clamp as the Cauchy-real adapter.
 
 ## Phase 6: rational series and approximation helpers
 
-Status: pending.
+Status: in progress; rational alternating-series extraction is next.
 
 - Move the rational part of `Analysis.Sequence.AlternatingSeries` to a module
   such as `Cubical.Data.Rationals.Series.Alternating`.
@@ -481,3 +481,18 @@ cleanup.
   proof-sensitive interval consumers, and the `Algebra`, `Analysis`,
   `Approximation`, `ArcSin`, `Calculus`, `Circle`, and `Exponentiation`
   facades with no holes, metas, constraints, or warnings.
+- 2026-07-18: committed the generic open/half-open interval layer as
+  `2e45bdeec`.
+- 2026-07-18: added universe-polymorphic `PredicatePoset` and
+  `PredicateQuoset` constructors, plus a new `Quoset.Mappings` layer with
+  `IsStrictlyIsotone`, composition, and proposition proofs.
+- 2026-07-18: added the dependent `IsIsotoneOn` and
+  `IsStrictlyIsotoneOn` APIs and equivalences to the corresponding mapping
+  records on `uncurry f` over predicate subtypes.
+- 2026-07-18: changed the Cauchy-real `IsNondecreasingOn` and
+  `IsStrictlyIncreasingOn` definitions into generic aliases while preserving
+  their original callable dependent-function shape; the existing real-power
+  proofs required no source changes.
+- 2026-07-18: checked all six changed Agda modules, the layered `Quoset`
+  facade, the unchanged real-power construction, and the `Analysis` and
+  `Exponentiation` facades with no holes, metas, constraints, or warnings.

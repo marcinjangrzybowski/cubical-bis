@@ -54,6 +54,46 @@ isPropIsIsotone : {A : Type ℓ₀} {B : Type ℓ₁}
 isPropIsIsotone M f N = isOfHLevelRetractFromIso 1 IsIsotoneIsoΣ
   (isPropΠ3 λ x y _ → IsPoset.is-prop-valued (PosetStr.isPoset N) (f x) (f y))
 
+
+module _
+  {A : Type ℓ₀} {B : Type ℓ₁}
+  (M : PosetStr ℓ₀' A)
+  (S : A → hProp ℓ₂)
+  (f : ∀ x → ⟨ S x ⟩ → B)
+  (N : PosetStr ℓ₁' B)
+  where
+
+  private
+    module M = PosetStr M
+    module N = PosetStr N
+
+  IsIsotoneOn : Type _
+  IsIsotoneOn =
+    ∀ x (x∈ : ⟨ S x ⟩) y (y∈ : ⟨ S y ⟩) → x M.≤ y → f x x∈ N.≤ f y y∈
+
+  isPropIsIsotoneOn : isProp IsIsotoneOn
+  isPropIsIsotoneOn = isPropΠ5 λ x x∈ y y∈ _ →
+    N.is-prop-valued (f x x∈) (f y y∈)
+
+  IsIsotoneOn→IsIsotone : IsIsotoneOn
+    → IsIsotone ((PredicatePoset (A , M) S) .snd) (uncurry f) N
+  IsIsotone.pres≤ (IsIsotoneOn→IsIsotone is) (x , x∈) (y , y∈) x≤y =
+    is x x∈ y y∈ x≤y
+
+  IsIsotone→IsIsotoneOn :
+    IsIsotone ((PredicatePoset (A , M) S) .snd) (uncurry f) N
+    → IsIsotoneOn
+  IsIsotone→IsIsotoneOn is x x∈ y y∈ x≤y =
+    IsIsotone.pres≤ is (x , x∈) (y , y∈) x≤y
+
+  IsIsotoneOn≃IsIsotone : IsIsotoneOn
+    ≃ IsIsotone ((PredicatePoset (A , M) S) .snd) (uncurry f) N
+  IsIsotoneOn≃IsIsotone =
+    propBiimpl→Equiv isPropIsIsotoneOn
+      (isPropIsIsotone ((PredicatePoset (A , M) S) .snd) (uncurry f) N)
+      IsIsotoneOn→IsIsotone IsIsotone→IsIsotoneOn
+
+
 IsIsotone-∘ : {A : Type ℓ₀} {B : Type ℓ₁} {C : Type ℓ₂}
             → (M : PosetStr ℓ₀' A) (f : A → B)
               (N : PosetStr ℓ₁' B) (g : B → C) (O : PosetStr ℓ₂' C)
