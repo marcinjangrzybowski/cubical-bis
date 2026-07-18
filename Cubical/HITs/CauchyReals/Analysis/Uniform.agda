@@ -34,8 +34,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
-  (clampDistᵣ-rat)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp public using
+  (clampDistᵣ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
@@ -617,20 +617,6 @@ IsUConvSeries'onℚIntervals→IsCauchySequence' s ucs x = do
          (intervalℙ (rat a) (rat b)) λ z x₁ _ → s z x₁)
          (ucs a b (isTrans<ᵣ _ _ _ a< <b)))
      x (<ᵣWeaken≤ᵣ _ _ a< , <ᵣWeaken≤ᵣ _ _ <b) ∣₁
-
-clampDistᵣ
-   : (L L' : ℝ) (x y : ℝ) →
-     absᵣ (clampᵣ L L' y -ᵣ clampᵣ L L' x) ≤ᵣ
-     absᵣ (y -ᵣ x)
-clampDistᵣ L L' x y =
- ≤Cont₂
-   {λ L L' → absᵣ (clampᵣ L L' y -ᵣ clampᵣ L L' x)}
-   {λ _ _ → absᵣ (y -ᵣ x)}
-  (cont∘₂ IsContinuousAbsᵣ
-    (IsContinuous-₂∘ (IsContinuousClamp₂ y) (IsContinuousClamp₂ x)))
-     (cont₂-id _)
-  (λ u u' → clampDistᵣ-rat u u' x y)
-  L L'
 
 clampᵣ∼ : ∀ {a b u v ε} → u ∼[ ε ] v → clampᵣ a b u ∼[ ε ] clampᵣ a b v
 clampᵣ∼ {a} {b} = invEq (∼≃abs<ε _ _ _)

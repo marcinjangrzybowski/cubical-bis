@@ -52,14 +52,13 @@ cleanup.
 
 ## Current next slice
 
-Generalize clamp translation and nonexpansiveness to ordered commutative
-rings. Introduce a focused `Cubical.Algebra.OrderedCommRing.Clamp` layer on
-top of the generic pseudolattice clamp, then adapt the rational `clampDelta`,
-`clampDiff`, and `clampDist` laws to the rational ordered-ring instance.
-Specialize the resulting distance theorem for Cauchy reals while retaining
-continuity- and lifting-specific wrappers where they still add real content.
-Audit dependent proof-term usage before replacing existing implementations
-with aliases.
+Bridge closed interval predicates to `Relation.Binary.Order.Poset.Interval`.
+Add a generic powerset view whose membership is the lower/upper-bound pair,
+relate its subtype to the existing `Interval` record, and express the
+Cauchy-real `intervalℙ` through the real poset instance. Preserve the current
+pair-valued membership proof terms at compatibility boundaries, then migrate
+the generic closed-interval subset lemmas. Leave open and half-open intervals
+for the subsequent strict-order slice.
 
 ## Phase 1: ordered algebra structure
 
@@ -206,8 +205,8 @@ Move or replace the following families with `OrderedCommRing.Properties`:
 
 ## Phase 5: clamp, intervals, and subset mappings
 
-Status: generic pseudolattice layer completed; ordered-ring distance laws and
-interval-predicate migration remain.
+Status: generic pseudolattice and ordered-ring clamp layers completed;
+interval-predicate migration remains.
 
 Split this work by required structure:
 
@@ -219,7 +218,7 @@ Split this work by required structure:
       consumers.
 - [x] Define clamp itself and its lattice membership/monotonicity laws in a
       generic pseudolattice/order module, and adapt the real lemmas to it.
-- [ ] Put translation and nonexpansiveness/distance laws in ordered-ring
+- [x] Put translation and nonexpansiveness/distance laws in ordered-ring
       theory.
 - Reuse or extend `Relation.Binary.Order.Poset.Interval` instead of maintaining
   real-only `intervalℙ`, `ointervalℙ`, and half-open predicate constructors.
@@ -437,3 +436,17 @@ cleanup.
   `OrderedCommRing`, `Algebra`, `Analysis`, `Approximation`, `ArcSin`,
   `Calculus`, and `Exponentiation` facades and the dependent fundamental
   theorem, with no holes, metas, constraints, or warnings.
+- 2026-07-18: committed the generic pseudolattice clamp checkpoint as
+  `2644a61df`.
+- 2026-07-18: introduced `Algebra.OrderedCommRing.Clamp` with additive
+  translation of joins, meets, and clamp, a one-sided clamp difference bound,
+  and full absolute-value nonexpansiveness without an order-case split.
+- 2026-07-18: replaced the rational quotient-level distribution and clamp
+  proofs with ordered-ring instance aliases, and specialized the generic
+  distance theorem through `ℝOrderedCommRing`; `Analysis.Uniform` now
+  reexports the focused real theorem instead of reconstructing it by
+  continuity lifting.
+- 2026-07-18: checked all five changed Agda modules, every direct rational
+  clamp-distance/distribution consumer, and the `Algebra`, `Analysis`,
+  `Approximation`, `ArcSin`, `Calculus`, and `Exponentiation` facades with no
+  holes, metas, constraints, or warnings.

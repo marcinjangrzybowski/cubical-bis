@@ -7,7 +7,6 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Path
 
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Functions.Involution
@@ -62,6 +61,9 @@ open PositiveHalvesℚ
 open OrderedCommRingTheory ℚOrderedCommRing hiding (_#_)
 open import Cubical.Data.Rationals.Order.AbsoluteValue
 
+private
+  module ℚClamp = OrderedCommRingClamp ℚOrderedCommRing
+
 maxNeg≡negMin : ∀ x y → max (- x) (- y) ≡ - (min x y)
 maxNeg≡negMin = joinNeg≡negMeet
 
@@ -83,79 +85,11 @@ elimBy≡⊎<' {A = A} s r f' =
  f x y v = subst (A x) ℚ!! $ f' x (y - x , <≤ℚ![ v ])
 
 
-riseQandD : ∀ p q r → Path ℚ ([ p / q ]) ([ p ℤ.· ℕ₊₁→ℤ r / (q ·₊₁ r) ])
-riseQandD p q r = ℚ!
-
-
 +MaxDistrℚ : ∀ x y z → (max x y) + z ≡ max (x + z) (y + z)
-+MaxDistrℚ = SQ.elimProp3 (λ _ _ _ → isSetℚ _ _)
-  $ uncurry λ a a' → uncurry λ b b' → uncurry λ c c' →
-   let zzz' : ∀ a' b' c' →
-            (ℤ.max (a ℤ.· b') (b ℤ.· a') ℤ.· (pos c') ℤ.+ c ℤ.· (a' ℤ.· b'))
-                 ≡
-            (ℤ.max ((a ℤ.· (pos c') ℤ.+ c ℤ.· a') ℤ.· b')
-                   ((b ℤ.· (pos c') ℤ.+ c ℤ.· b') ℤ.· a'))
-       zzz' a' b' c' =
-            cong (ℤ._+ _) (ℤ.·DistPosLMax (a ℤ.· b') (b ℤ.· a') c' ∙
-              cong₂
-               {x = a ℤ.· b' ℤ.· pos c'}
-               {a ℤ.· pos c' ℤ.· b'}
-               ℤ.max ℤ! ℤ!)
-          ∙∙ ℤ.+DistLMax (a ℤ.· pos c' ℤ.· b') (b ℤ.· pos c' ℤ.· a') (c ℤ.· (a' ℤ.· b'))
-          ∙∙ cong₂ ℤ.max ℤ! ℤ!
-       z* = _
-
-   in congS (SQ.[_] ∘S (_, a' ·₊₁ b' ·₊₁ c'))
-        (  congS ((λ ab → ℤ.max (a ℤ.· ℕ₊₁→ℤ b') (b ℤ.· ℕ₊₁→ℤ a')
-             ℤ.· pos (suc (ℕ₊₁.n c')) ℤ.+
-             ab) ∘ (c ℤ.·_)) (ℤ.pos·pos (ℕ₊₁→ℕ a') (ℕ₊₁→ℕ b'))
-              ∙ zzz' (ℕ₊₁→ℤ a') (ℕ₊₁→ℤ b') (suc (ℕ₊₁.n c')))
-        ∙∙ (sym (·IdR z*) ∙ cong (z* ·_)
-            (eq/ _ ( ℕ₊₁→ℤ c' , c' )
-          (ℤ.·Comm (pos (ℕ₊₁→ℕ one)) (ℕ₊₁→ℤ c'))) ) ∙∙
-
-        cong₂ [_/_]
-               ((ℤ.·DistPosLMax
-                 ((a ℤ.· pos (suc (ℕ₊₁.n c')) ℤ.+ c ℤ.· ℕ₊₁→ℤ a') ℤ.· ℕ₊₁→ℤ b')
-                 ((b ℤ.· pos (suc (ℕ₊₁.n c')) ℤ.+ c ℤ.· ℕ₊₁→ℤ b') ℤ.· ℕ₊₁→ℤ a')
-             (suc (ℕ₊₁.n c'))) ∙ cong₂
-            ℤ.max ℤ! ℤ!)
-            (ℕ₊₁→ℕ-inj (ℤ.injPos ℤ!))
-
-
++MaxDistrℚ = ℚClamp.+DistR⊔
 
 +MinDistrℚ : ∀ x y z → (min x y) + z ≡ min (x + z) (y + z)
-+MinDistrℚ = SQ.elimProp3 (λ _ _ _ → isSetℚ _ _)
-  $ uncurry λ a a' → uncurry λ b b' → uncurry λ c c' →
-   let z : ∀ a' b' c' →
-              (ℤ.min (a ℤ.· pos b') (b ℤ.· pos a') ℤ.· pos c'
-                 ℤ.+ c ℤ.· (pos a' ℤ.· pos b')) ℤ.· pos c'
-               ≡
-               ℤ.min
-                ((a ℤ.· pos c' ℤ.+ c ℤ.· pos a') ℤ.· (pos b' ℤ.· pos c'))
-                ((b ℤ.· pos c' ℤ.+ c ℤ.· pos b') ℤ.· (pos a' ℤ.· pos c'))
-
-       z a' b' c' =
-            _ ≡⟨ ℤ! ∙  ((λ i → (ℤ.·DistPosLMin (a ℤ.· pos b') (b ℤ.· pos a') (c' ℕ.· c') i
-                 ℤ.+ c ℤ.· (pos a' ℤ.· pos b') ℤ.· pos c')  )) ⟩
-            _ ≡⟨ ℤ.+DistLMin (a ℤ.· pos b' ℤ.· pos (c' ℕ.· c'))
-                             (b ℤ.· pos a' ℤ.· pos (c' ℕ.· c'))
-                             (c ℤ.· (pos a' ℤ.· pos b') ℤ.· pos c') ⟩
-            _ ≡⟨ cong₂ ℤ.min ℤ! ℤ! ⟩
-             _ ∎
-   in riseQandD
-         (ℤ.min (a ℤ.· ℕ₊₁→ℤ b') (b ℤ.· ℕ₊₁→ℤ a') ℤ.· ℕ₊₁→ℤ c' ℤ.+
-               c ℤ.· ℕ₊₁→ℤ (a' ·₊₁ b')) ( a' ·₊₁ b' ·₊₁ c') c'
-            ∙ 
-              (cong₂ [_/_]
-                 ((λ i →
-                      (ℤ.min (a ℤ.· ℕ₊₁→ℤ b') (b ℤ.· ℕ₊₁→ℤ a') ℤ.· ℕ₊₁→ℤ c' ℤ.+
-                         c ℤ.· ℤ.pos·pos (ℕ₊₁→ℕ a') (ℕ₊₁→ℕ b') (i))
-                        ℤ.· ℕ₊₁→ℤ c' )
-                   ∙∙ z (suc (ℕ₊₁.n a')) (suc (ℕ₊₁.n b')) (suc (ℕ₊₁.n c'))
-                   ∙∙ cong₂ ℤ.min ℤ! ℤ!)
-                 (ℕ₊₁→ℕ-inj (ℤ.injPos ℤ!)))
-                    --
++MinDistrℚ = ℚClamp.+DistR⊓
 
 
 <MonotoneMax : ∀ m o n s → m < n → o < s → max m o < max n s
@@ -177,37 +111,12 @@ riseQandD p q r = ℚ!
 
 clampDelta : ∀ L L' x → clamp L L' x ≡
                (x + clamp (L - x) (L' - x) 0)
-clampDelta L L' x =
-     cong₂ min
-       (cong₂ {x = L} {y = (L - x) + x} max (ℚ!!) {x} {0 + x}
-         (sym $ +IdL x) ∙ sym (+MaxDistrℚ (L - x) 0 x))
-       (ℚ!!)
-  ∙∙ sym (+MinDistrℚ (max (L - x) 0) (L' - x) x)
-  ∙∙ +Comm (min (max (L - x) 0) (L' - x)) x
-
+clampDelta = ℚClamp.clampDelta
 
 
 clampDiff : ∀ L L' x y → x ≤ y →
     clamp L L' y - clamp L L' x ≤ y - x
-clampDiff L L' x y z =
-  (subst2 _≤_
-     ((sym ℚ!!) ∙
-       cong₂ _-_ (sym $ clampDelta L L' y)
-                   (sym $ clampDelta L L' x))
-     (+IdR (y - x))
-     (≤-o+ ((a' - a)) 0 (y - x)
-      (subst (_≤ 0) (-[x-y]≡y-x a a')
-       $ minus-≤ 0 (a - a') (-≤ a' a zz'))  ))
-
- where
-
- a = clamp (L - x) (L' - x) 0
- a' = clamp (L - y) (L' - y) 0
- zz' : a' ≤ a
- zz' = ≤MonotoneMin _ _ _ _
-          (≤MonotoneMax _ _ _ _
-           (≤-o+ (- y) (- x) L (minus-≤ x y z)) (isRefl≤ 0)
-            ) (≤-o+ (- y) (- x) L' $ minus-≤ x y z)
+clampDiff = ℚClamp.clampDiff
 
 
 minDiff : ∀ L' x y → x ≤ y →
@@ -222,20 +131,11 @@ minDiff L' x y x≤y =
 
 clampDist' : ∀ L L' x y → x ≤ y →
     abs (clamp L L' y - clamp L L' x) ≤ abs (y - x)
-clampDist' L L' x y z =
- subst2 _≤_
-  (sym (0≤→abs≡id (clamp L L' y - clamp L L' x)
-          (-≤ _ _ (≤MonotoneClamp L L' x y z))))
-  (sym (0≤→abs≡id (y - x)
-    (-≤ x y z)
-    ))
-  (clampDiff L L' x y z)
+clampDist' L L' x y _ = ℚClamp.clampDist L L' x y
 
 clampDist : ∀ L L' x y →
     abs (clamp L L' y - clamp L L' x) ≤ abs (y - x)
-clampDist L L' =
- elimBy≤ (λ x y → subst2 _≤_ (abs-Comm (clamp L L' y) (clamp L L' x))
-    (abs-Comm y x)) (clampDist' L L')
+clampDist = ℚClamp.clampDist
 
 maxDist : ∀ M x y →
     abs (max M y - max M x) ≤ abs (y - x)
