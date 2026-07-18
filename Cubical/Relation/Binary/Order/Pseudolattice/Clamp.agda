@@ -66,3 +66,15 @@ module PseudolatticeClamp (L≤ : Pseudolattice ℓ ℓ') where
       (clamp lower upper x)
       (lower≤Clamp lower upper x lower≤upper)
       (clamp≤Upper lower upper x)
+
+  clampFixpoint : ∀ lower upper x → lower ≤ x → x ≤ upper →
+    clamp lower upper x ≡ x
+  clampFixpoint lower upper x lower≤x x≤upper =
+    cong (_∧l upper) (≤→∨≡Right lower≤x)
+    ∙ ≤→∧≡Left x≤upper
+
+  elimIntervalByClamp : ∀ {ℓA} {A : L → Type ℓA} lower upper →
+    (∀ x → A (clamp lower upper x)) →
+    ∀ x → lower ≤ x → x ≤ upper → A x
+  elimIntervalByClamp {A = A} lower upper inClamp x lower≤x x≤upper =
+    subst A (clampFixpoint lower upper x lower≤x x≤upper) (inClamp x)

@@ -31,6 +31,12 @@ clampᵣ∈ℚintervalℙ = clampᵣ∈intervalℙ
 ≡clampᵣ→∈intervalℙ a b a≤b x p =
   subst-∈ (intervalℙ a b) (sym p) (clampᵣ∈intervalℙ a b a≤b x)
 
+elimIntervalByClampᵣ : ∀ {ℓ} {P : ℝ → Type ℓ} a b →
+  (∀ x → P (clampᵣ a b x)) →
+  ∀ x → x ∈ intervalℙ a b → P x
+elimIntervalByClampᵣ {P = P} a b inClamp x (a≤x , x≤b) =
+  ℝClamp.elimIntervalByClamp {A = P} a b inClamp x a≤x x≤b
+
 
 opaque
   x≤→clampᵣ≡ : ∀ a b x → a ≤ᵣ b → x ≤ᵣ a → clampᵣ a b x ≡ a

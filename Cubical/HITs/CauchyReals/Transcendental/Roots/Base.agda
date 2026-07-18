@@ -25,6 +25,10 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetQuotients as SQ hiding ([_])
 
 open import Cubical.Data.NatPlusOne
+open import Cubical.Data.Rationals.Analysis.Lipschitz using
+  ( IsLipschitzWithOn
+  ; isLipschitzWithOnOrdered→isLipschitzWithOn
+  )
 
 
 open import Cubical.HITs.CauchyReals.Foundation.Base
@@ -33,6 +37,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
+  (elimIntervalByClampᵣ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Power.Base using (IsContinuous^ⁿ)
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
@@ -180,9 +186,9 @@ module NthRoot (m : ℕ) where
                    (sym (^ⁿ-ℚ^ⁿ (2 ℕ.+ m) q))
                    (sym (^ⁿ-ℚ^ⁿ (2 ℕ.+ m) r ))) ineqL
 
-  powerUpperLipℚℙ : Lipschitz-ℚ→ℚℙ L Sourceℚℙ powℚ
+  powerUpperLipℚℙ : IsLipschitzWithOn L Sourceℚℙ powℚ
   powerUpperLipℚℙ =
-    Lipschitz-ℚ→ℚℙ<→Lipschitz-ℚ→ℚℙ L Sourceℚℙ powℚ
+    isLipschitzWithOnOrdered→isLipschitzWithOn L Sourceℚℙ powℚ
       λ q q∈ r r∈ r<q →
         ≤ᵣ→≤ℚ _ _
           (isTrans≡≤ᵣ _ _ _
@@ -340,7 +346,7 @@ module NthRoot (m : ℕ) where
 
   opaque
    rootMap'≡rootMap : ∀ y → y ∈ Sourceℙ n → rootMap n' y ≡ rootMap n y
-   rootMap'≡rootMap = elimInClampsᵣ _ _
+   rootMap'≡rootMap = elimIntervalByClampᵣ _ _
      (≡Continuous _ _
         ((IsContinuous∘ _ _
               (rootMap-cont n')
@@ -509,7 +515,7 @@ module NthRoot (m : ℕ) where
                       (rat (fst (invℚ₊ ([  (1+ (suc n)) / 1 ]₊))))
                       (rat (fromNat (2 ℕ.+ n)))  →
            (x ^ⁿ (suc (suc m))) ≡ rootMap n x
-  𝒇=f n = elimInClampsᵣ (rat (aℚ n)) (rat (bℚ n))
+  𝒇=f n = elimIntervalByClampᵣ (rat (aℚ n)) (rat (bℚ n))
    (≡Continuous _ _
         (IsContinuous∘ _ _ (IsContinuous^ⁿ (suc (suc m)) ) (IsContinuousClamp (rat _) (rat _)))
         (IsContinuous∘ _ _ (rootMap-cont n) (IsContinuousClamp (rat _) (rat _)))

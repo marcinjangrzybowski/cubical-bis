@@ -25,6 +25,13 @@ open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
 
 open import Cubical.Data.Rationals.Bisection as ℚB
+import Cubical.Data.Rationals.Analysis.Lipschitz as ℚLipschitz
+open ℚLipschitz using (IsLipschitzWithOn)
+open ℚLipschitz public using
+  ( Lipschitz-ℚ→ℚℙ
+  ; Lipschitz-ℚ→ℚℙ<
+  ; Lipschitz-ℚ→ℚℙ<→Lipschitz-ℚ→ℚℙ
+  )
 open import Cubical.Data.Rationals.Order.AbsoluteValue as ℚ
 open import Cubical.Data.Rationals.Order.Algebra as ℚ
 open import Cubical.Data.Rationals.Inverse as ℚ using (_／₊_; _⁻¹₊)
@@ -43,18 +50,11 @@ elimInClampsℚ L U L≤U X x =
 elimInClampsᵣ : ∀ {ℓ} {P : ℝ → Type ℓ} → ∀ L U →
   (∀ x → P (clampᵣ L U x)) →
   ∀ x → x ∈ intervalℙ L U → P x
-elimInClampsᵣ {P = P} L U X x x∈ =
-  subst P (sym (∈ℚintervalℙ→clampᵣ≡ L U x x∈)) (X x)
+elimInClampsᵣ = Clamp.elimIntervalByClampᵣ
 
 clampᵣ∈intervalℙ : ∀ L U → L ≤ᵣ U → ∀ x →
   clampᵣ L U x ∈ intervalℙ L U
 clampᵣ∈intervalℙ = Clamp.clampᵣ∈intervalℙ
-
-Lipschitz-ℚ→ℚℙ : ℚ₊ → (P : ℙ ℚ) → (ℚ → ℚ) → Type
-Lipschitz-ℚ→ℚℙ L P f =
-  ∀ q → q ∈ P → ∀ r → r ∈ P → (ε : ℚ₊) →
-    abs (q ℚ.- r) ℚ.< fst ε →
-    abs (f q ℚ.- f r) ℚ.< fst (L ·₊ ε)
 
 -- Previously in Cubical.HITs.CauchyReals.Bisect.
 Lipschitz-ℚ→ℝ' : ℚ₊ → (ℚ → ℝ) → Type
@@ -70,40 +70,8 @@ Lipschitz-ℚ→ℝ'→Lipschitz-ℚ→ℝ L f lf q r ε -ε<q-r q-r<ε =
         (ℚ.<-o· _ _ (fst L) (snd L)
           (absFrom<×< (fst ε) (q ℚ.- r) -ε<q-r q-r<ε))))
 
-Lipschitz-ℚ→ℚℙ< : ℚ₊ → (P : ℙ ℚ) → (ℚ → ℚ) → Type
-Lipschitz-ℚ→ℚℙ< L P f =
-  ∀ q → q ∈ P → ∀ r → r ∈ P → r ℚ.< q →
-    abs (f q ℚ.- f r) ℚ.≤ fst L ℚ.· (q ℚ.- r)
-
-Lipschitz-ℚ→ℚℙ<→Lipschitz-ℚ→ℚℙ :
-  ∀ L P f → Lipschitz-ℚ→ℚℙ< L P f → Lipschitz-ℚ→ℚℙ L P f
-Lipschitz-ℚ→ℚℙ<→Lipschitz-ℚ→ℚℙ L P f X q q∈ r r∈ ε u
-  with ℚ.Dichotomyℚ q r
-... | inr r<q =
-  ℚ.isTrans≤< _ _ _
-    (X q q∈ r r∈ r<q)
-    (ℚ.<-o· _ _ (fst L) (snd L)
-      (subst (ℚ._< fst ε)
-        (0<→abs≡id (q ℚ.- r) (ℚ.-< r q r<q))
-        u))
-... | inl q≤r with ℚ.≤→≡⊎< q r q≤r
-... | inl q≡r =
-  subst (λ z → abs (f z ℚ.- f r) ℚ.< fst (L ·₊ ε)) (sym q≡r)
-    (subst (ℚ._< fst (L ·₊ ε))
-      (cong abs (sym (ℚ.+InvR (f r))))
-      (snd (L ·₊ ε)))
-... | inr q<r =
-  subst (ℚ._< fst (L ·₊ ε))
-    (sym (abs-Comm (f q) (f r)))
-    (ℚ.isTrans≤< _ _ _
-      (X r r∈ q q∈ q<r)
-      (ℚ.<-o· _ _ (fst L) (snd L)
-        (subst (ℚ._< fst ε)
-          (0<→abs≡id (r ℚ.- q) (ℚ.-< q r q<r))
-          (subst (ℚ._< fst ε) (abs-Comm q r) u))))
-
 Lipschitz-ℚ→ℚℙ→Lipschitz-ℚ→ℝℙ :
-  ∀ L a b f → Lipschitz-ℚ→ℚℙ L (ℚ.ℚintervalℙ a b) f →
+  ∀ L a b f → IsLipschitzWithOn L (ℚ.ℚintervalℙ a b) f →
   Lipschitz-ℚ→ℝℙ L (intervalℙ (rat a) (rat b)) (λ q _ → rat (f q))
 Lipschitz-ℚ→ℚℙ→Lipschitz-ℚ→ℝℙ L a b f fLip q q∈ r r∈ ε q-r<ε =
   isTrans≡<ᵣ _ _ _
@@ -121,9 +89,10 @@ opaque
       f (rat x) ∈ intervalℙ L U) →
    ∀ x → x ∈ intervalℙ (rat a) (rat b) → f x ∈ intervalℙ L U
  continuousMapsInterval f fC a b a≤b L U L≤U mapsℚ =
-   elimInClampsᵣ (rat a) (rat b) λ x →
+   Clamp.elimIntervalByClampᵣ (rat a) (rat b) λ x →
      subst-∈ (intervalℙ L U) (sym (clampEq x))
-       (clampᵣ∈intervalℙ L U L≤U (f (clampᵣ (rat a) (rat b) x)))
+       (Clamp.clampᵣ∈intervalℙ L U L≤U
+         (f (clampᵣ (rat a) (rat b) x)))
    where
    clampEq : ∀ x →
      f (clampᵣ (rat a) (rat b) x) ≡
@@ -500,7 +469,7 @@ module InverseBisection
       (M : ℚ₊)
       (F : ℝ → ℝ)
       (F-lip : Lipschitz-ℝ→ℝ M F)
-      (fℚ-lip : Lipschitz-ℚ→ℚℙ M (ℚ.ℚintervalℙ a b) fℚ)
+      (fℚ-lip : IsLipschitzWithOn M (ℚ.ℚintervalℙ a b) fℚ)
       (F-rat : ∀ x → rat x ∈ intervalℙ (rat a) (rat b) →
         F (rat x) ≡ rat (fℚ x))
       where
@@ -633,7 +602,7 @@ module InverseBisection
       F-inverseℝ :
         ∀ y → y ∈ TargetIntervalℙ → F (inverseℝ y) ≡ y
       F-inverseℝ =
-        elimInClampsᵣ (rat targetLower) (rat targetUpper)
+        Clamp.elimIntervalByClampᵣ (rat targetLower) (rat targetUpper)
           F-inverseℝ-clamp
 
       inverseℝ-F-clamp :
@@ -666,7 +635,7 @@ module InverseBisection
       inverseℝ-F :
         ∀ x → x ∈ intervalℙ (rat a) (rat b) → inverseℝ (F x) ≡ x
       inverseℝ-F =
-        elimInClampsᵣ (rat a) (rat b) inverseℝ-F-clamp
+        Clamp.elimIntervalByClampᵣ (rat a) (rat b) inverseℝ-F-clamp
 
       intervalIso :
         Iso (Σ ℝ (_∈ intervalℙ (rat a) (rat b)))

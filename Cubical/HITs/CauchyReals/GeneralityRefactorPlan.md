@@ -52,14 +52,15 @@ cleanup.
 
 ## Current next slice
 
-Extract `Lipschitz-ℚ→ℚℙ`, `Lipschitz-ℚ→ℚℙ<`, and their conversion theorem
-from `CauchyReals.Approximation.Bisection` into a focused
-`Cubical.Data.Rationals.Analysis.Lipschitz` module with a layered
-`Cubical.Data.Rationals.Analysis` facade. Retain compatibility reexports from
-the old path and leave the rational-to-real Lipschitz bridges under
-`CauchyReals`. A direct rational module is the bounded next step because the
-generic premetric layer currently lacks the standard-rational instance and
-predicate-subspace mapping support needed for a faithful generic alias.
+Unblock Phase 7 by assembling `ℝArchimedeanRing` in a focused
+`CauchyReals.Algebra.Order.Archimedean` module. The bounded prerequisites are
+the integer embedding as an ordered-commutative-ring monomorphism, strict
+cancellation by a positive multiplier using the existing positive inverse
+equivalences, and the Archimedean growth field derived from the established
+natural-number clamp/bound results. Keep this layer independent of analysis
+and expose it through the layered algebra/order facades. Once the instance
+checks, construct the standard real premetric through
+`ArchimedeanRing→PremetricSpace` before migrating individual metric consumers.
 
 ## Phase 1: ordered algebra structure
 
@@ -218,6 +219,8 @@ Split this work by required structure:
       consumers.
 - [x] Define clamp itself and its lattice membership/monotonicity laws in a
       generic pseudolattice/order module, and adapt the real lemmas to it.
+- [x] Add the generic clamp fixpoint and interval-elimination principle, with
+      a predicate-interval adapter for Cauchy reals.
 - [x] Put translation and nonexpansiveness/distance laws in ordered-ring
       theory.
 - [x] Reuse `Relation.Binary.Order.Poset.Interval` for the closed `intervalℙ`
@@ -231,8 +234,7 @@ Split this work by required structure:
 
 ## Phase 6: rational series and approximation helpers
 
-Status: in progress; the rational alternating-series layer is complete and
-the restricted-Lipschitz extraction is next.
+Status: completed.
 
 - [x] Move the alternating-sign predicates, parity helpers, partial-sum
       bounds, and rational Cauchy estimate from
@@ -242,9 +244,10 @@ the restricted-Lipschitz extraction is next.
       rational module.
 - [x] Leave only the Cauchy-real convergence/lifting adapters under
       `CauchyReals.Analysis.Sequence`.
-- [ ] Move rational restricted-Lipschitz predicates from
-      `Approximation.Bisection` to rational premetric/order modules, or
-      express them through the generic premetric mappings API.
+- [x] Move rational restricted-Lipschitz predicates from
+      `Approximation.Bisection` to `Data.Rationals.Analysis.Lipschitz`, expose
+      them through the layered `Data.Rationals.Analysis` facade, and retain
+      compatibility reexports from the old path.
 - Keep the Cauchy-real inverse-bisection construction and recovery machinery
   under `CauchyReals.Approximation`.
 
@@ -526,3 +529,20 @@ cleanup.
 - 2026-07-18: checked the rational alternating module and facade, the old
   compatibility module, and the Cauchy-real `Sequence` and `Analysis` facades
   with no holes, metas, constraints, or warnings.
+- 2026-07-18: committed the completed rational magnitude-series extraction as
+  `9e4f9badb`.
+- 2026-07-18: introduced `Data.Rationals.Analysis.Lipschitz` with the clearer
+  `IsLipschitzWithOn` and `IsLipschitzWithOnOrdered` API, plus compatibility
+  aliases for the established rational names; exposed it through a new
+  layered `Data.Rationals.Analysis` facade.
+- 2026-07-18: reduced `Approximation.Bisection` to compatibility reexports and
+  the genuinely Cauchy-real rational-to-real bridge, and migrated the root
+  implementation to the canonical rational predicates.
+- 2026-07-18: added generic `clampFixpoint` and `elimIntervalByClamp` to the
+  pseudolattice clamp layer, specialized the eliminator to Cauchy-real
+  predicate intervals, and migrated bisection and root implementations while
+  preserving `elimInClampsᵣ` at the old path.
+- 2026-07-18: checked both new rational analysis modules, all four changed
+  implementation modules, and the `Pseudolattice`, `Approximation`, `NthRoot`,
+  `Analysis`, and `Transcendental` facades with no holes, metas, constraints,
+  or warnings.
