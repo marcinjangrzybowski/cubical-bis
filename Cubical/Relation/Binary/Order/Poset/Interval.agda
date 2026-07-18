@@ -30,6 +30,13 @@ module _ (P' : Poset ℓ ℓ') where
   open PosetStr (snd P')
 
   module _ (x y : P) where
+    IntervalPredicate : P → hProp ℓ'
+    IntervalPredicate z = (x ≤ z) × (z ≤ y) ,
+      isProp× (is-prop-valued _ _) (is-prop-valued _ _)
+
+    IntervalSubtype : Type (ℓ-max ℓ ℓ')
+    IntervalSubtype = Σ[ z ∈ P ] ⟨ IntervalPredicate z ⟩
+
     -- the set of elements between x and y
     record Interval : Type (ℓ-max ℓ ℓ') where
       constructor interval
@@ -39,6 +46,9 @@ module _ (P' : Poset ℓ ℓ') where
         z≤y : z ≤ y
 
     unquoteDecl IntervalIsoΣ = declareRecordIsoΣ IntervalIsoΣ (quote Interval)
+
+    Interval≃Subtype : Interval ≃ IntervalSubtype
+    Interval≃Subtype = isoToEquiv IntervalIsoΣ
 
     isSetInterval : isSet Interval
     isSetInterval = isOfHLevelRetractFromIso 2 IntervalIsoΣ $
@@ -59,6 +69,13 @@ module _ (P' : Poset ℓ ℓ') where
     Interval≡ : ∀ i j → i .Interval.z ≡ j .Interval.z → i ≡ j
     Interval≡ _ _ = isoFunInjective IntervalIsoΣ _ _ ∘ Σ≡Prop (λ _ → isProp× (is-prop-valued _ _) (is-prop-valued _ _))
 
+    isContrIntervalSubtype : x ≡ y → isContr IntervalSubtype
+    isContrIntervalSubtype x≡y =
+      (x , is-refl x , subst (x ≤_) x≡y (is-refl x)) ,
+      λ (z , x≤z , z≤y) →
+        Σ≡Prop (λ _ → isProp× (is-prop-valued _ _) (is-prop-valued _ _))
+          (is-antisym x z x≤z (subst (z ≤_) (sym x≡y) z≤y))
+
     module _ (x≤y : x ≤ y) where
       intervalTop : Interval
       intervalTop = interval y x≤y (is-refl y)
@@ -69,3 +86,8 @@ module _ (P' : Poset ℓ ℓ') where
       2→Interval : Bool → Interval
       2→Interval false = intervalBot
       2→Interval true  = intervalTop
+
+  intervalPredicate⊆ : ∀ {a b a' b'} → a' ≤ a → b ≤ b' → ∀ z →
+    ⟨ IntervalPredicate a b z ⟩ → ⟨ IntervalPredicate a' b' z ⟩
+  intervalPredicate⊆ {a} {b} {a'} {b'} a'≤a b≤b' z (a≤z , z≤b) =
+    is-trans a' a z a'≤a a≤z , is-trans z b b' z≤b b≤b'

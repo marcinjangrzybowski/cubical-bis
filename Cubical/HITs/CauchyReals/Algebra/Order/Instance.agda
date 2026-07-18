@@ -13,6 +13,8 @@ open import Cubical.Relation.Binary.Order.StrictOrder
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open Cubical.HITs.CauchyReals.Foundation.Order.Base public using
+  (ℝ≤Poset)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication
@@ -20,10 +22,6 @@ open import Cubical.HITs.CauchyReals.Algebra.Order.Properties
 
 private
   module ℝCR = CommRingStr (snd ℝcommRing)
-
-
-ℝ≤Poset : Poset ℓ-zero ℓ-zero
-ℝ≤Poset = poset ℝ _≤ᵣ_ isPosetℝ
 
 
 ℝ≤Pseudolattice : Pseudolattice ℓ-zero ℓ-zero

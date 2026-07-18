@@ -36,6 +36,8 @@ open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
 
 open import Cubical.Relation.Binary.Order.Poset
+open import Cubical.Relation.Binary.Order.Poset.Interval using
+  (IntervalPredicate; intervalPredicate⊆)
 open import Cubical.Relation.Binary.Order.Proset
 
 
@@ -801,10 +803,21 @@ isPropIsIncrasing : ∀ f → isProp (isIncrasing f)
 isPropIsIncrasing f = isPropΠ3 λ _ _ _ → isProp<ᵣ _ _
 
 
+isPosetℝ : IsPoset _≤ᵣ_
+isPosetℝ .IsPoset.is-set = isSetℝ
+isPosetℝ .IsPoset.is-prop-valued = isProp≤ᵣ
+isPosetℝ .IsPoset.is-refl = ≤ᵣ-refl
+isPosetℝ .IsPoset.is-trans = isTrans≤ᵣ
+isPosetℝ .IsPoset.is-antisym = isAntisym≤ᵣ
+
+
+ℝ≤Poset : Poset ℓ-zero ℓ-zero
+ℝ≤Poset = poset ℝ _≤ᵣ_ isPosetℝ
+
+
 
 intervalℙ : ℝ → ℝ → ℙ ℝ
-intervalℙ a b x = ((a ≤ᵣ x) × (x ≤ᵣ b)) ,
-  isProp× (isProp≤ᵣ _ _ )  (isProp≤ᵣ _ _ )
+intervalℙ = IntervalPredicate ℝ≤Poset
 
 
 pointIntervalℙ : ∀ x y → x ≡ y → isContr (Σ _ (_∈ intervalℙ x y))
@@ -844,15 +857,6 @@ pred0< = λ x → (0 <ᵣ x) , isProp<ᵣ _ _
 
 pred1< : ℙ ℝ
 pred1< = λ x → (1 <ᵣ x) , isProp<ᵣ _ _
-
-
-
-isPosetℝ : IsPoset _≤ᵣ_
-isPosetℝ .IsPoset.is-set = isSetℝ
-isPosetℝ .IsPoset.is-prop-valued = isProp≤ᵣ
-isPosetℝ .IsPoset.is-refl = ≤ᵣ-refl
-isPosetℝ .IsPoset.is-trans = isTrans≤ᵣ
-isPosetℝ .IsPoset.is-antisym = isAntisym≤ᵣ
 
 
 
@@ -1179,9 +1183,7 @@ ointervalℙ⊆ointervalℙ a'≤a b≤b' _ (a<x , x<b) =
 intervalℙ⊆intervalℙ : ∀ {a b a' b'}
   → a' ≤ᵣ a → b ≤ᵣ b'
   → intervalℙ a b ⊆ intervalℙ a' b'
-intervalℙ⊆intervalℙ a'≤a b≤b' _ (a≤x , x≤b) =
-    isTrans≤ᵣ _ _ _ a'≤a a≤x
-  , isTrans≤ᵣ _ _ _ x≤b b≤b'
+intervalℙ⊆intervalℙ = intervalPredicate⊆ ℝ≤Poset
 
 
 intervalℙ⊆ointervalℙ : ∀ a' b' a b → a <ᵣ a' → b' <ᵣ b

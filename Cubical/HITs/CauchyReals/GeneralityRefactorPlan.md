@@ -52,13 +52,12 @@ cleanup.
 
 ## Current next slice
 
-Bridge closed interval predicates to `Relation.Binary.Order.Poset.Interval`.
-Add a generic powerset view whose membership is the lower/upper-bound pair,
-relate its subtype to the existing `Interval` record, and express the
-Cauchy-real `intervalℙ` through the real poset instance. Preserve the current
-pair-valued membership proof terms at compatibility boundaries, then migrate
-the generic closed-interval subset lemmas. Leave open and half-open intervals
-for the subsequent strict-order slice.
+Introduce universe-polymorphic open- and half-open interval predicates in a
+focused strict-order interval layer, together with the order-composition and
+strict-to-nonstrict weakening lemmas needed by interval inclusions. Express
+the Cauchy-real `ointervalℙ`, `pred≤<`, and `pred<≤` through that layer while
+preserving their established names and pair-valued membership proofs. Keep
+topological and real-continuity facts out of the generic order modules.
 
 ## Phase 1: ordered algebra structure
 
@@ -205,8 +204,8 @@ Move or replace the following families with `OrderedCommRing.Properties`:
 
 ## Phase 5: clamp, intervals, and subset mappings
 
-Status: generic pseudolattice and ordered-ring clamp layers completed;
-interval-predicate migration remains.
+Status: generic clamp layers and the closed-interval predicate bridge are
+completed; open/half-open intervals and function-on-subset mappings remain.
 
 Split this work by required structure:
 
@@ -220,8 +219,10 @@ Split this work by required structure:
       generic pseudolattice/order module, and adapt the real lemmas to it.
 - [x] Put translation and nonexpansiveness/distance laws in ordered-ring
       theory.
-- Reuse or extend `Relation.Binary.Order.Poset.Interval` instead of maintaining
-  real-only `intervalℙ`, `ointervalℙ`, and half-open predicate constructors.
+- [x] Reuse `Relation.Binary.Order.Poset.Interval` for the closed `intervalℙ`
+      predicate, its subtype equivalence, and endpoint-monotone containment.
+- [ ] Generalize `ointervalℙ` and the half-open predicates in a focused
+      strict-order interval layer.
 - Express `IsNondecreasingOn` through the order on a predicate subtype and the
   existing `IsIsotone`; add a generic strict analogue for
   `IsStrictlyIncreasingOn` if needed.
@@ -448,5 +449,21 @@ cleanup.
   continuity lifting.
 - 2026-07-18: checked all five changed Agda modules, every direct rational
   clamp-distance/distribution consumer, and the `Algebra`, `Analysis`,
+  `Approximation`, `ArcSin`, `Calculus`, and `Exponentiation` facades with no
+  holes, metas, constraints, or warnings.
+- 2026-07-18: committed the ordered-ring clamp translation and
+  nonexpansiveness batch as `dcb97c611`.
+- 2026-07-18: extended `Relation.Binary.Order.Poset.Interval` with a
+  universe-polymorphic closed-interval predicate, its subtype equivalence,
+  point-interval contractibility, and endpoint-monotone containment.
+- 2026-07-18: moved `ℝ≤Poset` down to `Foundation.Order.Base` (with a
+  compatibility reexport from `Algebra.Order.Instance`) and defined the
+  Cauchy-real `intervalℙ` and containment lemma through the generic layer.
+  The established real point-interval proof remains unchanged for dependent
+  consumers that observe its proof term.
+- 2026-07-18: updated `Poset.Covering` to the current `Iso.sec`/`Iso.ret`
+  field names while validating direct users of the generic interval module.
+- 2026-07-18: checked all four changed Agda modules, the focused clamp,
+  multiplication, and integration consumers, and the `Algebra`, `Analysis`,
   `Approximation`, `ArcSin`, `Calculus`, and `Exponentiation` facades with no
   holes, metas, constraints, or warnings.
