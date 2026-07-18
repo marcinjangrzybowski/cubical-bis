@@ -9,6 +9,9 @@ open import Cubical.Data.Rationals as ℚ
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.Properties
+open import Cubical.Relation.Premetric.Base using (PremetricSpace)
+open import Cubical.Relation.Premetric.Mappings using (NE[_,_]; UC[_,_])
+open import Cubical.Relation.Premetric.Instances.Unit
 
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Rationals using (ℚ₊ ; fromNatℚ₊)
@@ -77,6 +80,25 @@ DiscreteMetricStr _≟_ = ww
 
 trivialMetricSpace : MetricSpace₀
 trivialMetricSpace = _ , DiscreteMetricStr {A = Unit} λ _ _ → yes refl
+
+
+trivialPremetricSpace : PremetricSpace ℓ-zero ℓ-zero
+trivialPremetricSpace = UnitPremetricSpace
+
+
+fromTrivialPremetricSpaceNE : ∀ {ℓ ℓ'}
+  (A : PremetricSpace ℓ ℓ')
+  (f : ⟨ trivialPremetricSpace ⟩ → ⟨ A ⟩) →
+  NE[ trivialPremetricSpace , A ]
+fromTrivialPremetricSpaceNE = fromUnitNE
+
+
+fromTrivialPremetricSpaceUC : ∀ {ℓ ℓ'}
+  (A : PremetricSpace ℓ ℓ')
+  (f : ⟨ trivialPremetricSpace ⟩ → ⟨ A ⟩) →
+  UC[ trivialPremetricSpace , A ]
+fromTrivialPremetricSpaceUC = fromUnitUC
+
 
 isUContFromTrivialMetricSpace : ∀ {ℓ} (A : MetricSpace ℓ)
   (f : ⟨ trivialMetricSpace ⟩ → ⟨ A ⟩ )

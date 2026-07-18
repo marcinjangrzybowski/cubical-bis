@@ -162,8 +162,9 @@ including completeness and migration estimates, see
   the Euclidean `ℝ × ℝ` metric structure.
 
 - `Analysis/Metric/Discrete.agda`
-  Discrete metric structure, the trivial one-point metric space, and uniform
-  continuity from the trivial metric space.
+  Compatibility aliases for the generic `UnitPremetricSpace` and canonical
+  maps out of it, followed by the legacy discrete metric structure, trivial
+  one-point metric space, and uniform continuity from that metric space.
 
 ## Partitions and integration
 

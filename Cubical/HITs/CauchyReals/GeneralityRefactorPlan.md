@@ -278,6 +278,10 @@ and isometric maps together with composition and categories.
       interval carriers, and the circle subspace inclusion have moved.
 - [x] Add generic coordinatewise product support with projections, pairing,
       insertions, and nonexpanding/uniformly-continuous maps.
+- [x] Add the canonical unit premetric and generic nonexpanding/uniformly
+      continuous maps out of it; expose the trivial-space compatibility names
+      from `Analysis.Metric.Discrete` while retaining its legacy discrete
+      metric construction.
 - [ ] Keep real-root p-norm mathematics under `CauchyReals`, while moving
       generic product-space mapping facts out of `PNorm`; the generic mapping
       API now exists, while `pair-ucm` remains tied to the p-norm distance.
@@ -600,3 +604,7 @@ cleanup.
   function-space dependency to the standard rational/inverse hierarchy,
   restored reusable half/quarter/mean facts in generic ordered-ring theory,
   and checked the complete lift module with no holes, metas, or warnings.
+- 2026-07-18: added the generic `UnitPremetricSpace` instance and canonical
+  nonexpanding/uniformly-continuous maps from it; exposed trivial-premetric
+  compatibility names from `Analysis.Metric.Discrete` while retaining the
+  legacy decidable-equality discrete metric unchanged.

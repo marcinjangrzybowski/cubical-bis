@@ -6,3 +6,4 @@ open import Cubical.Relation.Premetric.Instances.ArchimedeanRing public
 open import Cubical.Relation.Premetric.Instances.FunctionSpace public
 open import Cubical.Relation.Premetric.Instances.Product public
 open import Cubical.Relation.Premetric.Instances.Subspace public
+open import Cubical.Relation.Premetric.Instances.Unit public
