@@ -52,12 +52,14 @@ cleanup.
 
 ## Current next slice
 
-Move the purely rational magnitude-to-alternating-series construction from
-`CauchyReals.Analysis.Sequence.AlternatingSeries` into
-`Data.Rationals.Series.Alternating`. Keep the old
-`AlternatingFromMagnitudes` module as a compatibility wrapper that adds only
-the `rat`-lifting `IsCauchySequence'` result. After this move, the old module
-should contain only Cauchy-real adapters around the rational series API.
+Extract `Lipschitz-ℚ→ℚℙ`, `Lipschitz-ℚ→ℚℙ<`, and their conversion theorem
+from `CauchyReals.Approximation.Bisection` into a focused
+`Cubical.Data.Rationals.Analysis.Lipschitz` module with a layered
+`Cubical.Data.Rationals.Analysis` facade. Retain compatibility reexports from
+the old path and leave the rational-to-real Lipschitz bridges under
+`CauchyReals`. A direct rational module is the bounded next step because the
+generic premetric layer currently lacks the standard-rational instance and
+predicate-subspace mapping support needed for a faithful generic alias.
 
 ## Phase 1: ordered algebra structure
 
@@ -229,20 +231,20 @@ Split this work by required structure:
 
 ## Phase 6: rational series and approximation helpers
 
-Status: in progress; the rational alternating-series estimates have moved,
-while the magnitude constructor and bisection helpers remain.
+Status: in progress; the rational alternating-series layer is complete and
+the restricted-Lipschitz extraction is next.
 
 - [x] Move the alternating-sign predicates, parity helpers, partial-sum
       bounds, and rational Cauchy estimate from
       `Analysis.Sequence.AlternatingSeries` to
       `Cubical.Data.Rationals.Series.Alternating`.
-- [ ] Move the rational magnitude-to-signed-series constructor to the same
+- [x] Move the rational magnitude-to-signed-series constructor to the same
       rational module.
-- [ ] Leave only the Cauchy-real convergence/lifting adapters under
+- [x] Leave only the Cauchy-real convergence/lifting adapters under
       `CauchyReals.Analysis.Sequence`.
 - [ ] Move rational restricted-Lipschitz predicates from
-  `Approximation.Bisection` to rational premetric/order modules, or express
-  them through the generic premetric mappings API.
+      `Approximation.Bisection` to rational premetric/order modules, or
+      express them through the generic premetric mappings API.
 - Keep the Cauchy-real inverse-bisection construction and recovery machinery
   under `CauchyReals.Approximation`.
 
@@ -512,3 +514,15 @@ cleanup.
 - 2026-07-18: checked both new rational series modules, the compatibility
   module, and the `Sequence` and `Analysis` facades with no holes, metas,
   constraints, or warnings.
+- 2026-07-18: committed the first rational alternating-series extraction as
+  `5649e8614`.
+- 2026-07-18: moved the magnitude-to-signed-series construction into
+  `Data.Rationals.Series.Alternating`, separating its strict-decrease
+  assumption from the convergence modulus accepted by `terms→0`.
+- 2026-07-18: reduced the old `AlternatingFromMagnitudes` module to public
+  compatibility aliases plus the Cauchy-real partial-sum lifting result; the
+  old alternating-series implementation now contains only Cauchy-real
+  adapters around the rational API.
+- 2026-07-18: checked the rational alternating module and facade, the old
+  compatibility module, and the Cauchy-real `Sequence` and `Analysis` facades
+  with no holes, metas, constraints, or warnings.

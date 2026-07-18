@@ -50,59 +50,17 @@ module AlternatingFromMagnitudes (s : ℕ → ℚ₊)
       (s→0 : (ε : ℚ₊) → Σ[ N ∈ ℕ ] (∀ n → N ℕ.< n → fst (s n) ℚ.< fst ε))
       where
 
-  terms : ℕ → ℚ
-  terms k = ℚ.-1ⁿ· k (fst (s k))
-
-  alternates : AlternatesPositiveFirst terms
-  alternates k =
-    subst (0 ℚ.<_) (sym (ℚ.-1ⁿ·-·2 k (fst (s _)))) (snd (s _))
-    , subst (ℚ._< 0)
-        (cong ℚ.-_
-          (sym (ℚ.-1ⁿ·-·2 k (fst (s (suc (k ℕ.· 2))))))
-          ∙ sym (ℚ.-1ⁿ·-suc (k ℕ.· 2) _))
-        (ℚ.minus-< _ _ (snd (s _)))
-
-  strictlyDecreasing : StrictlyDecreasingAlternating terms
-  strictlyDecreasing k =
-    subst2 ℚ._<_ (sym negOdd≡oddMagnitude) (sym evenTerm≡evenMagnitude)
-      (s-decr (k ℕ.· 2))
-    , subst2 ℚ._<_ (sym nextEvenTerm≡nextEvenMagnitude)
-        (sym negOdd≡oddMagnitude)
-        (s-decr (suc (k ℕ.· 2)))
-    where
-    negOdd≡oddMagnitude :
-      ℚ.- terms (suc (k ℕ.· 2)) ≡ fst (s (suc (k ℕ.· 2)))
-    negOdd≡oddMagnitude =
-      cong ℚ.-_
-        (ℚ.-1ⁿ·-suc (k ℕ.· 2) (fst (s (suc (k ℕ.· 2)))))
-      ∙ ℚ.-Invol (ℚ.-1ⁿ· (k ℕ.· 2) (fst (s (suc (k ℕ.· 2)))))
-      ∙ ℚ.-1ⁿ·-·2 k (fst (s (suc (k ℕ.· 2))))
-
-    evenTerm≡evenMagnitude :
-      terms (k ℕ.· 2) ≡ fst (s (k ℕ.· 2))
-    evenTerm≡evenMagnitude =
-      ℚ.-1ⁿ·-·2 k (fst (s (k ℕ.· 2)))
-
-    nextEvenTerm≡nextEvenMagnitude :
-      terms (suc (suc (k ℕ.· 2))) ≡ fst (s (suc (suc (k ℕ.· 2))))
-    nextEvenTerm≡nextEvenMagnitude =
-      ℚ.-1ⁿ·-·2 (suc k) (fst (s (suc (suc (k ℕ.· 2)))))
-
-  private
-    signedTerms→0 : (ε : ℚ₊) →
-      Σ[ N ∈ ℕ ] (∀ n → N ℕ.< n → abs (terms n) ℚ.< fst ε)
-    signedTerms→0 ε =
-      map-snd
-        (λ X n N<n →
-          subst (ℚ._< fst ε)
-            (sym (0<→abs≡id _ (snd (s n)))
-              ∙ sym (ℚ.absᵣ∘-1ⁿ· n (fst (s n))))
-            (X n N<n))
-        (s→0 ε)
+  module RationalMagnitudes = Rational.AlternatingFromMagnitudes s s-decr
+  open RationalMagnitudes public using
+    ( terms
+    ; alternates
+    ; strictlyDecreasing
+    )
 
   module Series = AlternatingSeries terms alternates strictlyDecreasing
 
   alternatingPartialSumsCauchy :
     IsCauchySequence' (rat ∘ ℚ.seqΣ terms)
   alternatingPartialSumsCauchy =
-    Series.WithLim.alternatingPartialSumsCauchy signedTerms→0
+    Series.WithLim.alternatingPartialSumsCauchy
+      (RationalMagnitudes.terms→0 s→0)

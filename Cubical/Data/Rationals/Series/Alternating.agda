@@ -17,6 +17,7 @@ open import Cubical.Data.Sum as ⊎
 
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 open import Cubical.Algebra.OrderedCommRing.Properties
+open PositiveRationals
 open OrderedCommRingTheory ℚOrderedCommRing hiding (_#_)
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Rationals
@@ -210,3 +211,59 @@ module AlternatingSeries s
  cauchyByAlt N (suc n) (suc m) (m' , p) (n' , q) =
    subst (ℚ._≤ _) (λ i → abs (ℚ.seqΣ s (q i) ℚ.- ℚ.seqΣ s (p i)))
     (cauchyByAlt' (suc N) ℕ.zero-<-suc n' m')
+
+module AlternatingFromMagnitudes (s : ℕ → ℚ₊)
+      (decreases : ∀ k → fst (s (suc k)) ℚ.< fst (s k))
+      where
+
+  terms : ℕ → ℚ
+  terms k = ℚ.-1ⁿ· k (fst (s k))
+
+  alternates : AlternatesPositiveFirst terms
+  alternates k =
+    subst (0 ℚ.<_) (sym (ℚ.-1ⁿ·-·2 k (fst (s _)))) (snd (s _))
+    , subst (ℚ._< 0)
+        (cong ℚ.-_
+          (sym (ℚ.-1ⁿ·-·2 k (fst (s (suc (k ℕ.· 2))))))
+          ∙ sym (ℚ.-1ⁿ·-suc (k ℕ.· 2) _))
+        (ℚ.minus-< _ _ (snd (s _)))
+
+  strictlyDecreasing : StrictlyDecreasingAlternating terms
+  strictlyDecreasing k =
+    subst2 ℚ._<_ (sym negOdd≡oddMagnitude) (sym evenTerm≡evenMagnitude)
+      (decreases (k ℕ.· 2))
+    , subst2 ℚ._<_ (sym nextEvenTerm≡nextEvenMagnitude)
+        (sym negOdd≡oddMagnitude)
+        (decreases (suc (k ℕ.· 2)))
+    where
+    negOdd≡oddMagnitude :
+      ℚ.- terms (suc (k ℕ.· 2)) ≡ fst (s (suc (k ℕ.· 2)))
+    negOdd≡oddMagnitude =
+      cong ℚ.-_
+        (ℚ.-1ⁿ·-suc (k ℕ.· 2) (fst (s (suc (k ℕ.· 2)))))
+      ∙ ℚ.-Invol (ℚ.-1ⁿ· (k ℕ.· 2) (fst (s (suc (k ℕ.· 2)))))
+      ∙ ℚ.-1ⁿ·-·2 k (fst (s (suc (k ℕ.· 2))))
+
+    evenTerm≡evenMagnitude :
+      terms (k ℕ.· 2) ≡ fst (s (k ℕ.· 2))
+    evenTerm≡evenMagnitude =
+      ℚ.-1ⁿ·-·2 k (fst (s (k ℕ.· 2)))
+
+    nextEvenTerm≡nextEvenMagnitude :
+      terms (suc (suc (k ℕ.· 2))) ≡ fst (s (suc (suc (k ℕ.· 2))))
+    nextEvenTerm≡nextEvenMagnitude =
+      ℚ.-1ⁿ·-·2 (suc k) (fst (s (suc (suc (k ℕ.· 2)))))
+
+  terms→0 :
+    ((ε : ℚ₊) → Σ[ N ∈ ℕ ] (∀ n → N ℕ.< n → fst (s n) ℚ.< fst ε))
+    → (ε : ℚ₊) → Σ[ N ∈ ℕ ] (∀ n → N ℕ.< n → abs (terms n) ℚ.< fst ε)
+  terms→0 s→0 ε =
+    map-snd
+      (λ converges n N<n →
+        subst (ℚ._< fst ε)
+          (sym (0<→abs≡id _ (snd (s n)))
+            ∙ sym (ℚ.absᵣ∘-1ⁿ· n (fst (s n))))
+          (converges n N<n))
+      (s→0 ε)
+
+  module Series = AlternatingSeries terms alternates strictlyDecreasing
