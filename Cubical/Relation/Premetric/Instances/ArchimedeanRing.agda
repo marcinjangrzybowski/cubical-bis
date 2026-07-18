@@ -21,10 +21,10 @@ open import Cubical.Data.Int.Fast as ℤ using (ℤ ; pos ; negsuc ; _ℕ-_) ren
 open import Cubical.Data.Int.Fast.Order as ℤ using () renaming (
   _≤_ to _≤ℤ_ ; _<_ to _<ℤ_ )
 
-open import Cubical.Data.Rationals.Fast.Base
-open import Cubical.Data.Rationals.Fast.Properties as ℚ using () renaming (
+open import Cubical.Data.Rationals.Base
+open import Cubical.Data.Rationals.Properties as ℚ using () renaming (
   _+_ to _+ℚ_ ; _·_ to _·ℚ_ ; _-_ to _-ℚ_ ; -_ to -ℚ_)
-open import Cubical.Data.Rationals.Fast.Order as ℚ using () renaming (
+open import Cubical.Data.Rationals.Order as ℚ using () renaming (
   _≤_ to _≤ℚ_ ; _<_ to _<ℚ_ )
 
 open import Cubical.Tactics.CommRingSolver
@@ -36,7 +36,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.ArchimedeanRing.Base
 open import Cubical.Algebra.ArchimedeanRing.Properties
 open import Cubical.Algebra.OrderedCommRing
-open import Cubical.Algebra.OrderedCommRing.Instances.Rationals.Fast
+open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 open import Cubical.Algebra.Ring
 
 open import Cubical.Relation.Nullary
@@ -125,6 +125,11 @@ module _ (R' : ArchimedeanRing ℓ ℓ') where
   isProp≈₊R : ∀ x y ε → isProp (x ≈₊R[ ε ] y)
   isProp≈₊R x y ε = snd (≈' x y ⟨ ε ⟩₊)
 
+  onPositiveFraction≈₊R : ∀ x y a b →
+    x ≈₊R[ ([ pos (suc a) / 1+ b ] , ℚ.pos<pos tt) ] y
+      ≃ (ι₊₁ b · abs (x - y) < ι₊₁ a)
+  onPositiveFraction≈₊R x y a b = idEquiv _
+
   module Close where
 
     onFracIsRefl≈R : ∀ x a/b 0< → x ≈₊R[ [ a/b ] , 0< ] x
@@ -205,7 +210,9 @@ module _ (R' : ArchimedeanRing ℓ ℓ') where
         δ<ε = subst2 (_<ℚ_)
               (sym (cong [_/ bk ] 1+l≡ak-1))
               (ℚ.·CancelR {pos(suc a)} {1+ b} (1+ k))
-              (ℚ.<ℤ→<ℚ (1+a ℤ.· 1+k ℤ.- 1) (1+a ℤ.· 1+k) bk (ℤ.-possuc< {k = 0}))
+              ([k/n]<[k'/n]
+                (1+a ℤ.· 1+k ℤ.- 1) (1+a ℤ.· 1+k) bk
+                (ℤ.-possuc< {k = 0}))
 
         x≈[δ]y : x ≈₊R[ δ ] y
         x≈[δ]y = subst ((ι (1+b ·ℤ 1+k) · abs(x - y) <_) ∘ ι) (sym 1+l≡ak-1) lemma

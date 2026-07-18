@@ -52,6 +52,10 @@ including completeness and migration estimates, see
   continuity of clamp, negation, min/max, and the general
   `IsContinuousWithPred-ᵣ` lemma.
 
+- `Analysis/Continuity/Uniform/Base.agda`
+  Dependency-light global and predicate-indexed uniform-continuity interfaces,
+  including restriction of a full-real map to a predicate subtype.
+
 - `Analysis/Continuity/Order.agda`
   Generic closed-lower, open-lower, and closed-interval order comparisons for
   continuous functions, factored out of exponentiation-specific modules.
@@ -134,15 +138,28 @@ including completeness and migration estimates, see
 ## Metric spaces
 
 - `Metric.agda`
-  Public metric facade for the Cauchy-real metric modules.
+  Layered facade: canonical premetric instances and mappings first, followed by
+  the legacy metric compatibility modules.
+
+- `Analysis/Metric/Premetric.agda`
+  The Archimedean-ring premetric on `ℝ`, its equivalence with Cauchy-real
+  closeness, and closed/unit-interval subspace instances.
+
+- `Analysis/Metric/Compatibility/Base.agda`
+  Adapters between the established `IsUContinuous` interface and generic
+  uniformly continuous maps on `ℝPremetricSpace`.
+
+- `Analysis/Metric/Product.agda` and `Analysis/Metric/Reversal.agda`
+  The coordinatewise real-plane premetric and the canonical nonexpanding
+  reversal map, including its unit-interval restriction.
 
 - `Analysis/Metric/Base.agda`
-  `IsMetric`, `MetricSpaceStr`, `MetricSpace`, uniform-continuous maps,
-  subspace metrics, interval metric spaces, and basic metric combinators.
+  Legacy compatibility definitions for `IsMetric`, `MetricSpaceStr`,
+  `MetricSpace`, `UContMap`, subspace metrics, and interval metric spaces.
 
 - `Analysis/Metric/PNorm.agda`
-  Product metrics, p-norm estimates, pair maps, and the `ℝ × ℝ` metric
-  structure.
+  Real-root p-norm estimates, legacy p-norm product metrics and pair maps, and
+  the Euclidean `ℝ × ℝ` metric structure.
 
 - `Analysis/Metric/Discrete.agda`
   Discrete metric structure, the trivial one-point metric space, and uniform
@@ -204,9 +221,6 @@ including completeness and migration estimates, see
   Dependency-light uniform-continuity and uniform-convergence infrastructure:
   boundedness on intervals, pointwise extraction, Cauchy function sequences,
   uniformly convergent series, and dichotomy helpers.
-
-- `Analysis/Sequence/Lipschitz.agda`
-  Lipschitz estimates for sequences of functions.
 
 ## Bisection, roots, and exponentiation
 

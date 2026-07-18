@@ -25,6 +25,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Uniform.Base public
+  using (IsUContinuous; restrIsUContinuousℙ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
@@ -49,19 +51,9 @@ open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
 
 
-IsUContinuous : (ℝ → ℝ) → Type
-IsUContinuous f =
-  ∀ (ε : ℚ₊) → Σ[ δ ∈ ℚ₊ ]
-     (∀ u v → u ∼[ δ ] v → f u ∼[ ε ] f v)
-
 IsUContinuous→IsContinuous : ∀ f → IsUContinuous f → IsContinuous f
 IsUContinuous→IsContinuous f fc u ε =
   ∣ map-snd (_$ u) (fc ε) ∣₁
-
-restrIsUContinuousℙ : ∀ P f → IsUContinuous f → IsUContinuousℙ P λ x _ → f x
-restrIsUContinuousℙ _ _ =
-  map-snd (((const ∘ const) ∘_) ∘_) ∘_
-
 
 IsUContinuous∘ : ∀ {f g} → IsUContinuous f → IsUContinuous g →
   IsUContinuous (f ∘ g)

@@ -163,11 +163,17 @@ module PositiveRationals where
   min₊≤R ε δ = ℚ.recompute≤ $
     subst (_≤ℚ ⟨ δ ⟩₊) (ℚ.minComm ⟨ δ ⟩₊ ⟨ ε ⟩₊) (min≤ ⟨ δ ⟩₊ ⟨ ε ⟩₊)
 
-  -- min/2₊<L : ∀ ε δ → (min₊ ε δ /2₊) <₊ ε
-  -- min/2₊<L ε δ = {!!}
+  min/2₊<L : ∀ ε δ → (min₊ ε δ /2₊) <₊ ε
+  min/2₊<L ε δ = begin<
+    ⟨ min₊ ε δ /2₊ ⟩₊ <⟨ /2₊<id (min₊ ε δ) ⟩
+    ⟨ min₊ ε δ ⟩₊     ≤⟨ min₊≤L ε δ ⟩
+    ⟨ ε ⟩₊            ◾
 
-  -- min/2₊<R : ∀ ε δ → (min₊ ε δ /2₊) <₊ δ
-  -- min/2₊<R ε δ = {!!}
+  min/2₊<R : ∀ ε δ → (min₊ ε δ /2₊) <₊ δ
+  min/2₊<R ε δ = begin<
+    ⟨ min₊ ε δ /2₊ ⟩₊ <⟨ /2₊<id (min₊ ε δ) ⟩
+    ⟨ min₊ ε δ ⟩₊     ≤⟨ min₊≤R ε δ ⟩
+    ⟨ δ ⟩₊            ◾
 
   ≤ℤ→≤ℚ : ∀ m n → m ℤ.≤ n → [ m , 1 ] ≤ℚ [ n , 1 ]
   ≤ℤ→≤ℚ m n = inj ∘S (subst2 ℤ._≤_ (sym (ℤ.·IdR m)) (sym (ℤ.·IdR n)))

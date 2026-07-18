@@ -26,6 +26,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Uniform.Base public
+  using (IsUContinuousℙ)
 
 
 
@@ -1398,12 +1400,6 @@ IsUContinuousℚℙ : (P : ℙ ℝ) → (∀ q → rat q ∈ P → ℝ) → Type
 IsUContinuousℚℙ P f =
   ∀ (ε : ℚ₊) → Σ[ δ ∈ ℚ₊ ]
      (∀ u v u∈ v∈ → abs (u ℚ.- v) ℚ.< fst δ  → f u u∈ ∼[ ε ] f v v∈)
-
-IsUContinuousℙ : (P : ℙ ℝ) → (∀ x → x ∈ P → ℝ) → Type
-IsUContinuousℙ P f =
-  ∀ (ε : ℚ₊) → Σ[ δ ∈ ℚ₊ ]
-     (∀ u v u∈ v∈ → u ∼[ δ ] v  → f u u∈ ∼[ ε ] f v v∈)
-
 
 ℚApproxℙ'' : (P Q : ℙ ℝ) (f : ∀ x → x ∈ P → Σ ℝ (_∈ Q)) → Type
 ℚApproxℙ'' P Q f =

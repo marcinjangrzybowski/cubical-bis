@@ -61,7 +61,6 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.CommRing.Properties
 open import Cubical.Algebra.CommRing.Base
-open import Cubical.HITs.CauchyReals.Analysis.Metric.Base
 import Cubical.Data.FinData as FD
 
 open import Cubical.HITs.CauchyReals.Trigonometry.Base using

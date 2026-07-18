@@ -52,20 +52,21 @@ cleanup.
 
 ## Current next slice
 
-Unblock Phase 7 by assembling `ℝArchimedeanRing` in a focused
-`CauchyReals.Algebra.Order.Archimedean` module. The bounded prerequisites are
-the integer embedding as an ordered-commutative-ring monomorphism, strict
-cancellation by a positive multiplier using the existing positive inverse
-equivalences, and the Archimedean growth field derived from the established
-natural-number clamp/bound results. Keep this layer independent of analysis
-and expose it through the layered algebra/order facades. Once the instance
-checks, construct the standard real premetric through
-`ArchimedeanRing→PremetricSpace` before migrating individual metric consumers.
+Continue the consumer migration at the interval and circle boundary. Replace
+uses of the legacy metric hierarchy when a module only needs the carrier or a
+uniformly continuous/nonexpanding map, while retaining the Euclidean p-norm
+construction for proofs that actually use its distance. Before migrating the
+many predicate-indexed `IsUContinuousℙ` proofs, design an adapter that checks
+without unfolding the full real Archimedean and subspace structures; the
+direct packaging experiment was intentionally dropped after exhibiting
+multi-minute elaboration. Once the circle consumers are classified, either
+prove the required comparison between the coordinatewise product premetric
+and the legacy p-norm metric, or keep that compatibility boundary explicit.
 
 ## Phase 1: ordered algebra structure
 
-Status: ordered-ring instance completed; broader theorem migration and the
-Archimedean instance remain.
+Status: ordered-ring and Archimedean instances completed; broader theorem
+migration remains.
 
 Proposed internal organization:
 
@@ -93,7 +94,9 @@ Work items:
       migrate its direct consumers to the canonical module.
 - [ ] Move ordinary ordered-ring lemmas out of `Continuity.Base` and
       `Inverse` or replace them with generic theorem aliases.
-- [ ] Later define `ℝArchimedeanRing` and move applicable bounds into
+- [x] Define `ℝArchimedeanRing` from the canonical integer embedding, positive
+      multiplication cancellation, and the existing natural-number bound.
+- [ ] Move applicable bounds into
       `ArchimedeanRing.Properties`.
 
 Known ingredients already present include `ℝcommRing`, `isPosetℝ`, strict
@@ -253,18 +256,31 @@ Status: completed.
 
 ## Phase 7: premetric migration
 
-Status: blocked by the ordered/Archimedean structure work.
+Status: in progress; the real, subspace, and product instances and the first
+compatibility/consumer migrations now exist.
 
 `Analysis.Metric.Base` duplicates much of `Cubical.Relation.Premetric`, which
 already provides continuous, uniformly continuous, Lipschitz, nonexpanding,
 and isometric maps together with composition and categories.
 
-- [ ] Construct or obtain the real premetric instance, preferably through
+- [x] Construct the real premetric instance through
       `ArchimedeanRing→PremetricSpace`.
-- [ ] Migrate Cauchy-real metric consumers to `Relation.Premetric`.
-- [ ] Add generic subspace/product support there only if genuinely missing.
+- [x] Repair the generic Archimedean-ring premetric implementation to use the
+      live standard-rational hierarchy and current positive-division API.
+- [x] Add generic predicate-subspace support with nonexpanding and uniformly
+      continuous inclusion maps; specialize it to real closed intervals.
+- [x] Relate the generic real closeness relation to the established
+      Cauchy-real closeness and strict distance formulations.
+- [x] Add full-real adapters between `IsUContinuous` and generic uniformly
+      continuous maps; keep predicate-indexed adapters separate until their
+      elaboration cost is controlled.
+- [ ] Migrate Cauchy-real metric consumers to `Relation.Premetric`; reversal,
+      interval carriers, and the circle subspace inclusion have moved.
+- [x] Add generic coordinatewise product support with projections, pairing,
+      insertions, and nonexpanding/uniformly-continuous maps.
 - [ ] Keep real-root p-norm mathematics under `CauchyReals`, while moving
-      generic product-space mapping facts out of `PNorm`.
+      generic product-space mapping facts out of `PNorm`; the generic mapping
+      API now exists, while `pair-ucm` remains tied to the p-norm distance.
 - [ ] Delete the parallel `MetricSpace`, `UContMap`, and `IsIsometry` hierarchy
       after compatibility users have migrated.
 
@@ -546,3 +562,41 @@ cleanup.
   implementation modules, and the `Pseudolattice`, `Approximation`, `NthRoot`,
   `Analysis`, and `Transcendental` facades with no holes, metas, constraints,
   or warnings.
+- 2026-07-18: committed the rational Lipschitz and generic clamp-elimination
+  checkpoint as `2d00fd278`.
+- 2026-07-18: added `Algebra.Order.Archimedean` with `ℝArchimedeanRing`; it
+  reuses the canonical ordered-ring embedding of integers, derives strict
+  multiplication cancellation from the positive inverse equivalence, and
+  derives Archimedean growth by applying `getClamps` to `x / y`.
+- 2026-07-18: migrated `Relation.Premetric.Instances.ArchimedeanRing` from the
+  removed fast-rational modules to the standard rational hierarchy, and
+  updated `Relation.Premetric.Mappings` to the current positive-rational
+  division API.
+- 2026-07-18: introduced generic `PremetricSubspace`, nonexpanding and
+  uniformly-continuous subspace inclusions, plus `ℝPremetricSpace`,
+  `ClosedIntervalPremetricSpace`, and `UnitIntervalPremetricSpace` behind the
+  layered Cauchy-real metric facade.
+- 2026-07-18: proved `≈ℝ≃∼`, relating the Archimedean-ring premetric on reals
+  to the established Cauchy-real closeness relation through positive rational
+  representatives and strict absolute distance.
+- 2026-07-18: split the lightweight `IsUContinuous` and `IsUContinuousℙ`
+  interfaces into `Analysis.Continuity.Uniform.Base`, retained their old
+  reexports, and added the checked full-real compatibility adapters under the
+  nested `Analysis.Metric.Compatibility.Base` module.
+- 2026-07-18: added generic coordinatewise products, projections, pairing,
+  constant-coordinate insertions, and generic subspace relation bridges;
+  specialized the product to `ℝ²PremetricSpace` and the circle predicate to
+  `distCirclePremetricSpace`.
+- 2026-07-18: made real reversal canonically nonexpanding (and hence uniformly
+  continuous), exposed a nonexpanding circle inclusion, and migrated the
+  carrier-only interval signatures in `Circle.PointedUnwind` and
+  `Circle.Unwind` to `ClosedIntervalPremetricSpace`.
+- 2026-07-18: added layered `Relation.Premetric` mapping and structural-instance
+  facades. A focused predicate-continuity packaging experiment was removed
+  after it caused multi-minute normalization even with explicit record
+  boundaries; future work must avoid unfolding the complete subspace
+  structure at that adapter boundary.
+- 2026-07-18: repaired `Premetric.Completion.Properties.Lift` and its
+  function-space dependency to the standard rational/inverse hierarchy,
+  restored reusable half/quarter/mean facts in generic ordered-ring theory,
+  and checked the complete lift module with no holes, metas, or warnings.

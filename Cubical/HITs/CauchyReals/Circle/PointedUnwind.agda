@@ -61,8 +61,7 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.CommRing.Properties
 open import Cubical.Algebra.CommRing.Base
-open import Cubical.HITs.CauchyReals.Analysis.Metric.Base
-open import Cubical.HITs.CauchyReals.Analysis.Metric.PNorm
+open import Cubical.HITs.CauchyReals.Analysis.Metric.Premetric
 import Cubical.Data.FinData as FD
 
 open import Cubical.HITs.CauchyReals.Trigonometry.Base using
@@ -103,9 +102,9 @@ open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 open import Cubical.Algebra.CommRing.BinomialThm
 
 unwindDistCirclePathStep' : ∀ a b a≤b →
-   (f : Interval[ a , b ]MetricSpace .fst → distCircle)
+   (f : ClosedIntervalPremetricSpace a b .fst → distCircle)
  → (∀ x → cartDist² (fst (f (a , (≤ᵣ-refl a , a≤b)))) (fst (f x) ) <ᵣ 2)
- → Σ ((fst (Interval[ a , b ]MetricSpace)) → ℝ)
+ → Σ (fst (ClosedIntervalPremetricSpace a b) → ℝ)
    λ g → ((∀ x → f x ≡ f (a , (≤ᵣ-refl a , a≤b)) ℝS¹.+
      Circle→distCircle (injCircle (g x))) × (g (a , (≤ᵣ-refl a , a≤b)) ≡ 0))
 unwindDistCirclePathStep' a b a≤b f fDist =

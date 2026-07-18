@@ -32,6 +32,13 @@ Exponentiation also has focused subfacades: `Exponentiation.Base`,
 `Exponentiation.RealPower`, `Exponentiation.Logarithm`,
 `Exponentiation.Normalized.Exponential`, and `Exponentiation.ExpLog`.
 
+The focused `Metric` facade exports the canonical `Relation.Premetric`-based
+real, interval, product, compatibility, and mapping modules before the legacy
+`MetricSpace`/`UContMap` compatibility layer. Generic clients can import
+`Cubical.Relation.Premetric` for structures and mappings, and
+`Cubical.Relation.Premetric.Instances` for structural constructors such as
+subspaces, products, function spaces, and Archimedean-ring premetrics.
+
 ## Implementation tree
 
 The main implementation areas are:
@@ -42,11 +49,12 @@ CauchyReals/
 │  └─ Order/
 ├─ Algebra/
 │  ├─ Expression/
+│  ├─ Order/
 │  └─ Power/
 ├─ Analysis/
-│  ├─ Continuity/
+│  ├─ Continuity/Uniform/
 │  ├─ Lipschitz/Inverse/
-│  ├─ Metric/
+│  ├─ Metric/Compatibility/
 │  ├─ Order/
 │  ├─ Pasting/
 │  └─ Sequence/

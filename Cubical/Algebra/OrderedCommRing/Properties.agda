@@ -1032,23 +1032,23 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
       ⟨ x /2₊ +₊ x /2₊ ⟩₊ ≡→≤⟨ /2+/2≡id ⟨ x ⟩₊ ⟩
       ⟨ x ⟩₊                ◾
 
-    -- -- /4₊</2₊ : ∀ x → (x /4₊) <₊ (x /2₊)
-    -- -- /4₊</2₊ = /2₊<id ∘ _/2₊
+    /4₊</2₊ : ∀ x → (x /4₊) <₊ (x /2₊)
+    /4₊</2₊ = /2₊<id ∘ _/2₊
 
-    -- -- /4₊<id : ∀ x → (x /4₊) <₊ x
-    -- -- /4₊<id x = begin<
-    -- --   ⟨ x /4₊ ⟩₊ <⟨ /4₊</2₊ x ⟩
-    -- --   ⟨ x /2₊ ⟩₊ <⟨ /2₊<id x ⟩
-    -- --   ⟨ x ⟩₊     ◾
+    /4₊<id : ∀ x → (x /4₊) <₊ x
+    /4₊<id x = begin<
+      ⟨ x /4₊ ⟩₊ <⟨ /4₊</2₊ x ⟩
+      ⟨ x /2₊ ⟩₊ <⟨ /2₊<id x ⟩
+      ⟨ x ⟩₊     ◾
 
     mean₊ : R₊ → R₊ → R₊
     mean₊ x y = (x +₊ y) /2₊
 
-    -- -- <₊→<₊mean₊ : ∀ x y → x <₊ y → x <₊ mean₊ x y
-    -- -- <₊→<₊mean₊ x y = <→<mean ⟨ x ⟩₊ ⟨ y ⟩₊
+    <₊→<₊mean₊ : ∀ x y → x <₊ y → x <₊ mean₊ x y
+    <₊→<₊mean₊ x y = <→<mean ⟨ x ⟩₊ ⟨ y ⟩₊
 
-    -- -- <₊→mean₊<₊ : ∀ x y → x <₊ y → mean₊ x y <₊ y
-    -- -- <₊→mean₊<₊ x y = <→mean< ⟨ x ⟩₊ ⟨ y ⟩₊
+    <₊→mean₊<₊ : ∀ x y → x <₊ y → mean₊ x y <₊ y
+    <₊→mean₊<₊ x y = <→mean< ⟨ x ⟩₊ ⟨ y ⟩₊
 
     -- -- id-/2₊ : ∀ x → 0r < x -₊ (x /2₊)
     -- -- id-/2₊ x = subst (0r <_) (sym (id-/2≡/2 ⟨ x ⟩₊)) (snd (x /2₊))

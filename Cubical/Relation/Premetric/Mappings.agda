@@ -151,9 +151,10 @@ module _
 
   isLipschitz→isUniformlyContinuous : isLipschitz → isUniformlyContinuous
   isLipschitz→isUniformlyContinuous = PT.map λ
-    { (L , L-lip) .fst → _/ L
+    { (L , L-lip) .fst → λ ε → ε ₊／₊ L
     ; (L , L-lip) .snd .IsUniformlyContinuousWith.pres≈ x y ε →
-      N.subst≈ (f x) (f y) (·/ L ε) ∘ L-lip .IsLipschitzWith.pres≈ x y (ε / L) }
+      N.subst≈ (f x) (f y) (·／ L ε) ∘
+        L-lip .IsLipschitzWith.pres≈ x y (ε ₊／₊ L) }
 
   isUniformlyContinuous→isContinuous : isUniformlyContinuous → isContinuous
   isUniformlyContinuous→isContinuous is-uc x .IsContinuousAt.pres≈ ε = do
@@ -189,6 +190,10 @@ NE[ M , N ] = Σ[ f ∈ (M .fst → N .fst) ] IsNonExpanding (M .snd) f (N .snd)
 NE→L : ∀ {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'} → NE[ M , N ] → L[ M , N ]
 fst (NE→L f) = fst f
 snd (NE→L f) = isNonExpanding→isLipschitz _ (fst f) _ (snd f)
+
+NE→UC : ∀ {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'} → NE[ M , N ] → UC[ M , N ]
+fst (NE→UC f) = fst f
+snd (NE→UC f) = isNonExpanding→isUniformlyContinuous _ (fst f) _ (snd f)
 
 module CategoryStructures where
   open OrderedCommRingStr (str ℚOrderedCommRing)

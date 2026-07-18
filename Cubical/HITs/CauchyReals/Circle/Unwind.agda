@@ -61,8 +61,7 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.CommRing.Properties
 open import Cubical.Algebra.CommRing.Base
-open import Cubical.HITs.CauchyReals.Analysis.Metric.Base
-open import Cubical.HITs.CauchyReals.Analysis.Metric.PNorm
+open import Cubical.HITs.CauchyReals.Analysis.Metric.Premetric
 import Cubical.Data.FinData as FD
 
 open import Cubical.HITs.CauchyReals.Trigonometry.Base using
@@ -103,9 +102,9 @@ open import Cubical.Algebra.CommRing.BinomialThm
 
 opaque
  unwindDistCirclePathStep : ∀ a b a≤b →
-    (f : Interval[ a , b ]MetricSpace .fst → distCircle)
+    (f : ClosedIntervalPremetricSpace a b .fst → distCircle)
   → (∀ x → cartDist² (fst (f (a , (≤ᵣ-refl a , a≤b)))) (fst (f x) ) <ᵣ 2)
-  → Σ ((fst (Interval[ a , b ]MetricSpace)) → ℝ)
+  → Σ (fst (ClosedIntervalPremetricSpace a b) → ℝ)
     λ g → ∀ x → f x ≡ f (a , (≤ᵣ-refl a , a≤b)) ℝS¹.+
       Circle→distCircle (injCircle (g x))
  unwindDistCirclePathStep a b a≤b f fDist =
@@ -113,7 +112,7 @@ opaque
 
   where
 
-  g : fst Interval[ a , b ]MetricSpace → ℝ
+  g : fst (ClosedIntervalPremetricSpace a b) → ℝ
   g x =
    let yyy = Iso.fun (rotateToOrigin 2 ((f (a , ≤ᵣ-refl a , a≤b)))) (f x , fDist x)
        yy = fst (cartDist≃upperHalf (fst yyy)) (snd yyy)
@@ -131,7 +130,7 @@ opaque
           (sym (secEq Circle≃distCircle
                (f x ℝS¹.+ ℝS¹.- f (a , ≤ᵣ-refl a , a≤b)))))))
 
-  g-eq : (x : Interval[ a , b ]MetricSpace .fst) →
+  g-eq : (x : ClosedIntervalPremetricSpace a b .fst) →
           f x ≡
           f (a , ≤ᵣ-refl a , a≤b) ℝS¹.+ Circle→distCircle (injCircle (g x))
   g-eq x =

@@ -24,9 +24,10 @@ open import Cubical.Data.NatPlusOne as ℕ₊₁
 open import Cubical.Data.Int.Fast as ℤ hiding (_-_ ; -DistR·)
 import Cubical.Data.Int.Fast.Order as ℤ
 
-open import Cubical.Data.Rationals.Fast.Base as ℚ
-import Cubical.Data.Rationals.Fast.Properties as ℚ
-open import Cubical.Data.Rationals.Fast.Order as ℚ using () renaming (_<_ to _<ℚ_)
+open import Cubical.Data.Rationals.Base as ℚ
+import Cubical.Data.Rationals.Properties as ℚ
+open import Cubical.Data.Rationals.Order as ℚ using () renaming (_<_ to _<ℚ_)
+open import Cubical.Data.Rationals.Inverse
 
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _//_)
@@ -35,9 +36,9 @@ open import Cubical.Relation.Binary.Properties
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Rationals.Fast
+open import Cubical.Algebra.CommRing.Instances.Rationals
 open import Cubical.Algebra.OrderedCommRing
-open import Cubical.Algebra.OrderedCommRing.Instances.Rationals.Fast
+open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 
 open import Cubical.Relation.Premetric.Properties
 open import Cubical.Relation.Premetric.Mappings
@@ -150,38 +151,40 @@ module _ (M' : PremetricSpace ℓM ℓM') (N' : PremetricSpace ℓN' ℓN) where
     liftLipschitzWith L f f-lip =
       RecℭSym.go r , islipschitzwith (λ _ _ _ → RecℭSym.go∼ r) where
       open RecℭSym
-      open ℚ₊Inverse
       open IsLipschitzWith
 
-      flim' : ∀ fx → (∀ ε δ → fx ε PN.≈[ L ·₊ (ε +₊ δ) ] fx δ) → limit N' (fx ∘ (_/ L))
-      flim' fx fxcL = N-com (fx ∘ (_/ L)) fxc where
-        fxc : ∀ ε δ → fx (ε / L) PN.≈[ ε +₊ δ ] fx (δ / L)
-        fxc ε δ = flip (PN.subst≈ (fx (ε / L)) (fx (δ / L))) (fxcL (ε / L) (δ / L)) $
-          ⟨ L ·₊ (ε / L +₊ δ / L) ⟩₊          ≡⟨ ℚ.·DistL+ ⟨ L ⟩₊ ⟨ ε / L ⟩₊ ⟨ δ / L ⟩₊ ⟩
-          ⟨ L ·₊ ε / L ⟩₊ ℚ.+ ⟨ L ·₊ δ / L ⟩₊  ≡⟨ cong₂ ℚ._+_ (·/ L ε) (·/ L δ) ⟩
+      flim' : ∀ fx → (∀ ε δ → fx ε PN.≈[ L ·₊ (ε +₊ δ) ] fx δ) →
+        limit N' (fx ∘ (λ ε → ε ₊／₊ L))
+      flim' fx fxcL = N-com (fx ∘ (λ ε → ε ₊／₊ L)) fxc where
+        fxc : ∀ ε δ → fx (ε ₊／₊ L) PN.≈[ ε +₊ δ ] fx (δ ₊／₊ L)
+        fxc ε δ = flip (PN.subst≈ (fx (ε ₊／₊ L)) (fx (δ ₊／₊ L)))
+          (fxcL (ε ₊／₊ L) (δ ₊／₊ L)) $
+          ⟨ L ·₊ (ε ₊／₊ L +₊ δ ₊／₊ L) ⟩₊          ≡⟨ ℚ.·DistL+ ⟨ L ⟩₊ ⟨ ε ₊／₊ L ⟩₊ ⟨ δ ₊／₊ L ⟩₊ ⟩
+          ⟨ L ·₊ (ε ₊／₊ L) ⟩₊ ℚ.+ ⟨ L ·₊ (δ ₊／₊ L) ⟩₊  ≡⟨ cong₂ ℚ._+_ (·／ L ε) (·／ L δ) ⟩
           ⟨ ε +₊ δ ⟩₊                         ∎
 
       flim : ∀ fx → (∀ ε δ → fx ε PN.≈[ L ·₊ (ε +₊ δ) ] fx δ) → N
       flim fx fxcL = fst (flim' fx fxcL)
 
-      islim-flim : ∀ fx fxcL → isLimit N' (fx ∘ (_/ L)) (flim fx fxcL)
+      islim-flim : ∀ fx fxcL →
+        isLimit N' (fx ∘ (λ ε → ε ₊／₊ L)) (flim fx fxcL)
       islim-flim fx fxcL = snd (flim' fx fxcL)
 
       r : RecℭSym N λ u v ε → u PN.≈[ L ·₊ ε ] v
       r .ιA        = f
       r .limA      = flim
       r .eqA       = λ u v u≈v →
-        PN.isSeparated≈ u v (λ ε → PN.subst≈ u v (·/ L ε) (u≈v (ε / L)))
+        PN.isSeparated≈ u v (λ ε → PN.subst≈ u v (·／ L ε) (u≈v (ε ₊／₊ L)))
       r .ι-ι-B     = f-lip .pres≈
       r .ι-lim-B   x fy ε δ fycL Δ fx≈fyδ        =
-        isLim≈- N' (f x) (fy ∘ (_/ L)) (flim fy fycL) (L ·₊ ε) (L ·₊ δ) Δ'
+        isLim≈- N' (f x) (fy ∘ (λ ε → ε ₊／₊ L)) (flim fy fycL) (L ·₊ ε) (L ·₊ δ) Δ'
           (islim-flim fy fycL) (
           subst2 ((f x) PN.≈[_]_)
             (ℚ₊≡ $ ℚ.·DistL+ ⟨ L ⟩₊ ⟨ ε ⟩₊ _ ∙ cong (⟨ L ·₊ ε ⟩₊ ℚ.+_) (-DistR· ⟨ L ⟩₊ _))
-            (cong fy (ℚ₊≡ $ sym (·/ L δ) ∙ ℚ.·Assoc ⟨ L ⟩₊ ⟨ δ ⟩₊ ⟨ L ⁻¹₊ ⟩₊))
+            (cong fy (ℚ₊≡ $ sym (·／ L δ) ∙ ℚ.·Assoc ⟨ L ⟩₊ ⟨ δ ⟩₊ ⟨ L ⁻¹₊ ⟩₊))
             (fx≈fyδ
               :> f x PN.≈[ L ·₊ (ε -₊ δ , Δ) ] fy δ)
-            :> f x PN.≈[ (L ·₊ ε) -₊ (L ·₊ δ) , Δ' ] fy ((L ·₊ δ) / L))
+            :> f x PN.≈[ (L ·₊ ε) -₊ (L ·₊ δ) , Δ' ] fy ((L ·₊ δ) ₊／₊ L))
           :> f x PN.≈[ L ·₊ ε ] flim fy fycL
         where
           Δ' : 0 <ℚ (L ·₊ ε) -₊ (L ·₊ δ)
@@ -189,16 +192,17 @@ module _ (M' : PremetricSpace ℓM ℓM') (N' : PremetricSpace ℓN' ℓN) where
                 (·MonoL< ⟨ δ ⟩₊ ⟨ ε ⟩₊ ⟨ L ⟩₊ (snd L)
                   (0<Δ→< ⟨ δ ⟩₊ ⟨ ε ⟩₊ Δ))
       r .lim-lim-B fx fy ε δ η fxcL fycL Δ fxδ≈fyη  =
-        isLim≈-₂ N' (fx ∘ (_/ L)) (fy ∘ (_/ L)) (flim fx fxcL) (flim fy fycL)
+        isLim≈-₂ N' (fx ∘ (λ ε → ε ₊／₊ L)) (fy ∘ (λ ε → ε ₊／₊ L))
+        (flim fx fxcL) (flim fy fycL)
         (L ·₊ ε) (L ·₊ δ) (L ·₊ η) Δ' (islim-flim fx fxcL) (islim-flim fy fycL)
         (subst2 (PN._≈[ (L ·₊ ε) -₊ (L ·₊ δ +₊ (L ·₊ η)) , Δ' ]_)
-          (cong fx (ℚ₊≡ $ sym (·/ L δ) ∙ ℚ.·Assoc ⟨ L ⟩₊ ⟨ δ ⟩₊ ⟨ L ⁻¹₊ ⟩₊))
-          (cong fy (ℚ₊≡ $ sym (·/ L η) ∙ ℚ.·Assoc ⟨ L ⟩₊ ⟨ η ⟩₊ ⟨ L ⁻¹₊ ⟩₊))
+          (cong fx (ℚ₊≡ $ sym (·／ L δ) ∙ ℚ.·Assoc ⟨ L ⟩₊ ⟨ δ ⟩₊ ⟨ L ⁻¹₊ ⟩₊))
+          (cong fy (ℚ₊≡ $ sym (·／ L η) ∙ ℚ.·Assoc ⟨ L ⟩₊ ⟨ η ⟩₊ ⟨ L ⁻¹₊ ⟩₊))
           (PN.subst≈ (fx δ) (fy η)
             (ℚ.·DistL+ ⟨ L ⟩₊ ⟨ ε ⟩₊ _ ∙ cong (⟨ L ·₊ ε ⟩₊ ℚ.+_)
             (-DistR· ⟨ L ⟩₊ _ ∙ cong ℚ.-_ (ℚ.·DistL+ ⟨ L ⟩₊ ⟨ δ ⟩₊ ⟨ η ⟩₊)))
           fxδ≈fyη :> fx δ PN.≈[ (L ·₊ ε) -₊ (L ·₊ δ +₊ (L ·₊ η)) , Δ' ] fy η)
-          :> fx ((L ·₊ δ) / L) PN.≈[ (L ·₊ ε) -₊ (L ·₊ δ +₊ (L ·₊ η)) , Δ' ] fy ((L ·₊ η) / L))
+          :> fx ((L ·₊ δ) ₊／₊ L) PN.≈[ (L ·₊ ε) -₊ (L ·₊ δ +₊ (L ·₊ η)) , Δ' ] fy ((L ·₊ η) ₊／₊ L))
         :> flim fx fxcL PN.≈[ L ·₊ ε ] flim fy fycL
         where
           Δ' : 0 <ℚ (L ·₊ ε) -₊ ((L ·₊ δ) +₊ (L ·₊ η))
@@ -279,8 +283,6 @@ module _ (A' : PremetricSpace ℓA ℓA') (B' : PremetricSpace ℓB ℓB') (T' :
     open module PC  = PremetricStr (T' .snd)
 
   module _ (T-complete : isComplete T') where
-    open ℚ₊Inverse
-
     private
       F' = →PremetricSpace ⟨ ℭ B' ⟩ T'
 
@@ -318,23 +320,25 @@ module _ (A' : PremetricSpace ℓA ℓA') (B' : PremetricSpace ℓB ℓB') (T' :
       ḡ-lip : IsLipschitzWith (snd (ℭ B')) ḡ (snd T') L
       ḡ-lip = snd (LiftB.liftLipschitzWith L g g-lip)
 
-      isLimit-f̄ : ∀ x xc → isLimit T' ((f̄ ∘ x) ∘ (_/ L)) (f̄ (lim x xc))
+      isLimit-f̄ : ∀ x xc →
+        isLimit T' ((f̄ ∘ x) ∘ (λ ε → ε ₊／₊ L)) (f̄ (lim x xc))
       isLimit-f̄ x xc ε' δ =
-        PC.subst≈ (f̄ (x (ε' / L))) (f̄ (lim x xc))
-          (ℚ.·DistL+ ⟨ L ⟩₊ ⟨ ε' / L ⟩₊ ⟨ δ / L ⟩₊
-          ∙ cong₂ ℚ._+_ (·/ L ε') (·/ L δ))
+        PC.subst≈ (f̄ (x (ε' ₊／₊ L))) (f̄ (lim x xc))
+          (ℚ.·DistL+ ⟨ L ⟩₊ ⟨ ε' ₊／₊ L ⟩₊ ⟨ δ ₊／₊ L ⟩₊
+          ∙ cong₂ ℚ._+_ (·／ L ε') (·／ L δ))
           (IsLipschitzWith.pres≈ f̄-lip
-            (x (ε' / L)) (lim x xc) (ε' / L +₊ δ / L)
-            (isLimitLim B' x xc (ε' / L) (δ / L)))
+            (x (ε' ₊／₊ L)) (lim x xc) (ε' ₊／₊ L +₊ δ ₊／₊ L)
+            (isLimitLim B' x xc (ε' ₊／₊ L) (δ ₊／₊ L)))
 
-      isLimit-ḡ : ∀ x xc → isLimit T' ((ḡ ∘ x) ∘ (_/ L)) (ḡ (lim x xc))
+      isLimit-ḡ : ∀ x xc →
+        isLimit T' ((ḡ ∘ x) ∘ (λ ε → ε ₊／₊ L)) (ḡ (lim x xc))
       isLimit-ḡ x xc ε' δ =
-        PC.subst≈ (ḡ (x (ε' / L))) (ḡ (lim x xc))
-          (ℚ.·DistL+ ⟨ L ⟩₊ ⟨ ε' / L ⟩₊ ⟨ δ / L ⟩₊
-          ∙ cong₂ ℚ._+_ (·/ L ε') (·/ L δ))
+        PC.subst≈ (ḡ (x (ε' ₊／₊ L))) (ḡ (lim x xc))
+          (ℚ.·DistL+ ⟨ L ⟩₊ ⟨ ε' ₊／₊ L ⟩₊ ⟨ δ ₊／₊ L ⟩₊
+          ∙ cong₂ ℚ._+_ (·／ L ε') (·／ L δ))
           (IsLipschitzWith.pres≈ ḡ-lip
-            (x (ε' / L)) (lim x xc) (ε' / L +₊ δ / L)
-            (isLimitLim B' x xc (ε' / L) (δ / L)))
+            (x (ε' ₊／₊ L)) (lim x xc) (ε' ₊／₊ L +₊ δ ₊／₊ L)
+            (isLimitLim B' x xc (ε' ₊／₊ L) (δ ₊／₊ L)))
 
       e : Elimℭ-Prop (λ u → ∀ δ → f̄ u PC.≈[ ε +₊ δ ] ḡ u)
       e .Elimℭ-Prop.ιA x δ = fg-close x δ
@@ -343,14 +347,14 @@ module _ (A' : PremetricSpace ℓA ℓA') (B' : PremetricSpace ℓB ℓB') (T' :
           ∣ (η +₊ (η +₊ (ε +₊ η))
           , witness<
           , TTh.isLim≈+₂
-              (((f̄ ∘ x) ∘ (_/ L)))
-              (((ḡ ∘ x) ∘ (_/ L)))
+              (((f̄ ∘ x) ∘ (λ ε → ε ₊／₊ L)))
+              (((ḡ ∘ x) ∘ (λ ε → ε ₊／₊ L)))
               (f̄ (lim x xc))
               (ḡ (lim x xc))
               (ε +₊ η) η η
               (isLimit-f̄ x xc)
               (isLimit-ḡ x xc)
-              (IH (η / L) η))
+              (IH (η ₊／₊ L) η))
           ∣₁
         where
         η : ℚ₊
@@ -445,32 +449,33 @@ module _ (A' : PremetricSpace ℓA ℓA') (B' : PremetricSpace ℓB ℓB') (T' :
           subst
             (λ h → IsLipschitzWith (snd (ℭ B')) h (snd T') L₂)
             l≡f̄lim
-            (limLipschitz (ℭ B') T' T-complete L₂ s s-cauchy (IH ∘ (_/ L₁)))
+            (limLipschitz (ℭ B') T' T-complete L₂ s s-cauchy
+              (IH ∘ (λ ε → ε ₊／₊ L₁)))
           where
           s : ℚ₊ → ⟨ ℭ B' ⟩ → T
-          s = (f̄ ∘ x) ∘ (_/ L₁)
+          s = (f̄ ∘ x) ∘ (λ ε → ε ₊／₊ L₁)
 
           s-cauchy : FTheory.isCauchy s
           s-cauchy ε δ =
             PF.subst≈ (s ε) (s δ)
-              {ε = L₁ ·₊ (ε / L₁ +₊ δ / L₁)}
+              {ε = L₁ ·₊ (ε ₊／₊ L₁ +₊ δ ₊／₊ L₁)}
               {ε' = ε +₊ δ}
-              (ℚ.·DistL+ ⟨ L₁ ⟩₊ ⟨ ε / L₁ ⟩₊ ⟨ δ / L₁ ⟩₊
-              ∙ cong₂ ℚ._+_ (·/ L₁ ε) (·/ L₁ δ))
+              (ℚ.·DistL+ ⟨ L₁ ⟩₊ ⟨ ε ₊／₊ L₁ ⟩₊ ⟨ δ ₊／₊ L₁ ⟩₊
+              ∙ cong₂ ℚ._+_ (·／ L₁ ε) (·／ L₁ δ))
               (IsLipschitzWith.pres≈ f̄-lipA
-                (x (ε / L₁)) (x (δ / L₁)) (ε / L₁ +₊ δ / L₁)
-                (xc (ε / L₁) (δ / L₁)))
+                (x (ε ₊／₊ L₁)) (x (δ ₊／₊ L₁)) (ε ₊／₊ L₁ +₊ δ ₊／₊ L₁)
+                (xc (ε ₊／₊ L₁) (δ ₊／₊ L₁)))
 
           f̄-s-lim : FTheory.isLimit s (f̄ (lim x xc))
           f̄-s-lim ε δ =
             PF.subst≈ (s ε) (f̄ (lim x xc))
-              {ε = L₁ ·₊ (ε / L₁ +₊ δ / L₁)}
+              {ε = L₁ ·₊ (ε ₊／₊ L₁ +₊ δ ₊／₊ L₁)}
               {ε' = ε +₊ δ}
-              (ℚ.·DistL+ ⟨ L₁ ⟩₊ ⟨ ε / L₁ ⟩₊ ⟨ δ / L₁ ⟩₊
-              ∙ cong₂ ℚ._+_ (·/ L₁ ε) (·/ L₁ δ))
+              (ℚ.·DistL+ ⟨ L₁ ⟩₊ ⟨ ε ₊／₊ L₁ ⟩₊ ⟨ δ ₊／₊ L₁ ⟩₊
+              ∙ cong₂ ℚ._+_ (·／ L₁ ε) (·／ L₁ δ))
               (IsLipschitzWith.pres≈ f̄-lipA
-                (x (ε / L₁)) (lim x xc) (ε / L₁ +₊ δ / L₁)
-                (isLimitLim A' x xc (ε / L₁) (δ / L₁)))
+                (x (ε ₊／₊ L₁)) (lim x xc) (ε ₊／₊ L₁ +₊ δ ₊／₊ L₁)
+                (isLimitLim A' x xc (ε ₊／₊ L₁) (δ ₊／₊ L₁)))
 
           l≡f̄lim : fst (F-complete s s-cauchy) ≡ f̄ (lim x xc)
           l≡f̄lim = cong fst (FTheory.isPropLimit s (F-complete s s-cauchy) (f̄ (lim x xc) , f̄-s-lim))

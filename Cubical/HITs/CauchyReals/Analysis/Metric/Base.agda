@@ -35,6 +35,10 @@ open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base
 open import Cubical.HITs.CauchyReals.Foundation.Rationals using (ℚ₊ ; _/2₊ ; min₊)
 open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.HITs.CauchyReals.Analysis.Metric.Compatibility using
+  (ℝUC→∥IsUContinuous∥)
+open import Cubical.HITs.CauchyReals.Analysis.Metric.Reversal using
+  (reversalℝUC; reversalPreservesUnitInterval)
 
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
@@ -207,19 +211,10 @@ UnitIntervalMetricSpace = MetricSubSpace ℝMetricSpace (intervalℙ 0 1)
 
 reversalMap : UContMap UnitIntervalMetricSpace UnitIntervalMetricSpace
 reversalMap = restrUContMap {A = ℝMetricSpace} {ℝMetricSpace}
-  (intervalℙ 0 1) (intervalℙ 0 1) (IsUContinuous→UContMap (λ x → 1 -ᵣ x)
-    ∣ reversalUC ∣₁)
-  λ x (0<x , x<1) → isTrans≡≤ᵣ _ _ _ (sym (+-ᵣ 1) ∙ x-ᵣy≡x+ᵣ[-ᵣy] _ _)  (≤ᵣ-o+ _ _ 1 (-ᵣ≤ᵣ _ _ x<1))
-       , (isTrans≤≡ᵣ _ _ _
-      (≤ᵣ-o+ _ _ 1 (-ᵣ≤ᵣ _ _ 0<x))
-      ( sym (x-ᵣy≡x+ᵣ[-ᵣy] _ _) ∙ -ᵣ-rat₂ _ _))
- where
-  reversalUC : IsUContinuous (λ x → 1 -ᵣ x)
-  reversalUC ε = ε , λ u v u∼v →
-    invEq (∼≃abs<ε _ _ _)
-      (isTrans≡<ᵣ _ _ _
-        (cong absᵣ ℝ! ∙ sym (minusComm-absᵣ u v))
-        (fst (∼≃abs<ε _ _ _) u∼v))
+  (intervalℙ 0 1) (intervalℙ 0 1)
+  (IsUContinuous→UContMap (fst reversalℝUC)
+    (ℝUC→∥IsUContinuous∥ reversalℝUC))
+  reversalPreservesUnitInterval
 
 Interval[_,_]MetricSpace : ℝ → ℝ → MetricSpace₀
 Interval[ a , b ]MetricSpace = MetricSubSpace ℝMetricSpace (intervalℙ a b)

@@ -63,6 +63,10 @@ open import Cubical.Algebra.CommRing.Properties
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.HITs.CauchyReals.Analysis.Metric.Base
 open import Cubical.HITs.CauchyReals.Analysis.Metric.PNorm
+open import Cubical.HITs.CauchyReals.Analysis.Metric.Product
+open import Cubical.Relation.Premetric.Base using (PremetricSpace)
+open import Cubical.Relation.Premetric.Mappings using (NE[_,_]; UC[_,_]; NE→UC)
+open import Cubical.Relation.Premetric.Instances.Subspace
 import Cubical.Data.FinData as FD
 
 open import Cubical.HITs.CauchyReals.Trigonometry.Base using
@@ -108,6 +112,24 @@ distCircleMetricSpaceStr =
 
 distCircleMetricSpace : MetricSpace₀
 distCircleMetricSpace = _ , distCircleMetricSpaceStr
+
+
+distCirclePremetricSpace : PremetricSpace ℓ-zero ℓ-zero
+distCirclePremetricSpace =
+  PremetricSubspace ℝ²PremetricSpace
+    (λ z → (cartNorm² z ≡ 1) , isSetℝ _ _)
+
+
+distCircleInclusionNE :
+  NE[ distCirclePremetricSpace , ℝ²PremetricSpace ]
+distCircleInclusionNE =
+  subspaceInclusionNE ℝ²PremetricSpace
+    (λ z → (cartNorm² z ≡ 1) , isSetℝ _ _)
+
+
+distCircleInclusionUC :
+  UC[ distCirclePremetricSpace , ℝ²PremetricSpace ]
+distCircleInclusionUC = NE→UC distCircleInclusionNE
 
 
 [x-y][x-y]≡xx-2xy+yy : ∀ x y →

@@ -2,6 +2,7 @@ module Cubical.HITs.CauchyReals.Algebra.Order where
 
 open import Cubical.HITs.CauchyReals.Algebra.Order.Addition public
 open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue public
+open import Cubical.HITs.CauchyReals.Algebra.Order.Archimedean public
 open import Cubical.HITs.CauchyReals.Algebra.Order.Apartness public
 open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication public
 open import Cubical.HITs.CauchyReals.Algebra.Order.Properties public
