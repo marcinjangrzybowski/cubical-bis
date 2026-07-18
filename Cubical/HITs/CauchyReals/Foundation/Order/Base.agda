@@ -39,6 +39,15 @@ open import Cubical.Relation.Binary.Order.Poset
 open import Cubical.Relation.Binary.Order.Poset.Interval using
   (IntervalPredicate; intervalPredicate⊆)
 open import Cubical.Relation.Binary.Order.Proset
+open import Cubical.Relation.Binary.Order.Quoset.Base
+open import Cubical.Relation.Binary.Order.Quoset.Interval using
+  ( OpenIntervalPredicate
+  ; LeftClosedRightOpenIntervalPredicate
+  ; LeftOpenRightClosedIntervalPredicate
+  ; openIntervalPredicate⊆
+  ; openIntervalPredicate⊆intervalPredicate
+  ; intervalPredicate⊆openIntervalPredicate
+  )
 
 
 open import Cubical.Data.Unit
@@ -815,6 +824,18 @@ isPosetℝ .IsPoset.is-antisym = isAntisym≤ᵣ
 ℝ≤Poset = poset ℝ _≤ᵣ_ isPosetℝ
 
 
+isQuosetℝ : IsQuoset _<ᵣ_
+isQuosetℝ .IsQuoset.is-set = isSetℝ
+isQuosetℝ .IsQuoset.is-prop-valued = isProp<ᵣ
+isQuosetℝ .IsQuoset.is-irrefl x x<x = isAsym<ᵣ x x x<x x<x
+isQuosetℝ .IsQuoset.is-trans = isTrans<ᵣ
+isQuosetℝ .IsQuoset.is-asym = isAsym<ᵣ
+
+
+ℝ<Quoset : Quoset ℓ-zero ℓ-zero
+ℝ<Quoset = quoset ℝ _<ᵣ_ isQuosetℝ
+
+
 
 intervalℙ : ℝ → ℝ → ℙ ℝ
 intervalℙ = IntervalPredicate ℝ≤Poset
@@ -827,11 +848,13 @@ pointIntervalℙ x y x≡y = (x , ≤ᵣ-refl x , ≡ᵣWeaken≤ᵣ _ _ x≡y) 
     (isAntisym≤ᵣ x z x≤z (isTrans≤≡ᵣ _ _ _ z≤y (sym x≡y)))
 
 ointervalℙ : ℝ → ℝ → ℙ ℝ
-ointervalℙ a b x = ((a <ᵣ x) × (x <ᵣ b)) ,
-  isProp× (isProp<ᵣ _ _ )  (isProp<ᵣ _ _ )
+ointervalℙ = OpenIntervalPredicate ℝ<Quoset
 
 ointervalℙ⊆intervalℙ : ∀ a b → ointervalℙ a b ⊆ intervalℙ a b
-ointervalℙ⊆intervalℙ a b x (<x  , x<) = <ᵣWeaken≤ᵣ _ _ <x , <ᵣWeaken≤ᵣ _ _ x<
+ointervalℙ⊆intervalℙ =
+  openIntervalPredicate⊆intervalPredicate
+    (ℝ≤Poset .snd) (ℝ<Quoset .snd)
+    <ᵣWeaken≤ᵣ isTrans<≤ᵣ isTrans≤<ᵣ
 
 
 pred< : ℝ → ℙ ℝ
@@ -847,10 +870,12 @@ pred> : ℝ → ℙ ℝ
 pred> x y = (x <ᵣ y) , isProp<ᵣ _ _
 
 pred≤< : ℝ → ℝ → ℙ ℝ
-pred≤< a b x = ((a ≤ᵣ x) × (x <ᵣ b)) , isProp× (isProp≤ᵣ _ _) (isProp<ᵣ _ _)
+pred≤< = LeftClosedRightOpenIntervalPredicate
+  (ℝ≤Poset .snd) (ℝ<Quoset .snd)
 
 pred<≤ : ℝ → ℝ → ℙ ℝ
-pred<≤ a b x = ((a <ᵣ x) × (x ≤ᵣ b)) , isProp× (isProp<ᵣ _ _) (isProp≤ᵣ _ _)
+pred<≤ = LeftOpenRightClosedIntervalPredicate
+  (ℝ≤Poset .snd) (ℝ<Quoset .snd)
 
 pred0< : ℙ ℝ
 pred0< = λ x → (0 <ᵣ x) , isProp<ᵣ _ _
@@ -1175,9 +1200,10 @@ lim≡≃∼ _ _ _ = eqℝ≃< _ _
 ointervalℙ⊆ointervalℙ : ∀ {a b a' b'}
   → a' ≤ᵣ a → b ≤ᵣ b'
   → ointervalℙ a b ⊆ ointervalℙ a' b'
-ointervalℙ⊆ointervalℙ a'≤a b≤b' _ (a<x , x<b) =
-    isTrans≤<ᵣ _ _ _ a'≤a a<x
-  , isTrans<≤ᵣ _ _ _ x<b b≤b'
+ointervalℙ⊆ointervalℙ =
+  openIntervalPredicate⊆
+    (ℝ≤Poset .snd) (ℝ<Quoset .snd)
+    <ᵣWeaken≤ᵣ isTrans<≤ᵣ isTrans≤<ᵣ
 
 
 intervalℙ⊆intervalℙ : ∀ {a b a' b'}
@@ -1188,12 +1214,11 @@ intervalℙ⊆intervalℙ = intervalPredicate⊆ ℝ≤Poset
 
 intervalℙ⊆ointervalℙ : ∀ a' b' a b → a <ᵣ a' → b' <ᵣ b
   → intervalℙ a' b' ⊆ ointervalℙ a b
-intervalℙ⊆ointervalℙ a' b' a b a<a' b'<b x (a'≤x , x≤b') =
-  isTrans<≤ᵣ _ _ _ a<a' a'≤x ,
-   isTrans≤<ᵣ _ _ _ x≤b' b'<b
+intervalℙ⊆ointervalℙ =
+  intervalPredicate⊆openIntervalPredicate
+    (ℝ≤Poset .snd) (ℝ<Quoset .snd)
+    <ᵣWeaken≤ᵣ isTrans<≤ᵣ isTrans≤<ᵣ
 
 ontervalℙ⊂intervalℙ : ∀ {a b}
   → ointervalℙ a b ⊆ intervalℙ a b
-ontervalℙ⊂intervalℙ x (a<x , x<b) =
-   <ᵣWeaken≤ᵣ _ _ a<x ,
-   <ᵣWeaken≤ᵣ _ _ x<b
+ontervalℙ⊂intervalℙ {a} {b} = ointervalℙ⊆intervalℙ a b

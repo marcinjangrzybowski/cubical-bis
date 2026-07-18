@@ -52,12 +52,12 @@ cleanup.
 
 ## Current next slice
 
-Introduce universe-polymorphic open- and half-open interval predicates in a
-focused strict-order interval layer, together with the order-composition and
-strict-to-nonstrict weakening lemmas needed by interval inclusions. Express
-the Cauchy-real `ointervalℙ`, `pred≤<`, and `pred<≤` through that layer while
-preserving their established names and pair-valued membership proofs. Keep
-topological and real-continuity facts out of the generic order modules.
+Add reusable predicate-subtype order constructors and a strict analogue of
+`IsIsotone` in the generic poset/quoset mapping layers. Express the
+Cauchy-real `IsNondecreasingOn` and `IsStrictlyIncreasingOn` predicates through
+`uncurry f` on the ordered predicate subtype while preserving their existing
+dependent-function API. Migrate the focused real-power consumers and keep
+analytic monotonicity proofs under `CauchyReals`.
 
 ## Phase 1: ordered algebra structure
 
@@ -204,8 +204,8 @@ Move or replace the following families with `OrderedCommRing.Properties`:
 
 ## Phase 5: clamp, intervals, and subset mappings
 
-Status: generic clamp layers and the closed-interval predicate bridge are
-completed; open/half-open intervals and function-on-subset mappings remain.
+Status: generic clamp and interval-predicate layers are completed;
+function-on-subset mappings remain.
 
 Split this work by required structure:
 
@@ -221,11 +221,11 @@ Split this work by required structure:
       theory.
 - [x] Reuse `Relation.Binary.Order.Poset.Interval` for the closed `intervalℙ`
       predicate, its subtype equivalence, and endpoint-monotone containment.
-- [ ] Generalize `ointervalℙ` and the half-open predicates in a focused
-      strict-order interval layer.
-- Express `IsNondecreasingOn` through the order on a predicate subtype and the
-  existing `IsIsotone`; add a generic strict analogue for
-  `IsStrictlyIncreasingOn` if needed.
+- [x] Generalize `ointervalℙ` and the half-open predicates in the weakest
+      sufficient strict-order layer, `Quoset.Interval`.
+- [ ] Express `IsNondecreasingOn` through the order on a predicate subtype and
+      the existing `IsIsotone`; add a generic strict analogue for
+      `IsStrictlyIncreasingOn`.
 - Retain continuity of real clamp as the Cauchy-real adapter.
 
 ## Phase 6: rational series and approximation helpers
@@ -467,3 +467,17 @@ cleanup.
   multiplication, and integration consumers, and the `Algebra`, `Analysis`,
   `Approximation`, `ArcSin`, `Calculus`, and `Exponentiation` facades with no
   holes, metas, constraints, or warnings.
+- 2026-07-18: committed the generic closed-interval predicate bridge as
+  `a90518a70`.
+- 2026-07-18: introduced `Relation.Binary.Order.Quoset.Interval` with
+  universe-polymorphic open and half-open predicates plus containment and
+  open/closed weakening laws for compatible strict and nonstrict orders. The
+  module is reexported through the layered `Quoset` facade.
+- 2026-07-18: added the foundational `ℝ<Quoset` instance and expressed
+  `ointervalℙ`, `pred≤<`, `pred<≤`, and all existing generic interval
+  inclusions through the new order-only layer without changing their
+  pair-valued membership API.
+- 2026-07-18: checked all four changed Agda modules, six representative
+  proof-sensitive interval consumers, and the `Algebra`, `Analysis`,
+  `Approximation`, `ArcSin`, `Calculus`, `Circle`, and `Exponentiation`
+  facades with no holes, metas, constraints, or warnings.

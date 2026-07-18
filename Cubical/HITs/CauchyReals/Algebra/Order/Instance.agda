@@ -14,7 +14,7 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open Cubical.HITs.CauchyReals.Foundation.Order.Base public using
-  (ℝ≤Poset)
+  (ℝ≤Poset; ℝ<Quoset)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication
