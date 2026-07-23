@@ -49,9 +49,16 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base hiding
+  (IsUContinuousℚℙ; ℚApproxℙ''; ℚApproxℙ'→ℚApproxℙ''; ℚApproxℙ∘)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Approximation using
+  (ℚApproxℙ''; ℚApproxℙ'→ℚApproxℙ''; ℚApproxℙ∘)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Uniform.Base using
+  (IsUContinuousℚℙ)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Order
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Power.Order using
+  (^ⁿ-Monotone; ^ⁿ-StrictMonotone; ^ⁿMonotone⁻¹)
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Algebra.Order.Positive
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base

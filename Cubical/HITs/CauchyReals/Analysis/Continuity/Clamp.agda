@@ -1,6 +1,7 @@
 module Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Powerset
 
 open import Cubical.Algebra.OrderedCommRing.Clamp
@@ -9,13 +10,63 @@ open import Cubical.Relation.Binary.Order.Pseudolattice.Clamp
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Core
+open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using
+  (abs-max)
 open import Cubical.HITs.CauchyReals.Algebra.Order.Instance using
   (ℝ≤Pseudolattice; ℝOrderedCommRing)
 
 private
   module ℝClamp = PseudolatticeClamp ℝ≤Pseudolattice
   module ℝRingClamp = OrderedCommRingClamp ℝOrderedCommRing
+
+
+-- Previous location: Continuity.Base.
+IsContinuousClamp : ∀ a b → IsContinuous (clampᵣ a b)
+IsContinuousClamp a b =
+  IsContinuous∘ _ _ (IsContinuousMinR _) (IsContinuousMaxL _)
+
+
+-- Previous location: Continuity.Base.
+IsContinuousClamp₂ : ∀ x → IsContinuous₂ λ a b → clampᵣ a b x
+IsContinuousClamp₂ x =
+  (λ _ → IsContinuousMinL _) ,
+  λ _ → IsContinuous∘ _ _ (IsContinuousMinR _) (IsContinuousMaxR _)
+
+
+opaque
+  unfolding minᵣ
+
+  -- Previous location: Continuity.Base.
+  IsContinuousClamp₂∘ : ∀ {f₀} {f₁} x →
+    IsContinuous₂ f₀ → IsContinuous₂ f₁ →
+    IsContinuous₂ λ a b → clampᵣ (f₀ a b) (f₁ a b) x
+  IsContinuousClamp₂∘ x =
+    contNE₂∘ minR ∘
+      flip (contNE₂∘ maxR)
+        ((λ _ → IsContinuousConst _) , (λ _ → IsContinuousConst _))
+
+
+opaque
+  unfolding maxᵣ
+
+  -- Previous location: Continuity.Base.
+  IsContinuousClamp₂∘' : ∀ {f₀} {f₁} {f₂} →
+    IsContinuous₂ f₀ → IsContinuous₂ f₁ → IsContinuous₂ f₂ →
+    IsContinuous₂ λ a b → clampᵣ (f₀ a b) (f₁ a b) (f₂ a b)
+  IsContinuousClamp₂∘' f₀C f₁C f₂C =
+    contNE₂∘ minR (contNE₂∘ maxR f₀C f₂C) f₁C
+
+
+-- Previous location: Continuity.Base.
+≤clampᵣ : ∀ lower upper x → lower ≤ᵣ upper →
+  lower ≤ᵣ clampᵣ lower upper x
+≤clampᵣ = ℝClamp.lower≤Clamp
+
+
+-- Previous location: Continuity.Base.
+clamp≤ᵣ : ∀ lower upper x → clampᵣ lower upper x ≤ᵣ upper
+clamp≤ᵣ = ℝClamp.clamp≤Upper
 
 
 clampᵣ∈intervalℙ : ∀ a b → a ≤ᵣ b → ∀ x → clampᵣ a b x ∈ intervalℙ a b
@@ -25,6 +76,14 @@ clampᵣ∈intervalℙ a b a≤b x =
 -- Compatibility name: the endpoints and clamped value are Cauchy reals.
 clampᵣ∈ℚintervalℙ : ∀ a b → a ≤ᵣ b → ∀ x → clampᵣ a b x ∈ intervalℙ a b
 clampᵣ∈ℚintervalℙ = clampᵣ∈intervalℙ
+
+
+-- Previous location: Continuity.Base.
+∈ℚintervalℙ→clampᵣ≡ : ∀ a b x →
+  x ∈ intervalℙ a b → x ≡ clampᵣ a b x
+∈ℚintervalℙ→clampᵣ≡ a b x (a≤x , x≤b) =
+  sym (ℝClamp.clampFixpoint a b x a≤x x≤b)
+
 
 ≡clampᵣ→∈intervalℙ : ∀ a b → a ≤ᵣ b → ∀ x →
   x ≡ clampᵣ a b x → x ∈ intervalℙ a b

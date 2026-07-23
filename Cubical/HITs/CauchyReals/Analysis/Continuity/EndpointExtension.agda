@@ -36,7 +36,7 @@ open import Cubical.Data.Rationals.Order.Floor as ℚ
 open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (seqΣ ; seqΣ' ; _^ⁿ_ ; _ℚ₊^ⁿ_)
 open import Cubical.Data.Rationals.Inverse as ℚ using (invℚ ; _⁻¹₊)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 open import Cubical.HITs.CauchyReals.Foundation.Base
@@ -45,6 +45,8 @@ open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Base using
+  (reverseHalfLineFnStrict')
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base

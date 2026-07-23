@@ -36,11 +36,20 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base hiding
+  (ℚApproxℙ'; limConstRat; isIncrasingℙ)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Approximation using
+  (ℚApproxℙ')
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Limit using
+  (limConstRat)
+open import Cubical.HITs.CauchyReals.Analysis.Order.Functions using
+  (isIncrasingℙ)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
   (elimIntervalByClampᵣ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Power.Base using (IsContinuous^ⁿ)
+open import Cubical.HITs.CauchyReals.Algebra.Power.Order using
+  (ℚ^ⁿ-Monotone; ℚ^ⁿ-StrictMonotone; ^ⁿMonotone⁻¹)
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Approximation.Bisection
@@ -60,7 +69,7 @@ _ℚ^ⁿ_ = ℚ._^ⁿ_
 _ℚ₊^ⁿ_ : ℚ₊ → ℕ → ℚ₊
 _ℚ₊^ⁿ_ = ℚ._ℚ₊^ⁿ_
 
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 sqrRestr< : ∀ n → (fst (invℚ₊ (fromNat (2 ℕ.+ n)))) ℚ.< (fromNat (2 ℕ.+ n))

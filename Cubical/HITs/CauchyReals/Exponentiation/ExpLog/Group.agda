@@ -2,9 +2,10 @@ module Cubical.HITs.CauchyReals.Exponentiation.ExpLog.Group where
 
 open import Cubical.Foundations.Prelude
 
+open import Cubical.HITs.CauchyReals.Algebra.Ring using (+Groupℝ)
 open import Cubical.HITs.CauchyReals.Exponentiation.RealPower.Definition using (^ᵣ+)
 open import Cubical.HITs.CauchyReals.Exponentiation.RealPower.Infrastructure
-  using (+Groupℝ; ·₊Groupℝ)
+  using (·₊Groupℝ)
 open import Cubical.HITs.CauchyReals.Exponentiation.Normalized.Exponential
 
 open import Cubical.Algebra.Group

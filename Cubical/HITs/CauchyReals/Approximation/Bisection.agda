@@ -17,7 +17,12 @@ open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base hiding
+  (ℚApproxℙ'; ≤lim; lim≤)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Approximation using
+  (ℚApproxℙ')
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Limit using
+  (≤lim; lim≤)
 import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp as Clamp
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base

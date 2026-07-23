@@ -25,6 +25,11 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+  hiding (isPropIsContinuous)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Core
+  using (isPropIsContinuous)
+open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using
+  (absᵣ-triangle')
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Uniform.Base public
   using (IsUContinuous; restrIsUContinuousℙ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
@@ -32,7 +37,7 @@ open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 
 
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
@@ -48,7 +53,7 @@ invℚ₊ = _⁻¹₊
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 
 IsUContinuous→IsContinuous : ∀ f → IsUContinuous f → IsContinuous f

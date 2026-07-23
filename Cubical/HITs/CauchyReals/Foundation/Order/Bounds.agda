@@ -11,8 +11,20 @@ open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Density public using
+  (<ᵣ→Δ)
+open import Cubical.HITs.CauchyReals.Foundation.Order.RationalBounds public
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Base using
+  (-ᵣ≤ᵣ; -ᵣ<ᵣ)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Strict using
+  (≤absᵣ)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Lattice using
+  (max<-lem)
+open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using
+  (abs-max)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Archimedean public using
+  (∃ℚ₊LargerThanℝ₊; ∃ℚ₊LargerThanℝ₀₊)
 
 ointerval→abs< : ∀ x y → x ∈ ointervalℙ (-ᵣ y) y → absᵣ x <ᵣ y
 ointerval→abs< x y (-y<x , x<y) =
@@ -40,23 +52,6 @@ abs≤→interval x y ∣x∣≤y =
     (-ᵣInvol x)
   , isTrans≤ᵣ _ _ _ (≤absᵣ x) ∣x∣≤y
 
-∃ℚ₊LargerThanℝ₊ : ∀ (x : ℝ₊) → ∃[ q ∈ ℚ₊ ] fst x <ᵣ rat (fst q)
-∃ℚ₊LargerThanℝ₊ x = PT.map
-  (λ (q , x<q , _) →
-     (q ,  (<ᵣ→<ℚ 0 q (isTrans<ᵣ _ _ _ (snd x) x<q))) , x<q)
-   (denseℚinℝ (fst x) (fst x +ᵣ 1)
-     (isTrans≡<ᵣ _ _ _
-        (sym (+IdR (fst x)))
-        (<ᵣ-o+ _ _ (fst x) (decℚ<ᵣ? {0} {1}))))
-
-∃ℚ₊LargerThanℝ₀₊ : ∀ (x : ℝ₀₊) → ∃[ q ∈ ℚ₊ ] fst x <ᵣ rat (fst q)
-∃ℚ₊LargerThanℝ₀₊ x = PT.map
-  (λ (q , x<q , _) →
-     (q ,  (<ᵣ→<ℚ 0 q (isTrans≤<ᵣ _ _ _ (snd x) x<q))) , x<q)
-   (denseℚinℝ (fst x) (fst x +ᵣ 1)
-     (isTrans≡<ᵣ _ _ _
-        (sym (+IdR (fst x)))
-        (<ᵣ-o+ _ _ (fst x) (decℚ<ᵣ? {0} {1}))))
 
 -- Previous name: lowBnd-1/ℕ.
 ∃UnitFractionBelowℝ₊ : ∀ (x : ℝ₊) →

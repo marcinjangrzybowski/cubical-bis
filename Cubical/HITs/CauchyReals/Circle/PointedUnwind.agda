@@ -85,7 +85,7 @@ open import Cubical.HITs.CauchyReals.ArcSin.Symmetric.Properties.Inverse using
   ( sin∘arcSin⟨⟩
   ; arcSin⟨⟩∘sin
   )
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 open import Cubical.HITs.SetQuotients as SQ renaming ([_] to [_]/)
 open import Cubical.Relation.Binary.Base

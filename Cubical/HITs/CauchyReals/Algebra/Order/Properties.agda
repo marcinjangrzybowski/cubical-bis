@@ -19,9 +19,14 @@ open import Cubical.Relation.Binary
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
-open import Cubical.HITs.CauchyReals.Algebra.Order.Addition
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Base
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Strict
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Bootstrap
+open import Cubical.HITs.CauchyReals.Algebra.Order.Lattice using
+  (max<-lem; ≤maxᵣ)
+open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using
+  (absᵣNonNeg)
 open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
@@ -45,7 +50,7 @@ Dichotomyℝ' x y z x<z =
      → ⊎.map
          (λ q'≤q →
            isTrans<ᵣ _ _ _
-             (a-b<c⇒a<c+b _ _ _ y-Δ<q')
+             (a-b<c⇒a<c+b-bootstrap _ _ _ y-Δ<q')
              (isTrans<≡ᵣ _ _ _
                (<ᵣ-+o _ _ _
                  ((isTrans≤<ᵣ _ _ _ (≤ℚ→≤ᵣ q' _ q'≤q)
@@ -68,7 +73,7 @@ Dichotomyℝ' x y z x<z =
  Δ₊ : ℝ₊
  Δ₊ =
    ( (z -ᵣ x) ·ᵣ fst (ℚ₊→ℝ₊ [ 1 / 2 ]₊)
-   , ℝ₊· (z -ᵣ x , x<y→0<y-x _ _ x<z) (ℚ₊→ℝ₊ [ 1 / 2 ]₊))
+   , ℝ₊· (z -ᵣ x , x<y→0<y-x-bootstrap _ _ x<z) (ℚ₊→ℝ₊ [ 1 / 2 ]₊))
 
 
 x<δ→x≤0 : ∀ x → ((ε : ℚ₊) → x <ᵣ (rat (fst ε))) → x ≤ᵣ 0

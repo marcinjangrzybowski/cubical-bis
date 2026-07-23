@@ -27,6 +27,8 @@ open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Data.NatPlusOne
 
+import Cubical.Algebra.OrderedCommRing.Properties as Ordered
+
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
@@ -34,6 +36,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Order.Instance using
+  (ℝOrderedCommRing)
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base
 open import Cubical.HITs.CauchyReals.Calculus.Integration.Summation
@@ -44,51 +48,18 @@ open import Cubical.HITs.CauchyReals.Foundation.Rationals
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
-
-
-
+private
+  module ℝSum = Ordered.SumTheory ℝOrderedCommRing
 Bishop-Proposition7 : ∀ n (f : Fin n → ℝ)
  → 0 <ᵣ foldlFin {n = n} (λ a k → a +ᵣ f k) 0 (idfun (Fin n))
  → ∃[ k ∈ Fin n ] 0 <ᵣ f k
-Bishop-Proposition7 zero f x = ⊥.rec (isIrrefl<ᵣ 0 x)
-Bishop-Proposition7 (suc n) f x =
-  PT.rec squash₁
-  (λ (ε , 0<ε , ε<∑) →
-    let ε₊ = (ε , ℚ<→0< ε (<ᵣ→<ℚ 0 ε 0<ε))
-    in PT.rec squash₁
-          (⊎.rec
-            (λ f0<ε/2 →
-              let tail = foldlFin {n = n} (λ a y → a +ᵣ f y) 0 fsuc
-                  tail-cancel :
-                    -ᵣ (f fzero) +ᵣ (f fzero +ᵣ tail)
-                      ≡ foldlFin {n = n} (λ a y → a +ᵣ f y) 0 (fsuc ∘ idfun (Fin n))
-                  tail-cancel =
-                    +ᵣAssoc (-ᵣ (f fzero)) (f fzero) tail
-                    ∙ cong (_+ᵣ tail)
-                        (+ᵣComm (-ᵣ (f fzero)) (f fzero) ∙ +-ᵣ (f fzero))
-                    ∙ +IdL tail
-                    ∙ cong (foldlFin {n = n} (λ a y → a +ᵣ f y) 0)
-                        (funExt λ k → refl)
-                  zz : 0 <ᵣ foldlFin {n = n}
-                    (λ a k → a +ᵣ (f ∘ fsuc) k) 0 (idfun (Fin n))
-                  zz = isTrans<≡ᵣ _ _ _ (isTrans<ᵣ _ _ _
-                       (snd (ℚ₊→ℝ₊ (ε₊ /2₊))) (isTrans≡<ᵣ _ _ _
-                        (ℝ! ∙
-                          cong₂ _+ᵣ_ refl (+ᵣ-rat (fst (ε₊ /2₊)) (fst (ε₊ /2₊))
-                           ∙ cong rat (ε/2+ε/2≡ε ε)))
-                        (<ᵣMonotone+ᵣ _ _ _ _
-                         (-ᵣ<ᵣ _ _ f0<ε/2)
-                          (isTrans<≡ᵣ _ _ _ ε<∑
-                            (foldFin+0ᵣ n fsuc f (0 +ᵣ f fzero)
-                             ∙ cong₂ _+ᵣ_ (+IdL (f fzero)) refl)))))
-                          (tail-cancel ∙ foldFin+map n 0 f fsuc (idfun (Fin n)))
-                  z = Bishop-Proposition7 n (f ∘ fsuc) zz
-              in PT.map ((_ ,_) ∘ snd) z)
-            (∣_∣₁ ∘ (_ ,_)))
-        ((Dichotomyℝ' 0 (f fzero) (rat (fst (ε₊ /2₊))) (snd (ℚ₊→ℝ₊ (ε₊ /2₊))) )))
-  (denseℚinℝ 0
-    (foldlFin {n = suc n} (λ a k → a +ᵣ f k) 0 (idfun (Fin (suc n))))
-    x)
+Bishop-Proposition7 n f 0<∑f =
+  PT.map
+    (λ (k , 0<fₖ) → FinP.FinData→Fin n k , 0<fₖ)
+    (ℝSum.pos∑→∃pos V
+      (subst (0 <ᵣ_) (foldFin+≡∑ n f (idfun (Fin n))) 0<∑f))
+  where
+  V = Fin→FinVec {n = n} (f ∘ idfun (Fin n))
 
 
 

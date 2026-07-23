@@ -50,7 +50,7 @@ open import Cubical.HITs.CauchyReals.Calculus.Integration.Partition.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.MeanValue
 open import Cubical.HITs.CauchyReals.Calculus.Integration.Partition.Concatenation
 open import Cubical.HITs.CauchyReals.Calculus.Integration.Summation
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
 
 open ℚ using (_⁻¹₊)

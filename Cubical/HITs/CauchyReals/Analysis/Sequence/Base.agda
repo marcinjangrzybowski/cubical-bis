@@ -37,6 +37,18 @@ open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Power.Order public using
+  ( 1<^
+  ; ^<1
+  ; ^≤1
+  ; 1＃^
+  ; ^ⁿ-StrictMonotone
+  ; ^ⁿ-Monotone
+  ; ^ⁿMonotone⁻¹
+  ; ^ⁿMonotone⁻¹-with0
+  ; ℚ^ⁿ-Monotone
+  ; ℚ^ⁿ-StrictMonotone
+  )
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Algebra.Order.Properties public using
   ( Dichotomyℝ'
@@ -67,7 +79,7 @@ open ℚ using (_⁻¹₊)
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 
 fromPositive·ᵣ : ∀ {a b} → 0 ≤ᵣ a → 0 ≤ᵣ b → 0 <ᵣ a ·ᵣ b  → 0 <ᵣ b
@@ -934,87 +946,8 @@ x/y<1 x y 0<x 0<y =
   (y ＃ x) ≃ 1 ＃ (x ／ᵣ[ y , inl 0<y ])
 1＃x/y x y 0<x 0<y =
  ⊎.⊎-equiv
-  (1<x/y x y 0<x 0<y)
+ (1<x/y x y 0<x 0<y)
   (x/y<1 x y 0<x 0<y)
-
-
-
-1<^ : ∀ x  → ∀ n → (1 <ᵣ x) → (1 <ᵣ (x ^ⁿ (suc n)))
-1<^ x zero = subst (1 <ᵣ_) ℝ!
-1<^ x (suc n) 1<x =
- isTrans≡<ᵣ _ _ _ ℝ!
-   (<ᵣ₊Monotone·ᵣ _ _ _ _
-     decℚ≤ᵣ? decℚ≤ᵣ? 1<x (1<^ x (n) 1<x))
-
-^<1 : ∀ x → 0 ≤ᵣ x  → ∀ n → (x <ᵣ 1) → ((x ^ⁿ (suc n)) <ᵣ 1)
-^<1 x _ zero = subst (_<ᵣ 1) ℝ!
-^<1 x 0≤x (suc n) x<1 =
- isTrans<≡ᵣ _ _ _
-   (<ᵣ₊Monotone·ᵣ _ _ _ _
-      0≤x (0≤x^ⁿ x (suc n) 0≤x) x<1 (^<1 x 0≤x n x<1))
-   ℝ!
-
-
-^≤1 : ∀ x → 0 ≤ᵣ x  → ∀ n → (x ≤ᵣ 1) → ((x ^ⁿ n) ≤ᵣ 1)
-^≤1 x _  zero _ = ≤ᵣ-refl 1
-^≤1 x 0≤x (suc n) x≤1 =
- isTrans≤≡ᵣ _ _ _
-   (≤ᵣ₊Monotone·ᵣ _ _ _ _
-     decℚ≤ᵣ? (0≤x^ⁿ _ n 0≤x) x≤1 (^≤1 _ 0≤x n x≤1))
-   ℝ!
-
-
-
-
-1＃^ : ∀ x → 0 ≤ᵣ x → ∀ n → (1 ＃ x) → (1 ＃ (x ^ⁿ (suc n)))
-1＃^ x 0≤x n = ⊎.map (1<^ x n) (^<1 x 0≤x n)
-
-^ⁿ-StrictMonotone : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n)
- → 0 ≤ᵣ x → 0 ≤ᵣ y → x <ᵣ y → (x ^ⁿ n) <ᵣ (y ^ⁿ n)
-
-^ⁿ-StrictMonotone {x} {y} 0 0<n 0≤x 0≤y x<y = ⊥.rec (ℕ.¬-<-zero 0<n)
-^ⁿ-StrictMonotone {x} {y} 1 0<n 0≤x 0≤y x<y =
-  subst2 _<ᵣ_ ℝ! ℝ! x<y
-^ⁿ-StrictMonotone {x} {y} (suc (suc n)) 0<n 0≤x 0≤y x<y =
-  <ᵣ₊Monotone·ᵣ _ _ _ _
-    0≤x
-    (0≤x^ⁿ x (suc n) 0≤x)
-    x<y
-    ((^ⁿ-StrictMonotone (suc n) (ℕ.suc-≤-suc (ℕ.zero-≤ {n})) 0≤x 0≤y x<y))
-
-^ⁿ-Monotone : ∀ {x y : ℝ} (n : ℕ)
- → 0 ≤ᵣ x → x ≤ᵣ y → (x ^ⁿ n) ≤ᵣ (y ^ⁿ n)
-^ⁿ-Monotone zero _ _ = ≤ᵣ-refl _
-^ⁿ-Monotone (suc n) 0≤x x≤y =
-   ≤ᵣ₊Monotone·ᵣ _ _ _ _
-      (isTrans≤ᵣ _ _ _ 0≤x x≤y) (0≤x^ⁿ _ n 0≤x)
-     x≤y (^ⁿ-Monotone n 0≤x x≤y)
-
-ℚ^ⁿ-Monotone : ∀ {x y : ℚ} (n : ℕ) →
-  0 ℚ.≤ x → 0 ℚ.≤ y → x ℚ.≤ y →
-  ℚ._^ⁿ_ x n ℚ.≤ ℚ._^ⁿ_ y n
-ℚ^ⁿ-Monotone zero 0≤x 0≤y x≤y = ℚ.isRefl≤ 1
-ℚ^ⁿ-Monotone {x} {y} (suc n) 0≤x 0≤y x≤y =
-  ℚ.≤Monotone·-onNonNeg x y (ℚ._^ⁿ_ x n) (ℚ._^ⁿ_ y n)
-    x≤y
-    (ℚ^ⁿ-Monotone n 0≤x 0≤y x≤y)
-    0≤x
-    (ℚ.0≤ℚ^ⁿ x 0≤x n)
-
-ℚ^ⁿ-StrictMonotone : ∀ {x y : ℚ} (n : ℕ) → (0 ℕ.< n) →
-  0 ℚ.≤ x → 0 ℚ.≤ y → x ℚ.< y →
-  ℚ._^ⁿ_ x n ℚ.< ℚ._^ⁿ_ y n
-ℚ^ⁿ-StrictMonotone zero 0<n 0≤x 0≤y x<y =
-  ⊥.rec (ℕ.¬-<-zero 0<n)
-ℚ^ⁿ-StrictMonotone {x} {y} (suc zero) 0<n 0≤x 0≤y x<y =
-  subst2 ℚ._<_ ℚ! ℚ! x<y
-ℚ^ⁿ-StrictMonotone {x} {y} (suc (suc n)) 0<n 0≤x 0≤y x<y =
-  ℚ.<Monotone·-onPos x y (ℚ._^ⁿ_ x (suc n)) (ℚ._^ⁿ_ y (suc n))
-    x<y
-    (ℚ^ⁿ-StrictMonotone (suc n)
-      (ℕ.suc-≤-suc (ℕ.zero-≤ {n})) 0≤x 0≤y x<y)
-    0≤x
-    (ℚ.0≤ℚ^ⁿ x 0≤x (suc n))
 
 module bⁿ-aⁿ n'  where
 
@@ -1129,22 +1062,6 @@ module bⁿ-aⁿ n'  where
  open factor public
 
 
-^ⁿMonotone⁻¹ : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n) → 0 <ᵣ x → 0 <ᵣ y
- → (x ^ⁿ n) ≤ᵣ (y ^ⁿ n) → x ≤ᵣ y
-^ⁿMonotone⁻¹ zero 0<n 0≤x 0≤y xⁿ≤yⁿ = ⊥.rec (ℕ.¬-<-zero 0<n)
-^ⁿMonotone⁻¹ (suc zero) 0<n 0≤x 0≤y xⁿ≤yⁿ =
-  subst2 _≤ᵣ_ (·IdR _) (·IdR _) xⁿ≤yⁿ
-^ⁿMonotone⁻¹ {x} {y} (suc (suc n)) 0<n 0<x 0<y xⁿ≤yⁿ =
- let z = isTrans≤≡ᵣ _ _ _ (x≤y→0≤y-x _ _ xⁿ≤yⁿ)
-          (sym $ bⁿ-aⁿ.[b-a]·S≡bⁿ-aⁿ n x y 0<x 0<y)
- in invEq (x≤y≃0≤y-x x y)
-      ((invEq (z≤x≃y₊·z≤y₊·x (y -ᵣ x) 0
-          ((bⁿ-aⁿ.S n x y 0<x 0<y ,
-                  bⁿ-aⁿ.0<S n x y 0<x 0<y)))
-         (subst2 _≤ᵣ_
-           (sym (Rℝ.0RightAnnihilates (bⁿ-aⁿ.S n x y 0<x 0<y)))
-            (·ᵣComm (y -ᵣ x) _) z)))
-
 ^ⁿStrictMonotone⁻¹ : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n) → 0 <ᵣ x → 0 <ᵣ y
  → (x ^ⁿ n) <ᵣ (y ^ⁿ n) → x <ᵣ y
 ^ⁿStrictMonotone⁻¹ zero 0<n 0<x 0<y xⁿ<yⁿ = ⊥.rec (ℕ.¬-<-zero 0<n)
@@ -1160,21 +1077,6 @@ module bⁿ-aⁿ n'  where
          (subst2 _<ᵣ_
            (sym (Rℝ.0RightAnnihilates (bⁿ-aⁿ.S n x y 0<x 0<y)))
             (·ᵣComm (y -ᵣ x) _) z))
-
-opaque
-  ^ⁿMonotone⁻¹-with0 : ∀ {x y : ℝ} (n : ℕ) → (0 ℕ.< n) → 0 ≤ᵣ x → 0 <ᵣ y
-   → (x ^ⁿ n) ≤ᵣ (y ^ⁿ n) → x ≤ᵣ y
-  ^ⁿMonotone⁻¹-with0 {x} {y} n 0<n 0≤x 0<y xⁿ≤yⁿ =
-    PT.rec (isProp≤ᵣ _ _)
-      (⊎.rec
-        (<ᵣWeaken≤ᵣ _ _ )
-        (λ y/2<x →
-          ^ⁿMonotone⁻¹ {x} {y} n 0<n
-           (isTrans<ᵣ _ _ _ (snd ((y , 0<y) ₊·ᵣ ℚ₊→ℝ₊ [ 1 / 2 ]₊))
-             y/2<x) 0<y xⁿ≤yⁿ))
-      (Dichotomyℝ' (y ·ᵣ rat [ 1 / 2 ]) x y
-        (isTrans<≡ᵣ _ _ _ (<ᵣ-o·ᵣ _ _ (_ , 0<y) decℚ<ᵣ?) (·IdR _) ))
-
 
 IsCauchySequence' : Seq → Type
 IsCauchySequence' s =

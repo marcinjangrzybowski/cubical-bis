@@ -61,7 +61,7 @@ open import Cubical.HITs.CauchyReals.Approximation.Bisection
 open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base hiding (invℚ₊)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals hiding (_^_)
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 open import Cubical.HITs.CauchyReals.Exponentiation.Base
 open import Cubical.HITs.CauchyReals.Exponentiation.Logarithm.Sequence.Elementary using

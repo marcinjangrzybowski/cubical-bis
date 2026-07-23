@@ -51,7 +51,7 @@ open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Calculus.Integration.Partition.Base using (ℚ<→0< ; _ℚ₊·_)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals hiding (_^_)
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 open import Cubical.HITs.CauchyReals.Exponentiation.RationalPower.Core
 

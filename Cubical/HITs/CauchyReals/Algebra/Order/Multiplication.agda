@@ -11,10 +11,13 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Core
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
-open import Cubical.HITs.CauchyReals.Algebra.Order.Addition
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Strict using
+  (x<y→0<y-x-bootstrap)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Bootstrap using
+  (0<y-x→x<y)
 
 
 opaque
@@ -66,6 +69,16 @@ opaque
    subst2 _≤ᵣ_ (·ᵣComm _ _) (·ᵣComm _ _) (≤ᵣ-·ᵣo m n o 0≤o p)
 
 
+ ≤ᵣ-·o : ∀ m n o → 0 ℚ.≤ o → m ≤ᵣ n → m ·ᵣ rat o ≤ᵣ n ·ᵣ rat o
+ ≤ᵣ-·o m n o 0≤o =
+   ≤ᵣ-·ᵣo m n (rat o) (≤ℚ→≤ᵣ 0 o 0≤o)
+
+
+ ≤ᵣ-o· : ∀ m n o → 0 ℚ.≤ o → m ≤ᵣ n → rat o ·ᵣ m ≤ᵣ rat o ·ᵣ n
+ ≤ᵣ-o· m n o 0≤o =
+   ≤ᵣ-o·ᵣ m n (rat o) (≤ℚ→≤ᵣ 0 o 0≤o)
+
+
 ≤ᵣ₊Monotone·ᵣ : ∀ m n o s → 0 ≤ᵣ n → 0 ≤ᵣ o
   → m ≤ᵣ n → o ≤ᵣ s → m ·ᵣ o ≤ᵣ n ·ᵣ s
 ≤ᵣ₊Monotone·ᵣ m n o s 0≤n 0≤o m≤n o≤s =
@@ -100,7 +113,7 @@ opaque
 <ᵣ-·ᵣo m n (o , 0<o) p =
   let z = subst (0 <ᵣ_)
         (·DistR+ n (-ᵣ m) o ∙ cong ((n ·ᵣ o) +ᵣ_) (-ᵣ· m o))
-        (ℝ₊· (_ , x<y→0<y-x _ _ p) (o , 0<o))
+        (ℝ₊· (_ , x<y→0<y-x-bootstrap _ _ p) (o , 0<o))
   in 0<y-x→x<y _ _ z
 
 

@@ -14,7 +14,8 @@ open import Cubical.HITs.PropositionalTruncation.Monad
 
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base hiding (≤Cont₂)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Order using (≤Cont₂)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Foundation.Rationals hiding (_^_)

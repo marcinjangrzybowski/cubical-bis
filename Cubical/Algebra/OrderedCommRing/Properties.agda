@@ -5,6 +5,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.SIP using (TypeWithStr)
 open import Cubical.Foundations.Univalence
 
@@ -12,7 +13,7 @@ open import Cubical.HITs.PropositionalTruncation as PT
 
 import Cubical.Functions.Logic as L
 
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat as ℕ renaming (
@@ -100,8 +101,12 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
     open module R = RingTheory (OrderedCommRing→Ring R')
   open OrderedCommRingStr (snd R')
   open PseudolatticeTheory (OrderedCommRing→PseudoLattice R') renaming (
-      L≤∨ to L≤⊔ ; R≤∨ to R≤⊔ ; ∨Comm to ⊔Comm ; ∨Idem to ⊔Idem ; ∨LUB to ⊔LUB
-    ; ∧≤L to ⊓≤L ; ∧≤R to ⊓≤R ; ∧Comm to ⊓Comm ; ∧Idem to ⊓Idem ; ∧GLB to ⊓GLB)
+      L≤∨ to L≤⊔ ; R≤∨ to R≤⊔ ; ∨Comm to ⊔Comm ; ∨Idem to ⊔Idem ; ∨Assoc to ⊔Assoc
+    ; ∨LUB to ⊔LUB
+    ; ∨Monotone to ⊔Monotone ; ≥→∨≡Left to ≥→⊔≡Left
+    ; ≤→∨≡Right to ≤→⊔≡Right
+    ; ∧≤L to ⊓≤L ; ∧≤R to ⊓≤R ; ∧Comm to ⊓Comm ; ∧Idem to ⊓Idem ; ∧GLB to ⊓GLB
+    ; ∧Monotone to ⊓Monotone)
 
   open OrderedCommRingReasoning R'
 
@@ -141,6 +146,119 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
     +Mono≤ x y z w x<y z<w = begin≤
       x + z ≤⟨ +MonoR≤ x y z x<y ⟩ y + z ≤⟨ +MonoL≤ z w y z<w ⟩ y + w ◾
 
+    +CancelR< : ∀ x y z → x + z < y + z → x < y
+    +CancelR< x y z =
+      subst2 _<_ (solve! RCR) (solve! RCR)
+        ∘ +MonoR< (x + z) (y + z) (- z)
+
+    +CancelL< : ∀ x y z → z + x < z + y → x < y
+    +CancelL< x y z =
+      +CancelR< x y z ∘ subst2 _<_ (+Comm z x) (+Comm z y)
+
+    +CancelR≤ : ∀ x y z → x + z ≤ y + z → x ≤ y
+    +CancelR≤ x y z =
+      subst2 _≤_ (solve! RCR) (solve! RCR)
+        ∘ +MonoR≤ (x + z) (y + z) (- z)
+
+    +CancelL≤ : ∀ x y z → z + x ≤ z + y → x ≤ y
+    +CancelL≤ x y z =
+      +CancelR≤ x y z ∘ subst2 _≤_ (+Comm z x) (+Comm z y)
+
+    +CancelR<≃ : ∀ x y z → (x + z < y + z) ≃ (x < y)
+    +CancelR<≃ x y z =
+      propBiimpl→Equiv (is-prop-valued< _ _) (is-prop-valued< _ _)
+        (+CancelR< x y z) (+MonoR< x y z)
+
+    +CancelL<≃ : ∀ x y z → (z + x < z + y) ≃ (x < y)
+    +CancelL<≃ x y z =
+      propBiimpl→Equiv (is-prop-valued< _ _) (is-prop-valued< _ _)
+        (+CancelL< x y z) (+MonoL< x y z)
+
+    +CancelR≤≃ : ∀ x y z → (x + z ≤ y + z) ≃ (x ≤ y)
+    +CancelR≤≃ x y z =
+      propBiimpl→Equiv (is-prop-valued≤ _ _) (is-prop-valued≤ _ _)
+        (+CancelR≤ x y z) (+MonoR≤ x y z)
+
+    +CancelL≤≃ : ∀ x y z → (z + x ≤ z + y) ≃ (x ≤ y)
+    +CancelL≤≃ x y z =
+      propBiimpl→Equiv (is-prop-valued≤ _ _) (is-prop-valued≤ _ _)
+        (+CancelL≤ x y z) (+MonoL≤ x y z)
+
+    x-y≤z→x-z≤y : ∀ x y z → x - y ≤ z → x - z ≤ y
+    x-y≤z→x-z≤y x y z x-y≤z =
+      subst2 _≤_ (solve! RCR) (solve! RCR)
+        (+MonoR≤ (x - y) z (y - z) x-y≤z)
+
+    x-y≤z→x≤z+y : ∀ x y z → x - y ≤ z → x ≤ z + y
+    x-y≤z→x≤z+y x y z x-y≤z =
+      subst2 _≤_ (solve! RCR) (solve! RCR)
+        (+MonoR≤ (x - y) z y x-y≤z)
+
+    x<z+y→x-y<z : ∀ x y z → x < z + y → x - y < z
+    x<z+y→x-y<z x y z x<z+y =
+      subst2 _<_ (solve! RCR) (solve! RCR)
+        (+MonoR< x (z + y) (- y) x<z+y)
+
+    x≤z+y→x-z≤y : ∀ x y z → x ≤ z + y → x - z ≤ y
+    x≤z+y→x-z≤y x y z x≤z+y =
+      subst2 _≤_ (solve! RCR) (solve! RCR)
+        (+MonoR≤ x (z + y) (- z) x≤z+y)
+
+    x+y≤z→y≤z-x : ∀ x y z → x + y ≤ z → y ≤ z - x
+    x+y≤z→y≤z-x x y z x+y≤z =
+      subst2 _≤_ (solve! RCR) (solve! RCR)
+        (+MonoR≤ (x + y) z (- x) x+y≤z)
+
+    y≤z-x→x+y≤z : ∀ x y z → y ≤ z - x → x + y ≤ z
+    y≤z-x→x+y≤z x y z y≤z-x =
+      subst2 _≤_ (solve! RCR) (solve! RCR)
+        (+MonoR≤ y (z - x) x y≤z-x)
+
+    x-y≤z-w→x+w≤z+y : ∀ x y z w → x - y ≤ z - w → x + w ≤ z + y
+    x-y≤z-w→x+w≤z+y x y z w x-y≤z-w =
+      subst2 _≤_ (solve! RCR) (solve! RCR)
+        (+MonoR≤ (x - y) (z - w) (y + w) x-y≤z-w)
+
+    x+w≤z+y→x-y≤z-w : ∀ x y z w → x + w ≤ z + y → x - y ≤ z - w
+    x+w≤z+y→x-y≤z-w x y z w x+w≤z+y =
+      subst2 _≤_ (solve! RCR) (solve! RCR)
+        (+MonoR≤ (x + w) (z + y) (- y - w) x+w≤z+y)
+
+    y<z-x→x+y<z : ∀ x y z → y < z - x → x + y < z
+    y<z-x→x+y<z x y z y<z-x =
+      subst2 _<_ (solve! RCR) (solve! RCR)
+        (+MonoR< y (z - x) x y<z-x)
+
+    x<y-z→z<y-x : ∀ x y z → x < y - z → z < y - x
+    x<y-z→z<y-x x y z x<y-z =
+      subst2 _<_ (solve! RCR) (solve! RCR)
+        (+MonoR< x (y - z) (z - x) x<y-z)
+
+    x≤y-z→z≤y-x : ∀ x y z → x ≤ y - z → z ≤ y - x
+    x≤y-z→z≤y-x x y z x≤y-z =
+      subst2 _≤_ (solve! RCR) (solve! RCR)
+        (+MonoR≤ x (y - z) (z - x) x≤y-z)
+
+    x<y-z→x+z<y : ∀ x y z → x < y - z → x + z < y
+    x<y-z→x+z<y x y z x<y-z =
+      subst2 _<_ refl (solve! RCR)
+        (+MonoR< x (y - z) z x<y-z)
+
+    x+z<y→x<y-z : ∀ x y z → x + z < y → x < y - z
+    x+z<y→x<y-z x y z x+z<y =
+      subst2 _<_ (solve! RCR) refl
+        (+MonoR< (x + z) y (- z) x+z<y)
+
+    x-y<z→x-z<y : ∀ x y z → x - y < z → x - z < y
+    x-y<z→x-z<y x y z x-y<z =
+      subst2 _<_ (solve! RCR) (solve! RCR)
+        (+MonoR< (x - y) z (y - z) x-y<z)
+
+    x-y<z→x<z+y : ∀ x y z → x - y < z → x < z + y
+    x-y<z→x<z+y x y z x-y<z =
+      subst2 _<_ (solve! RCR) refl
+        (+MonoR< (x - y) z y x-y<z)
+
     ·MonoL< : ∀ x y z → 0r < z → x < y → z · x < z · y
     ·MonoL< x y z 0<z x<y = begin<
       z · x ≡→≤⟨ ·Comm z x ⟩ x · z <⟨ ·MonoR< x y z 0<z x<y ⟩ y · z ≡→≤⟨ ·Comm y z ⟩ z · y ◾
@@ -148,6 +266,34 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
     ·MonoL≤ : ∀ x y z → 0r ≤ z → x ≤ y → z · x ≤ z · y
     ·MonoL≤ x y z 0≤z x≤y = begin≤
       z · x ≡→≤⟨ ·Comm z x ⟩ x · z ≤⟨ ·MonoR≤ x y z 0≤z x≤y ⟩ y · z ≡→≤⟨ ·Comm y z ⟩ z · y ◾
+
+    ·Mono≤ : ∀ x y z w → 0r ≤ y → 0r ≤ z → x ≤ y → z ≤ w → x · z ≤ y · w
+    ·Mono≤ x y z w 0≤y 0≤z x≤y z≤w = begin≤
+      x · z ≤⟨ ·MonoR≤ x y z 0≤z x≤y ⟩
+      y · z ≤⟨ ·MonoL≤ z w y 0≤y z≤w ⟩
+      y · w ◾
+
+    ·Mono< : ∀ x y z w → 0r ≤ x → 0r ≤ z → x < y → z < w → x · z < y · w
+    ·Mono< x y z w 0≤x 0≤z x<y z<w = begin<
+      x · z ≤⟨ ·MonoL≤ z w x 0≤x (<-≤-weaken z w z<w) ⟩
+      x · w <⟨ ·MonoR< x y w (≤-<-trans 0r z w 0≤z z<w) x<y ⟩
+      y · w ◾
+
+    ·Mono<≤ : ∀ x y z w → 0r ≤ x → 0r < z → x < y → z ≤ w → x · z < y · w
+    ·Mono<≤ x y z w 0≤x 0<z x<y z≤w = begin<
+      x · z <⟨ ·MonoR< x y z 0<z x<y ⟩
+      y · z ≤⟨ ·MonoL≤ z w y 0≤y z≤w ⟩
+      y · w ◾
+      where
+      0≤y : 0r ≤ y
+      0≤y = begin≤
+        0r ≤⟨ 0≤x ⟩ x ≤⟨ <-≤-weaken x y x<y ⟩ y ◾
+
+    ·Mono≤< : ∀ x y z w → 0r < x → 0r ≤ z → x ≤ y → z < w → x · z < y · w
+    ·Mono≤< x y z w 0<x 0≤z x≤y z<w = begin<
+      x · z ≤⟨ ·MonoR≤ x y z 0≤z x≤y ⟩
+      y · z <⟨ ·MonoL< z w y (<-≤-trans 0r x y 0<x x≤y) z<w ⟩
+      y · w ◾
 
     powPositive : ∀ x n → 0r < x → 0r < x ^ n
     powPositive x zero    0<x = 0<1
@@ -163,11 +309,99 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
       0r · (x ^ n)      ≤⟨ ·MonoR≤ 0r x (x ^ n) (powNonnegative x n 0≤x) 0≤x ⟩
       x · (x ^ n)       ◾
 
+    one<pow : ∀ x n → 1r < x → 1r < x ^ suc n
+    one<pow x zero 1<x =
+      subst (1r <_) (sym (·IdR x)) 1<x
+    one<pow x (suc n) 1<x = begin<
+      1r                ≡→≤⟨ sym (·IdR 1r) ⟩
+      1r · 1r             <⟨ ·Mono< 1r x 1r (x ^ suc n)
+                              0≤1 0≤1 1<x (one<pow x n 1<x) ⟩
+      x · (x ^ suc n)     ◾
+
+    pow<one : ∀ x → 0r ≤ x → ∀ n → x < 1r → x ^ suc n < 1r
+    pow<one x _ zero x<1 =
+      subst (_< 1r) (sym (·IdR x)) x<1
+    pow<one x 0≤x (suc n) x<1 = begin<
+      x · (x ^ suc n) <⟨ ·Mono< x 1r (x ^ suc n) 1r
+                           0≤x (powNonnegative x (suc n) 0≤x)
+                           x<1 (pow<one x 0≤x n x<1) ⟩
+      1r · 1r          ≡→≤⟨ ·IdR 1r ⟩
+      1r                 ◾
+
+    pow≤one : ∀ x → 0r ≤ x → ∀ n → x ≤ 1r → x ^ n ≤ 1r
+    pow≤one x _ zero _ = is-refl 1r
+    pow≤one x 0≤x (suc n) x≤1 = begin≤
+      x · (x ^ n) ≤⟨ ·Mono≤ x 1r (x ^ n) 1r
+                        0≤1 (powNonnegative x n 0≤x)
+                        x≤1 (pow≤one x 0≤x n x≤1) ⟩
+      1r · 1r       ≡→≤⟨ ·IdR 1r ⟩
+      1r              ◾
+
+    powStrictMono : ∀ {x y} n → 0 <ℕ n → 0r ≤ x → 0r ≤ y → x < y
+                  → x ^ n < y ^ n
+    powStrictMono zero 0<n _ _ _ = ⊥.rec (ℕ.¬-<-zero 0<n)
+    powStrictMono {x} {y} (suc zero) _ _ _ x<y =
+      subst2 _<_ (sym (·IdR x)) (sym (·IdR y)) x<y
+    powStrictMono {x} {y} (suc (suc n)) _ 0≤x 0≤y x<y =
+      ·Mono< x y (x ^ suc n) (y ^ suc n)
+        0≤x (powNonnegative x (suc n) 0≤x) x<y
+        (powStrictMono (suc n) (ℕ.suc-≤-suc ℕ.zero-≤)
+          0≤x 0≤y x<y)
+
+    powMono : ∀ {x y} n → 0r ≤ x → x ≤ y → x ^ n ≤ y ^ n
+    powMono zero _ _ = is-refl 1r
+    powMono {x} {y} (suc n) 0≤x x≤y =
+      ·Mono≤ x y (x ^ n) (y ^ n)
+        (is-trans≤ 0r x y 0≤x x≤y) (powNonnegative x n 0≤x)
+        x≤y (powMono n 0≤x x≤y)
+
+    powReflects≤ : ∀ {x y} n → 0 <ℕ n → 0r ≤ x → 0r ≤ y
+                 → x ^ n ≤ y ^ n → x ≤ y
+    powReflects≤ {x} {y} n 0<n 0≤x 0≤y xⁿ≤yⁿ =
+      ¬<→≥ y x
+        (≤→¬> (x ^ n) (y ^ n) xⁿ≤yⁿ ∘
+          powStrictMono n 0<n 0≤y 0≤x)
+
+    one#pow : ∀ x → 0r ≤ x → ∀ n → 1r # x → 1r # (x ^ suc n)
+    one#pow x _ n (inl 1<x) = inl (one<pow x n 1<x)
+    one#pow x 0≤x n (inr x<1) = inr (pow<one x 0≤x n x<1)
+
+    powExponentStrictMono : ∀ {x} m n → 1r < x → m <ℕ n → x ^ m < x ^ n
+    powExponentStrictMono m zero _ m<n = ⊥.rec (ℕ.¬-<-zero m<n)
+    powExponentStrictMono {x} zero (suc n) 1<x _ = one<pow x n 1<x
+    powExponentStrictMono {x} (suc m) (suc n) 1<x sm<sn =
+      ·MonoL< (x ^ m) (x ^ n) x
+        (≤-<-trans 0r 1r x 0≤1 1<x)
+        (powExponentStrictMono m n 1<x (ℕ.predℕ-≤-predℕ sm<sn))
+
+    powExponentAntitone : ∀ x → 0r ≤ x → x ≤ 1r → ∀ m n
+                        → m ≤ℕ n → x ^ n ≤ x ^ m
+    powExponentAntitone x 0≤x x≤1 zero n _ =
+      pow≤one x 0≤x n x≤1
+    powExponentAntitone x 0≤x x≤1 (suc m) zero sm≤0 =
+      ⊥.rec (ℕ.¬-<-zero sm≤0)
+    powExponentAntitone x 0≤x x≤1 (suc m) (suc n) sm≤sn =
+      ·MonoL≤ (x ^ n) (x ^ m) x 0≤x
+        (powExponentAntitone x 0≤x x≤1 m n
+          (ℕ.pred-≤-pred sm≤sn))
+
     ·CancelL≤ : ∀ x y z → 0r < z → z · x ≤ z · y → x ≤ y
     ·CancelL≤ x y z 0<z zx≤zy = ¬<→≥ y x $ ≤→¬> _ _ zx≤zy ∘ ·MonoL< _ _ z 0<z
 
     ·CancelR≤ : ∀ x y z → 0r < z → x · z ≤ y · z → x ≤ y
     ·CancelR≤ x y z 0<z zx≤zy = ¬<→≥ y x $ ≤→¬> _ _ zx≤zy ∘ ·MonoR< _ _ z 0<z
+
+    ·MonoL≤≃ : ∀ x y z → 0r < z → (x ≤ y) ≃ (z · x ≤ z · y)
+    ·MonoL≤≃ x y z 0<z =
+      propBiimpl→Equiv (is-prop-valued≤ _ _) (is-prop-valued≤ _ _)
+        (·MonoL≤ x y z (<-≤-weaken 0r z 0<z))
+        (·CancelL≤ x y z 0<z)
+
+    ·MonoR≤≃ : ∀ x y z → 0r < z → (x ≤ y) ≃ (x · z ≤ y · z)
+    ·MonoR≤≃ x y z 0<z =
+      propBiimpl→Equiv (is-prop-valued≤ _ _) (is-prop-valued≤ _ _)
+        (·MonoR≤ x y z (<-≤-weaken 0r z 0<z))
+        (·CancelR≤ x y z 0<z)
 
     -- NOTE:
     -- These properties don't seems like to be derivable.
@@ -223,6 +457,10 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
     <SumRightPos : ∀ x y → 0r < y → x < y + x
     <SumRightPos x y 0<y = begin< x ≡→≤⟨ sym (+IdL x) ⟩ 0r + x <⟨ 0<y <+[ x ] ⟩ y + x ◾
 
+    ≤→<SumLeftPos : ∀ x y z → x ≤ y → 0r < z → x < y + z
+    ≤→<SumLeftPos x y z x≤y 0<z =
+      ≤-<-trans x y (y + z) x≤y (<SumLeftPos y z 0<z)
+
     ≤SumLeftNonNeg : ∀ x y → 0r ≤ y → x ≤ x + y
     ≤SumLeftNonNeg x y 0≤y = begin≤ x ≡→≤⟨ sym (+IdR x) ⟩ x + 0r ≤⟨ [ x ]+≤ 0≤y ⟩ x + y ◾
 
@@ -242,6 +480,94 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
       x + (- x - y)   ≤⟨ +MonoR≤ x y (- x - y) x≤y ⟩
       y + (- x - y) ≡→≤⟨ solve! RCR ⟩
       - x             ◾
+
+    -Flip<≃ : ∀ x y → (x < y) ≃ (- y < - x)
+    -Flip<≃ x y =
+      propBiimpl→Equiv (is-prop-valued< _ _) (is-prop-valued< _ _)
+        (-Flip< x y)
+        (subst2 _<_ (solve! RCR) (solve! RCR) ∘ -Flip< (- y) (- x))
+
+    -Flip≤≃ : ∀ x y → (x ≤ y) ≃ (- y ≤ - x)
+    -Flip≤≃ x y =
+      propBiimpl→Equiv (is-prop-valued≤ _ _) (is-prop-valued≤ _ _)
+        (-Flip≤ x y)
+        (subst2 _≤_ (solve! RCR) (solve! RCR) ∘ -Flip≤ (- y) (- x))
+
+    negHalfLineStrictIso : ∀ x₀ →
+      Iso (Σ R (x₀ <_)) (Σ R (_< (- x₀)))
+    negHalfLineStrictIso x₀ .Iso.fun (x , x₀<x) =
+      - x , -Flip< x₀ x x₀<x
+    negHalfLineStrictIso x₀ .Iso.inv (x , x<-x₀) =
+      - x , subst (_< - x) (solve! RCR) (-Flip< x (- x₀) x<-x₀)
+    negHalfLineStrictIso x₀ .Iso.sec _ =
+      Σ≡Prop (λ _ → is-prop-valued< _ _) (solve! RCR)
+    negHalfLineStrictIso x₀ .Iso.ret _ =
+      Σ≡Prop (λ _ → is-prop-valued< _ _) (solve! RCR)
+
+    negHalfLineIso : ∀ x₀ →
+      Iso (Σ R (x₀ ≤_)) (Σ R (_≤ (- x₀)))
+    negHalfLineIso x₀ .Iso.fun (x , x₀≤x) =
+      - x , -Flip≤ x₀ x x₀≤x
+    negHalfLineIso x₀ .Iso.inv (x , x≤-x₀) =
+      - x , subst (_≤ - x) (solve! RCR) (-Flip≤ x (- x₀) x≤-x₀)
+    negHalfLineIso x₀ .Iso.sec _ =
+      Σ≡Prop (λ _ → is-prop-valued≤ _ _) (solve! RCR)
+    negHalfLineIso x₀ .Iso.ret _ =
+      Σ≡Prop (λ _ → is-prop-valued≤ _ _) (solve! RCR)
+
+    negHalfLineStrictIso' : ∀ x₀ →
+      Iso (Σ R ((- x₀) <_)) (Σ R (_< x₀))
+    negHalfLineStrictIso' x₀ .Iso.fun (x , -x₀<x) =
+      - x , subst (- x <_) (solve! RCR) (-Flip< (- x₀) x -x₀<x)
+    negHalfLineStrictIso' x₀ .Iso.inv (x , x<x₀) =
+      - x , -Flip< x x₀ x<x₀
+    negHalfLineStrictIso' x₀ .Iso.sec _ =
+      Σ≡Prop (λ _ → is-prop-valued< _ _) (solve! RCR)
+    negHalfLineStrictIso' x₀ .Iso.ret _ =
+      Σ≡Prop (λ _ → is-prop-valued< _ _) (solve! RCR)
+
+    negHalfLineIso' : ∀ x₀ →
+      Iso (Σ R ((- x₀) ≤_)) (Σ R (_≤ x₀))
+    negHalfLineIso' x₀ .Iso.fun (x , -x₀≤x) =
+      - x , subst (- x ≤_) (solve! RCR) (-Flip≤ (- x₀) x -x₀≤x)
+    negHalfLineIso' x₀ .Iso.inv (x , x≤x₀) =
+      - x , -Flip≤ x x₀ x≤x₀
+    negHalfLineIso' x₀ .Iso.sec _ =
+      Σ≡Prop (λ _ → is-prop-valued≤ _ _) (solve! RCR)
+    negHalfLineIso' x₀ .Iso.ret _ =
+      Σ≡Prop (λ _ → is-prop-valued≤ _ _) (solve! RCR)
+
+    negHalfLineFnIso : ∀ x₀ y₀ →
+      Iso ((Σ R (x₀ ≤_)) → (Σ R (y₀ ≤_)))
+          ((Σ R (_≤ (- x₀))) → (Σ R (_≤ (- y₀))))
+    negHalfLineFnIso x₀ y₀ =
+      compIso
+        (codomainIso (negHalfLineIso y₀))
+        (domIso (negHalfLineIso x₀))
+
+    negHalfLineFnStrictIso : ∀ x₀ y₀ →
+      Iso ((Σ R (x₀ <_)) → (Σ R (y₀ <_)))
+          ((Σ R (_< (- x₀))) → (Σ R (_< (- y₀))))
+    negHalfLineFnStrictIso x₀ y₀ =
+      compIso
+        (codomainIso (negHalfLineStrictIso y₀))
+        (domIso (negHalfLineStrictIso x₀))
+
+    negHalfLineFnIso' : ∀ x₀ y₀ →
+      Iso ((Σ R ((- x₀) ≤_)) → (Σ R ((- y₀) ≤_)))
+          ((Σ R (_≤ x₀)) → (Σ R (_≤ y₀)))
+    negHalfLineFnIso' x₀ y₀ =
+      compIso
+        (codomainIso (negHalfLineIso' y₀))
+        (domIso (negHalfLineIso' x₀))
+
+    negHalfLineFnStrictIso' : ∀ x₀ y₀ →
+      Iso ((Σ R ((- x₀) <_)) → (Σ R ((- y₀) <_)))
+          ((Σ R (_< x₀)) → (Σ R (_< y₀)))
+    negHalfLineFnStrictIso' x₀ y₀ =
+      compIso
+        (codomainIso (negHalfLineStrictIso' y₀))
+        (domIso (negHalfLineStrictIso' x₀))
 
     joinNeg≡negMeet : ∀ x y → (- x) ⊔ (- y) ≡ - (x ⊓ y)
     joinNeg≡negMeet x y = is-antisym _ _
@@ -282,6 +608,46 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
 
     0≤Δ→≤ : ∀ x y → 0r ≤ y - x → x ≤ y
     0≤Δ→≤ x y 0≤y-x = subst2 _≤_ (solve! RCR) (solve! RCR) (+MonoR≤ _ _ x 0≤y-x)
+
+    <≃0<Δ : ∀ x y → (x < y) ≃ (0r < y - x)
+    <≃0<Δ x y =
+      propBiimpl→Equiv (is-prop-valued< _ _) (is-prop-valued< _ _)
+        (<→0<Δ x y) (0<Δ→< x y)
+
+    ≤≃0≤Δ : ∀ x y → (x ≤ y) ≃ (0r ≤ y - x)
+    ≤≃0≤Δ x y =
+      propBiimpl→Equiv (is-prop-valued≤ _ _) (is-prop-valued≤ _ _)
+        (≤→0≤Δ x y) (0≤Δ→≤ x y)
+
+    <→Δ<0 : ∀ x y → x < y → x - y < 0r
+    <→Δ<0 x y x<y =
+      subst2 _<_ (solve! RCR) (solve! RCR)
+        (+MonoR< x y (- y) x<y)
+
+    Δ<0→< : ∀ x y → x - y < 0r → x < y
+    Δ<0→< x y x-y<0 =
+      subst2 _<_ (solve! RCR) (solve! RCR)
+        (+MonoR< (x - y) 0r y x-y<0)
+
+    <≃Δ<0 : ∀ x y → (x < y) ≃ (x - y < 0r)
+    <≃Δ<0 x y =
+      propBiimpl→Equiv (is-prop-valued< _ _) (is-prop-valued< _ _)
+        (<→Δ<0 x y) (Δ<0→< x y)
+
+    ≤→Δ≤0 : ∀ x y → x ≤ y → x - y ≤ 0r
+    ≤→Δ≤0 x y x≤y =
+      subst2 _≤_ (solve! RCR) (solve! RCR)
+        (+MonoR≤ x y (- y) x≤y)
+
+    Δ≤0→≤ : ∀ x y → x - y ≤ 0r → x ≤ y
+    Δ≤0→≤ x y x-y≤0 =
+      subst2 _≤_ (solve! RCR) (solve! RCR)
+        (+MonoR≤ (x - y) 0r y x-y≤0)
+
+    ≤≃Δ≤0 : ∀ x y → (x ≤ y) ≃ (x - y ≤ 0r)
+    ≤≃Δ≤0 x y =
+      propBiimpl→Equiv (is-prop-valued≤ _ _) (is-prop-valued≤ _ _)
+        (≤→Δ≤0 x y) (Δ≤0→≤ x y)
 
     0≤² : ∀ x → 0r ≤ x · x
     0≤² x = ≥Using< (x · x) 0r λ x²<0 →
@@ -349,6 +715,68 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
       x ⊔ (- x)       ≡⟨⟩
       abs x           ∎
 
+    private
+      +R≤→≤-R : ∀ x y z → x + z ≤ y → x ≤ y - z
+      +R≤→≤-R x y z x+z≤y = begin≤
+        x               ≡→≤⟨ solve! RCR ⟩
+        (x + z) + (- z)   ≤⟨ +MonoR≤ _ _ (- z) x+z≤y ⟩
+        y - z             ◾
+
+      ≤-R→+R≤ : ∀ x y z → x ≤ y - z → x + z ≤ y
+      ≤-R→+R≤ x y z x≤y-z = begin≤
+        x + z             ≤⟨ +MonoR≤ _ _ z x≤y-z ⟩
+        (y - z) + z     ≡→≤⟨ solve! RCR ⟩
+        y                 ◾
+
+      +DistR⊔′ : ∀ x y z → (x ⊔ y) + z ≡ (x + z) ⊔ (y + z)
+      +DistR⊔′ x y z = is-antisym _ _
+        (≤-R→+R≤ (x ⊔ y) ((x + z) ⊔ (y + z)) z
+          (⊔LUB
+            (+R≤→≤-R x ((x + z) ⊔ (y + z)) z L≤⊔)
+            (+R≤→≤-R y ((x + z) ⊔ (y + z)) z R≤⊔)))
+        (⊔LUB
+          (+MonoR≤ x (x ⊔ y) z L≤⊔)
+          (+MonoR≤ y (x ⊔ y) z R≤⊔))
+
+      +DistL⊔′ : ∀ z x y → z + (x ⊔ y) ≡ (z + x) ⊔ (z + y)
+      +DistL⊔′ z x y =
+        +Comm z (x ⊔ y)
+        ∙ +DistR⊔′ x y z
+        ∙ cong₂ _⊔_ (+Comm x z) (+Comm y z)
+
+    abs≡⊔-⊓ : ∀ x y → (x ⊔ y) - (x ⊓ y) ≡ abs (x - y)
+    abs≡⊔-⊓ x y =
+      (x ⊔ y) - (x ⊓ y)
+        ≡⟨ cong ((x ⊔ y) +_) (sym (joinNeg≡negMeet x y)) ⟩
+      (x ⊔ y) + ((- x) ⊔ (- y))
+        ≡⟨ +DistL⊔′ (x ⊔ y) (- x) (- y) ⟩
+      ((x ⊔ y) + (- x)) ⊔ ((x ⊔ y) + (- y))
+        ≡⟨ cong₂ _⊔_ (+DistR⊔′ x y (- x)) (+DistR⊔′ x y (- y)) ⟩
+      ((x + (- x)) ⊔ (y + (- x))) ⊔
+        ((x + (- y)) ⊔ (y + (- y)))
+        ≡⟨ cong₂ _⊔_
+             (cong₂ _⊔_ (solve! RCR) (solve! RCR))
+             (cong₂ _⊔_ (solve! RCR) (solve! RCR)) ⟩
+      (0r ⊔ (y - x)) ⊔ ((x - y) ⊔ 0r)
+        ≡⟨ sym ⊔Assoc ⟩
+      0r ⊔ ((y - x) ⊔ ((x - y) ⊔ 0r))
+        ≡⟨ cong (0r ⊔_) ⊔Assoc ⟩
+      0r ⊔ (((y - x) ⊔ (x - y)) ⊔ 0r)
+        ≡⟨ cong (λ z → 0r ⊔ (z ⊔ 0r)) ⊔Comm ⟩
+      0r ⊔ (((x - y) ⊔ (y - x)) ⊔ 0r)
+        ≡⟨ cong (0r ⊔_) (≥→⊔≡Left 0≤absΔ) ⟩
+      0r ⊔ ((x - y) ⊔ (y - x))
+        ≡⟨ ≤→⊔≡Right 0≤absΔ ⟩
+      (x - y) ⊔ (y - x)
+        ≡⟨ cong ((x - y) ⊔_) (solve! RCR) ⟩
+      abs (x - y) ∎
+      where
+      0≤absΔ : 0r ≤ (x - y) ⊔ (y - x)
+      0≤absΔ =
+        subst (0r ≤_)
+          (cong ((x - y) ⊔_) (solve! RCR))
+          (0≤abs (x - y))
+
     abs-alternate : ∀ n x → abs (alternate n x) ≡ abs x
     abs-alternate zero x = refl
     abs-alternate (suc zero) x = abs- x
@@ -358,6 +786,14 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
     0≤→abs≡id x 0≤x = is-antisym (abs x) x
       (⊔LUB (is-refl x) (begin≤ - x ≤⟨ 0≤→-≤0 x 0≤x ⟩ 0r ≤⟨ 0≤x ⟩ x ◾))
       (≤abs x)
+
+    abs-monotoneOnNonNeg : (x y : Σ R (0r ≤_)) →
+      fst x ≤ fst y → abs (fst x) ≤ abs (fst y)
+    abs-monotoneOnNonNeg x y x≤y =
+      subst2 _≤_
+        (sym (0≤→abs≡id (fst x) (snd x)))
+        (sym (0≤→abs≡id (fst y) (snd y)))
+        x≤y
 
     ≤0→abs≡- : ∀ x → x ≤ 0r → abs x ≡ - x
     ≤0→abs≡- x x≤0 = sym (abs- x) ∙ 0≤→abs≡id (- x) (≤0→0≤- x x≤0)
@@ -545,6 +981,46 @@ module _ (R' : OrderedCommRing ℓ ℓ') where
     ∑-syntax n x = ∑ {suc n} λ k → x (toℕ k)
 
     syntax ∑-syntax n (λ k → xₖ) = ∑[0 ≤ k ≤ n ] xₖ
+
+    ∑Mono≤ : ∀ {n} (x y : FinVec R n) →
+             (∀ k → x k ≤ y k) → ∑ x ≤ ∑ y
+    ∑Mono≤ {zero} x y x≤y = is-refl 0r
+    ∑Mono≤ {suc n} x y x≤y =
+      +Mono≤ (x zero) (y zero) (∑ (x ∘ suc)) (∑ (y ∘ suc))
+        (x≤y zero) (∑Mono≤ (x ∘ suc) (y ∘ suc) (x≤y ∘ suc))
+
+    ∑Mono< : ∀ {n} (x y : FinVec R n) → 0 <ℕ n →
+             (∀ k → x k < y k) → ∑ x < ∑ y
+    ∑Mono< {zero} x y 0<n x<y = ⊥.rec (ℕ.¬-<-zero 0<n)
+    ∑Mono< {suc n} x y 0<sn x<y = begin<
+      x zero + ∑ (x ∘ suc) <⟨ +MonoR< _ _ _ (x<y zero) ⟩
+      y zero + ∑ (x ∘ suc) ≤⟨ +MonoL≤ _ _ _
+        (∑Mono≤ (x ∘ suc) (y ∘ suc)
+          (λ k → <-≤-weaken _ _ (x<y (suc k)))) ⟩
+      y zero + ∑ (y ∘ suc) ◾
+
+    pos∑→∃pos : ∀ {n} (x : FinVec R n) →
+                0r < ∑ x → ∃[ k ∈ Fin n ] 0r < x k
+    pos∑→∃pos {zero} x 0<0 = ⊥.rec (is-irrefl 0r 0<0)
+    pos∑→∃pos {suc n} x 0<∑x =
+      PT.rec squash₁
+        (⊎.rec
+          (λ 0<x₀ → ∣ zero , 0<x₀ ∣₁)
+          (λ 0<∑tail →
+            PT.map (λ (k , 0<xₖ) → suc k , 0<xₖ)
+              (pos∑→∃pos (x ∘ suc) 0<∑tail)))
+        (posSum→pos∨pos (x zero) (∑ (x ∘ suc)) 0<∑x)
+
+    abs∑≤∑absFinVec : ∀ {n} (x : FinVec R n) →
+                      abs (∑ x) ≤ ∑ (abs ∘ x)
+    abs∑≤∑absFinVec {zero} x =
+      subst (_≤ 0r) (sym abs0) (is-refl 0r)
+    abs∑≤∑absFinVec {suc n} x = begin≤
+      ∣ x zero + ∑ (x ∘ suc) ∣
+        ≤⟨ triangularInequality (x zero) _ ⟩
+      ∣ x zero ∣ + ∣ ∑ (x ∘ suc) ∣
+        ≤⟨ +MonoL≤ _ _ _ (abs∑≤∑absFinVec (x ∘ suc)) ⟩
+      ∣ x zero ∣ + ∑ (abs ∘ x ∘ suc) ◾
 
     abs∑≤∑abs : ∀ n → (x : ℕ → R) → abs (∑[0 ≤ k ≤ n ] (x k)) ≤ ∑[0 ≤ k ≤ n ] abs (x k)
     abs∑≤∑abs zero    x = flip (subst (abs (x 0 + 0r) ≤_)) (is-refl _) $

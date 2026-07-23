@@ -49,7 +49,7 @@ open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base using
   ; ·ᵣ-∼
   ; Bounded
   )
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals

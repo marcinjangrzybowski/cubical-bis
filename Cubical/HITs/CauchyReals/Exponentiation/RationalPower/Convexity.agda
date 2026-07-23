@@ -48,7 +48,7 @@ private
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base public using (pred0< ; pred1<)
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base hiding (pred0< ; pred1<)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
@@ -739,7 +739,7 @@ AM-GM z x 1<z Δ α 0≤α α≤1 =
    (ℚ.≤→≡⊎< α 1 α≤1)
 
 ^ⁿ-1 : ∀ x → x ^ⁿ 1 ≡ x
-^ⁿ-1 x = ·IdR _
+^ⁿ-1 = Exponentiationᵣ.x^1≡x
 
 ^ℚ-1 : ∀ x → x ^ℚ 1 ≡ x
 ^ℚ-1 x = ℝ₊≡ (^ⁿ-1 _)

@@ -80,7 +80,7 @@ open import Cubical.Algebra.CommRing.Base
 import Cubical.Data.FinData as FD
 
 open import Cubical.HITs.CauchyReals.Trigonometry.Identities
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 

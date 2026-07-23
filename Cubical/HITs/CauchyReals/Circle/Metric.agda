@@ -48,8 +48,12 @@ open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds using (abs<→ointerval)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Ring
 open import Cubical.HITs.CauchyReals.Algebra.Power.Base
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Inverse using
+  (z<x≃y₊·z<y₊·x)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Properties using
+  (x+y<x+z≃y<z; x<y≃-y<-x)
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base using (interpℝ)
 open import Cubical.HITs.CauchyReals.Trigonometry.Pi
@@ -61,8 +65,6 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.CommRing.Properties
 open import Cubical.Algebra.CommRing.Base
-open import Cubical.HITs.CauchyReals.Analysis.Metric.Base
-open import Cubical.HITs.CauchyReals.Analysis.Metric.PNorm
 open import Cubical.HITs.CauchyReals.Analysis.Metric.Product
 open import Cubical.Relation.Premetric.Base using (PremetricSpace)
 open import Cubical.Relation.Premetric.Mappings using (NE[_,_]; UC[_,_]; NE→UC)
@@ -90,7 +92,7 @@ open import Cubical.HITs.CauchyReals.ArcSin.Symmetric.Properties.Inverse using
   ( sin∘arcSin⟨⟩
   ; arcSin⟨⟩∘sin
   )
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 open import Cubical.HITs.SetQuotients as SQ renaming ([_] to [_]/)
 open import Cubical.Relation.Binary.Base
@@ -103,15 +105,6 @@ open import Cubical.HITs.CauchyReals.Circle.Chart public
 open import Cubical.Tactics.CommRingSolver
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 open import Cubical.Algebra.CommRing.BinomialThm
-
-distCircleMetricSpaceStr : MetricSpaceStr distCircle
-distCircleMetricSpaceStr =
- MetricSubSpaceStr (ℝ × ℝ)
-  (λ z → (cartNorm² z ≡ 1) , isSetℝ _ _)
-  𝐑²MetricSpaceStr
-
-distCircleMetricSpace : MetricSpace₀
-distCircleMetricSpace = _ , distCircleMetricSpaceStr
 
 
 distCirclePremetricSpace : PremetricSpace ℓ-zero ℓ-zero

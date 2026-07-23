@@ -22,17 +22,29 @@ including completeness and migration estimates, see
   subtypes `ℝ₊` and `ℝ₀₊`, interval predicates, rational decision bridges, and
   `clampᵣ`.
 
+- `Foundation/Order/Density.agda`
+  Dependency-light Cauchy-real rational-density bound `<ᵣ→Δ`, whose conclusion
+  explicitly mentions the rational embedding. The established `Bounds` and
+  `Inverse` paths reexport it for compatibility.
+
 - `Foundation/Order/Bounds.agda`
-  Reusable min/max and interval-bound lemmas for order proofs, including the
-  Archimedean positive unit-fraction bound `∃UnitFractionBelowℝ₊`.
+  Reusable interval/absolute-value adapters and the inverse-dependent positive
+  unit-fraction bound `∃UnitFractionBelowℝ₊`, together with compatibility
+  reexports of the density and Archimedean rational upper bounds.
 
 - `Foundation/Rationals.agda`
   Project-local rational and positive-rational import facade, including
-  numerals and common operations used throughout the Cauchy-real development.
+  numerals and common operations used throughout the Cauchy-real development,
+  plus the established `ℚmax-min-minus` compatibility spelling for the
+  generic rational negation De Morgan law.
+
+- `Cubical/Tactics/CauchyReals/ExpressionLifting.agda`
+  Canonical reflection helpers and solver wrappers for transporting
+  rational/algebraic equalities into Cauchy-real goals.
 
 - `Algebra/Expression/Lifting.agda`
-  Reflection helpers and solver wrappers for transporting rational/algebraic
-  equalities into Cauchy-real goals.
+  Compatibility facade reexporting the canonical Cauchy-real expression
+  tactic namespace.
 
 - `Foundation/Order/Positive.agda`
   Small positive-real helpers factored out from later developments.
@@ -44,21 +56,58 @@ including completeness and migration estimates, see
 ## Continuity, Lipschitz maps, and algebra
 
 - `Analysis/Lipschitz/Base.agda`
-  Lipschitz and non-expanding function interfaces, extension from rational
-  functions, and closeness preservation lemmas.
+  Lipschitz and non-expanding function interfaces, the fixed-constant
+  extension from rational functions, and closeness preservation lemmas.
+
+- `Analysis/Lipschitz/Extension.agda`
+  Constant-independent Lipschitz extension `fromLipschitz'` and its rational
+  computation law `fromLipschitz'-rat`.
+
+- `Analysis/Continuity/Core.agda`
+  Dependency-light pointwise continuity, unary and binary rational
+  extensionality, and their composition/non-expanding combinators, plus
+  constant and primitive addition, negation, absolute-value, minimum, and
+  maximum continuity facts needed by foundational ordered algebra.
+
+- `Analysis/Continuity/Predicate.agda`
+  Predicate-indexed continuity and composition, openness of predicates and
+  real intervals, restriction, predicate dropping, and rational
+  extensionality on open domains, plus the symmetric closed-interval to open-
+  interval inclusion `sym-intervalℙ⊆ointervalℙ`.
 
 - `Analysis/Continuity/Base.agda`
-  Pointwise and predicate-indexed continuity, composition combinators,
-  continuity of clamp, negation, min/max, and the general
-  `IsContinuousWithPred-ᵣ` lemma.
+  Remaining extended continuity, limit, and rational compatibility support,
+  together with compatibility reexports from `Continuity.Core`,
+  `Continuity.Predicate`, `Continuity.Clamp`, `Continuity.Order`,
+  `Continuity.Uniform.Base`, `Continuity.Approximation`, and the focused
+  ordered-algebra modules.
+
+- `Analysis/Continuity/Approximation.agda`
+  Rational approximation structures `ℚApprox`, `ℚApproxℙ`, and their
+  pointwise variants, together with the pointwise/packed equivalence,
+  conversion to closeness-based approximation, and composition under uniform
+  continuity. `Continuity.Base` retains the established names as restricted
+  compatibility reexports.
+
+- `Analysis/Continuity/Clamp.agda`
+  Focused clamp continuity, interval membership and elimination, endpoint
+  bounds and fixpoint laws, monotonicity, and distance contraction. It owns
+  the established `IsContinuousClamp` family, `≤clampᵣ`, `clamp≤ᵣ`, and
+  `∈ℚintervalℙ→clampᵣ≡` formerly defined in `Continuity.Base`; the old path
+  retains restricted compatibility reexports.
 
 - `Analysis/Continuity/Uniform/Base.agda`
   Dependency-light global and predicate-indexed uniform-continuity interfaces,
-  including restriction of a full-real map to a predicate subtype.
+  including restriction of a full-real map to a predicate subtype and the
+  rational-domain predicate interface `IsUContinuousℚℙ`.
 
 - `Analysis/Continuity/Order.agda`
-  Generic closed-lower, open-lower, and closed-interval order comparisons for
-  continuous functions, factored out of exponentiation-specific modules.
+  Unary and binary rational-density comparison for continuous functions,
+  their nonnegative and half-line variants, generic closed-lower, open-lower,
+  and closed-interval dependent comparisons, and arbitrary open-predicate
+  comparison `≤ContWP` with its upper/lower-bounded nonzero-domain variants.
+  The broad `Continuity.Base` facade reexports the former base-owned spellings
+  for compatibility.
 
 - `Analysis/Order/Functions.agda`
   Reusable `IsStrictlyIncreasingOn` and `IsNondecreasingOn` predicates.
@@ -67,8 +116,11 @@ including completeness and migration estimates, see
   Extends inequalities proved away from zero across zero by continuity.
 
 - `Analysis/Continuity/AdditiveAutomorphism.agda`
-  Scalar additive automorphisms, extraction of the scalar at one, and the
-  theorem that every continuous additive automorphism acts by that scalar.
+  The continuous automorphism group `Aut[_]ᵣ`, rational linearity for
+  continuous additive automorphisms, scalar automorphisms, extraction of the
+  scalar at one, and the theorem that every such automorphism acts by that
+  scalar. This module has no real-power dependency and is exported by the
+  `Analysis` facade.
 
 - `Analysis/Continuity/EndpointExtension.agda`
   Uniformly continuous monotone extension from strict half-lines to their
@@ -83,10 +135,126 @@ including completeness and migration estimates, see
 - `Algebra/Multiplication.agda`
   Construction of multiplication on `ℝ`, commutative-ring structure, powers,
   multiplication continuity, rational homomorphism lemmas, and square algebra.
+  Its square theorem and rational-power embedding theorem are compatibility
+  adapters to generic commutative-ring exponentiation and homomorphism laws.
+  Its continuity dependencies are the focused `Continuity.Core` and
+  `Continuity.Predicate` modules rather than the broad compatibility facade.
+
+- `Algebra/Ring.agda`
+  Focused access to the Cauchy-real ring structure and generic ring theory,
+  the additive group `+Groupℝ`, and the canonical normalization
+  `fromℕ≡fromNatℝ` between the ring-theoretic natural embedding and the
+  established real numeral instance.
+
+- `Algebra/Order/Multiplication.agda`
+  Focused nonnegative- and positive-factor multiplication monotonicity for
+  Cauchy reals, including the rational-factor wrappers `≤ᵣ-·o` and
+  `≤ᵣ-o·`. The rational wrappers are also reexported from
+  `Algebra/Inverse.agda` for compatibility.
+
+- `Algebra/Order/Multiplication/Properties.agda`
+  Post-instance specializations of generic coordinatewise multiplication
+  monotonicity (`<ᵣ₊Monotone·ᵣ` and its two mixed variants), together with
+  positive and nonnegative power preservation and the positive-factor
+  nonstrict scaling equivalence `z≤x≃y₊·z≤y₊·x`. The established spellings
+  are reexported from `Algebra.Inverse`.
+
+- `Algebra/Order/Positive.agda`
+  Definitionally compatible generic positive/nonnegative real subtypes and
+  their closure witnesses. It owns the established `_₊+ᵣ_`, `_₊·ᵣ_`, and
+  `_₊^ⁿ_` spellings as aliases to `PositiveReals`; `Algebra.Inverse`
+  reexports them for compatibility while retaining positive inverse and
+  division itself.
+
+- `Algebra/Order/Density.agda`
+  Order density of `ℝ`, specialized from the generic characteristic-not-two
+  midpoint theorem. `Algebra.Inverse` retains `denseℝ` as a compatibility
+  reexport.
+
+- `Algebra/Order/Addition/Base.agda`
+  Dependency-light additive identities, distribution over maximum,
+  nonstrict translation monotonicity, strict/nonstrict negation reversal, and
+  the internal pre-instance proof of the nonstrict symmetric subtraction
+  rearrangement. It also owns the eight established negation-induced
+  half-line and function-space isomorphisms, whose generic
+  `negHalfLine...Iso` counterparts live in
+  `Algebra.OrderedCommRing.Properties`. These established names remain
+  available through `Continuity.Base`.
+
+- `Algebra/Order/Addition/Bootstrap.agda`
+  Explicit pre-instance boundary for strict/mixed addition monotonicity,
+  positive-real addition, strict cancellation, and difference/order
+  conversion helpers used while assembling the real ordered-ring instance and
+  proving open-predicate support. Its normalization proofs use only the
+  dependency-light additive laws.
+
+- `Algebra/Order/Addition/Strict.agda`
+  The absolute-value bound and rational-approximation support used to prove
+  strict translation invariance, together with `<ᵣ-+o`, `<ᵣ-o+`, and six
+  explicitly suffixed pre-instance additive rearrangement proofs. Their
+  established unsuffixed names are instance-backed specializations in
+  `Addition.Properties` and remain available through the focused addition and
+  old continuity facades.
+
+- `Algebra/Order/Lattice.agda`
+  Focused min/max identities, distributivity and absorption laws, and the
+  strict and nonstrict lattice bounds used by the Cauchy-real ordered-ring
+  instance, together with coordinatewise min/max monotonicity and the positive
+  and nonnegative min/max subtype constructors, plus the positive-domain
+  monotone-image bounds `incr→max≤` and `incr→≤min`. Generic coordinatewise
+  `∧Monotone`/`∨Monotone` live in pseudolattice theory and are exposed as
+  `⊓Monotone`/`⊔Monotone` by ordered-ring theory. Positive maximum and both
+  nonnegative operations mirror the generic subtype lattice API; positive
+  minimum and its dependent monotone-image bound retain real-specific
+  bootstrap proofs. These established names remain available through
+  `Continuity.Base`.
+
+- `Algebra/Order/AbsoluteValue.agda`
+  The comparison between the continuously lifted real absolute value and its
+  lattice form, triangle and reverse-triangle inequalities, sign
+  simplifications, nonnegative-domain monotonicity, zero reflection, and the
+  min/max absolute-difference theorem `absᵣ-min-max` with its rational helper.
+  The monotonicity theorem and the stronger join-minus-meet identity
+  `abs≡⊔-⊓` have generic counterparts in
+  `Algebra.OrderedCommRing.Properties`; the real spellings retain
+  dependency-light bootstrap proofs. Established declarations moved from
+  `Continuity.Base` and `Algebra.Inverse` remain reexported there for
+  compatibility.
+
+- `Algebra/Order/Apartness.agda`
+  Real apartness, its distance characterization, nonzero absolute-value
+  positivity, the nonzero-real carrier `ℝ₋₊` and its subtype equality,
+  negation preservation, and the open nonzero predicate `0＃ₚ`. The latter
+  declarations remain available through `Algebra.Inverse`, while the former
+  real-power path reexports the nonzero carrier for compatibility.
+
+- `Algebra/Order/Addition/Properties.agda`
+  Focused real specializations of generic strict and nonstrict additive
+  cancellation, negation reversal, and positive/negative difference
+  implications and equivalences, including all established additive
+  rearrangement spellings, together with the positive-summand weakening
+  `≤Weaken<+ᵣ`. The focused addition and old continuity facades reexport the
+  seven declarations formerly supplied by pre-instance proofs; established
+  inverse-path spellings remain compatibility reexports.
+
+- `Algebra/Signs.agda`
+  The real sign function on nonzero reals, its open-domain continuity and
+  rational computation law, sign/absolute-value identities, and alternating
+  sign actions used by power and trigonometric developments. The real sign
+  family remains available through `Algebra.Inverse` for compatibility.
+
+- `Algebra/Order/Archimedean.agda`
+  The `ℝArchimedeanRing` instance and positive-rational upper bounds for
+  positive and nonnegative reals, specialized from the generic
+  `ArchimedeanRingTheory.∃ι₊₁Larger` theorem. Its numeral compatibility path is
+  supplied by `Algebra.Ring`.
 
 - `Algebra/Inverse.agda`
-  Apartness, inverse on nonzero and positive reals, division operations,
-  sign lemmas, and inverse continuity.
+  Inverse on nonzero and positive reals, division operations, inverse
+  continuity, and compatibility reexports for extracted ordered-algebra,
+  continuity-comparison, rational, positive-operation, apartness, and sign
+  facts. Its remaining predicate uniform-continuity adapter uses positive
+  inverse essentially and is tracked as a deferred analytic migration.
 
 - `Analysis/Lipschitz/Inverse/Base.agda`
   Predicate-indexed inverse-Lipschitz maps and their injectivity theorem.
@@ -95,12 +263,21 @@ including completeness and migration estimates, see
   Lower-Lipschitz bounds and conversion to inverse-Lipschitz estimates.
 
 - `Algebra/Power/Base.agda`
-  Integer/natural power support over `ℝ`, parity lemmas, absolute-value power
-  lemmas, and zero/one power simplifications.
+  Integer/natural power support over `ℝ`, retaining the established parity,
+  absolute-value, zero/one, and square spellings as generic commutative-ring or
+  ordered-ring adapters. Continuity of real natural powers and the remaining
+  even-power absolute-value proof stay local; the module depends on focused
+  `Continuity.Core` rather than the broad compatibility facade.
 
 - `Algebra/Power/Order.agda`
-  Rational natural-power order reflection and strict monotonicity in the
-  exponent for bases greater than one.
+  Instance-backed real and rational adapters for generic ordered-ring
+  natural-power bounds, base monotonicity, apartness preservation from one,
+  strict exponent growth above one, nonstrict positive-exponent order
+  reflection, and exponent antitonicity on `[0,1]`. The established nonstrict
+  reflection names remain available from the sequence compatibility path;
+  strict reflection remains in `Analysis/Sequence/Base.agda` because it uses
+  inverse-backed strict positive-factor cancellation unavailable from the
+  generic ordered-ring interface.
 
 - `Calculus/Derivative/Power.agda`
   New-style derivative statements for ordinary power functions.
@@ -114,7 +291,9 @@ including completeness and migration estimates, see
 - `Analysis/Sequence/Base.agda`
   Real dichotomy helpers, sequence type `Seq`, sequence sums, geometric
   progressions, Cauchy sequence infrastructure, limits, series convergence,
-  and finite stitching helpers.
+  and finite stitching helpers. Its former basic natural-power order block is
+  now a restricted compatibility reexport from `Algebra.Power.Order`; the
+  inverse/reflection family remains here pending a stronger algebraic owner.
 
 - `Analysis/Sequence/Limits.agda`
   Smaller limit-oriented sequence facts factored out from the larger sequence
@@ -126,7 +305,12 @@ including completeness and migration estimates, see
 
 - `Calculus/Integration/Summation.agda`
   Finite sums over `Fin`, fold/zip algebra, finite-sum inequalities, powers of
-  two, and injection helpers for finite indices.
+  two, and injection helpers for finite indices. Its sigma-`Fin` addition fold
+  now has an explicit bridge to canonical `FinVec` sums; the established
+  algebraic, monotonicity, and absolute-value fold laws are adapters to generic
+  `Semiring.BigOps`, `Ring.BigOps`, and `OrderedCommRing.SumTheory` results.
+  Only representation-specific map, transport, concatenation, and
+  finite-product folds remain local.
 
 - `Approximation.agda`
   Public approximation facade.
@@ -135,11 +319,11 @@ including completeness and migration estimates, see
   Digit/extraction utilities and recovery-based helpers for evaluating
   concrete Cauchy reals.
 
-## Metric spaces
+## Premetric spaces
 
 - `Metric.agda`
-  Layered facade: canonical premetric instances and mappings first, followed by
-  the legacy metric compatibility modules.
+  Facade for the canonical real, interval, product, reversal, and mapping
+  interfaces based on `Relation.Premetric`.
 
 - `Analysis/Metric/Premetric.agda`
   The Archimedean-ring premetric on `ℝ`, its equivalence with Cauchy-real
@@ -149,22 +333,29 @@ including completeness and migration estimates, see
   Adapters between the established `IsUContinuous` interface and generic
   uniformly continuous maps on `ℝPremetricSpace`.
 
+- `Analysis/Metric/Compatibility/Predicate.agda`
+  Adapters between predicate-indexed `IsUContinuousℙ` witnesses and generic
+  uniformly continuous maps from `PremetricSubspace ℝPremetricSpace P`.
+  Recovery from a packaged generic map is propositionally truncated because
+  its modulus is hidden.
+
 - `Analysis/Metric/Product.agda` and `Analysis/Metric/Reversal.agda`
   The coordinatewise real-plane premetric and the canonical nonexpanding
   reversal map, including its unit-interval restriction.
 
-- `Analysis/Metric/Base.agda`
-  Legacy compatibility definitions for `IsMetric`, `MetricSpaceStr`,
-  `MetricSpace`, `UContMap`, subspace metrics, and interval metric spaces.
-
 - `Analysis/Metric/PNorm.agda`
-  Real-root p-norm estimates, legacy p-norm product metrics and pair maps, and
-  the Euclidean `ℝ × ℝ` metric structure.
+  Facade for the retained real-root p-norm inequalities and supporting
+  nonnegative-real arithmetic.
+
+- `Analysis/Metric/PNorm/Base.agda`
+  Real-root p-norm inequalities and supporting nonnegative-real arithmetic.
 
 - `Analysis/Metric/Discrete.agda`
-  Compatibility aliases for the generic `UnitPremetricSpace` and canonical
-  maps out of it, followed by the legacy discrete metric structure, trivial
-  one-point metric space, and uniform continuity from that metric space.
+  Facade for the canonical unit-premetric aliases and maps.
+
+- `Analysis/Metric/Discrete/Base.agda`
+  Aliases for the generic `UnitPremetricSpace` and canonical
+  nonexpanding and uniformly continuous maps out of it.
 
 ## Partitions and integration
 
@@ -214,7 +405,9 @@ including completeness and migration estimates, see
 - `Calculus/Derivative/MeanValue.agda`
   Bishop proposition 7, Rolle's theorem, mean value theorem, endpoint-weak
   mean value theorem, and null-derivative-to-constant results using the new
-  derivative definitions.
+  derivative definitions. Bishop proposition 7 is now an instance-backed
+  adapter to generic finite-sum positive-summand existence rather than a
+  Cauchy-real rational-density induction.
 
 ## Uniform convergence and uniform continuity
 
@@ -269,8 +462,10 @@ including completeness and migration estimates, see
   inequality, and square estimates.
 
 - `Exponentiation/RealPower/Infrastructure.agda`
-  Multiplicative group structure for positive/nonzero reals, automorphism
-  infrastructure, interval inverse-Lipschitz helpers, and real-power support.
+  Multiplicative group structure for positive/nonzero reals, interval
+  inverse-Lipschitz helpers, and real-power support. Its former additive group
+  and continuous-automorphism names are restricted compatibility reexports
+  from their algebra and analysis owners.
 
 - `Exponentiation/RealPower/Construction.agda`
   Real-power construction from the logarithm sequence machinery.
@@ -459,8 +654,8 @@ including completeness and migration estimates, see
   Open half-circle chart and equivalence for restricted circle injection.
 
 - `Circle/Metric.agda`
-  Metric structure on `distCircle` and the upper-half equivalence for small
-  distance from the base point.
+  Coordinatewise premetric structure on `distCircle`, its canonical inclusion
+  maps, and the upper-half equivalence for small distance from the base point.
 
 - `Circle/Unwind.agda`
   Unpointed path-unwinding lemma for functions into `distCircle`.

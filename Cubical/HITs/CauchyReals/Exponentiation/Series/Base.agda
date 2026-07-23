@@ -21,10 +21,12 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
-open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
+open import Cubical.HITs.CauchyReals.Algebra.Order.Archimedean using
+  (∃ℚ₊LargerThanℝ₀₊)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Power.Order using (^ⁿ-Monotone)
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Limits using
@@ -40,7 +42,7 @@ open import Cubical.HITs.CauchyReals.Analysis.Uniform using
   ; IsUContFSequence
   ; IsUContFSequenceΣSeq
   )
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals

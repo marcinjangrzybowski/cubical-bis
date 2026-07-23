@@ -4,7 +4,11 @@ open import Cubical.HITs.CauchyReals.Algebra.Order.Addition public
 open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue public
 open import Cubical.HITs.CauchyReals.Algebra.Order.Archimedean public
 open import Cubical.HITs.CauchyReals.Algebra.Order.Apartness public
+open import Cubical.HITs.CauchyReals.Algebra.Order.Density public
 open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication public
+open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication.Properties public
 open import Cubical.HITs.CauchyReals.Algebra.Order.Properties public
+open import Cubical.HITs.CauchyReals.Algebra.Order.Lattice public
 open import Cubical.HITs.CauchyReals.Algebra.Order.Instance public
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Properties public
 open import Cubical.HITs.CauchyReals.Algebra.Order.Positive public

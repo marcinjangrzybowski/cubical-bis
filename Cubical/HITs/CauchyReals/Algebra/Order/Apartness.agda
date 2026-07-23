@@ -1,9 +1,12 @@
 module Cubical.HITs.CauchyReals.Algebra.Order.Apartness where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎
@@ -18,8 +21,13 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Predicate using
+  (lowerℚBound; openPred; openPred<; openPred>)
 open import Cubical.HITs.CauchyReals.Algebra.Order.Addition
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Strict using
+  (≤absᵣ; ∃rationalApprox<)
+open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using
+  (absᵣNonNeg; absᵣ-triangle)
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
@@ -33,6 +41,18 @@ isProp＃ x y (inl x₁) (inl x₂) = cong inl (isProp<ᵣ _ _ x₁ x₂)
 isProp＃ x y (inl x₁) (inr x₂) = ⊥.rec (isAsym<ᵣ _ _ x₁ x₂)
 isProp＃ x y (inr x₁) (inl x₂) = ⊥.rec (isAsym<ᵣ _ _ x₁ x₂)
 isProp＃ x y (inr x₁) (inr x₂) = cong inr (isProp<ᵣ _ _ x₁ x₂)
+
+
+ℝ₋₊ : Type
+ℝ₋₊ = Σ ℝ (0 ＃_)
+
+
+ℝ₋₊≡ : ∀ {x y : ℝ₋₊} → fst x ≡ fst y → x ≡ y
+ℝ₋₊≡ = Σ≡Prop (isProp＃ 0)
+
+
+0＃ₚ : ℝ → hProp ℓ-zero
+0＃ₚ r = 0 ＃ r , isProp＃ _ _
 
 
 rat＃ : ∀ q q' → (rat q ＃ rat q') ≃ (q ℚ.# q')
@@ -113,6 +133,17 @@ opaque
 
 isSym＃ : BinaryRelation.isSym _＃_
 isSym＃ _ _ = fst ⊎-swap-≃
+
+
+-＃ : ∀ x y → x ＃ y → (-ᵣ x) ＃ (-ᵣ y)
+-＃ x y p = ⊎.map (-ᵣ<ᵣ _ _) (-ᵣ<ᵣ _ _) (isSym＃ _ _ p)
+
+
+isOpenPred0＃ : ⟨ openPred 0＃ₚ ⟩
+isOpenPred0＃ x =
+  ⊎.rec
+    (PT.map (map-snd ((inl ∘_) ∘_)) ∘ openPred< 0 x)
+    (PT.map (map-snd ((inr ∘_) ∘_)) ∘ openPred> 0 x)
 
 
 opaque

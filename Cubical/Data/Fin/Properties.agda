@@ -550,6 +550,14 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
   isSurjectionIntro : isSurjection intro
   isSurjectionIntro = ∣_∣₁ ∘ elimF
 
+
+factorEquiv-fst : ∀ {n m} (i : Fin n) (j : Fin m) →
+  fst (equivFun (factorEquiv {n = n} {m = m}) (i , j))
+    ≡ fst j · n + fst i
+factorEquiv-fst {n = zero} ()
+factorEquiv-fst {n = suc n} {m = m} i j =
+  expand≡ (suc n) (fst i) (fst j)
+
 -- Fin (m + n) ≡ Fin m ⊎ Fin n
 -- ===========================
 
@@ -634,6 +642,21 @@ FinData→Fin : (N : ℕ) → FinData N → Fin N
 FinData→Fin zero ()
 FinData→Fin (suc N) zero = zero , tt
 FinData→Fin (suc N) (suc k) = fsuc (FinData→Fin N k)
+
+FinData→Fin-weakenFin : ∀ {n} (k : FinData n) →
+  FinData→Fin (suc n) (weakenFin k) ≡ finj (FinData→Fin n k)
+FinData→Fin-weakenFin {n = suc n} zero =
+  toℕ-injective {k = suc (suc n)} refl
+FinData→Fin-weakenFin {n = suc n} (suc k) =
+  toℕ-injective {k = suc (suc n)}
+    (cong suc (cong fst (FinData→Fin-weakenFin k)))
+
+FinData→Fin-fromℕ : ∀ n →
+  FinData→Fin (suc n) (fromℕ n) ≡ flast
+FinData→Fin-fromℕ zero = toℕ-injective {k = suc zero} refl
+FinData→Fin-fromℕ (suc n) =
+  toℕ-injective {k = suc (suc n)}
+    (cong suc (cong fst (FinData→Fin-fromℕ n)))
 
 Fin→FinData : (N : ℕ) → Fin N → FinData N
 Fin→FinData zero (k , p) = Empty.rec p

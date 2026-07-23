@@ -42,7 +42,7 @@ open import Cubical.HITs.CauchyReals.Calculus.Integration.Summation
 open import Cubical.HITs.CauchyReals.Calculus.Integration.Partition.Base
 
 
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
@@ -53,7 +53,7 @@ open ℚ using (_⁻¹₊)
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 
 on[_,_]IntegralOf_is_ : ∀ a b → (∀ r → a ≤ᵣ r → r ≤ᵣ b → ℝ) → ℝ → Type

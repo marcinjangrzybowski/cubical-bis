@@ -24,7 +24,10 @@ open import Cubical.HITs.CauchyReals.Foundation.Rationals using (ℚ₊)
 open import Cubical.HITs.CauchyReals.Foundation.Closeness using (isSetℝ)
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base hiding
+  (sym-intervalℙ⊆ointervalℙ)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Predicate using
+  (sym-intervalℙ⊆ointervalℙ)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
   (clampᵣ∈intervalℙ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication

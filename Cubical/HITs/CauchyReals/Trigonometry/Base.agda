@@ -97,7 +97,7 @@ open import Cubical.HITs.CauchyReals.Exponentiation.Series.Derivative
 -- open import Cubical.HITs.CauchyReals.Exponentiation.Base
 
 
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 
 open import Cubical.HITs.CauchyReals.Foundation.Rationals

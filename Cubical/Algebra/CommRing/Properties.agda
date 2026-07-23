@@ -238,6 +238,12 @@ module Exponentiation (R' : CommRing ℓ) where
  1ⁿ≡1 zero = refl
  1ⁿ≡1 (suc n) = ·IdL _ ∙ 1ⁿ≡1 n
 
+ x^1≡x : (x : R) → x ^ 1 ≡ x
+ x^1≡x x = ·IdR x
+
+ x^2≡x·x : (x : R) → x ^ 2 ≡ x · x
+ x^2≡x·x x = cong (x ·_) (·IdR x)
+
  ·-of-^-is-^-of-+ : (f : R) (m n : ℕ) → (f ^ m) · (f ^ n) ≡ f ^ (m +ℕ n)
  ·-of-^-is-^-of-+ f zero n = ·IdL _
  ·-of-^-is-^-of-+ f (suc m) n = sym (·Assoc _ _ _) ∙ congR _·_ (·-of-^-is-^-of-+ f m n)

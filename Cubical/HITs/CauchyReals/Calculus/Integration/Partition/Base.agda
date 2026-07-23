@@ -34,6 +34,9 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+  hiding (IsContinuous-₂∘)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Core
+  using (IsContinuous-₂∘)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
   ( clampᵣ∈intervalℙ
   ; x≤→clampᵣ≡
@@ -48,7 +51,7 @@ open import Cubical.HITs.CauchyReals.Calculus.Integration.Summation
   hiding (ElimFinSS; go-tail-finj; go-tail-flast)
 
 
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
@@ -59,7 +62,7 @@ open ℚ using (_⁻¹₊)
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 
 finj-pred : ∀ {n} → Fin (predℕ n) → Fin n

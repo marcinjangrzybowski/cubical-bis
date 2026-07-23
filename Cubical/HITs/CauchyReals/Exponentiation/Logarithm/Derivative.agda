@@ -12,7 +12,10 @@ open import Cubical.HITs.PropositionalTruncation.Monad
 
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
-open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
+open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds using
+  (abs≤→interval)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Archimedean using
+  (∃ℚ₊LargerThanℝ₀₊)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse

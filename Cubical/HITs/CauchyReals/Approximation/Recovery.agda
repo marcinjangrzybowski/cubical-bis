@@ -65,7 +65,7 @@ digits N q =
  module Ffp = ℚ.Floor (ℚ.floorℚ ([ pos (10 ℕ.^ N) / 1 ] ℚ.· fst fractionalPart))
 
 
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 Approx : ℝ → Type
 Approx x = (ε : ℚ₊) → ∃[ m ∈ ℚ ] (rat m ∼[ ε ] x)

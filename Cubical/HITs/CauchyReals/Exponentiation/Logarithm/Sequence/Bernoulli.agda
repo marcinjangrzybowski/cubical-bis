@@ -53,7 +53,7 @@ open import Cubical.HITs.CauchyReals.Approximation.Bisection
 open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base
 open import Cubical.HITs.CauchyReals.Calculus.Integration.Partition.Base using (ℚ<→0< ; _ℚ₊·_)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals hiding (_^_)
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 open import Cubical.HITs.CauchyReals.Exponentiation.RationalPower.Core
 open import Cubical.HITs.CauchyReals.Exponentiation.RationalPower.Convexity

@@ -22,6 +22,7 @@ import Cubical.Data.Int.Order as ℤ
 open import Cubical.Data.Sigma
 open import Cubical.Data.Fin
   hiding (ElimFinSS; go-tail-finj; go-tail-flast)
+import Cubical.Data.FinData as FD
 import Cubical.Data.Fin.Properties as FinP
 open FinP public using (ElimFinSS; go-tail-finj; go-tail-flast)
 
@@ -29,20 +30,33 @@ open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Data.NatPlusOne
 
+open import Cubical.Algebra.CommSemiring.Base using (CommSemiring→Semiring)
+open import Cubical.Algebra.CommSemiring.Instances.Nat using (ℕasCSR)
+import Cubical.Algebra.Semiring.Properties as Semiring
+import Cubical.Algebra.Ring.BigOps as RingBigOps
+import Cubical.Algebra.OrderedCommRing.Properties as Ordered
+
 
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+  hiding (≤Cont₂; IsContinuous-₂∘)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Core
+  using (IsContinuous-₂∘)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Order using (≤Cont₂)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Ring
 open import Cubical.HITs.CauchyReals.Algebra.Order.Addition
+open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using (abs-max)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Instance using
+  (ℝOrderedCommRing)
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base
 
 
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
@@ -53,13 +67,23 @@ open ℚ using (_⁻¹₊)
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 
 private
   variable
     ℓ : Level
     A A' B B' : Type ℓ
+
+  module ℕExponentiation =
+    Semiring.ExponentiationLaws
+      (CommSemiring→Semiring ℕasCSR) (ℕ._^_)
+      (λ _ → refl) (λ _ _ → refl)
+
+  module ℝOrder = Ordered.OrderedCommRingTheory ℝOrderedCommRing
+  module ℝSum = Ordered.SumTheory ℝOrderedCommRing
+  module ℝRingSum = RingBigOps.Sum
+    (Ordered.OrderedCommRing→Ring ℝOrderedCommRing)
 
 clampCases : ∀ a b → a ℚ.≤ b → ∀ u v → u ℚ.≤ v →
             (ℚ.clamp a b v ℚ.- ℚ.clamp a b u ≡ 0)
@@ -221,63 +245,45 @@ opaque
 substFin : ∀ {n} {m} → n ≡ m → Fin n → Fin m
 substFin p = map-snd (subst (_ ℕ.<ᵗ_) p)
 
+Fin→FinVec : ∀ {n} → (Fin n → A) → FD.FinVec A n
+Fin→FinVec {n = n} V = V ∘ FinP.FinData→Fin n
+
+foldFin+≡+∑ : ∀ n (f : A → ℝ) x (V : Fin n → A) →
+  foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) x V
+    ≡ x +ᵣ ℝSum.∑ (Fin→FinVec {n = n} (f ∘ V))
+foldFin+≡+∑ zero f x V = sym (+IdR x)
+foldFin+≡+∑ (suc n) f x V =
+  foldFin+≡+∑ n f (x +ᵣ f (V fzero)) (V ∘ fsuc)
+  ∙ sym (+ᵣAssoc x (f (V fzero))
+      (ℝSum.∑ (Fin→FinVec {n = n} (f ∘ V ∘ fsuc))))
+
+foldFin+≡∑ : ∀ n (f : A → ℝ) (V : Fin n → A) →
+  foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) 0 V
+    ≡ ℝSum.∑ (Fin→FinVec {n = n} (f ∘ V))
+foldFin+≡∑ n f V = foldFin+≡+∑ n f 0 V ∙ +IdL _
+
+abs∑≤∑absᵣ : ∀ {n} (V : FD.Fin n → ℝ) →
+  absᵣ (ℝSum.∑ V) ≤ᵣ ℝSum.∑ (absᵣ ∘ V)
+abs∑≤∑absᵣ V =
+  subst2 _≤ᵣ_
+    (sym (abs-max (ℝSum.∑ V)))
+    (sym (ℝSum.∑Ext (abs-max ∘ V)))
+    (ℝSum.abs∑≤∑absFinVec V)
+
 foldFin+ᵣ : ∀ n V (f : A → ℝ) x x' →
   foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) (x +ᵣ x') V ≡
    x +ᵣ foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) x' V
-foldFin+ᵣ zero V f x x' = refl
-foldFin+ᵣ (suc n) V f x x' =
-  foldFin+ᵣ n (V ∘ fsuc) _ (x +ᵣ x') (f (V fzero)) ∙
-   sym (+ᵣAssoc x _ _) ∙
-   cong (x +ᵣ_) (sym (foldFin+ᵣ n (V ∘ fsuc) f x' (f (V fzero))))
+foldFin+ᵣ n V f x x' =
+  foldFin+≡+∑ n f (x +ᵣ x') V
+  ∙ sym (+ᵣAssoc x x' _)
+  ∙ cong (x +ᵣ_) (sym (foldFin+≡+∑ n f x' V))
 
 foldFin+0ᵣ : ∀ n V (f : A → ℝ) x →
   foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) x V ≡
    x +ᵣ foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) 0 V
 foldFin+0ᵣ n V f x =
- cong (λ x → foldlFin {n = n} (λ a y → a +ᵣ f y) x V) (sym (+IdR _))
- ∙ foldFin+ᵣ n V f x 0
-
-
-zip-foldFin+ᵣ : ∀ n V V' (f : A → ℝ) (f' : A' → ℝ) x x' →
-  foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) x V
-    +ᵣ foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f' y) x' V' ≡
-   foldlFin {B = ℝ} {n = n} (λ a (y , y') → a +ᵣ (f y +ᵣ f' y')) (x +ᵣ x')
-    λ x → V x , V' x
-zip-foldFin+ᵣ zero V V' f f' _ _ = refl
-zip-foldFin+ᵣ (suc n) V V' f f' x x' =
-  zip-foldFin+ᵣ n (V ∘ fsuc) (V' ∘ fsuc) f f'
-     (x +ᵣ f (V fzero)) (x' +ᵣ f' (V' fzero))
-   ∙ cong (λ xx → foldlFin {n = n}
-      _
-      xx
-      (λ x₁ → V (fsuc x₁) , V' (fsuc x₁)))
-      ℝ!
-
-zip-foldFin+ᵣ' : ∀ n V (f : A → ℝ) (f' : A → ℝ) x x' →
-  foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) x V
-    +ᵣ foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f' y) x' V ≡
-   foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ (f y +ᵣ f' y)) (x +ᵣ x')
-    V
-zip-foldFin+ᵣ' zero V f f' _ _ = refl
-zip-foldFin+ᵣ' (suc n) V  f f' x x' =
-  zip-foldFin+ᵣ' n (V ∘ fsuc) f f'
-     (x +ᵣ f (V fzero)) (x' +ᵣ f' (V fzero))
-   ∙ cong (λ xx → foldlFin {n = n}
-      _
-      xx
-      (V ∘ fsuc) )
-      ℝ!
-
-
-foldFin·DistL : ∀ n (f : A → ℝ) α x V →
-  foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ α ·ᵣ f y) (α ·ᵣ x) V
-      ≡ α ·ᵣ foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) (x) V
-foldFin·DistL zero f α x V = refl
-foldFin·DistL (suc n) f α x V =
-  cong (λ z → foldlFin {n = n} (λ a y → a +ᵣ α ·ᵣ f y) z
-      (λ x₁ → V (fsuc x₁)))
-       (sym (·DistL+ _ _ _))
-  ∙ foldFin·DistL n f α (x +ᵣ f (V fzero)) (V ∘ fsuc)
+  foldFin+≡+∑ n f x V
+  ∙ cong (x +ᵣ_) (sym (foldFin+≡∑ n f V))
 
 
 foldFin+map : ∀ n x (f : A → ℝ) (g : B → A) V →
@@ -288,6 +294,50 @@ foldFin+map (suc n) x f g V =
  foldFin+map n (x +ᵣ f ((g ∘ V) fzero)) f g (V ∘ fsuc)
 
 
+zip-foldFin+ᵣ : ∀ n V V' (f : A → ℝ) (f' : A' → ℝ) x x' →
+  foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) x V
+    +ᵣ foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f' y) x' V' ≡
+   foldlFin {B = ℝ} {n = n} (λ a (y , y') → a +ᵣ (f y +ᵣ f' y')) (x +ᵣ x')
+    λ x → V x , V' x
+zip-foldFin+ᵣ n V V' f f' x x' =
+  cong₂ _+ᵣ_
+    (foldFin+≡+∑ n f x V)
+    (foldFin+≡+∑ n f' x' V')
+  ∙ Rℝ.+ShufflePairs x F x' F'
+  ∙ cong ((x +ᵣ x') +ᵣ_)
+      (sym (ℝSum.∑Split
+        (Fin→FinVec {n = n} (f ∘ V))
+        (Fin→FinVec {n = n} (f' ∘ V'))))
+  ∙ sym (foldFin+≡+∑ n
+      (λ (y , y') → f y +ᵣ f' y') (x +ᵣ x')
+      (λ k → V k , V' k))
+  where
+  F = ℝSum.∑ (Fin→FinVec {n = n} (f ∘ V))
+  F' = ℝSum.∑ (Fin→FinVec {n = n} (f' ∘ V'))
+
+zip-foldFin+ᵣ' : ∀ n V (f : A → ℝ) (f' : A → ℝ) x x' →
+  foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) x V
+    +ᵣ foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f' y) x' V ≡
+   foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ (f y +ᵣ f' y)) (x +ᵣ x')
+    V
+zip-foldFin+ᵣ' n V f f' x x' =
+  zip-foldFin+ᵣ n V V f f' x x'
+  ∙ foldFin+map n (x +ᵣ x')
+      (λ (y , y') → f y +ᵣ f' y') (λ y → y , y) V
+
+
+foldFin·DistL : ∀ n (f : A → ℝ) α x V →
+  foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ α ·ᵣ f y) (α ·ᵣ x) V
+      ≡ α ·ᵣ foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) (x) V
+foldFin·DistL n f α x V =
+  foldFin+≡+∑ n (λ y → α ·ᵣ f y) (α ·ᵣ x) V
+  ∙ cong ((α ·ᵣ x) +ᵣ_)
+      (sym (ℝSum.∑Mulrdist α
+        (Fin→FinVec {n = n} (f ∘ V))))
+  ∙ sym (·DistL+ α x _)
+  ∙ cong (α ·ᵣ_) (sym (foldFin+≡+∑ n f x V))
+
+
 foldFin+transpose : ∀ n n' (f : Fin n → Fin n' → ℝ) x →
   foldlFin {B = ℝ} {n = n} (λ a k → a +ᵣ
       foldlFin {B = ℝ} {n = n'} (λ a k' → a +ᵣ
@@ -295,34 +345,24 @@ foldFin+transpose : ∀ n n' (f : Fin n → Fin n' → ℝ) x →
       ≡ foldlFin {B = ℝ} {n = n'} (λ a k' → a +ᵣ
            foldlFin {B = ℝ} {n = n} (λ a k → a +ᵣ
            f k k') (fromNat zero) (idfun _)) x (idfun _)
-foldFin+transpose zero zero f x = refl
-foldFin+transpose (suc n) zero f x =
-   foldFin+map n (x +ᵣ 0) _ fsuc (idfun _) ∙
-    foldFin+transpose n zero (f ∘ fsuc) _ ∙ +IdR x
-foldFin+transpose n (suc n') f x =
-     ((cong (foldlFin {n = n})
-        (funExt₂ λ a k →
-           cong (a +ᵣ_)
-            ((λ i → foldFin+map n' (+IdL (f k (idfun (Fin (suc n')) fzero)) i)
-             (λ k' → f k k') fsuc (idfun _) i)
-              ∙ foldFin+0ᵣ n' (idfun _) _ _))
-         ≡$ x) ≡$ (idfun (Fin n)))
-   ∙ ((λ i → foldFin+map n (+IdL x (~ i))
-     (λ z →
-        f (z .fst) 0 +ᵣ
-        foldlFin {n = n'} (λ a₁ k' → a₁ +ᵣ f (z .snd) (fsuc k')) 0 (idfun (Fin n')))
-     (λ x → x , x) (idfun _) (~ i))
-   ∙ sym (zip-foldFin+ᵣ n _ _ _ _ 0 x)
-   ∙ sym (foldFin+ᵣ n _ _
-      (foldlFin {n = n} (λ a k → a +ᵣ f k 0) 0 (idfun _)) x))
-    ∙ (cong (foldlFin {n = n}
-       (λ a k →
-          a +ᵣ
-          foldlFin {n = n'} (λ a₁ k' → a₁ +ᵣ f k (fsuc k')) 0
-          (idfun _)))
-           (+ᵣComm _ _) ≡$ (idfun (Fin n)))
-  ∙ foldFin+transpose n n' _ _
-  ∙ sym (foldFin+map n' _ _ fsuc (idfun _))
+foldFin+transpose n n' f x =
+  foldFin+≡+∑ n
+    (λ k → foldlFin {B = ℝ} {n = n'}
+      (λ a k' → a +ᵣ f k k') 0 (idfun _))
+    x (idfun _)
+  ∙ cong (x +ᵣ_)
+      (ℝSum.∑Ext (λ k →
+        foldFin+≡∑ n' (f (FinP.FinData→Fin n k)) (idfun _))
+      ∙ ℝSum.∑Exchange
+          (λ k k' → f (FinP.FinData→Fin n k)
+                         (FinP.FinData→Fin n' k'))
+      ∙ ℝSum.∑Ext (λ k' →
+        sym (foldFin+≡∑ n
+          (λ k → f k (FinP.FinData→Fin n' k')) (idfun _))))
+  ∙ sym (foldFin+≡+∑ n'
+      (λ k' → foldlFin {B = ℝ} {n = n}
+        (λ a k → a +ᵣ f k k') 0 (idfun _))
+      x (idfun _))
 
 
 
@@ -330,9 +370,10 @@ foldFin·DistL' : ∀ n (f : A → ℝ) α V →
   foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ α ·ᵣ f y) 0 V
       ≡ α ·ᵣ foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) 0 V
 foldFin·DistL' n f α V =
- cong  (λ x →   foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ α ·ᵣ f y) x V)
-     (sym (Rℝ.0RightAnnihilates _))
- ∙ foldFin·DistL n f α 0 V
+  foldFin+≡∑ n (λ y → α ·ᵣ f y) V
+  ∙ sym (ℝSum.∑Mulrdist α
+      (Fin→FinVec {n = n} (f ∘ V)))
+  ∙ cong (α ·ᵣ_) (sym (foldFin+≡∑ n f V))
 
 
 
@@ -342,13 +383,21 @@ zip-foldFin-ᵣ : ∀ n V V' (f : A → ℝ) (f' : A' → ℝ) x x' →
    foldlFin {B = ℝ} {n = n} (λ a (y , y') → a +ᵣ (f y -ᵣ f' y')) (x -ᵣ x')
     λ x → V x , V' x
 zip-foldFin-ᵣ n V V' f f' x x' =
- cong ((foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f y) x V) +ᵣ_)
-  (-ᵣ≡[-1·ᵣ] (foldlFin {B = ℝ} {n = n} (λ a y → a +ᵣ f' y) x' V')
-   ∙ sym (foldFin·DistL n _ (-1) _ _)) ∙
-  zip-foldFin+ᵣ n V V' f _ _ _ ∙
-   ((cong₂ (foldlFin {n = n}) (funExt₂ λ a u → cong ((a +ᵣ_) ∘ (f (fst u) +ᵣ_))
-    (sym (-ᵣ≡[-1·ᵣ] _)))
-     (cong (x +ᵣ_) (sym (-ᵣ≡[-1·ᵣ] _)))) ≡$ (λ x₁ → V x₁ , V' x₁))
+  cong₂ _-ᵣ_
+    (foldFin+≡+∑ n f x V)
+    (foldFin+≡+∑ n f' x' V')
+  ∙ cong ((x +ᵣ F) +ᵣ_) (sym (Rℝ.-Dist x' F'))
+  ∙ Rℝ.+ShufflePairs x F (-ᵣ x') (-ᵣ F')
+  ∙ cong ((x -ᵣ x') +ᵣ_)
+      (sym (ℝRingSum.∑Split-
+        (Fin→FinVec {n = n} (f ∘ V))
+        (Fin→FinVec {n = n} (f' ∘ V'))))
+  ∙ sym (foldFin+≡+∑ n
+      (λ (y , y') → f y -ᵣ f' y') (x -ᵣ x')
+      (λ k → V k , V' k))
+  where
+  F = ℝSum.∑ (Fin→FinVec {n = n} (f ∘ V))
+  F' = ℝSum.∑ (Fin→FinVec {n = n} (f' ∘ V'))
 
 
 foldFin+≤ : ∀ n x x' (f : A → ℝ) (f' : A' → ℝ) V V' →
@@ -357,10 +406,17 @@ foldFin+≤ : ∀ n x x' (f : A → ℝ) (f' : A' → ℝ) V V' →
   foldlFin {B = ℝ} {A = A} {n = n} (λ a y → a +ᵣ f y) x V
     ≤ᵣ foldlFin {B = ℝ} {A = A'} {n = n} (λ a y → a +ᵣ f' y) x' V'
 
-foldFin+≤ zero x x' f f' V V' x≤x' f≤f' = x≤x'
-foldFin+≤ (suc n) x x' f f' V V' x≤x' f≤f' =
-  foldFin+≤ n _ _ f f' (V ∘ fsuc) (V' ∘ fsuc)
-    (≤ᵣMonotone+ᵣ _ _ _ _ x≤x' (f≤f' fzero)) (f≤f' ∘ fsuc)
+foldFin+≤ n x x' f f' V V' x≤x' f≤f' =
+  subst2 _≤ᵣ_
+    (sym (foldFin+≡+∑ n f x V))
+    (sym (foldFin+≡+∑ n f' x' V'))
+    (ℝOrder.+Mono≤ x x'
+      (ℝSum.∑ (Fin→FinVec {n = n} (f ∘ V)))
+      (ℝSum.∑ (Fin→FinVec {n = n} (f' ∘ V'))) x≤x'
+      (ℝSum.∑Mono≤
+        (Fin→FinVec {n = n} (f ∘ V))
+        (Fin→FinVec {n = n} (f' ∘ V'))
+        (f≤f' ∘ FinP.FinData→Fin n)))
 
 
 foldFin+< : ∀ n x x' (f : A → ℝ) (f' : A' → ℝ) V V' →
@@ -369,10 +425,15 @@ foldFin+< : ∀ n x x' (f : A → ℝ) (f' : A' → ℝ) V V' →
   foldlFin {B = ℝ} {A = A} {n = (suc n)} (λ a y → a +ᵣ f y) x V
     <ᵣ foldlFin {B = ℝ} {A = A'} {n = (suc n)} (λ a y → a +ᵣ f' y) x' V'
 
-foldFin+< zero x x' f f' V V' x≤x' X = ≤<ᵣMonotone+ᵣ _ _ _ _ x≤x' (X fzero)
-foldFin+< (suc n) x x' f f' V V' x≤x' X =
- foldFin+< n _ _ f f' (V ∘ fsuc) (V' ∘ fsuc)
-          (≤ᵣMonotone+ᵣ _ _ _ _ x≤x' (<ᵣWeaken≤ᵣ _ _ $ X fzero)) (X ∘ fsuc)
+foldFin+< n x x' f f' V V' x≤x' X =
+  subst2 _<ᵣ_
+    (sym (foldFin+≡+∑ (suc n) f x V))
+    (sym (foldFin+≡+∑ (suc n) f' x' V'))
+    (≤<ᵣMonotone+ᵣ _ _ _ _ x≤x'
+      (ℝSum.∑Mono<
+        (Fin→FinVec {n = suc n} (f ∘ V))
+        (Fin→FinVec {n = suc n} (f' ∘ V'))
+        ℕ.zero-<-suc (X ∘ FinP.FinData→Fin (suc n))))
 
 
 foldFin+<-abs : ∀ n → zero ℕ.< n → ∀ x x' (f : A → ℝ) (f' : A' → ℝ) V V'  →
@@ -381,16 +442,18 @@ foldFin+<-abs : ∀ n → zero ℕ.< n → ∀ x x' (f : A → ℝ) (f' : A' →
   absᵣ (foldlFin {B = ℝ} {A = A} {n = n} (λ a y → a +ᵣ f y) x V)
     <ᵣ foldlFin {B = ℝ} {A = A'} {n = n} (λ a y → a +ᵣ f' y) x' V'
 
-foldFin+<-abs zero 0<n x x' f f' V V' x≤x' X = ⊥.rec (ℕ.¬-<-zero 0<n)
-
-foldFin+<-abs (suc zero) 0<n x x' f f' V V' x≤x' X =
- isTrans≤<ᵣ _ _ _ (absᵣ-triangle _ _) (≤<ᵣMonotone+ᵣ _ _ _ _ x≤x' (X fzero))
-foldFin+<-abs (suc (suc n)) 0<n x x' f f' V V' x₁ X =
-  foldFin+<-abs (suc n) ℕ.zero-<-suc (x +ᵣ f (V fzero)) (x' +ᵣ f' (V' fzero))
-    f f' (V ∘ fsuc) (V' ∘ fsuc)
-     (isTrans≤ᵣ _ _ _ (absᵣ-triangle _ _)
-       (≤ᵣMonotone+ᵣ _ _ _ _ x₁ (<ᵣWeaken≤ᵣ _ _ $ X fzero)))
-       (X ∘ fsuc)
+foldFin+<-abs n 0<n x x' f f' V V' x≤x' X =
+  subst2 _<ᵣ_
+    (cong absᵣ (sym (foldFin+≡+∑ n f x V)))
+    (sym (foldFin+≡+∑ n f' x' V'))
+    (isTrans≤<ᵣ _ _ _ (absᵣ-triangle _ _)
+      (≤<ᵣMonotone+ᵣ _ _ _ _ x≤x'
+        (isTrans≤<ᵣ _ _ _
+          (abs∑≤∑absᵣ (Fin→FinVec {n = n} (f ∘ V)))
+          (ℝSum.∑Mono<
+            (Fin→FinVec {n = n} (absᵣ ∘ f ∘ V))
+            (Fin→FinVec {n = n} (f' ∘ V')) 0<n
+            (X ∘ FinP.FinData→Fin n)))))
 
 foldFin+≤-abs : ∀ n → ∀ x x' (f : A → ℝ) (f' : A' → ℝ) V V'  →
    absᵣ x ≤ᵣ x' →
@@ -398,27 +461,27 @@ foldFin+≤-abs : ∀ n → ∀ x x' (f : A → ℝ) (f' : A' → ℝ) V V'  →
   absᵣ (foldlFin {B = ℝ} {A = A} {n = n} (λ a y → a +ᵣ f y) x V)
     ≤ᵣ foldlFin {B = ℝ} {A = A'} {n = n} (λ a y → a +ᵣ f' y) x' V'
 
-foldFin+≤-abs zero x x' f f' V V' x≤x' X = x≤x'
-
-foldFin+≤-abs (suc zero) x x' f f' V V' x≤x' X =
- isTrans≤ᵣ _ _ _ (absᵣ-triangle _ _) (≤ᵣMonotone+ᵣ _ _ _ _ x≤x' (X fzero))
-foldFin+≤-abs (suc (suc n)) x x' f f' V V' x₁ X =
-  foldFin+≤-abs (suc n)  (x +ᵣ f (V fzero)) (x' +ᵣ f' (V' fzero))
-    f f' (V ∘ fsuc) (V' ∘ fsuc)
-     (isTrans≤ᵣ _ _ _ (absᵣ-triangle _ _)
-       (≤ᵣMonotone+ᵣ _ _ _ _ x₁ (X fzero)))
-       (X ∘ fsuc)
+foldFin+≤-abs n x x' f f' V V' x≤x' X =
+  subst2 _≤ᵣ_
+    (cong absᵣ (sym (foldFin+≡+∑ n f x V)))
+    (sym (foldFin+≡+∑ n f' x' V'))
+    (isTrans≤ᵣ _ _ _ (absᵣ-triangle _ _)
+      (≤ᵣMonotone+ᵣ _ _ _ _ x≤x'
+        (isTrans≤ᵣ _ _ _
+          (abs∑≤∑absᵣ (Fin→FinVec {n = n} (f ∘ V)))
+          (ℝSum.∑Mono≤
+            (Fin→FinVec {n = n} (absᵣ ∘ f ∘ V))
+            (Fin→FinVec {n = n} (f' ∘ V'))
+            (X ∘ FinP.FinData→Fin n)))))
 
 
 foldFin+Const : ∀ n x V →
   foldlFin {B = ℝ} {A = A} {n = n} (λ a y → a +ᵣ x) 0 V
     ≡ fromNat n ·ᵣ x
-foldFin+Const zero x V = sym (Rℝ.0LeftAnnihilates _)
-foldFin+Const (suc n) x V =
-      (λ i → foldFin+0ᵣ n (V ∘ fsuc) (λ _ → x) (+IdL x i) i)
-   ∙∙ cong₂ (_+ᵣ_) (sym (Rℝ.·IdL x)) (foldFin+Const n x (V ∘ fsuc))
-   ∙∙ (sym (·DistR+ 1 (fromNat n) x)
-      ∙ cong (_·ᵣ x) (+ᵣ-rat _ _  ∙ cong rat (ℚ.ℕ+→ℚ+ 1 n )))
+foldFin+Const n x V =
+  foldFin+≡∑ n (λ _ → x) V
+  ∙ ℝRingSum.∑Const n x
+  ∙ cong (_·ᵣ x) (fromℕ≡fromNatℝ n)
 
 foldlFin-substN : ∀ {n n'} → (p : n ≡ n') → ∀ f b v →
             foldlFin {B = B} {A = A} {n} f b v ≡
@@ -433,19 +496,17 @@ foldlFin-substN {n = n} = J (λ n' p → ∀ f b v →
 deltas-sum : ∀ n (f : Fin (suc n) → ℝ) →
  foldlFin {n = n} (λ a k → a +ᵣ (f (fsuc k) -ᵣ f (finj k))) 0 (idfun _) ≡
    f flast -ᵣ f fzero
-deltas-sum zero f = ℝ!
-deltas-sum (suc n) f =
- foldFin+0ᵣ n (fsuc) _ _
-  ∙ cong₂ _+ᵣ_
-    (+IdL _)
-    (foldFin+map n 0 _ fsuc (idfun _)
-     ∙ deltas-sum n (f ∘ fsuc))
-  ∙ ℝ!
+deltas-sum n f =
+  foldFin+≡∑ n (λ k → f (fsuc k) -ᵣ f (finj k)) (idfun _)
+  ∙ ℝRingSum.∑Ext (λ k →
+      cong (λ z → f (fsuc (FinP.FinData→Fin n k)) -ᵣ z)
+        (cong f (sym (FinP.FinData→Fin-weakenFin k))))
+  ∙ ℝRingSum.∑Telescoping (Fin→FinVec {n = suc n} f)
+  ∙ cong₂ _-ᵣ_ (cong f (FinP.FinData→Fin-fromℕ n)) refl
 
 
 ℕ^+ : ∀ k n m → k ℕ.^ (n ℕ.+ m) ≡ (k ℕ.^ n) ℕ.· (k ℕ.^ m)
-ℕ^+ k zero m = sym (ℕ.+-zero _)
-ℕ^+ k (suc n) m = cong (k ℕ.·_) (ℕ^+ k n m) ∙ ℕ.·-assoc k _ _
+ℕ^+ k n m = sym (ℕExponentiation.·-of-^-is-^-of-+ k n m)
 
 
 2^ : ℕ → ℕ
@@ -458,9 +519,10 @@ deltas-sum (suc n) f =
  ∙ cong ((2 ℕ.^ n) ℕ.+_) (sym (ℕ.+-zero _))
 
 2^+ : ∀ n m → 2^ (n ℕ.+ m) ≡ (2^ n) ℕ.· (2^ m)
-2^+ zero m = sym (ℕ.+-zero (2^ m))
-2^+ (suc n) m = cong₂ ℕ._+_ (2^+ n m) (2^+ n m)
- ∙ ·-distribʳ (2^ n) _ (2^ m)
+2^+ n m =
+  2^-^ (n ℕ.+ m)
+    ∙ ℕ^+ 2 n m
+    ∙ cong₂ ℕ._·_ (sym (2^-^ n)) (sym (2^-^ m))
 
 injectFin+ : {m n : ℕ} → Fin m → Fin (n ℕ.+ m)
 injectFin+ {m} {n} x =
@@ -587,15 +649,15 @@ foldFin-sum-concat n m f =
 
 Fin^2· : ∀ n m → (Fin (2^ n) × Fin (2^ m))
                       → (Fin (2^ (n ℕ.+ m)))
-Fin^2· n m ((l , l<) , k , k<) .fst = (((2^ m) ℕ.· l) ℕ.+ k)
-Fin^2· n m ((l , l<) , k , k<) .snd =
-  ℕ.<→<ᵗ (ℕ.<≤-trans
-    (ℕ.<-k+ {k = 2^ m ℕ.· l} (ℕ.<ᵗ→< k<))
-    (subst2 ℕ._≤_
-      (·-suc (2^ m) l ∙ ℕ.+-comm (2^ m) (2^ m ℕ.· l))
-      (ℕ.·-comm (2^ m) (2^ n) ∙ sym (2^+ n m))
-      (ℕ.≤-k· {m = suc l} {n = 2^ n} {k = 2^ m}
-        (ℕ.<ᵗ→< l<))))
+Fin^2· n m (l , k) =
+  substFin (ℕ.·-comm (2^ m) (2^ n) ∙ sym (2^+ n m))
+    (equivFun (FinP.factorEquiv {n = 2^ m} {m = 2^ n}) (k , l))
+
+Fin^2·-fst : ∀ n m x y →
+  fst (Fin^2· n m (x , y)) ≡ (2^ m ℕ.· fst x) ℕ.+ fst y
+Fin^2·-fst n m x y =
+  FinP.factorEquiv-fst {n = 2^ m} {m = 2^ n} y x
+    ∙ cong (ℕ._+ fst y) (ℕ.·-comm (fst x) (2^ m))
 
 Fin^2·-injectFin+' : ∀ n m x y →
   (injectFin+' {2^ (n ℕ.+ m) } {2^ (n ℕ.+ m) } (Fin^2· n m (x , y))) ≡
@@ -603,15 +665,21 @@ Fin^2·-injectFin+' : ∀ n m x y →
 Fin^2·-injectFin+' n m x y =
   toℕ-injective {2^ (n ℕ.+ m) ℕ.+ 2^ (n ℕ.+ m)}
     {injectFin+' {2^ (n ℕ.+ m) } {2^ (n ℕ.+ m) } (Fin^2· n m (x , y))}
-    {(Fin^2· (suc n) m (injectFin+' {2^ n} {2^ n} x , y))} refl
+    {(Fin^2· (suc n) m (injectFin+' {2^ n} {2^ n} x , y))}
+    (Fin^2·-fst n m x y
+      ∙ sym (Fin^2·-fst (suc n) m
+        (injectFin+' {2^ n} {2^ n} x) y))
 
 Fin^2·-injectFin+ : ∀ n m x y → (injectFin+ {2^ (n ℕ.+ m)} {2^ (n ℕ.+ m)} (Fin^2· n m (x , y)))
     ≡ (Fin^2· (suc n) m (injectFin+ {2^ n } {2^ n } x , y))
 Fin^2·-injectFin+ n m x y =
  toℕ-injective {2^ (n ℕ.+ m) ℕ.+ 2^ (n ℕ.+ m)} 
-  (cong (ℕ._+ (2^ m ℕ.· x .fst ℕ.+ y .fst)) (2^+ n m ∙ ℕ.·-comm (2^ n) (2^ m) )
+  (cong (2^ (n ℕ.+ m) ℕ.+_) (Fin^2·-fst n m x y)
+    ∙ cong (ℕ._+ (2^ m ℕ.· x .fst ℕ.+ y .fst)) (2^+ n m ∙ ℕ.·-comm (2^ n) (2^ m) )
     ∙ (ℕ.+-assoc (2^ m ℕ.· 2^ n) _ (fst y) ∙
-      cong (ℕ._+ fst y) (·-distribˡ (2^ m) _ _)))
+      cong (ℕ._+ fst y) (·-distribˡ (2^ m) _ _))
+    ∙ sym (Fin^2·-fst (suc n) m
+      (injectFin+ {2^ n} {2^ n} x) y))
 
 foldFin·2^ : ∀ n m → (f : B → A → B) → (b : B) →
               (V : Fin (2^ (n ℕ.+ m)) → A) →
@@ -620,7 +688,8 @@ foldFin·2^ : ∀ n m → (f : B → A → B) → (b : B) →
                  b (curry (V ∘ Fin^2· n m ))
 foldFin·2^ zero m f b V = cong (foldlFin {n = 2^ m} f b)
   (funExt λ x → cong V (toℕ-injective {2^ m}
-    (cong (ℕ._+ fst x) (ℕ.0≡m·0 (2^ m)))))
+    (cong (ℕ._+ fst x) (ℕ.0≡m·0 (2^ m))
+      ∙ sym (Fin^2·-fst zero m fzero x))))
 foldFin·2^ (suc n) m f b V =
   foldFin·2 (2^ (n ℕ.+ m)) (2^ (n ℕ.+ m)) f b V
    ∙ foldFin·2^ n m _ _ _

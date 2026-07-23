@@ -50,6 +50,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Power.Order using
+  (^<1; ^ⁿ-Monotone)
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base
@@ -80,7 +82,7 @@ open import Cubical.Algebra.CommRing.Base
 import Cubical.Data.FinData as FD
 
 open import Cubical.HITs.CauchyReals.Trigonometry.Identities
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 open import Cubical.HITs.CauchyReals.ArcSin.Prelim.Basic

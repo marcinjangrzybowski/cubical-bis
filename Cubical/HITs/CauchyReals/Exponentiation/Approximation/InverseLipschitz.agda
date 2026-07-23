@@ -14,7 +14,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Inverse.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base hiding (≤Cont₂)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Order using (≤Cont₂)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication using (<ᵣ-o·ᵣ)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals

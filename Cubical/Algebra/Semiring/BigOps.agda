@@ -42,6 +42,41 @@ module Sum (S : Semiring ℓ) where
           → ∑ (V ++Fin W) ≡ ∑ V + ∑ W
   ∑Split++ = bigOpSplit++
 
+  ∑Exchange : ∀ {m n} (V : Fin m → Fin n → fst S) →
+              ∑ (λ i → ∑ (λ j → V i j)) ≡
+              ∑ (λ j → ∑ (λ i → V i j))
+  ∑Exchange {m = zero} {n = n} V = sym (∑0r n)
+  ∑Exchange {m = suc m} {n = zero} V =
+    cong (0r +_) (∑0r m) ∙ +IdR 0r
+  ∑Exchange {m = suc m} {n = suc n} V =
+    let a  = V zero zero
+        L  = ∑ λ j → V zero (suc j)
+        C  = ∑ λ i → V (suc i) zero
+        N  = ∑ λ i → ∑ λ j → V (suc i) (suc j)
+        N' = ∑ λ j → ∑ λ i → V (suc i) (suc j)
+    in
+      a + L + ∑ (λ i → ∑ (λ j → V (suc i) j))
+        ≡⟨ (λ k → a + L +
+          ∑Split (λ i → V (suc i) zero)
+                 (λ i → ∑ (λ j → V (suc i) (suc j))) k) ⟩
+      a + L + (C + N)
+        ≡⟨ (λ k → a + L + (C + ∑Exchange (λ i j → V (suc i) (suc j)) k)) ⟩
+      a + L + (C + N')
+        ≡⟨ sym (+Assoc _ _ _) ⟩
+      a + (L + (C + N'))
+        ≡⟨ cong (a +_) (swapMiddle L C N') ⟩
+      a + (C + (L + N'))
+        ≡⟨ +Assoc _ _ _ ⟩
+      a + C + (L + N')
+        ≡⟨ (λ k → a + C +
+          ∑Split (λ j → V zero (suc j))
+                 (λ j → ∑ (λ i → V (suc i) (suc j))) (~ k)) ⟩
+      a + C + ∑ (λ j → ∑ (λ i → V i (suc j))) ∎
+    where
+    swapMiddle : ∀ x y z → x + (y + z) ≡ y + (x + z)
+    swapMiddle x y z =
+      +Assoc x y z ∙ cong (_+ z) (+Comm x y) ∙ sym (+Assoc y x z)
+
   ∑Mulrdist : ∀ {n} → (x : fst S) → (V : FinVec (fst S) n)
                  → x · ∑ V ≡ ∑ λ i → x · V i
   ∑Mulrdist {n = zero}  x _ = AnnihilR x

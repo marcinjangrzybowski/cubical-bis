@@ -12,6 +12,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Order.Lattice using
+  (maxMonotoneᵣ)
 open import Cubical.HITs.CauchyReals.Trigonometry.Base
 open import Cubical.HITs.CauchyReals.Trigonometry.Pi
 
@@ -95,7 +97,6 @@ sin-strictMonotone x y x∈ y∈ x<y =
        m∈ m'<m))
       (sin-Monotone _ _ (ointervalℙ⊆intervalℙ _ _ m m∈) y∈
       (<ᵣWeaken≤ᵣ _ _ m<y))
-
 
 
 

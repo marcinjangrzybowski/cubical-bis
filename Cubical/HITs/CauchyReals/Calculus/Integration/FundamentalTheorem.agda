@@ -23,12 +23,18 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
-open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
+open import Cubical.HITs.CauchyReals.Algebra.Order.Archimedean using
+  (∃ℚ₊LargerThanℝ₀₊)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
   (clampᵣ∈intervalℙ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Inverse hiding
+  (a+d≤c+b⇒a-b≤c-d)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Properties using
+  (a+d≤c+b⇒a-b≤c-d)
+open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using
+  (absᵣ-min-max)
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base
 open import Cubical.HITs.CauchyReals.Calculus.Integration.Base
@@ -53,7 +59,7 @@ open import Cubical.HITs.CauchyReals.Analysis.Uniform using
   ; isUCauchyFSequence-ᵣ
   ; isUCauchyFSequence+ᵣ
   )
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals

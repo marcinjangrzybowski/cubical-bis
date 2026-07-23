@@ -18,7 +18,8 @@ open import Cubical.Data.Sum as ⊎
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 open import Cubical.Algebra.OrderedCommRing.Properties
 open PositiveRationals
-open OrderedCommRingTheory ℚOrderedCommRing hiding (_#_)
+module ℚO = OrderedCommRingTheory ℚOrderedCommRing
+open OrderedCommRingTheory ℚOrderedCommRing hiding (_#_; abs≡⊔-⊓)
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Rationals
 open import Cubical.Tactics.CommRingSolver.OrderedReflection
@@ -118,17 +119,7 @@ module AlternatingSeries s
        (evenΣDecr  k 1 0<k)
 
  abs≡⊔-⊓ : ∀ x y → ℚ.max x y ℚ.- ℚ.min x y ≡ abs (x ℚ.- y)
- abs≡⊔-⊓ = ℚ.elimBy≤
-   (λ x y X →
-     ( (cong₂ ℚ._-_ (ℚ.maxComm y x) (ℚ.minComm y x)))
-        ∙∙ X ∙∙
-       abs-Comm x y)
-   λ x y x≤y →
-     sym (0≤→abs≡id _ (ℚ.-≤ (ℚ.min x y) (ℚ.max x y)
-        (ℚ.isTrans≤ _ _ _ (ℚ.min≤ x y) (ℚ.≤max x y)))) ∙ cong abs
-       (cong₂ ℚ._-_
-         (ℚ.≤→max _ _ x≤y) (ℚ.≤→min _ _ x≤y))
-      ∙ abs-Comm y x
+ abs≡⊔-⊓ = ℚO.abs≡⊔-⊓
 
 
  distBroaden : ∀ x y a b

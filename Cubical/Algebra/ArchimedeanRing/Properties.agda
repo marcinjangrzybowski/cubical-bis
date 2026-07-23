@@ -98,3 +98,13 @@ module _ (R' : ArchimedeanRing ℓ ℓ') where
     0≤ι₀₊ : ∀ a → 0r ≤ ι₀₊ a
     0≤ι₀₊ zero    = subst (_≤ ι₀₊ 0) pres0 (is-refl _)
     0≤ι₀₊ (suc a) = <-≤-weaken 0r (ι₊₁ a) (0<ι₊₁ a)
+
+    ∃ι₊₁Larger : ∀ x → ∃[ k ∈ ℕ ] x < ι₊₁ k
+    ∃ι₊₁Larger x = PT.map
+      (λ (k , x⊔1<k) → k , (begin<
+        x        ≤⟨ L≤⊔ ⟩
+        x ⊔ 1r   <⟨ subst ((x ⊔ 1r) <_) (·IdR (ι₊₁ k)) x⊔1<k ⟩
+        ι₊₁ k    ◾))
+      (archimedeanProperty (x ⊔ 1r) 1r
+        (begin< 0r <⟨ 0<1 ⟩ 1r ≤⟨ R≤⊔ ⟩ x ⊔ 1r ◾)
+        0<1)

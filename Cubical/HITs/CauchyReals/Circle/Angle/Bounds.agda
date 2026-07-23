@@ -22,6 +22,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Power.Order using
+  (^ⁿ-StrictMonotone; ^ⁿMonotone⁻¹-with0)
 open import Cubical.HITs.CauchyReals.Algebra.Ring
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Exponentiation.RationalPower.Core using (^ℤ-rat)

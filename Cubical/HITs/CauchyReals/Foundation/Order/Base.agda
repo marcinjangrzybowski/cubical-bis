@@ -33,7 +33,7 @@ open import Cubical.Relation.Binary
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 open import Cubical.Relation.Binary.Order.Poset
 open import Cubical.Relation.Binary.Order.Poset.Interval using
@@ -716,6 +716,13 @@ opaque
 
 minusComm-absᵣ : ∀ x y → absᵣ (x +ᵣ (-ᵣ y)) ≡ absᵣ (y +ᵣ (-ᵣ x))
 minusComm-absᵣ x y = -absᵣ _ ∙ cong absᵣ (-[x-y]≡y-x x y)
+
+
+rexprTest : ∀ (q q' q'' : ℚ) →
+  maxᵣ (minᵣ (rat q) (rat q')) (absᵣ (rat q'')) ≡
+    rat (ℚ.max (ℚ.min q q') (ℚ.abs' q''))
+rexprTest q q' q'' = ℚℝ!
+
 
 opaque
  unfolding _<ᵣ_

@@ -51,9 +51,17 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
+open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using
+  (absᵣ-min-max)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+  hiding (≤Cont; IsContinuous-₂∘)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Core
+  using (IsContinuous-₂∘)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Order using (≤Cont)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Power.Order using
+  (^≤1; ^ⁿMonotone⁻¹; ^ⁿ-MonotoneR-inv)
 import Cubical.HITs.CauchyReals.Algebra.Signs as ℝSigns
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
@@ -72,7 +80,7 @@ open import Cubical.HITs.CauchyReals.Exponentiation.Base
 open import Cubical.HITs.CauchyReals.Exponentiation.Series.Base
 open import Cubical.HITs.CauchyReals.Analysis.Uniform
 open import Cubical.HITs.CauchyReals.Trigonometry.Base
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 import Cubical.Tactics.CommRingSolver.Specialised.Rationals as ℚSolver
 
@@ -150,25 +158,6 @@ Lipschitz-ℝ→ℝ→IsUContinuousℙ L f fLip P ε =
 
 ℚ^ⁿ-dist· : ∀ p q n → (p ℚ.· q) ℚ.^ⁿ n ≡ (p ℚ.^ⁿ n) ℚ.· (q ℚ.^ⁿ n)
 ℚ^ⁿ-dist· = ℚ.Exponentiationℚ.^-ldist-·
-
-^ⁿ-MonotoneR-inv
-        : (x : ℝ) → 0 ≤ᵣ x → x ≤ᵣ 1 →  (m n : ℕ) →
-
-           m ℕ.≤ n → (x ^ⁿ n) ≤ᵣ (x ^ⁿ m)
-^ⁿ-MonotoneR-inv x 0≤x x≤1 zero zero _ = ≤ᵣ-refl _
-^ⁿ-MonotoneR-inv x 0≤x x≤1 zero (suc n) _ =
-  isTrans≤≡ᵣ _ _ _ (≤ᵣ₊Monotone·ᵣ _ _ _ _
-    (decℚ≤ᵣ? {0} {1}) (0≤x^ⁿ x n 0≤x)
-    x≤1
-    (^ⁿ-MonotoneR-inv x 0≤x x≤1 zero n ℕ.zero-≤))
-     ℝ!
-^ⁿ-MonotoneR-inv x 0≤x x≤1 (suc m) zero m≤zero =
-  ⊥.rec (ℕ.¬-<-zero m≤zero)
-^ⁿ-MonotoneR-inv x 0≤x x≤1 (suc m) (suc n) sm≤sn =
-  ≤ᵣ-o·ᵣ _ _ x
-    0≤x
-    (^ⁿ-MonotoneR-inv x 0≤x x≤1 m n (ℕ.pred-≤-pred sm≤sn))
-
 
 opaque
  lim0FromRatioBound : ∀ (s : Seq) (q : ℚ₊) → (q<1 : fst q ℚ.< 1)

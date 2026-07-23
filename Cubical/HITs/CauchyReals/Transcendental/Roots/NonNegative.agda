@@ -37,7 +37,7 @@ open import Cubical.Data.Rationals.Order.Floor as ℚ
 open import Cubical.Data.Rationals.Order.Algebra as ℚ hiding (seqΣ ; seqΣ' ; _^ⁿ_ ; _ℚ₊^ⁿ_)
 open import Cubical.Data.Rationals.Inverse as ℚ using (invℚ ; _⁻¹₊)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
 open import Cubical.HITs.CauchyReals.Foundation.Base

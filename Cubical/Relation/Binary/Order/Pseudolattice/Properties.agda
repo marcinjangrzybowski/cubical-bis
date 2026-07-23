@@ -71,7 +71,7 @@ module MeetProperties (L≤ : Pseudolattice ℓ ℓ') where
     L = L≤ .fst
     open PseudolatticeStr (L≤ .snd)
     variable
-      a b c x : L
+      a b c d x : L
 
   isMeet∧ : ∀ {a b x} → x ≤ (a ∧l b) ≃ (x ≤ a) × (x ≤ b)
   isMeet∧ {a} {b} {x} = isPseudolattice .fst a b .snd x
@@ -84,6 +84,12 @@ module MeetProperties (L≤ : Pseudolattice ℓ ℓ') where
 
   ∧GLB : ∀ {a b x} → x ≤ a → x ≤ b → x ≤ a ∧l b
   ∧GLB = curry (invEq isMeet∧)
+
+  ∧Monotone : a ≤ b → c ≤ d → a ∧l c ≤ b ∧l d
+  ∧Monotone a≤b c≤d =
+    ∧GLB
+      (is-trans _ _ _ ∧≤L a≤b)
+      (is-trans _ _ _ ∧≤R c≤d)
 
   isMeet→≡∧ : ∀ m
               → (∀ {x} → x ≤ m → x ≤ a)
@@ -129,7 +135,8 @@ module JoinProperties (L≤ : Pseudolattice ℓ ℓ') where
       isMeet∧ to isJoin∨ ; ∧≤L to L≤∨ ; ∧≤R to R≤∨ ; isMeet→≡∧ to isJoin→≡∨
     ; ∧Comm to ∨Comm ; ∧Idem to ∨Idem ; ∧Assoc to ∨Assoc
     ; ≤≃∧ to ≤≃∨ ; ≤→∧ to ≤→∨ ; ≤→∧≡Left to ≥→∨≡Left ; ≥→∧≡Right to ≤→∨≡Right
-    ; ∧GLB to ∨LUB ; Pseudolattice→Semigroup∧ to Pseudolattice→Semigroup∨)
+    ; ∧GLB to ∨LUB ; ∧Monotone to ∨Monotone
+    ; Pseudolattice→Semigroup∧ to Pseudolattice→Semigroup∨)
 
 module PseudolatticeTheory (L≤ : Pseudolattice ℓ ℓ') where
   open MeetProperties L≤ public

@@ -2,6 +2,7 @@ module Cubical.HITs.CauchyReals.Algebra.Order.Positive where
 
 open import Cubical.Foundations.Prelude
 
+open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.NatPlusOne
 
 import Cubical.Algebra.CommRing as CR
@@ -29,6 +30,17 @@ positiveMulClosed x y 0<x 0<y = ℝ₊· (x , 0<x) (y , 0<y)
 
 module PositiveReals =
   Positive ℝOrderedCommRing positiveAddClosed positiveMulClosed
+
+
+-- Established Cauchy-real spellings for the generic positive operations.
+_₊+ᵣ_ : ℝ₊ → ℝ₊ → ℝ₊
+_₊+ᵣ_ = PositiveReals._+₊_
+
+_₊·ᵣ_ : ℝ₊ → ℝ₊ → ℝ₊
+_₊·ᵣ_ = PositiveReals._·₊_
+
+_₊^ⁿ_ : ℝ₊ → ℕ → ℝ₊
+_₊^ⁿ_ = PositiveReals._^₊_
 
 
 nonNegativeAddClosed : ∀ x y → 0 ≤ᵣ x → 0 ≤ᵣ y → 0 ≤ᵣ x +ᵣ y

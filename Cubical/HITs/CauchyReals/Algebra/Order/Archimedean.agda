@@ -12,13 +12,16 @@ open import Cubical.Data.Unit using (tt)
 open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Algebra.ArchimedeanRing.Base
+open import Cubical.Algebra.ArchimedeanRing.Properties
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.OrderedCommRing.Base using (OrderedCommRingStr)
 open import Cubical.Algebra.OrderedCommRing.Properties
 
 open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base using (absᵣPos)
+open import Cubical.HITs.CauchyReals.Foundation.Rationals
+open import Cubical.HITs.CauchyReals.Algebra.Ring using (fromℕ≡fromNatℝ)
+open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using (absᵣPos)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Algebra.Order.Instance
@@ -34,11 +37,7 @@ private
 
 
   fromℕ≡fromNat : ∀ n → ℝRing.fromℕ n ≡ realFromNat n
-  fromℕ≡fromNat ℕ.zero = refl
-  fromℕ≡fromNat (ℕ.suc ℕ.zero) = refl
-  fromℕ≡fromNat (ℕ.suc (ℕ.suc n)) =
-    cong (realFromNat (ℕ.suc ℕ.zero) +ᵣ_) (fromℕ≡fromNat (ℕ.suc n))
-    ∙ fromNat+ᵣ (ℕ.suc ℕ.zero) (ℕ.suc n)
+  fromℕ≡fromNat = fromℕ≡fromNatℝ
 
 
 ·CancelR<ᵣ : ∀ x y z → realFromNat ℕ.zero <ᵣ z →
@@ -96,3 +95,24 @@ ArchimedeanRingStr.isArchimedeanRing (snd ℝArchimedeanRing) =
   ArchimedeanRingStr.ι (snd ℝArchimedeanRing) (pos n) ≡
     ℕ.HasFromNat.fromNat fromNatℝ n {{tt}}
 ι-pos≡fromNatℝ = fromℕ≡fromNat
+
+
+private
+  module ℝArchimedean = ArchimedeanRingTheory ℝArchimedeanRing
+
+  ∃ℚ₊LargerThanℝ : ∀ x → ∃[ q ∈ ℚ₊ ] x <ᵣ rat (fst q)
+  ∃ℚ₊LargerThanℝ x = PT.map
+    (λ (k , x<k) →
+      ([ pos (ℕ.suc k) / 1 ] , ℚ.0<pos k 1) ,
+      subst (x <ᵣ_) (ι-pos≡fromNatℝ (ℕ.suc k)) x<k)
+    (ℝArchimedean.∃ι₊₁Larger x)
+
+
+∃ℚ₊LargerThanℝ₊ : ∀ (x : ℝ₊) →
+  ∃[ q ∈ ℚ₊ ] fst x <ᵣ rat (fst q)
+∃ℚ₊LargerThanℝ₊ x = ∃ℚ₊LargerThanℝ (fst x)
+
+
+∃ℚ₊LargerThanℝ₀₊ : ∀ (x : ℝ₀₊) →
+  ∃[ q ∈ ℚ₊ ] fst x <ᵣ rat (fst q)
+∃ℚ₊LargerThanℝ₀₊ x = ∃ℚ₊LargerThanℝ (fst x)

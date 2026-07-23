@@ -30,7 +30,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Core
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Predicate
 
 open import Cubical.HITs.SequentialColimit as SCL
 open import Cubical.Data.Sequence
@@ -38,7 +39,9 @@ open import Cubical.Data.Sequence
 -- open import Cubical.Tactics.CommRingSolverFast.RationalsReflection
 -- open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
 -- open import Cubical.Tactics.CommRingSolverFast.IntReflection
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Base
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Strict
 
 
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
@@ -654,15 +657,16 @@ IsContinuous₂·ᵣ = IsContinuous·ᵣL , IsContinuous·ᵣR
 ℚ→ℝHom .snd .CR.IsCommRingHom.pres· x y = rat·ᵣrat x y
 ℚ→ℝHom .snd .CR.IsCommRingHom.pres- x = sym (-ᵣ-rat x)
 
+private
+ module ℚ→ℝPowerHom = CR.CommRingHomTheory ℚ→ℝHom
+
 module Exponentiationᵣ = CR.Exponentiation ℝcommRing
 
 open Exponentiationᵣ renaming (_^_ to _^ⁿ_;^-ldist-· to ^ⁿ-ldist-·) public
 
 x^²=x·x : ∀ x → x ^ⁿ 2 ≡ x ·ᵣ x
-x^²=x·x x = cong (x ·ᵣ_) (·IdR x)
+x^²=x·x = Exponentiationᵣ.x^2≡x·x
 
 
 ^ⁿ-ℚ^ⁿ : ∀ n q → ((rat q) ^ⁿ n) ≡ rat (q ℚ.^ⁿ n)
-^ⁿ-ℚ^ⁿ zero _ = refl
-^ⁿ-ℚ^ⁿ (suc n) a = 
-  cong (rat a ·ᵣ_) (^ⁿ-ℚ^ⁿ n a) ∙ sym (rat·ᵣrat _ _)
+^ⁿ-ℚ^ⁿ n q = sym (ℚ→ℝPowerHom.pres^ q n)

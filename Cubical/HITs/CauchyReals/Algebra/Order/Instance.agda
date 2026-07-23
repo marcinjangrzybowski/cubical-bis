@@ -15,7 +15,12 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open Cubical.HITs.CauchyReals.Foundation.Order.Base public using
   (ℝ≤Poset; ℝ<Quoset)
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Base using
+  (≤ᵣ-+o)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Strict using
+  (<ᵣ-+o)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Lattice using
+  (min≤ᵣ; min≤ᵣ'; ≤min-lem; ≤maxᵣ; max≤-lem)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Order.Properties

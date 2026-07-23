@@ -202,7 +202,7 @@ module _ (R' : Ring ℓ) where
   open RingStr (snd R') renaming ( is-set to isSetR )
   open RingTheory R'
   open KroneckerDelta R'
-  open Sum R'
+  open Sum R' hiding (∑Exchange)
   open FinMatrixAbGroup (_ , abgroupstr _ _ _ (snd R' .RingStr.+IsAbGroup))
 
   private R = ⟨ R' ⟩
@@ -214,22 +214,7 @@ module _ (R' : Ring ℓ) where
   mulFinMatrix M N i k = ∑ λ j → M i j · N j k
 
   ∑Exchange : ∀ {m n} → (M : FinMatrix R m n) → ∑ (λ i → ∑ (λ j → M i j)) ≡ ∑ (λ j → ∑ (λ i → M i j))
-  ∑Exchange {m = zero}  {n = n}     M = sym (∑0r n)
-  ∑Exchange {m = suc m} {n = zero}  M = cong (λ x → 0r + x) (∑0r m) ∙ +IdR 0r
-  ∑Exchange {m = suc m} {n = suc n} M =
-     let a  = M zero zero
-         L  = ∑ λ j → M zero (suc j)
-         C  = ∑ λ i → M (suc i) zero
-         N  = ∑ λ i → ∑ λ j → M (suc i) (suc j)
-         -- N reindexed
-         N' = ∑ λ j → ∑ λ i → M (suc i) (suc j)
-     in a + L + ∑ (λ i → ∑ (λ j → M (suc i) j)) ≡⟨ (λ k → a + L + ∑Split (λ i → M (suc i) zero) (λ i → ∑ (λ j → M (suc i) (suc j))) k) ⟩
-        a + L + (C + N)                         ≡⟨ (λ k → a + L + (C + ∑Exchange (λ i j → M (suc i) (suc j)) k)) ⟩
-        a + L + (C + N')                        ≡⟨ sym (+Assoc _ _ _) ⟩
-        a + (L + (C + N'))                      ≡⟨ (λ k → a + +Assoc-comm1 L C N' k) ⟩
-        a + (C + (L + N'))                      ≡⟨ +Assoc _ _ _ ⟩
-        a + C + (L + N')                        ≡⟨ (λ k → a + C + ∑Split (λ j → M zero (suc j)) (λ j → ∑ (λ i → M (suc i) (suc j))) (~ k)) ⟩
-        a + C + ∑ (λ j → ∑ (λ i → M i (suc j))) ∎
+  ∑Exchange = Sum.∑Exchange R'
 
 
   mulFinMatrixAssoc : ∀ {m n k l} → (M : FinMatrix R m n) → (N : FinMatrix R n k) → (K : FinMatrix R k l)

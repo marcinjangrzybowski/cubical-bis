@@ -25,13 +25,15 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Power.Order using
+  (^ⁿ-StrictMonotone)
 open import Cubical.HITs.CauchyReals.Algebra.Order.Properties using
   (Dichotomyℝ'; isIrrefl<ᵣ)
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Exponentiation.Base
 open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base
 open import Cubical.HITs.CauchyReals.Foundation.Rationals using (ℚ₊ ; <≤ℚ! ; [_/_]₊)
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 

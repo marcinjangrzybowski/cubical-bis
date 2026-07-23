@@ -15,7 +15,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
-open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
+open import Cubical.HITs.CauchyReals.Algebra.Order.Archimedean using
+  (∃ℚ₊LargerThanℝ₀₊)
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
 

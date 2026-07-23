@@ -31,6 +31,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using
+  (absᵣ-triangle-minus)
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp using
   (clampᵣ∈intervalℙ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
@@ -54,7 +56,7 @@ open import Cubical.HITs.CauchyReals.Calculus.Integration.Partition.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.MeanValue
 open import Cubical.HITs.CauchyReals.Calculus.Integration.Partition.Concatenation
 open import Cubical.HITs.CauchyReals.Calculus.Integration.Summation
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
 
 open ℚ using (_⁻¹₊)

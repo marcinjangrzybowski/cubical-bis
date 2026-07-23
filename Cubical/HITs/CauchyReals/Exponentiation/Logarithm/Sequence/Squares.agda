@@ -45,7 +45,8 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base hiding (≤Cont)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Order using (≤Cont)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
@@ -53,7 +54,7 @@ open import Cubical.HITs.CauchyReals.Approximation.Bisection
 open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base
 open import Cubical.HITs.CauchyReals.Calculus.Integration.Partition.Base using (ℚ<→0< ; _ℚ₊·_)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals hiding (_^_)
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 open import Cubical.HITs.CauchyReals.Exponentiation.RationalPower.Core
 open import Cubical.HITs.CauchyReals.Exponentiation.RationalPower.Convexity

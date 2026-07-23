@@ -10,6 +10,7 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Nat using (ℕ ; zero ; suc)
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
+import Cubical.Data.FinData as FD
 
 open import Cubical.Algebra.Monoid.BigOp
 import Cubical.Algebra.Semiring.BigOps as Semiring
@@ -30,6 +31,32 @@ module Sum (R : Ring ℓ) where
 
   ∑Dist- : ∀ {n : ℕ} (V : FinVec (fst R) n) → ∑ (λ i → - V i) ≡ - ∑ V
   ∑Dist- V = ∑Ext (λ i → -IsMult-1 (V i)) ∙ sym (∑Mulrdist _ V) ∙ sym (-IsMult-1 _)
+
+  ∑Split- : ∀ {n : ℕ} (V W : FinVec (fst R) n) →
+            ∑ (λ i → V i - W i) ≡ ∑ V - ∑ W
+  ∑Split- V W =
+    ∑Split V (λ i → - W i) ∙ cong (∑ V +_) (∑Dist- W)
+
+  ∑Const : (n : ℕ) (x : fst R) →
+           ∑ (replicateFinVec n x) ≡ RingTheory.fromℕ R n · x
+  ∑Const zero x = sym (0LeftAnnihilates x)
+  ∑Const (suc zero) x = +IdR x ∙ sym (·IdL x)
+  ∑Const (suc (suc n)) x =
+    cong (x +_) (∑Const (suc n) x)
+    ∙ cong (_+ (RingTheory.fromℕ R (suc n) · x)) (sym (·IdL x))
+    ∙ sym (·DistL+ 1r (RingTheory.fromℕ R (suc n)) x)
+
+  ∑Telescoping : ∀ {n} (V : FinVec (fst R) (suc n)) →
+    ∑ {n = n} (λ i → V (FD.suc i) - V (FD.weakenFin i))
+      ≡ V (FD.fromℕ n) - V FD.zero
+  ∑Telescoping {n = zero} V = sym (+InvR _)
+  ∑Telescoping {n = suc n} V =
+    cong ((V (FD.suc FD.zero) - V FD.zero) +_)
+      (∑Telescoping (V ∘ FD.suc))
+    ∙ +Comm _ _
+    ∙ +Assoc _ _ _
+    ∙ cong (_+ (- V FD.zero))
+        (minusPlus (V (FD.fromℕ (suc n))) (V (FD.suc FD.zero)))
 
 module SumMap
   (Ar@(A , Astr) : Ring ℓ)

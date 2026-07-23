@@ -27,7 +27,7 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base using
   (intervalℙ; ℚ₊→ℝ₊; _<ᵣ_; _-ᵣ_; absᵣ; ∼≃abs<ε)
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base using (abs-max)
+open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using (abs-max)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication using (_·ᵣ_; rat·ᵣrat)
 open import Cubical.HITs.CauchyReals.Algebra.Inverse using
   (invℝ₊; invℝ₊-rat; z<x/y₊≃y₊·z<x)

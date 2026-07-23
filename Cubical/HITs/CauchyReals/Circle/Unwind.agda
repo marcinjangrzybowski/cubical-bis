@@ -85,7 +85,7 @@ open import Cubical.HITs.CauchyReals.ArcSin.Symmetric.Properties.Inverse using
   ( sin∘arcSin⟨⟩
   ; arcSin⟨⟩∘sin
   )
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 open import Cubical.HITs.SetQuotients as SQ renaming ([_] to [_]/)
 open import Cubical.Relation.Binary.Base
@@ -112,35 +112,96 @@ opaque
 
   where
 
+  CircleRestrDomain : Type
+  CircleRestrDomain =
+    Σ ℝ (_∈ ointervalℙ (-ᵣ (rat [ 1 / 4 ])) (rat [ 1 / 4 ]))
+
+  CircleRestrCodomain : Type
+  CircleRestrCodomain =
+    Σ (ℝ / circle-rel) λ z →
+      0 <ᵣ fst (fst (equivFun Circle≃distCircle z))
+
+  circleRestrEquiv : CircleRestrDomain ≃ CircleRestrCodomain
+  circleRestrEquiv =
+    (λ (x , x∈) → injCircle x , _) , isEquivInjCircleRestr
+
+  delta : ClosedIntervalPremetricSpace a b .fst → distCircle
+  delta x = f x ℝS¹.+ (ℝS¹.- f (a , ≤ᵣ-refl a , a≤b))
+
+  rotatedPoint : (x : ClosedIntervalPremetricSpace a b .fst) →
+    Σ distCircle λ z → cartDist² (fst circle0) (fst z) <ᵣ 2
+  rotatedPoint x =
+    Iso.fun (rotateToOrigin 2 (f (a , ≤ᵣ-refl a , a≤b)))
+      (f x , fDist x)
+
+  upperHalf : (x : ClosedIntervalPremetricSpace a b .fst) →
+    0 <ᵣ fst (fst (fst (rotatedPoint x)))
+  upperHalf x =
+    fst (cartDist≃upperHalf (fst (rotatedPoint x))) (snd (rotatedPoint x))
+
+  deltaPositive : (x : ClosedIntervalPremetricSpace a b .fst) →
+    0 <ᵣ fst (fst (equivFun Circle≃distCircle
+      (invEq Circle≃distCircle (delta x))))
+  deltaPositive x =
+    isTrans<≡ᵣ _ _ _ (upperHalf x)
+      (cong
+        {x = fst (rotatedPoint x)}
+        {y = equivFun Circle≃distCircle
+          (invEq Circle≃distCircle (delta x))}
+        (fst ∘ fst)
+        (sym (secEq Circle≃distCircle (delta x))))
+
+  circleRestrPoint : (d : distCircle) →
+    0 <ᵣ fst (fst (equivFun Circle≃distCircle
+      (invEq Circle≃distCircle d))) →
+    CircleRestrCodomain
+  circleRestrPoint d d>0 = invEq Circle≃distCircle d , d>0
+
+  concreteRestrPoint : ClosedIntervalPremetricSpace a b .fst →
+    CircleRestrCodomain
+  concreteRestrPoint x = circleRestrPoint (delta x) (deltaPositive x)
+
   g : fst (ClosedIntervalPremetricSpace a b) → ℝ
-  g x =
-   let yyy = Iso.fun (rotateToOrigin 2 ((f (a , ≤ᵣ-refl a , a≤b)))) (f x , fDist x)
-       yy = fst (cartDist≃upperHalf (fst yyy)) (snd yyy)
-   in fst (invEq (_ , isEquivInjCircleRestr)
-    (invEq Circle≃distCircle ((f x) ℝS¹.+ (ℝS¹.- f (a , ≤ᵣ-refl a , a≤b)))
-     , isTrans<≡ᵣ _ _ _ yy
-        (cong
-          {x = (fst
-         (Iso.fun (rotateToOrigin 2 (f (a , ≤ᵣ-refl a , a≤b)))
-          (f x , fDist x)))}
-          {y = (equivFun Circle≃distCircle
-             (invEq Circle≃distCircle
-              (f x ℝS¹.+ ℝS¹.- f (a , ≤ᵣ-refl a , a≤b))))}
-          (fst ∘ fst)
-          (sym (secEq Circle≃distCircle
-               (f x ℝS¹.+ ℝS¹.- f (a , ≤ᵣ-refl a , a≤b)))))))
+  g x = fst (invEq circleRestrEquiv (concreteRestrPoint x))
+
+  concreteSecSigma : (x : ClosedIntervalPremetricSpace a b .fst) →
+    equivFun circleRestrEquiv
+      (invEq circleRestrEquiv (concreteRestrPoint x)) ≡
+    concreteRestrPoint x
+  concreteSecSigma x = secEq circleRestrEquiv (concreteRestrPoint x)
+
+  concreteSecFst : (x : ClosedIntervalPremetricSpace a b .fst) →
+    injCircle (fst (invEq circleRestrEquiv (concreteRestrPoint x))) ≡
+    invEq Circle≃distCircle (delta x)
+  concreteSecFst x = cong fst (concreteSecSigma x)
+
+  concreteAdjoint : (x : ClosedIntervalPremetricSpace a b .fst) →
+    Circle→distCircle
+      (injCircle (fst (invEq circleRestrEquiv (concreteRestrPoint x)))) ≡
+    delta x
+  concreteAdjoint x =
+    fst (equivAdjointEquiv Circle≃distCircle) (concreteSecFst x)
+
+  concreteAdjointSym : (x : ClosedIntervalPremetricSpace a b .fst) →
+    delta x ≡
+    Circle→distCircle
+      (injCircle (fst (invEq circleRestrEquiv (concreteRestrPoint x))))
+  concreteAdjointSym x = sym (concreteAdjoint x)
+
+  concreteTranslated : (x : ClosedIntervalPremetricSpace a b .fst) →
+    delta x ℝS¹.+ f (a , ≤ᵣ-refl a , a≤b) ≡
+    Circle→distCircle
+      (injCircle (fst (invEq circleRestrEquiv (concreteRestrPoint x)))) ℝS¹.+
+    f (a , ≤ᵣ-refl a , a≤b)
+  concreteTranslated x =
+    cong (ℝS¹._+ f (a , ≤ᵣ-refl a , a≤b)) (concreteAdjointSym x)
 
   g-eq : (x : ClosedIntervalPremetricSpace a b .fst) →
-          f x ≡
-          f (a , ≤ᵣ-refl a , a≤b) ℝS¹.+ Circle→distCircle (injCircle (g x))
+    f x ≡
+    f (a , ≤ᵣ-refl a , a≤b) ℝS¹.+ Circle→distCircle (injCircle (g x))
   g-eq x =
-     ((  sym (ℝS¹.+IdR _)
-       ∙ cong ((f x) ℝS¹.+_) (sym (ℝS¹.+InvL _))
-       ∙ (ℝS¹.+Assoc _ (ℝS¹.- (f (a , ≤ᵣ-refl a , a≤b))) _ ))
-      ∙ cong (ℝS¹._+ (f (a , ≤ᵣ-refl a , a≤b)))
-         (sym (fst (equivAdjointEquiv Circle≃distCircle)
-          ( cong fst (secEq (_ , isEquivInjCircleRestr)
-           (invEq Circle≃distCircle ((f x) ℝS¹.+ (ℝS¹.- f (a , ≤ᵣ-refl a , a≤b))) ,
-             _  ))
-             ))) )
-       ∙ ℝS¹.+Comm _ _
+      sym (ℝS¹.+IdR _)
+    ∙ cong (f x ℝS¹.+_) (sym (ℝS¹.+InvL _))
+    ∙ ℝS¹.+Assoc _ (ℝS¹.- f (a , ≤ᵣ-refl a , a≤b)) _
+    ∙ concreteTranslated x
+    ∙ ℝS¹.+Comm _ _

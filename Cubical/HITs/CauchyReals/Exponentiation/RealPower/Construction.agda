@@ -57,13 +57,14 @@ open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Order
 open import Cubical.HITs.CauchyReals.Analysis.Order.Functions
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
-open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Inverse hiding
+  (≤ContWP; ≤ContWP＃≤; ≤ContWP＃≤')
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Approximation.Bisection
 open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base hiding (invℚ₊)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals hiding (_^_)
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 open import Cubical.HITs.CauchyReals.Exponentiation.Base
 open import Cubical.HITs.CauchyReals.Exponentiation.Logarithm.Sequence.Elementary using

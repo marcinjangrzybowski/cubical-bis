@@ -7,11 +7,6 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Structure
-
-open import Cubical.Functions.FunExtEquiv
-open import Cubical.Functions.Embedding
-open import Cubical.Functions.Surjection
 
 open import Cubical.Relation.Nullary
 
@@ -50,19 +45,26 @@ private
 
 
 open import Cubical.HITs.CauchyReals.Foundation.Base
-open import Cubical.HITs.CauchyReals.Foundation.Closeness
-open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
+open import Cubical.HITs.CauchyReals.Foundation.Closeness using (isSetℝ)
+open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Extension public
+  using (fromLipschitz'-rat)
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Order
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
+open import Cubical.HITs.CauchyReals.Algebra.Ring public
+  using (+Groupℝ; x+n·x≡sn·x)
 open import Cubical.HITs.CauchyReals.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Algebra.Order.Apartness public
+  using (ℝ₋₊; ℝ₋₊≡)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.AdditiveAutomorphism public
+  using (module AutCont; Aut[_]ᵣ; module +GrAutomorphism)
 open import Cubical.HITs.CauchyReals.Analysis.Sequence.Base
 open import Cubical.HITs.CauchyReals.Approximation.Bisection
 open import Cubical.HITs.CauchyReals.Transcendental.Roots.Base
 open import Cubical.HITs.CauchyReals.Calculus.Derivative.Base hiding (invℚ₊)
 open import Cubical.HITs.CauchyReals.Foundation.Rationals hiding (_^_)
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 open import Cubical.HITs.CauchyReals.Exponentiation.Base
 open import Cubical.HITs.CauchyReals.Exponentiation.Logarithm.Sequence.Elementary using
@@ -72,24 +74,9 @@ open import Cubical.HITs.CauchyReals.Exponentiation.Logarithm.Sequence.Limit
 open import Cubical.Tactics.CommRingSolver.Reflection
 open import Cubical.Tactics.CommRingSolver.Specialised.Reals
 
-import Cubical.Algebra.CommRing.Instances.Int.Fast as ℤCRing
-open import Cubical.Algebra.Group.Instances.Bool
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Group
-open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.MorphismProperties
-import Cubical.Algebra.CommRing as CR
-
-open import Cubical.Algebra.Group.DirProd
-
-opaque
- unfolding fromLipschitz'
- fromLipschitz'-rat : ∀ f isL q →
-   fst (fromLipschitz' (f ∘S rat) isL) (rat q) ≡ f (rat q)
- fromLipschitz'-rat f = PT.elim
-  (λ _ → isPropΠ λ _ → isSetℝ _ _)
-  λ (L , lip) q → fromLipschitz-rat {L = L} {lf = (f ∘S rat , lip)} {q = q}
 
 absTo≤×≤ : ∀ ε q → abs q ℚ.≤ ε → (ℚ.- ε ℚ.≤ q) × (q ℚ.≤ ε)
 absTo≤×≤ ε q abs[q]≤ε .fst =
@@ -104,15 +91,6 @@ absTo≤×≤ ε q abs[q]≤ε .snd =
    (ℚ.+IdR y)
    (ℚ.≤Monotone+ x y (ℚ.- fst ε) 0 x≤y (ℚ.-ℚ₊≤0 ε))
 
-x+n·x≡sn·x : ∀ n x → x +ᵣ fromNat n ·ᵣ x ≡ fromNat (suc n) ·ᵣ x
-x+n·x≡sn·x n x = cong₂ _+ᵣ_
-  (sym (·IdLᵣ _)) refl ∙ sym (·DistR+ _ _ _)
-   ∙ cong (_·ᵣ x) (fromNat+ᵣ 1 n)
-
-
-+Groupℝ : Group₀
-+Groupℝ = Ring→Group Rℝ.ℝRing
-
 Is·₊Groupℝ : IsGroup 1 _₊·ᵣ_ invℝ₊
 Is·₊Groupℝ = makeIsGroup
    isSetℝ₊
@@ -125,14 +103,8 @@ Is·₊Groupℝ = makeIsGroup
        ∙ cong (x ·ᵣ_) (cong fst (invℝ₊-impl (x , 0<x)))
        ∙ ·invℝ' x 0<x))
 
-ℝ₋₊ : Type
-ℝ₋₊ = Σ ℝ (0 ＃_)
-
 _·ᵣ₋₊_ : ℝ₋₊ → ℝ₋₊ → ℝ₋₊
 x ·ᵣ₋₊ x₁ = (fst x ·ᵣ fst x₁) , 0＃· _ _ (snd x) (snd x₁)
-
-ℝ₋₊≡ : ∀ {x y : ℝ₋₊} → fst x ≡ fst y → x ≡ y
-ℝ₋₊≡ = Σ≡Prop (isProp＃ 0)
 
 ℝ₋₊→ℝ₊×Bool : ℝ₋₊ → (ℝ₊ × Bool)
 ℝ₋₊→ℝ₊×Bool x = (absᵣ (fst x) , 0＃→0<abs _ (snd x)) ,
@@ -184,158 +156,6 @@ IsGroupℝˣ = makeIsGroup
 
 ·Groupℝ : Group₀
 ·Groupℝ = group _ _ _ _ IsGroupℝˣ
-
-
-module AutCont (Gstr : GroupStr ℝ) where
-
- open GroupStr Gstr
- Ĝ : Group₀
- Ĝ = ℝ , Gstr
-
- contGroupIso : Type
- contGroupIso = Σ (GroupIso Ĝ Ĝ) λ x → (IsContinuous (Iso.fun (fst x))
-                                        × IsContinuous (Iso.inv (fst x)))
- i≡ : ∀ {x₀ x₁ : contGroupIso} → Iso.fun (fst (fst x₀)) ≡ Iso.fun (fst (fst x₁)) → x₀ ≡ x₁
- i≡ {x₀} {x₁} = Σ≡Prop (λ _ → isProp× (isPropIsContinuous _) (isPropIsContinuous _))
-  ∘ GroupIso≡ ∘ SetsIso≡fun isSetℝ isSetℝ
-
-
- Aut[_]ᵣ : Group₀
- Aut[_]ᵣ =
-   makeGroup {G = contGroupIso}
-     (idGroupIso , IsContinuousId , IsContinuousId)
-     (λ (a , b , c) (a' , b' , c') →
-       compGroupIso a a' , IsContinuous∘ _ _ b' b , IsContinuous∘ _ _ c c')
-     (λ (a , b , c) → invGroupIso a , c , b)
-     (isSetΣ (isSetΣ (isSet-SetsIso isSetℝ isSetℝ)
-        (λ _ → isProp→isSet (isPropIsGroupHom _ _)))
-         (λ _ → isProp→isSet (isProp× (isPropIsContinuous _) (isPropIsContinuous _))))
-     (λ _ _ _ → i≡ refl)
-          (λ _ → i≡ refl)
-          (λ _ → i≡ refl)
-          (λ ((x , _) , _) → i≡ (funExt (Iso.ret x)))
-          (λ ((x , _) , _) → i≡ (funExt (Iso.sec x)))
-
-
-
-open AutCont public using (Aut[_]ᵣ)
-
-module +GrAutomorphism (A : ⟨ (Aut[ +Groupℝ ]) ⟩) where
-
- open IsGroupHom (snd A)
- open Iso (fst A)
-
- f-linℚ : ∀ x q → rat q ·ᵣ fun x ≡ fun (rat q ·ᵣ x)
- f-linℚ x = SQ.ElimProp.go w
-  where
-
-  w'' : ∀ x n → fromNat n ·ᵣ fun x ≡ fun (fromNat n ·ᵣ x)
-  w'' x zero = Rℝ.0LeftAnnihilates _ ∙∙
-    sym pres1 ∙∙ cong fun (sym (Rℝ.0LeftAnnihilates _))
-  w'' x (suc n) = sym (x+n·x≡sn·x n (fun x)) ∙∙
-     cong (fun x +ᵣ_) (w'' x n) ∙∙
-      (sym (pres· _ _) ∙ cong fun (x+n·x≡sn·x n x))
-
-
-  w' : ∀ n m → rat [ ℤ.pos m , (1+ n) ] ·ᵣ fun x ≡ fun (rat [ ℤ.pos m , (1+ n) ] ·ᵣ x)
-  w' n m = cong₂ _·ᵣ_ (cong rat (ℚ.[/]≡· (ℤ.pos m) (1+ n))
-      ∙ rat·ᵣrat [ ℤ.pos m / 1 ] [ pos 1 / 1+ n ]
-      ∙ ·ᵣComm (rat [ ℤ.pos m / 1 ]) (rat [ pos 1 / 1+ n ]))
-    refl ∙
-    (sym (·ᵣAssoc _ _ _) ∙
-     cong (rat [ pos 1 / 1+ n ] ·ᵣ_)
-       (w'' x m)) ∙
-        cong (rat [ pos 1 / 1+ n ] ·ᵣ_)
-          (cong fun (cong (_·ᵣ x)
-           (cong rat (sym (ℚ.[c/1]·[n/c]≡[n/1] (1+ n) m))
-             ∙ rat·ᵣrat
-                 [ pos (suc n) / 1 ]
-                 [ ℤ.pos m / 1+ n ])
-           ∙ sym (·ᵣAssoc
-               (fromNat (suc n))
-               (rat [ ℤ.pos m / 1+ n ])
-               x))
-           ∙ sym (w'' (rat [ ℤ.pos m / 1+ n ] ·ᵣ x) (suc n)))
-          ∙ ·ᵣAssoc _ _ _
-          ∙ cong₂ _·ᵣ_
-             (sym (rat·ᵣrat
-               [ pos 1 / 1+ n ]
-               [ pos (suc n) / 1 ])
-           ∙ cong rat (ℚ.·Comm
-              [ pos 1 / 1+ n ] [ pos (suc n) / 1 ]
-            ∙ sym (ℚ.[/]≡· (pos (suc n)) (1+ n)) ∙
-            eq/
-              (pos (suc n) , 1+ n)
-              (pos 1 , 1)
-              (ℤ.·Comm (pos (suc n)) (pos 1))))
-            refl ∙ ·IdLᵣ _
-
-
-  w : ElimProp (λ z → rat z ·ᵣ fun x ≡ fun (rat z ·ᵣ x))
-  w .ElimProp.isPropB _ = isSetℝ _ _
-  w .ElimProp.f (pos m , (1+ n)) = w' n m
-  w .ElimProp.f (ℤ.negsuc m , (1+ n)) =
-    cong₂ _·ᵣ_ (cong rat (ℚ.-[/] _ _) ∙ sym (-ᵣ-rat _)) refl  ∙ (-ᵣ· _ _)
-    ∙ cong -ᵣ_ (w' n (suc m)) ∙ sym (presinv _) ∙
-     cong fun (sym (-ᵣ· _ _) ∙
-       cong₂ _·ᵣ_ (-ᵣ-rat _ ∙ cong rat (sym (ℚ.-[/] _ _) )) refl)
-
- α : ℝ
- α = fun 1
-
- fun-rat : ∀ q → fun (rat q) ≡ rat q ·ᵣ α
- fun-rat q = cong fun (sym (·IdR _)) ∙ sym (f-linℚ 1 q)
-
- Σfun' : Σ[ f' ∈ (ℝ → ℝ) ] ∃[ L ∈ ℚ₊ ] (Lipschitz-ℝ→ℝ L f')
- Σfun' = fromLipschitz' (fun ∘ rat)
-  (PT.map
-     (λ (δ , <δ , δ<) →
-      let δ₊ : ℚ₊
-          δ₊ = δ , <ᵣ→<ℚ _ _ (isTrans≤<ᵣ _ _ _
-              (0≤absᵣ _) <δ)
-
-          lip : Lipschitz-ℚ→ℝ δ₊ (fun ∘ rat)
-          lip q r ε -ε<q-r q-r<ε =
-           let u = ℚ.absFrom<×< (fst ε) (q ℚ.- r) -ε<q-r q-r<ε
-           in invEq (∼≃abs<ε _ _ _)
-                (isTrans≡<ᵣ _ _ _
-                  (cong absᵣ (cong₂ _-ᵣ_ (fun-rat q) (fun-rat r)
-                   ∙ sym (Rℝ.·DistL- _ _ _))
-                    ∙ ·absᵣ _ _ ∙
-                     ·ᵣComm _ _ ∙
-                      cong (absᵣ α ·ᵣ_)
-                      (cong absᵣ (-ᵣ-rat₂ q r) ∙
-                       absᵣ-rat (q ℚ.- r)) )
-                  (isTrans≤<ᵣ _ _ _
-                    (isTrans≤≡ᵣ _ _ _
-                      (≤ᵣ-·ᵣo _ _ _
-                        (≤ℚ→≤ᵣ _ _ (0≤abs (q ℚ.- r)) )
-                        (<ᵣWeaken≤ᵣ _ _ <δ))
-                      (sym (rat·ᵣrat _ _)))
-                    (<ℚ→<ᵣ _ _ (ℚ.<-o· _ _ _ (snd δ₊) u))))
-      in δ₊ , lip)
-     (denseℚinℝ (absᵣ α) ((absᵣ α) +ᵣ 1)
-       (isTrans≡<ᵣ _ _ _
-         (sym (+IdR (absᵣ α)))
-         (<ᵣ-o+ 0 1 _ decℚ<ᵣ?))))
-
-
- fun' : ℝ → ℝ
- fun' = fst Σfun'
-
- fun'-cont : IsContinuous fun'
- fun'-cont = PT.rec
-  (isPropIsContinuous _)
-  (λ x → Lipschitz→IsContinuous (fst x) fun' (snd x))
-  (snd Σfun')
-
- fun'· : ∀ x → fun' x ≡ x ·ᵣ α
- fun'· = ≡Continuous _ _ fun'-cont
-   (IsContinuous·ᵣR α)
-    λ q → fromLipschitz'-rat fun _ _ ∙ fun-rat q
-
- fun'-rat : ∀ x → fun' (rat x) ≡ fun (rat x)
- fun'-rat x = fun'· (rat x) ∙ sym (fun-rat x)
 
 intervalℙ→dist< : ∀ a b x y → x ∈ intervalℙ a b → y ∈ intervalℙ a b
                    → absᵣ (x -ᵣ y) ≤ᵣ b -ᵣ a

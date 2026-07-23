@@ -27,13 +27,15 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Bounds
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base using
-  ( sym-intervalℙ⊆ointervalℙ
-  ; absᵣPos
+  ( absᵣPos
   ; <ᵣ-o+
   ; -ᵣ<ᵣ
   )
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Predicate using
+  (sym-intervalℙ⊆ointervalℙ)
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Power.Base
+open import Cubical.HITs.CauchyReals.Algebra.Power.Order using (^<1)
 open import Cubical.HITs.CauchyReals.Algebra.Ring
 open import Cubical.HITs.CauchyReals.Algebra.Order.Addition
 open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using (absᵣNeg)

@@ -27,35 +27,69 @@ open import Cubical.HITs.CauchyReals.Foundation.Base
 open import Cubical.HITs.CauchyReals.Foundation.Closeness
 open import Cubical.HITs.CauchyReals.Analysis.Lipschitz.Base
 open import Cubical.HITs.CauchyReals.Foundation.Order.Base
-open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base
+open import Cubical.HITs.CauchyReals.Foundation.Order.Density public using
+  (<ᵣ→Δ)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Base hiding
+  (IsUContinuousℚℙ)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Uniform.Base using
+  (IsUContinuousℚℙ)
+open import Cubical.HITs.CauchyReals.Analysis.Continuity.Order public using
+  (≤ContWP; ≤ContWP＃≤; ≤ContWP＃≤')
 open import Cubical.HITs.CauchyReals.Analysis.Continuity.Clamp public using
   (x≤→clampᵣ≡; ≤x→clampᵣ≡; min-monotone-≤ᵣ; max-monotone-≤ᵣ
   ; clamp-monotone-≤ᵣ; clampᵣ∈ℚintervalℙ; ≡clampᵣ→∈intervalℙ
   ; clampDistᵣ')
 open import Cubical.HITs.CauchyReals.Algebra.Multiplication
 open import Cubical.HITs.CauchyReals.Algebra.Ring public
+open import Cubical.HITs.CauchyReals.Algebra.Signs public using
+  (signᵣ; 0<signᵣ; signᵣ-rat; IsContinuousWithPredSignᵣ
+  ; sign²=1; sign·absᵣ; ·sign-flip≡)
 open import Cubical.HITs.CauchyReals.Algebra.Order.Addition public using
   (<ᵣMonotone+ᵣ; ≤<ᵣMonotone+ᵣ; <≤ᵣMonotone+ᵣ; ℝ₊+
   ; a<c+b⇒a-c<b; <-o+-cancel; 0<y-x→x<y; x≤y≃0≤y-x)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Addition.Properties public using
+  (≤-o+-cancel; ≤-+o-cancel; <-+o-cancel; <ᵣ-o+-cancel
+  ; x+y≤z+y≃x≤z; x+y<z+y≃x<z; x+y<x+z≃y<z
+  ; x≤y→0≤y-x; x<y≃0<y-x; x<y≃-y<-x
+  ; x<y→x-y<0; x-y<0→x<y; x<y≃x-y<0
+  ; x≤y→x-y≤0; x-y≤0→x≤y; x≤y≃x-y≤0
+  ; a-b≤c⇒a-c≤b; a-b≤c⇒a≤c+b; a<c+b⇒a-b<c
+  ; a≤c+b⇒a-c≤b; a+b≤c⇒b≤c-b; b≤c-b⇒a+b≤c
+  ; a-b≤c-d⇒a+d≤c+b; a+d≤c+b⇒a-b≤c-d; b<c-b⇒a+b<c
+  ; ≤Weaken<+ᵣ)
 open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue public using
-  (absᵣNonPos; absᵣNeg)
+  (absᵣNonPos; absᵣNeg; absᵣx=0→x=0
+  ; absᵣ-triangle-minus; absᵣ-triangle'; absᵣ-monotoneOnNonNeg)
+open import Cubical.HITs.CauchyReals.Algebra.Order.AbsoluteValue using
+  (absᵣ-min-max)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Density public using
+  (denseℝ)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Lattice using
+  (maxMonotoneᵣ; minMonotoneᵣ; incr→max≤; incr→≤min)
 open import Cubical.HITs.CauchyReals.Algebra.Order.Apartness public
 open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication public using
-  (≤ᵣ-·ᵣo; ≤ᵣ-o·ᵣ; ≤ᵣ₊Monotone·ᵣ; ℝ₊·; <ᵣ-·ᵣo; <ᵣ-o·ᵣ)
+  (≤ᵣ-·ᵣo; ≤ᵣ-o·ᵣ; ≤ᵣ-·o; ≤ᵣ-o·; ≤ᵣ₊Monotone·ᵣ
+  ; ℝ₊·; <ᵣ-·ᵣo; <ᵣ-o·ᵣ)
+open import Cubical.HITs.CauchyReals.Algebra.Order.Multiplication.Properties public using
+  (0<x^ⁿ; 0≤x^ⁿ; <ᵣ₊Monotone·ᵣ; <≤ᵣ₊Monotone·ᵣ; ≤<ᵣ₊Monotone·ᵣ
+  ; z≤x≃y₊·z≤y₊·x)
 open import Cubical.HITs.CauchyReals.Algebra.Order.Properties public using
   (isIrrefl<ᵣ)
-import Cubical.HITs.CauchyReals.Algebra.Order.Positive as OrderPositive
+open import Cubical.HITs.CauchyReals.Algebra.Order.Positive public using
+  (_₊+ᵣ_; _₊·ᵣ_; _₊^ⁿ_)
 
 
 open import Cubical.Tactics.CommRingSolver
 -- open import Cubical.Tactics.CommRingSolverFast.FastRationalsReflection
 -- open import Cubical.Tactics.CommRingSolverFast.IntReflection
-open import Cubical.HITs.CauchyReals.Algebra.Expression.Lifting
+open import Cubical.Tactics.CauchyReals.ExpressionLifting
 
 -- open import Cubical.Tactics.CommRingSolverFast.RealsReflection
 
 
 open import Cubical.HITs.CauchyReals.Foundation.Rationals
+open import Cubical.HITs.CauchyReals.Foundation.Rationals public using
+  (ℚmax-min-minus)
 
 
 open ℚ using (_⁻¹₊)
@@ -110,165 +144,6 @@ Invᵣ-restr η = (fromLipschitzGo ((η ·₊ η) ⁻¹₊))
 
 
 
-
-
-ℚmax-min-minus : ∀ x y → ℚ.max (ℚ.- x) (ℚ.- y) ≡ ℚ.- (ℚ.min x y)
-ℚmax-min-minus = ℚ.maxNeg≡negMin
-
-
-
-opaque
-
- ≤ᵣ-·o : ∀ m n o → 0 ℚ.≤ o  →  m ≤ᵣ n → (m ·ᵣ rat o ) ≤ᵣ (n ·ᵣ rat o)
- ≤ᵣ-·o m n o 0≤o p = ≡→≤ᵣ (sym (·ᵣMaxDistrPos m n o 0≤o) ∙
-   cong (_·ᵣ rat o) (≤ᵣ→≡ p))
-
-
- ≤ᵣ-o· : ∀ m n o → 0 ℚ.≤ o →  m ≤ᵣ n → (rat o ·ᵣ m ) ≤ᵣ (rat o ·ᵣ n)
- ≤ᵣ-o· m n o q p = ≡→≤ᵣ $
-     cong₂ maxᵣ ℝ! ℝ! ∙ ≤ᵣ→≡ (≤ᵣ-·o m n o q p) ∙ ℝ!
-
- <ᵣ→Δ : ∀ x y → x <ᵣ y → ∃[ δ ∈ ℚ₊ ] rat (fst δ) <ᵣ y +ᵣ (-ᵣ x)
- <ᵣ→Δ x y =  (PT.map λ ((q , q') , (a , a' , a'')) →
-                (ℚ.<→ℚ₊ q q' a') /2₊ ,
-                 let zz = isTrans<≤ᵣ _ _ _ (<ℚ→<ᵣ _ _ a') a''
-                     zz' = -ᵣ≤ᵣ _ _ a
-                     zz'' = ≤ᵣMonotone+ᵣ _ _ _ _ a'' zz'
-                     zzz'' : (fst (ℚ.<→ℚ₊ q q' a' /2₊) ℚ.< (q' ℚ.- q))
-                     zzz'' = <≤ℚ![ a' ]
-                 in isTrans<≤ᵣ _ _ _
-                        (<ℚ→<ᵣ _ _ zzz'')
-                        ( isTrans≡≤ᵣ _ _ _ (sym (-ᵣ-rat₂ _ _)) zz'')) ∘S fst (<ᵣ-impl _ _)
-
-
-
-
-
-
-
-
-
- a-b≤c⇒a-c≤b : ∀ a b c → a +ᵣ (-ᵣ b) ≤ᵣ c  → a +ᵣ (-ᵣ c) ≤ᵣ b
- a-b≤c⇒a-c≤b a b c p =
-   subst2 _≤ᵣ_
-     ℝ! ℝ!
-      (≤ᵣ-+o _ _ (b +ᵣ (-ᵣ c)) p)
-
-
-
-
- a-b≤c⇒a≤c+b : ∀ a b c → a +ᵣ (-ᵣ b) ≤ᵣ c  → a ≤ᵣ c +ᵣ b
- a-b≤c⇒a≤c+b a b c p =
-   subst (_≤ᵣ (c +ᵣ b))
-     ℝ!
-      (≤ᵣ-+o _ _ b p)
-
- a<c+b⇒a-b<c : ∀ a b c → a <ᵣ c +ᵣ b  → a -ᵣ b <ᵣ c
- a<c+b⇒a-b<c a b c p =
-   a<c+b⇒a-c<b a c b (isTrans<≡ᵣ _ _ _ p ℝ!)
-
-
- a≤c+b⇒a-c≤b : ∀ a b c → a ≤ᵣ c +ᵣ b  → a -ᵣ c ≤ᵣ b
- a≤c+b⇒a-c≤b a b c p =
-   subst ((a -ᵣ c) ≤ᵣ_) ℝ! (≤ᵣ-+o _ _ (-ᵣ c) p)
-
-
- a+b≤c⇒b≤c-b : ∀ a b c → a +ᵣ b ≤ᵣ c   → b  ≤ᵣ c -ᵣ a
- a+b≤c⇒b≤c-b a b c p = subst2 _≤ᵣ_
-   ℝ! ℝ!
-   (≤ᵣ-o+ _ _ (-ᵣ a) p)
-
- b≤c-b⇒a+b≤c : ∀ a b c → b  ≤ᵣ c -ᵣ a → a +ᵣ b ≤ᵣ c
- b≤c-b⇒a+b≤c a b c p = subst (_ ≤ᵣ_)
-   ℝ!
-   (≤ᵣ-o+ _ _ a p)
-
- a-b≤c-d⇒a+d≤c+b : ∀ a b c d → a -ᵣ b ≤ᵣ c -ᵣ d → a +ᵣ d ≤ᵣ c +ᵣ b
- a-b≤c-d⇒a+d≤c+b a b c d x =
-   isTrans≡≤ᵣ _ (d +ᵣ a) _ ℝ! (a-b≤c⇒a≤c+b _ _ _
-    (isTrans≡≤ᵣ _ _ _ ℝ!
-    (b≤c-b⇒a+b≤c _ _ _ x)))
-
- a+d≤c+b⇒a-b≤c-d : ∀ a b c d → a +ᵣ d ≤ᵣ c +ᵣ b → a -ᵣ b ≤ᵣ c -ᵣ d
- a+d≤c+b⇒a-b≤c-d a b c d x =
-   a-b≤c-d⇒a+d≤c+b a (-ᵣ d) c (-ᵣ b)
-    (subst2 (λ d b → a +ᵣ d ≤ᵣ c +ᵣ b)
-     ℝ! ℝ! x)
-
- b<c-b⇒a+b<c : ∀ a b c → b  <ᵣ c -ᵣ a → a +ᵣ b <ᵣ c
- b<c-b⇒a+b<c a b c p = subst (_ <ᵣ_)
-   ℝ!
-   (<ᵣ-o+ _ _ a p)
-
-
- ≤-o+-cancel : ∀ m n o →  o +ᵣ m ≤ᵣ o +ᵣ n → m ≤ᵣ n
- ≤-o+-cancel m n o p =
-      subst2 (_≤ᵣ_) ℝ! ℝ!
-      (≤ᵣ-o+ _ _ (-ᵣ o) p)
-
- ≤-+o-cancel : ∀ m n o →  m +ᵣ o ≤ᵣ n +ᵣ o → m ≤ᵣ n
- ≤-+o-cancel m n o p =
-      subst2 (_≤ᵣ_) ℝ! ℝ!
-      (≤ᵣ-+o _ _ (-ᵣ o) p)
-
- <-+o-cancel : ∀ m n o →  m +ᵣ o <ᵣ n +ᵣ o → m <ᵣ n
- <-+o-cancel m n o p =
-      subst2 (_<ᵣ_) ℝ! ℝ!
-      (<ᵣ-+o _ _ (-ᵣ o) p)
-
-
-
-
- x≤y→0≤y-x : ∀ x y →  x ≤ᵣ y  → 0 ≤ᵣ y +ᵣ (-ᵣ x)
- x≤y→0≤y-x x y p =
-   subst (_≤ᵣ y +ᵣ (-ᵣ x)) (+-ᵣ x) (≤ᵣ-+o x y (-ᵣ x) p)
-
-
-
- x<y≃0<y-x : ∀ x y → (x <ᵣ y) ≃ (0 <ᵣ y -ᵣ x)
- x<y≃0<y-x x y =   propBiimpl→Equiv (isProp<ᵣ _ _) (isProp<ᵣ _ _)
-    (x<y→0<y-x x y) (0<y-x→x<y x y)
-
- x<y≃-y<-x : ∀ x y → (x <ᵣ y) ≃ (-ᵣ y <ᵣ -ᵣ x)
- x<y≃-y<-x x y =   propBiimpl→Equiv (isProp<ᵣ _ _) (isProp<ᵣ _ _)
-    (-ᵣ<ᵣ x y) (<ᵣ-ᵣ x y)
-
-
-
- x<y→x-y<0 : ∀ x y →  x <ᵣ y  → x -ᵣ y <ᵣ 0
- x<y→x-y<0 x y p =
-   subst (x -ᵣ y <ᵣ_) (+-ᵣ y) (<ᵣ-+o x y (-ᵣ y) p)
-
- x-y<0→x<y : ∀ x y → x -ᵣ y <ᵣ 0 →  x <ᵣ y
- x-y<0→x<y x y p =
-
-    (0<y-x→x<y _  _ (subst2 (_<ᵣ_) ℝ! ℝ! (-ᵣ<ᵣ (x -ᵣ y) 0 p)))
-
-
- x<y≃x-y<0 : ∀ x y → (x <ᵣ y) ≃ (x -ᵣ y <ᵣ 0)
- x<y≃x-y<0 x y =   propBiimpl→Equiv (isProp<ᵣ _ _) (isProp<ᵣ _ _)
-    (x<y→x-y<0 x y) (x-y<0→x<y x y)
-
-
- x≤y→x-y≤0 : ∀ x y →  x ≤ᵣ y  → x -ᵣ y ≤ᵣ 0
- x≤y→x-y≤0 x y p =
-   subst (x -ᵣ y ≤ᵣ_) (+-ᵣ y) (≤ᵣ-+o x y (-ᵣ y) p)
-
- x-y≤0→x≤y : ∀ x y → x -ᵣ y ≤ᵣ 0 →  x ≤ᵣ y
- x-y≤0→x≤y x y p =
-
-    (invEq (x≤y≃0≤y-x _  _) (subst2 (_≤ᵣ_) ℝ! ℝ! (-ᵣ≤ᵣ (x -ᵣ y) 0 p)))
-
- x≤y≃x-y≤0 : ∀ x y → (x ≤ᵣ y) ≃ (x -ᵣ y ≤ᵣ 0)
- x≤y≃x-y≤0 x y =   propBiimpl→Equiv (isProp≤ᵣ _ _) (isProp≤ᵣ _ _)
-    (x≤y→x-y≤0 x y) (x-y≤0→x≤y x y)
-
-
-
- <ᵣ-o+-cancel : ∀ m n o →  o +ᵣ m <ᵣ o +ᵣ n → m <ᵣ n
- <ᵣ-o+-cancel m n o p =
-      subst2 (_<ᵣ_) ℝ! ℝ!
-      (<ᵣ-o+ _ _ (-ᵣ o) p)
 
 
 invℝ'' : Σ (∀ r → ∃[ σ ∈ ℚ₊ ] (rat (fst σ) <ᵣ r) → ℝ)
@@ -589,63 +464,6 @@ IsContinuousWithPred-invℝ₊ =
       sym (cong fst (invℝ₊-impl (x , x∈))))
     (snd invℝ')
 
-signᵣ : ∀ r → 0 ＃ r → ℝ
-signᵣ _ = ⊎.rec (λ _ → rat 1) (λ _ → rat -1)
-
-0<signᵣ : ∀ r 0＃r → 0 <ᵣ r → 0 <ᵣ signᵣ r 0＃r
-0<signᵣ r (inl x) _ = <ℚ→<ᵣ _ _ ((𝟚.toWitness {Q = ℚ.<Dec 0 1} _))
-0<signᵣ r (inr x) y = ⊥.rec (isAsym<ᵣ _ _ x y)
-
-signᵣ-rat : ∀ r p  → signᵣ (rat r) p ≡ rat (ℚ.sign r)
-signᵣ-rat r (inl x) = cong rat (sym (fst (ℚ.<→sign r) (<ᵣ→<ℚ _ _ x)))
-signᵣ-rat r (inr x) = cong rat (sym (snd (snd (ℚ.<→sign r)) (<ᵣ→<ℚ _ _ x)))
-
-0＃ₚ : ℝ → hProp ℓ-zero
-0＃ₚ r = 0 ＃ r , isProp＃ _ _
-
-
--- HoTT Theorem (11.3.47)
-
-opaque
- -- unfolding _<ᵣ_
- IsContinuousWithPredSignᵣ : IsContinuousWithPred 0＃ₚ signᵣ
- IsContinuousWithPredSignᵣ u ε =
-  ⊎.elim
-   (λ 0<u → PT.map (λ (q , 0<q , q<u) →
-              ((q , <ᵣ→<ℚ _ _ 0<q)) ,
-               λ v v∈P v∼u →
-                 ⊎.elim {C = λ v∈P → signᵣ u (inl 0<u) ∼[ ε ] signᵣ v v∈P}
-                   (λ _ → refl∼ _ _)
-                   (⊥.rec ∘ (isAsym<ᵣ 0 v
-                     (subst2 _<ᵣ_ ℝ! ℝ!
-                          (<ᵣMonotone+ᵣ _ _ _ _ (-ᵣ<ᵣ (rat q) _ q<u)
-                        (a-b<c⇒a<c+b u v _ ((isTrans≤<ᵣ (u +ᵣ -ᵣ v) (absᵣ (u +ᵣ -ᵣ v)) _
-                          (≤absᵣ (u -ᵣ v))
-                           ((fst (∼≃abs<ε u v (q , (<ᵣ→<ℚ 0 q 0<q))) v∼u))))
-                           ))))) v∈P)
-          (denseℚinℝ 0 u 0<u))
-   (λ u<0 → PT.map (λ (q , u<q , q<0) →
-              (ℚ.- q ,  (ℚ.minus-< q _ (<ᵣ→<ℚ _ _ q<0))) ,
-               λ v v∈P v∼u →
-                 ⊎.elim {C = λ v∈P → signᵣ u (inr u<0) ∼[ ε ] signᵣ v v∈P}
-                   ((⊥.rec ∘ (isAsym<ᵣ v 0
-                     (subst2 _<ᵣ_  ℝ!
-                      (+-ᵣ (rat q)) (<ᵣMonotone+ᵣ u _ _ _
-                        u<q (isTrans<≡ᵣ _ _ _ (isTrans≤<ᵣ (v -ᵣ u) _ _ (≤absᵣ (v -ᵣ u))
-                           (fst (∼≃abs<ε _ _ _) (sym∼ _ _ _ v∼u))) (sym (-ᵣ-rat q))))))))
-                   (λ _ → refl∼ _ _) v∈P)
-              (denseℚinℝ u 0 u<0))
-
-
-
-isOpenPred0＃ : ⟨ openPred 0＃ₚ ⟩
-isOpenPred0＃ x =
- ⊎.rec
-   (PT.map (map-snd ((inl ∘_) ∘_)) ∘ openPred< 0 x)
-   (PT.map (map-snd ((inr ∘_) ∘_)) ∘ openPred> 0 x)
-
-
-
 ·invℝ' : ∀ r 0<r → (r ·ᵣ fst invℝ' (r) 0<r) ≡ 1
 ·invℝ' r =  ∘diag $
   ≡ContinuousWithPred (pred> 0) (pred> 0) (openPred< 0) (openPred< 0)
@@ -656,96 +474,6 @@ isOpenPred0＃ x =
         (λ r r∈ r∈' → cong (rat r ·ᵣ_) (invℝ'-rat r _ r∈)
           ∙∙ sym (rat·ᵣrat _ _) ∙∙ cong rat (ℚ.x·invℚ₊[x]
             (r , (<ᵣ→<ℚ _ _ r∈)))) r
-
-opaque
- unfolding _≤ᵣ_ minᵣ NonExpanding₂.go
- ≤ContWP : ∀ {P f₀ f₁} → ⟨ openPred P ⟩
-          → IsContinuousWithPred P f₀
-          → IsContinuousWithPred P f₁
-          → (∀ u u∈ → f₀ (rat u) u∈ ≤ᵣ f₁ (rat u) u∈)
-              → ∀ x x∈ → f₀ x x∈  ≤ᵣ f₁ x x∈
- ≤ContWP {P} {f₀} {f₁} oP f₀C f₁C X x x∈ =
-     ≡ContinuousWithPred P P  oP oP
-     _ _
-     (contDiagNE₂WP maxR P _ _ f₀C f₁C)
-     f₁C (λ r r∈ r∈' →
-        X _ _
-         ∙ cong (f₁ (rat r)) (∈-isProp P _ r∈ r∈')) x x∈ x∈
-
- ≤ContWP＃≤ : ∀ {f₀ f₁} q → 0 ℚ.< q
-          → IsContinuousWithPred 0＃ₚ f₀
-          → IsContinuousWithPred 0＃ₚ f₁
-          → (∀ u u∈ → u ℚ.≤ q → f₀ (rat u) u∈ ≤ᵣ f₁ (rat u) u∈)
-              → ∀ x x∈ → x ≤ᵣ rat q →  f₀ x x∈  ≤ᵣ f₁ x x∈
- ≤ContWP＃≤ {f₀} {f₁} q 0<q f₀C f₁C X x x∈ x≤q =
-   let ＃min : ∀ r → 0 ＃ r → 0 ＃ minᵣ r (rat q)
-       ＃min r = ⊎.map
-         (λ 0<r → <min-lem _ _ 0 0<r (<ℚ→<ᵣ _ _ 0<q))
-         λ r<0 → isTrans≤<ᵣ (minᵣ r (rat q)) r _ ((min≤ᵣ r (rat q))) r<0
-       z = ≤ContWP {0＃ₚ} {λ r z → f₀ (minᵣ r (rat q)) (＃min r z)}
-                       {λ r z → f₁ (minᵣ r (rat q)) (＃min r z)}
-              isOpenPred0＃
-                (IsContinuousWP∘ 0＃ₚ 0＃ₚ _ _ _
-                 f₀C (AsContinuousWithPred 0＃ₚ _ (IsContinuousMinR _)))
-                (IsContinuousWP∘ 0＃ₚ 0＃ₚ _ _ _
-                 f₁C (AsContinuousWithPred 0＃ₚ _ (IsContinuousMinR _)))
-                (λ u u∈ → X (ℚ.min u q) (＃min (rat u) u∈) (ℚ.min≤' u _))
-                 x x∈
-   in subst {A = Σ _ (_∈ 0＃ₚ) } (λ (x , x∈) → f₀ x x∈ ≤ᵣ f₁ x x∈)
-        (Σ≡Prop (∈-isProp 0＃ₚ) (≤→minᵣ _ _ x≤q))
-          z
-
- ≤ContWP＃≤' : ∀ {f₀ f₁} q → q ℚ.< 0
-          → IsContinuousWithPred 0＃ₚ f₀
-          → IsContinuousWithPred 0＃ₚ f₁
-          → (∀ u u∈ → q ℚ.≤ u → f₀ (rat u) u∈ ≤ᵣ f₁ (rat u) u∈)
-              → ∀ x x∈ → rat q ≤ᵣ x →  f₀ x x∈  ≤ᵣ f₁ x x∈
- ≤ContWP＃≤' {f₀} {f₁} q q<0 f₀C f₁C X x x∈ q≤x =
-   let ＃max : ∀ r → 0 ＃ r → 0 ＃ maxᵣ r (rat q)
-       ＃max r =  ⊎.map
-         (λ 0<r → isTrans<≤ᵣ 0 _ _ 0<r (≤maxᵣ r (rat q)) )
-         λ r<0 → max<-lem r (rat q) _ r<0 (<ℚ→<ᵣ _ _ q<0) 
-
-       z = ≤ContWP {0＃ₚ} {λ r z → f₀ (maxᵣ r (rat q)) (＃max r z)}
-                       {λ r z → f₁ (maxᵣ r (rat q)) (＃max r z)}
-              isOpenPred0＃
-                (IsContinuousWP∘ 0＃ₚ 0＃ₚ _ _ _
-                 f₀C (AsContinuousWithPred 0＃ₚ _ (IsContinuousMaxR _)))
-                (IsContinuousWP∘ 0＃ₚ 0＃ₚ _ _ _
-                 f₁C (AsContinuousWithPred 0＃ₚ _ (IsContinuousMaxR _)))
-                (λ u u∈ → X (ℚ.max u q) (＃max (rat u) u∈) (ℚ.≤max' u q))
-                 x x∈
-   in subst {A = Σ _ (_∈ 0＃ₚ) } (λ (x , x∈) → f₀ x x∈ ≤ᵣ f₁ x x∈)
-        (Σ≡Prop (∈-isProp 0＃ₚ) (maxᵣComm x (rat q) ∙ ≤→maxᵣ (rat q) _ q≤x))
-          z
-
-
-sign²=1 :  ∀ r 0＃r → (signᵣ r 0＃r) ·ᵣ (signᵣ r 0＃r) ≡ 1
-sign²=1 r = ⊎.elim
-    (λ _ → sym (rat·ᵣrat _ _))
-    (λ _ → sym (rat·ᵣrat _ _))
-
-opaque
- unfolding absᵣ
- sign·absᵣ : ∀ r 0＃r → absᵣ r ·ᵣ (signᵣ r 0＃r) ≡ r
- sign·absᵣ r = ∘diag $
-   ≡ContinuousWithPred 0＃ₚ 0＃ₚ isOpenPred0＃ isOpenPred0＃
-       (λ r 0＃r → absᵣ r ·ᵣ (signᵣ r 0＃r))
-        (λ r _ → r)
-         (cont₂·ᵣWP 0＃ₚ _ _
-           (AsContinuousWithPred 0＃ₚ _ IsContinuousAbsᵣ)
-           IsContinuousWithPredSignᵣ)
-         (AsContinuousWithPred 0＃ₚ _ IsContinuousId)
-         (λ r 0＃r 0＃r' → (cong₂ _·ᵣ_ refl (signᵣ-rat r 0＃r)
-           ∙ sym (rat·ᵣrat _ _))
-           ∙ cong rat (cong (ℚ._· ℚ.sign r) (sym (ℚ.abs'≡abs r))
-            ∙ ℚ.sign·abs r) ) r
-
-
- ·sign-flip≡ : ∀ r 0＃r → absᵣ r ≡ r ·ᵣ (signᵣ r 0＃r)
- ·sign-flip≡ r 0＃r =
-  (sym (Rℝ.·IdR' _ _ (sign²=1 r 0＃r)) ∙ ·ᵣAssoc _ _ _)
-  ∙ cong (_·ᵣ (signᵣ r 0＃r)) (sign·absᵣ r 0＃r)
 
 opaque
  unfolding -ᵣ_  absᵣ
@@ -925,10 +653,6 @@ invℝ· x y 0＃x 0＃y 0＃x·y = sym (Rℝ.·IdL _) ∙
      ∙∙ cong₂ _·ᵣ_ (x·invℝ[x] x 0＃x) (x·invℝ[x] y 0＃y) ∙ Rℝ.·IdL _ ))
    ∙ ·ᵣComm _ _
 
--＃ : ∀ x y → x ＃ y → (-ᵣ x) ＃ (-ᵣ y)
--＃ x y p = ⊎.map (-ᵣ<ᵣ _ _) (-ᵣ<ᵣ _ _) (isSym＃ _ _ p)
-
-
 opaque
  unfolding -ᵣ_
 
@@ -950,31 +674,9 @@ opaque
    ∙ -invℝ _ _  ∙ sym (invℝ₊≡invℝ (-ᵣ x , -ᵣ<ᵣ x _ x₁) _)
     ∙ cong (fst ∘ invℝ₊) (ℝ₊≡ (sym (absᵣNeg _ x₁)))
 
-_₊+ᵣ_ : ℝ₊ → ℝ₊ → ℝ₊
-_₊+ᵣ_ = OrderPositive.PositiveReals._+₊_
-
-_₊·ᵣ_ : ℝ₊ → ℝ₊  → ℝ₊
-_₊·ᵣ_ = OrderPositive.PositiveReals._·₊_
-
 _₊／ᵣ₊_ : ℝ₊ → ℝ₊  → ℝ₊
 (q , 0<q) ₊／ᵣ₊ (r , 0<r) = (q ／ᵣ[ r , inl (0<r) ] ,
   ℝ₊· (q , 0<q) (_ , invℝ-pos r 0<r) )
-
-
-0<x^ⁿ : ∀ x n → 0 <ᵣ x → 0 <ᵣ (x ^ⁿ n)
-0<x^ⁿ x zero x₁ = decℚ<ᵣ?
-0<x^ⁿ x (suc n) x₁ = ℝ₊·  (_ , x₁) (_ , 0<x^ⁿ x n x₁)
-
-
-0≤x^ⁿ : ∀ x n → 0 ≤ᵣ x → 0 ≤ᵣ (x ^ⁿ n)
-0≤x^ⁿ x zero _ = decℚ≤ᵣ?
-0≤x^ⁿ x (suc n) 0≤x =
- isTrans≡≤ᵣ _ _ _ (sym (Rℝ.0LeftAnnihilates _))
-   (≤ᵣ-·ᵣo 0 _ _ (0≤x^ⁿ x n 0≤x) 0≤x)
-
-
-_₊^ⁿ_ : ℝ₊ → ℕ → ℝ₊
-_₊^ⁿ_ = OrderPositive.PositiveReals._^₊_
 
 
 
@@ -987,83 +689,6 @@ _₊^ⁿ_ = OrderPositive.PositiveReals._^₊_
 
 0<1/x' : ∀ x (0<x : 0 <ᵣ x) → 0 <ᵣ invℝ x (inl 0<x)
 0<1/x' x 0<x = 0<1/x x (inl 0<x) 0<x
-
-denseℝ : ∀ u v → u <ᵣ v → Σ[ r ∈ ℝ ] ((u <ᵣ r) × (r <ᵣ v))
-denseℝ u v u<v =
-  (u +ᵣ v) ·ᵣ rat [ 1 / 2 ]
-    , isTrans<≡ᵣ _ _ _
-      (isTrans≡<ᵣ _ _ _
-        (((sym (Rℝ.·IdR' _ _ (sym (rat·ᵣrat _ _) ∙ decℚ≡ᵣ?))
-         ∙ ·ᵣAssoc _ _ _ ) ∙ ·ᵣComm _ _ )
-         ∙ sym (x+x≡2x (u ·ᵣ rat [ 1 / 2 ])))
-        (<ᵣ-o+ _ _ _
-          (<ᵣ-·ᵣo _ _ (ℚ₊→ℝ₊ [ 1 / 2 ]₊) u<v)))
-        (sym (·DistR+ _ _ _))
-    , isTrans≡<ᵣ _ _ _ (·DistR+ _ _ _)
-      (isTrans<≡ᵣ _ _ _
-        (<ᵣ-+o _ _ _ (<ᵣ-·ᵣo _ _ (ℚ₊→ℝ₊ [ 1 / 2 ]₊) u<v))
-        ((x+x≡2x (v ·ᵣ rat [ 1 / 2 ]))
-         ∙ sym ((sym (Rℝ.·IdR' _ _ (sym (rat·ᵣrat _ _) ∙ decℚ≡ᵣ?))
-         ∙ ·ᵣAssoc _ _ _ ) ∙ ·ᵣComm _ _ )))
-
-absᵣx=0→x=0 : ∀ x → absᵣ x ≡ 0 → x ≡ 0
-absᵣx=0→x=0 x ∣x∣≡0 = eqℝ _ _ λ ε → invEq (∼≃abs<ε _ _ _)
-   (isTrans≡<ᵣ _ _ _ (cong absᵣ (Rℝ.+IdR' _ _ (-ᵣ-rat 0)) ∙ ∣x∣≡0) (snd (ℚ₊→ℝ₊ ε)))
-
-absᵣ-triangle-minus : (x y : ℝ) → absᵣ x -ᵣ absᵣ y ≤ᵣ absᵣ (x -ᵣ y)
-absᵣ-triangle-minus x y =
-  isTrans≡≤ᵣ _ _ _ (cong (_-ᵣ _) (cong absᵣ ℝ!))
-   (a≤c+b⇒a-c≤b _ _ _ (absᵣ-triangle y (x -ᵣ y)))
-
-absᵣ-triangle' : (x y : ℝ) → absᵣ x  ≤ᵣ absᵣ (x -ᵣ y) +ᵣ absᵣ y
-absᵣ-triangle' x y =
-   isTrans≡≤ᵣ _ _ _ (cong absᵣ ℝ!) (absᵣ-triangle (x -ᵣ y) y)
-
-
-opaque
- unfolding _<ᵣ_
-
- <ᵣ₊Monotone·ᵣ : ∀ m n o s → (0 ≤ᵣ m) → (0 ≤ᵣ o)
-        → m <ᵣ n → o <ᵣ s
-        → (m ·ᵣ o) <ᵣ (n ·ᵣ s)
- <ᵣ₊Monotone·ᵣ m n o s 0≤m 0≤o = PT.map2
-    (λ m<n@((q , q') , m≤q , q<q' , q'≤n) →
-         λ ((r , r') , o≤r , r<r' , r'≤s) →
-     let 0≤q = isTrans≤ᵣ 0 _ _ 0≤m m≤q
-         0≤r = isTrans≤ᵣ 0 _ _ 0≤o o≤r
-         0≤r' = isTrans≤ᵣ 0 _ _ 0≤r (≤ℚ→≤ᵣ _ _ (ℚ.<Weaken≤ _ _ r<r'))
-         0≤n = isTrans≤ᵣ 0 _ _ 0≤m (<ᵣWeaken≤ᵣ m _ ∣ m<n ∣₁)
-      in (q ℚ.· r , q' ℚ.· r') ,
-            subst (m ·ᵣ o ≤ᵣ_) (sym (rat·ᵣrat _ _))
-               (≤ᵣ₊Monotone·ᵣ m (rat q) o (rat r)
-                (0≤q) 0≤o m≤q o≤r) ,
-                 ℚ.<Monotone·-onPos _ _ _ _
-                   q<q' r<r' (≤ᵣ→≤ℚ _ _ 0≤q)
-                             (≤ᵣ→≤ℚ _ _ 0≤r) ,
-                 (subst (_≤ᵣ n ·ᵣ s ) (sym (rat·ᵣrat _ _))
-                   (≤ᵣ₊Monotone·ᵣ (rat q') n (rat r') s
-                     0≤n 0≤r'
-                     q'≤n r'≤s)))
-
-
-<≤ᵣ₊Monotone·ᵣ : ∀ (m : ℝ₀₊) n (o : ℝ₊) s
-       → fst m <ᵣ n → fst o ≤ᵣ s
-       → (fst m ·ᵣ fst o) <ᵣ (n ·ᵣ s)
-<≤ᵣ₊Monotone·ᵣ m n o s m<n o≤s =
-   isTrans<≤ᵣ _ _ _ (<ᵣ-·ᵣo _ _ o m<n)
-           (≤ᵣ-o·ᵣ _ _ n (isTrans≤ᵣ _ _ _ (snd m)
-              (<ᵣWeaken≤ᵣ _ _ m<n) ) o≤s)
-
-
-≤<ᵣ₊Monotone·ᵣ : ∀ (m : ℝ₊) n (o : ℝ₀₊) s
-       → fst m ≤ᵣ n → fst o <ᵣ s
-       → (fst m ·ᵣ fst o) <ᵣ (n ·ᵣ s)
-≤<ᵣ₊Monotone·ᵣ m n o s m≤n o<s =
-   isTrans≤<ᵣ _ _ _
-     (≤ᵣ-·ᵣo _ _ _ (snd o) m≤n)
-     (<ᵣ-o·ᵣ _ _ (n , isTrans<≤ᵣ _ _ _ (snd m) m≤n) o<s )
-
-
 
 opaque
 
@@ -1087,14 +712,6 @@ opaque
        z<x≃y₊·z<y₊·x _ _ y ∙ₑ
         substEquiv (_<ᵣ (fst y) ·ᵣ x) (·ᵣComm _ _ ∙ [x/₊y]·yᵣ z y )
 
-
- z≤x≃y₊·z≤y₊·x : ∀ x z (y : ℝ₊) → (z ≤ᵣ x) ≃ ((fst y) ·ᵣ z ≤ᵣ (fst y) ·ᵣ x)
- z≤x≃y₊·z≤y₊·x x z y =  propBiimpl→Equiv (isProp≤ᵣ _ _) (isProp≤ᵣ _ _)
-  (≤ᵣ-o·ᵣ _ _ (fst y) (<ᵣWeaken≤ᵣ 0 _ (snd y)))
-  (subst2 _≤ᵣ_
-   (·ᵣAssoc _ _ _ ∙ cong (_·ᵣ z) (·ᵣComm _ _ ∙ x·invℝ₊[x] y) ∙ Rℝ.·IdL z)
-   (·ᵣAssoc _ _ _ ∙ cong (_·ᵣ x) (·ᵣComm _ _ ∙ x·invℝ₊[x] y) ∙ Rℝ.·IdL x)
-   ∘S (≤ᵣ-o·ᵣ _ _ (fst (invℝ₊ y)) (<ᵣWeaken≤ᵣ 0 _ (snd (invℝ₊ y)))))
 
  z/y≤x₊≃z≤y₊·x : ∀ x z (y : ℝ₊) → (z  ·ᵣ (fst (invℝ₊ y)) ≤ᵣ x)
                           ≃ (z ≤ᵣ (fst y) ·ᵣ  x)
@@ -1214,32 +831,6 @@ invℝ₊1 = ℝ₊≡ (invℝ₊≡invℝ 1 (inl decℚ<ᵣ?)  ∙ (invℝ1 _))
    ∙ₑ z/y'<x/y≃y₊·z<y'₊·x x 1 y 1
    ∙ₑ subst2Equiv _<ᵣ_ ℝ! ℝ!
 
-
-
-x+y≤z+y≃x≤z : ∀ x z y → (x +ᵣ y ≤ᵣ z +ᵣ y)
-                      ≃ (x ≤ᵣ z)
-x+y≤z+y≃x≤z x z y = propBiimpl→Equiv (isProp≤ᵣ _ _) (isProp≤ᵣ _ _)
-  (subst2 _≤ᵣ_ ℝ! ℝ!
-    ∘ ≤ᵣ-+o _ _ (-ᵣ y))
- (≤ᵣ-+o _ _ _)
-
-
-x+y<z+y≃x<z : ∀ x z y → (x +ᵣ y <ᵣ z +ᵣ y)
-                      ≃ (x <ᵣ z)
-x+y<z+y≃x<z x z y = propBiimpl→Equiv (isProp<ᵣ _ _) (isProp<ᵣ _ _)
-  (subst2 _<ᵣ_ ℝ! ℝ!
-    ∘ <ᵣ-+o _ _ (-ᵣ y))
- (<ᵣ-+o _ _ _)
-
-
-x+y<x+z≃y<z : ∀ x z y → (x +ᵣ y <ᵣ x +ᵣ z)
-                      ≃ (y <ᵣ z)
-x+y<x+z≃y<z x z y = propBiimpl→Equiv (isProp<ᵣ _ _) (isProp<ᵣ _ _)
-  (subst2 _<ᵣ_
-     ((λ i → +ᵣComm (-ᵣ x) (+ᵣComm x y i) i) ∙ ℝ!)
-     ((λ i → +ᵣComm (-ᵣ x) (+ᵣComm x z i) i) ∙ ℝ!)
-    ∘ <ᵣ-o+ _ _ (-ᵣ x))
- (<ᵣ-o+ _ _ _)
 
 
 x'/x<[x'+y']/[x+y]≃[x'+y']/[x+y]<y'/y :
@@ -1393,10 +984,3 @@ opaque
 
         )
       ∘ fst (∼≃abs<ε _ _ _))
-
-
-≤Weaken<+ᵣ : ∀ x y (z : ℝ₊) →
-       x ≤ᵣ y → x <ᵣ y +ᵣ fst z
-≤Weaken<+ᵣ x y z x≤y =
-  isTrans≡<ᵣ _ _ _ (sym (+IdR _))
-   (≤<ᵣMonotone+ᵣ x y 0 (fst z) x≤y (snd z))
