@@ -8,6 +8,7 @@ open import Cubical.HITs.CauchyReals.Complex.Modulus public
 open import Cubical.HITs.CauchyReals.Complex.Apartness public
 open import Cubical.HITs.CauchyReals.Complex.Inverse public
 open import Cubical.HITs.CauchyReals.Complex.Metric public
+open import Cubical.HITs.CauchyReals.Complex.Domain public
 open import Cubical.HITs.CauchyReals.Complex.UnitCircle public
 open import Cubical.HITs.CauchyReals.Complex.Polar public
 open import Cubical.HITs.CauchyReals.Complex.Calculus public

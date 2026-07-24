@@ -14,7 +14,10 @@ open import Cubical.HITs.CauchyReals.Complex.Base
 open import Cubical.HITs.CauchyReals.Complex.Algebra
 open import Cubical.HITs.CauchyReals.Complex.Modulus.Definition
 open import Cubical.HITs.CauchyReals.Complex.Modulus.Laws
+open import Cubical.HITs.CauchyReals.Complex.Domain
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative
+open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Within
+open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra
 open import Cubical.HITs.CauchyReals.Complex.Analysis.Series
 open import Cubical.HITs.CauchyReals.Complex.Transcendental.RootsOfUnity
 
@@ -29,6 +32,18 @@ gaussianProduct = ℂ≡ ℝ! ℝ!
 squareDerivativeAtI :
   HasComplexDerivativeAt squareℂ (iℂ +ℂ iℂ) iℂ
 squareDerivativeAtI = squareHasDerivative iℂ
+
+
+squarePlusIdentityHolomorphicOnBall :
+  ∀ center ε →
+  HolomorphicOn (ComplexOpenBall center ε)
+    (addComplexFunctions squareℂ (λ z → z))
+squarePlusIdentityHolomorphicOnBall center ε =
+  holomorphicOn-add
+    {P = ComplexOpenBall center ε}
+    {f = squareℂ} {g = λ z → z}
+    (squareHolomorphicOn (ComplexOpenBall center ε))
+    (identityHolomorphicOn (ComplexOpenBall center ε))
 
 
 principalCubeRoot : RootOfUnity 3

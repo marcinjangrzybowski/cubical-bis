@@ -39,8 +39,9 @@ The main missing layer at the baseline was closure theory: complex operations
 were not systematically known to preserve convergence, general derivative
 rules were absent, and the series API had no absolute- or
 geometric-convergence theorem.  The current slice supplies the first metric,
-sequence, and series closure results; multiplication, inversion, and calculus
-remain the next broad gaps.
+sequence, and series closure results together with the domain-aware derivative
+foundation; multiplication, inversion, and derivative closure rules remain
+the next broad gaps.
 
 ## Phase 0: architecture and performance
 
@@ -90,9 +91,9 @@ Status: in progress.
 
 ### Domains
 
-- [ ] Introduce complex predicates/subspaces and open-ball witnesses.
-- [ ] Define `HasComplexDerivativeWithinAt` and `HolomorphicOn`.
-- [ ] Recover the existing total derivative notions as special cases.
+- [x] Introduce complex predicates/subspaces and open-ball witnesses.
+- [x] Define `HasComplexDerivativeWithinAt` and `HolomorphicOn`.
+- [x] Recover the existing total derivative notions as special cases.
 
 Domain-aware calculus is required for inverse, rational functions, logarithm
 branches, and contour integration.
@@ -159,13 +160,13 @@ both its convergence proof and its equality to the witnessed inverse.
 
 ## Phase 3: differential calculus
 
-Status: planned.
+Status: in progress.
 
 - [ ] Prove uniqueness of the complex derivative.
 - [ ] Prove that complex differentiability implies continuity.
 - [ ] Add congruence under pointwise equality.
-- [ ] Add sum, negation, subtraction, constant-scalar, product, and chain
-      rules.
+- [x] Add sum, negation, and subtraction rules.
+- [ ] Add constant-scalar, product, and chain rules.
 - [ ] Add natural-power and polynomial derivative theorems.
 - [ ] Add inverse and quotient rules on apart domains.
 - [ ] Package closure laws for `Holomorphic` and `HolomorphicOn`.
@@ -243,6 +244,11 @@ The first bounded implementation slice is:
 After that slice, implement domain-aware derivative rules before adding more
 isolated transcendental identities.
 
+The domain-aware follow-up now has its predicate/open-ball foundation and its
+additive derivative closure laws.  Constant scaling is next; multiplication
+and composition follow after the local boundedness and continuity lemmas they
+need are available.
+
 ## Implemented modules
 
 The current development slice is organized into semantic leaves:
@@ -261,6 +267,18 @@ The current development slice is organized into semantic leaves:
   identities, and the geometric sum formula.
 - `Complex.Inverse.Modulus` identifies the modulus of a witnessed complex
   inverse with the corresponding witnessed real inverse.
+- `Complex.Domain` packages complex predicates, their canonical premetric
+  subspaces, the whole complex plane, rational open balls, and constructive
+  open-domain witnesses.
+- `Complex.Calculus.Derivative.Within` restricts the existing
+  punctured-neighbourhood derivative to a complex predicate, provides
+  `ComplexDifferentiableWithinAt` and `HolomorphicOn`, restriction laws,
+  whole-space conversions in both directions, and domain-aware affine,
+  identity, constant, and square examples.
+- `Complex.Calculus.Derivative.Algebra` exports addition, negation, and
+  subtraction rules at the `HasComplexDerivativeWithinAt`,
+  `ComplexDifferentiableWithinAt`, and `HolomorphicOn` levels, together with
+  corresponding rules for the existing total derivative API.
 
 The geometric implementation avoids whole-function rewriting through
 `seqΣ`.  Indexed computation paths and explicit transports are used instead;
@@ -269,6 +287,13 @@ sequence aliases.  The geometric sum is deliberately an opaque typed value
 with a separate inverse-identification path: putting the fully reducible
 witnessed inverse directly in the convergence target causes pathological
 unification, while the paired API is equivalent and checks predictably.
+For the same reason, dependent derivative adapters pass their hidden function,
+point, and derivative arguments explicitly; inferring these parameters from a
+fully unfolded quotient-limit proof causes pathological unification.
+Difference-quotient algebra is also normalized in small generic lemmas before
+being instantiated with reducible quotient terms.  Derived subtraction is
+transported through an opaque path from addition-with-negation rather than
+asking conversion checking to unfold both derivative proofs.
 
 ## Validation
 
