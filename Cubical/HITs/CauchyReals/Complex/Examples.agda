@@ -23,6 +23,7 @@ open import Cubical.HITs.CauchyReals.Complex.Modulus.Laws
 open import Cubical.HITs.CauchyReals.Complex.Modulus.Bounds
 open import Cubical.HITs.CauchyReals.Complex.Modulus.BoundAlgebra
 open import Cubical.HITs.CauchyReals.Complex.Domain
+open import Cubical.HITs.CauchyReals.Complex.Calculus.LocalBound
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Within
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra
@@ -127,10 +128,9 @@ constantMinusILocalBound :
   ComplexScalarBound (-ℂ iℂ) →
   ComplexLocalBoundWithinAt
     wholeℂ (λ _ → -ℂ iℂ) z
-constantMinusILocalBound z (bound , estimate) =
-  1 , bound ,
-  λ h _ _ →
-    estimate
+constantMinusILocalBound z =
+  complexLocalBoundWithinAt-constant
+    wholeℂ (-ℂ iℂ) z
 
 
 identityOverIHasDerivativeAtI :

@@ -25,6 +25,8 @@ open import Cubical.HITs.CauchyReals.Complex.Modulus.Definition
 open import Cubical.HITs.CauchyReals.Complex.Modulus.Laws
 open import Cubical.HITs.CauchyReals.Complex.Modulus.Bounds
 open import Cubical.HITs.CauchyReals.Complex.Domain
+open import Cubical.HITs.CauchyReals.Complex.Calculus.LocalBound public
+  using (ComplexLocalBoundWithinAt)
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Within
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.Addition
@@ -59,17 +61,6 @@ witnessedInverseExtensionOn→ReciprocalOn
   in
   cong (f w ·ℂ_) inversePath
   ∙ ·invℂ (f w) 0#fw
-
-
-ComplexLocalBoundWithinAt :
-  ComplexPredicate → (ℂ → ℂ) → ℂ → Type₀
-ComplexLocalBoundWithinAt P g z =
-  Σ[ radius ∈ ℚ₊ ]
-  Σ[ bound ∈ ℚ₊ ]
-    ((h : ℂ) → z +ℂ h ∈ P →
-      modulus h <ᵣ rat (fst radius) →
-      modulus (g (z +ℂ h))
-        ≤ᵣ rat (fst bound))
 
 
 reciprocalDerivative :

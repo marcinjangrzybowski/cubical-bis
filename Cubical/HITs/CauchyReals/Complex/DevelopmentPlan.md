@@ -90,6 +90,10 @@ Status: in progress.
 - [ ] Prove binary multiplication continuous at every point.
 - [ ] Prove inversion continuous on subspaces whose modulus has a positive
       lower bound.
+- [x] Add reusable predicate-relative local-bound certificates with
+      restriction, congruence, radius shrinking, center extraction, and
+      constant, identity, negation, addition, multiplication, and
+      fixed-scalar constructors.
 
 ### Domains
 
@@ -174,6 +178,8 @@ Status: in progress.
 - [x] Add natural-power derivative theorems.
 - [x] Add polynomial derivative theorems.
 - [x] Add inverse and quotient rules on apart domains.
+- [x] Extract the inverse rule's neighborhood-bound hypothesis into a shared
+      local-boundedness layer with algebraic constructors.
 - [ ] Package closure laws for `Holomorphic` and `HolomorphicOn`.
 - [ ] Connect real two-coordinate differentiability and the Cauchy--Riemann
       equations to the complex derivative.
@@ -254,10 +260,12 @@ additive derivative closure laws, fixed-complex-scalar closure, a quantitative
 product rule, a conditional chain rule, natural-power derivatives in the
 standard `(n + 1) · z ^ n` form, and Horner-form finite-polynomial
 derivatives, together with inverse and quotient rules for total extensions
-that agree with witnessed inversion on the selected predicate.  General
-continuity, reusable local-boundedness constructors, and remainder-form
-packaging are the next calculus layer; they can reduce explicit bound
-arguments and remove the chain rule's apart-increment restriction.
+that agree with witnessed inversion on the selected predicate.  The inverse
+rule's neighborhood certificate now lives in a shared local-bound layer with
+the first structural and algebraic constructors.  General continuity,
+additional higher-level boundedness automation, and remainder-form packaging
+are the next calculus layer; they can further reduce explicit bound arguments
+and remove the chain rule's apart-increment restriction.
 
 ## Implemented modules
 
@@ -361,6 +369,24 @@ reciprocal extension of the denominator.  Apartness remains explicit through
 `WitnessedInverseExtensionOn`, and all quantitative derivative/value bounds
 remain caller-visible rather than being extracted from truncated
 Archimedean existence.
+
+`Complex.Calculus.LocalBound` owns `ComplexLocalBoundWithinAt`, retaining its
+availability through the inverse module for compatibility.  It adds
+predicate restriction and congruence, radius shrinking, extraction of the
+center's scalar bound, and explicit constructors for constants, the identity,
+negation, addition, multiplication, and fixed-scalar multiplication.  Binary
+constructors use the minimum input radius and the corresponding sum or
+product of rational bounds.  The quotient example now obtains its constant
+reciprocal neighborhood certificate from this common interface.
+
+The local-bound proofs state their modulus estimates directly.  Returning a
+dependent `ComplexScalarBound` from a transparent helper and immediately
+projecting its inequality caused conversion checking to remain active around
+3 GiB; the equivalent direct inequalities check in a few seconds.  Likewise,
+feeding the center-bound extractor back into the large reciprocal theorem
+currently reproduces that elaboration pathology, so the theorem retains its
+separate explicit center and neighborhood arguments even though the former is
+mathematically derivable from the latter.
 
 The geometric implementation avoids whole-function rewriting through
 `seqΣ`.  Indexed computation paths and explicit transports are used instead;
