@@ -38,6 +38,25 @@ complexScalarHasRationalBound c =
       (modulus c , modulusNonNeg c))
 
 
+boundedModulusProductAtRadius< :
+  ∀ c error (M ε : ℚ₊) →
+  modulus c ≤ᵣ rat (fst M) →
+  modulus error <ᵣ rat (fst ε) →
+  modulus c ·ᵣ modulus error
+    <ᵣ rat (fst (M ·₊ ε))
+boundedModulusProductAtRadius<
+  c error M ε |c|≤M |error|<ε =
+  isTrans<≡ᵣ _ _ _
+    (isTrans≤<ᵣ _ _ _
+      (≤ᵣ-·ᵣo
+        (modulus c) (rat (fst M)) (modulus error)
+        (modulusNonNeg error) |c|≤M)
+      (<ᵣ-o·ᵣ
+        (modulus error) (rat (fst ε))
+        (ℚ₊→ℝ₊ M) |error|<ε))
+    (sym (rat·ᵣrat (fst M) (fst ε)))
+
+
 boundedModulusProduct< :
   ∀ c error (M ε : ℚ₊) →
   modulus c ≤ᵣ rat (fst M) →

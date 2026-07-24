@@ -1,9 +1,11 @@
 # Further development of constructive complex analysis
 
 This is the living plan for extending
-`Cubical.HITs.CauchyReals.Complex.*`.  The existing implementation provides
-the pointwise algebraic and metric foundations; the next goal is reusable
-closure machinery for limits, series, derivatives, and integration.
+`Cubical.HITs.CauchyReals.Complex.*`.  The implementation now provides
+pointwise algebraic and metric foundations together with substantial closure
+machinery for limits, series, and derivatives.  The immediate work is to
+complete the multiplicative and reciprocal continuity layer, use it in
+sequence limits, and then strengthen the derivative interface.
 
 The stable full entry point remains:
 
@@ -19,7 +21,57 @@ All development remains constructive.  In particular:
 - no postulates, unsafe pragmas, or weakened options are introduced;
 - existing public names remain available through their current entry points.
 
-## Baseline
+## Current development state
+
+As of 2026-07-24, the public development has the following checked layers:
+
+- the canonical complex premetric, coordinatewise completeness,
+  nonexpansiveness of modulus and coordinates, direct binary addition
+  estimates, continuous translations, and fixed-scalar Lipschitz and
+  continuous maps;
+- convergence and Cauchy laws for constants, addition, negation,
+  subtraction, conjugation, generic nonexpanding and Lipschitz maps, and
+  fixed-scalar multiplication;
+- absolute convergence of complex series and a constructive geometric-series
+  formula identified with the witnessed inverse of `1ℂ -ℂ z`;
+- predicate-relative derivatives, derivative algebra through products,
+  conditional composition, natural powers, finite polynomials, witnessed
+  inverses, and quotients;
+- reusable scalar and predicate-relative local-bound certificates with the
+  algebra needed by the quantitative continuity and derivative proofs.
+
+The current continuity/scaling slice adds
+`Complex.Metric.Continuity`,
+`Complex.Analysis.Sequence.Mapping.Lipschitz`, and
+`Complex.Analysis.Sequence.Scaling`.  The affected leaves, public
+aggregators, `Complex.Examples`, and the full `Complex` entry point check
+without holes, unsolved metas, constraints, or warnings.
+
+### Immediate next goals
+
+Implement these in order, keeping each theorem in a small semantic leaf:
+
+1. Prove joint continuity of binary multiplication at each pair, using
+   explicit local modulus bounds and the existing direct metric estimates.
+2. Use those estimates to prove that binary multiplication preserves
+   convergent and Cauchy complex sequences, then derive the corresponding
+   natural-power laws.
+3. Prove continuity of witnessed inversion under a positive lower-modulus
+   bound and lift it to sequence convergence.
+4. Add a remainder-form derivative interface (or an equivalent constructive
+   formulation), remove the chain rule's apart-increment restriction, and
+   derive differentiability-implies-continuity.
+5. Package the completed derivative laws for `Holomorphic` and
+   `HolomorphicOn`, ending the slice with a genuinely nonconstant rational
+   derivative example carrying its denominator witness explicitly.
+
+Generic product-premetric packaging should be introduced only after the
+direct multiplication interface is stable.  Earlier attempts to package
+binary addition directly through the generic product premetric caused a
+multi-gigabyte conversion-checking plateau; small explicit estimates remain
+the reliable implementation boundary.
+
+## Historical baseline
 
 At commit `1313467ce8a159cd5786676e432415e936c46e88`, the complex development
 contains 58 Agda modules and about 3,953 lines.  All modules typecheck without
@@ -85,8 +137,8 @@ Status: in progress.
 - [x] Prove closeness preservation for translation and binary addition.
 - [ ] Package the complex constructor as a uniformly continuous map from the
       real-plane product premetric.
-- [ ] Prove continuity/Lipschitz estimates for addition and fixed-scalar
-      multiplication.
+- [x] Prove continuity/Lipschitz estimates for addition in either fixed
+      argument and for fixed-scalar multiplication.
 - [ ] Prove binary multiplication continuous at every point.
 - [ ] Prove inversion continuous on subspaces whose modulus has a positive
       lower bound.
@@ -117,8 +169,9 @@ Status: in progress.
       conjugation.
 - [x] Add the generic nonexpanding-map convergence and Cauchy constructors,
       applicable in particular to `modulus`.
-- [ ] Prove preservation of limits by scalar multiplication, multiplication,
-      and powers.
+- [x] Prove preservation of limits and Cauchy sequences by fixed-scalar
+      multiplication from an explicit scalar bound.
+- [ ] Prove preservation of limits by binary multiplication and powers.
 - [ ] Prove preservation by inversion under a positive lower-modulus bound.
 - [x] Package the corresponding Cauchy-sequence constructors for the completed
       operation laws.
@@ -262,19 +315,31 @@ standard `(n + 1) · z ^ n` form, and Horner-form finite-polynomial
 derivatives, together with inverse and quotient rules for total extensions
 that agree with witnessed inversion on the selected predicate.  The inverse
 rule's neighborhood certificate now lives in a shared local-bound layer with
-the first structural and algebraic constructors.  General continuity,
-additional higher-level boundedness automation, and remainder-form packaging
-are the next calculus layer; they can further reduce explicit bound arguments
-and remove the chain rule's apart-increment restriction.
+the first structural and algebraic constructors.  Translation and
+fixed-scalar multiplication now have generic premetric continuity packages,
+and fixed-scalar multiplication preserves complex limits and Cauchy
+sequences.  Joint multiplication continuity, additional higher-level
+boundedness automation, and remainder-form packaging are the next calculus
+layer; they can further reduce explicit bound arguments and remove the chain
+rule's apart-increment restriction.
 
 ## Implemented modules
 
 The current development slice is organized into semantic leaves:
 
-- `Complex.Metric.Modulus` and `Complex.Metric.Operations` contain the new
-  metric estimates.
+- `Complex.Metric.Modulus` and `Complex.Metric.Operations` contain the basic
+  metric estimates.  `Complex.Metric.Continuity` connects them to the generic
+  premetric mapping records: translations in either argument are
+  nonexpanding/continuous, and multiplication by a fixed complex scalar is
+  Lipschitz in either argument.  Explicit `ComplexScalarBound` data gives the
+  Lipschitz constant, while the high-level `L[...]` and `C[...]` maps use its
+  propositionally truncated Archimedean existence.
 - `Complex.Analysis.Sequence.Laws` exports constant, addition, negation,
-  subtraction, conjugation, nonexpanding-map, and convergence-to-Cauchy laws.
+  subtraction, conjugation, nonexpanding-map, Lipschitz-map,
+  fixed-scalar-scaling, and convergence-to-Cauchy laws.  The generic
+  Lipschitz constructors rescale convergence/Cauchy moduli by the reciprocal
+  Lipschitz constant; `scaleConverges` and `scaleCauchy` instantiate them for
+  complex scalar multiplication.
 - `Complex.Analysis.Series.Absolute` contains finite-sum bounds and the
   absolute-convergence criterion.
 - `Complex.Analysis.Series.Geometric` exports modulus preservation for powers,
@@ -287,7 +352,8 @@ The current development slice is organized into semantic leaves:
   inverse with the corresponding witnessed real inverse.
 - `Complex.Modulus.Bounds` packages explicit positive-rational upper bounds
   for a complex modulus, proves their propositionally truncated existence,
-  and supplies the quantitative multiplication estimate used by calculus.
+  and supplies both radius-scaled and target-scaled quantitative
+  multiplication estimates used by continuity and calculus.
   `Complex.Modulus.BoundAlgebra` constructs bounds for zero, one, negation,
   addition, multiplication, and natural powers.  The general
   modulus-of-power theorem now lives in the lower `Complex.Modulus.Power`
@@ -387,6 +453,16 @@ feeding the center-bound extractor back into the large reciprocal theorem
 currently reproduces that elaboration pathology, so the theorem retains its
 separate explicit center and neighborhood arguments even though the former is
 mathematically derivable from the latter.
+
+The direct two-radius addition estimate remains the stable binary interface.
+Packaging it immediately as a Lipschitz map from the generic product
+premetric caused the same approximately 3 GiB conversion-checking plateau.
+The continuity layer therefore exposes addition as continuous in either
+fixed argument and retains `addℂ-pres≈` for joint estimates.  Fixed-scalar
+multiplication and generic Lipschitz sequence mapping package cleanly; scaling
+theorems keep `leftMultiplyℂ` visible in their result types because replacing
+it immediately with an equivalent transparent sequence alias reproduced the
+same elaboration issue.
 
 The geometric implementation avoids whole-function rewriting through
 `seqΣ`.  Indexed computation paths and explicit transports are used instead;

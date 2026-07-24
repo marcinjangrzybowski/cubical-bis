@@ -19,25 +19,39 @@ from positive norm (apartness), not from a proof of mere inequality.
   triangle and reverse-triangle inequalities, and positivity.
 - `Apartness`, `Inverse`: `z #ℂ w` means positive squared norm of `z - w`;
   `invℂ` and `_／ℂ[_,_]` require this positive witness and provide both
-  cancellation laws, proof irrelevance, and inverse involution.
+  cancellation laws, proof irrelevance, inverse involution, and the modulus
+  formula for witnessed inverses.
 - `Metric`: the canonical modulus premetric, nonexpanding coordinate maps,
-  translation/negation/conjugation maps, and coordinatewise completeness.
+  modulus and translation/negation/conjugation maps, direct binary addition
+  estimates, fixed-scalar Lipschitz and continuous maps, and coordinatewise
+  completeness.
 - `UnitCircle`, `Polar`: an abelian unit-circle group, equivalences with the
   existing Cauchy-real circle, and
   `polarEquiv : ℂˣ ≃ ℝ₊ × UnitCircleℂ`.
-- `Calculus`: a constructive punctured-neighbourhood difference quotient,
-  affine and square derivative theorems, holomorphic witnesses, and the exact
-  Cauchy--Riemann characterization of complex-linear real Jacobians.
+- `Domain`, `Calculus`: complex predicates and rational open balls; total and
+  predicate-relative punctured-neighbourhood derivatives; closure under
+  addition, negation, subtraction, fixed scalars, products, conditional
+  composition, natural powers, finite polynomials, witnessed inverses, and
+  quotients; reusable local-bound certificates; holomorphic witnesses; and
+  the exact Cauchy--Riemann characterization of complex-linear real
+  Jacobians.
 - `Analysis`: Cauchy and convergent complex sequences, completeness-based
-  limits, uniqueness, finite sums, convergent series, power-series terms, and
-  the finite geometric-series identity.
+  limits and uniqueness, mapping laws for nonexpanding and Lipschitz maps,
+  preservation by the additive operations and fixed-scalar multiplication,
+  finite sums, absolute convergence, power-series terms, and the constructive
+  geometric-series inverse formula.
 - `Transcendental`: `cis`, the complex exponential, complex sine and cosine,
   their addition/parity/Euler/Pythagorean laws, agreement on the real axis,
   and explicit principal roots of unity and all their natural powers.
 
 `Examples.agda` checks representative uses: a Gaussian-integer product, the
-derivative of the square map at `i`, a principal cube root of unity, and the
-finite geometric-series identity.
+derivative of the square map at `i`, domain-aware product and quotient
+derivatives, polynomial differentiation, fixed-scalar convergence, a
+principal cube root of unity, and the constructive geometric-series formula.
+
+The current implementation status, performance-sensitive design decisions,
+and prioritized next goals are maintained in
+[`DevelopmentPlan.md`](DevelopmentPlan.md).
 
 ## Constructive conventions
 

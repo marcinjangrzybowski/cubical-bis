@@ -23,10 +23,13 @@ open import Cubical.HITs.CauchyReals.Complex.Modulus.Laws
 open import Cubical.HITs.CauchyReals.Complex.Modulus.Bounds
 open import Cubical.HITs.CauchyReals.Complex.Modulus.BoundAlgebra
 open import Cubical.HITs.CauchyReals.Complex.Domain
+open import Cubical.HITs.CauchyReals.Complex.Metric.Continuity
 open import Cubical.HITs.CauchyReals.Complex.Calculus.LocalBound
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Within
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra
+open import Cubical.HITs.CauchyReals.Complex.Analysis.Sequence
+open import Cubical.HITs.CauchyReals.Complex.Analysis.Sequence.Laws
 open import Cubical.HITs.CauchyReals.Complex.Analysis.Series
 open import Cubical.HITs.CauchyReals.Complex.Transcendental.RootsOfUnity
 
@@ -63,6 +66,17 @@ iScalarBound =
 oneScalarBound : ComplexScalarBound 1ℂ
 oneScalarBound =
   1 , ≡ᵣWeaken≤ᵣ _ _ modulus1
+
+
+iScaledConstantConverges :
+  ConvergesToℂ
+    (λ _ → leftMultiplyℂ iℂ 1ℂ)
+    (leftMultiplyℂ iℂ 1ℂ)
+iScaledConstantConverges =
+  scaleConverges
+    iℂ iScalarBound
+    (λ _ → 1ℂ) 1ℂ
+    (constantConverges 1ℂ)
 
 
 iTimesSquarePlusIdentityHolomorphicOnBall :
