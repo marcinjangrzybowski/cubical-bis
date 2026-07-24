@@ -132,14 +132,20 @@ Status: in progress.
 - [x] Prove that every convergent real series has eventually small terms.
 - [x] Derive apartness of `1ℂ -ℂ z` from `modulus z < 1`, and prove the finite
       geometric inverse-correction and inverse-error identities.
-- [ ] Identify its sum as the witnessed inverse of `1ℂ -ℂ z`.
+- [x] Identify its sum as the witnessed inverse of `1ℂ -ℂ z`.
 
-The remaining major milestone in this phase is a theorem of the form:
+The geometric-series formula is exposed as the pair:
 
 ```agda
-modulus z <ᵣ 1 →
-SeriesConvergesToℂ (geometricTerms z)
-  (invℂ (1ℂ -ℂ z) ...)
+geometricSeriesConvergesToSum :
+  (bound : RationalContractionBound z) →
+  SeriesConvergesToℂ (geometricTerms z)
+    (geometricSeriesSum z bound)
+
+geometricSeriesSum≡inverse :
+  (bound : RationalContractionBound z) →
+  geometricSeriesSum z bound ≡
+  invℂ (1ℂ -ℂ z) ...
 ```
 
 The untruncated computational interface deliberately uses
@@ -147,7 +153,9 @@ The untruncated computational interface deliberately uses
 `modulus z <ᵣ rat q`, and `q < 1`.  Since strict order on the Cauchy reals
 supplies an intermediate rational only under propositional truncation, the
 weaker hypothesis `modulus z <ᵣ 1` cannot construct a convergence modulus
-without returning a truncated witness.
+without returning a truncated witness.  In that case,
+`geometricSeriesInverseFormulaTruncated` returns a truncated sum together with
+both its convergence proof and its equality to the witnessed inverse.
 
 ## Phase 3: differential calculus
 
@@ -228,10 +236,8 @@ The first bounded implementation slice is:
 1. [x] modulus nonexpansiveness and basic metric-operation packaging;
 2. [x] initial algebraic laws for convergent complex sequences;
 3. [x] absolute convergence of complex series;
-4. [ ] the convergent geometric-series formula
-   (`geometricSeriesCauchy`, existence of a limit, apartness of `1ℂ -ℂ z`,
-   and the finite inverse-error identity are complete; bounding that error to
-   identify the limit with the inverse is pending);
+4. [x] the convergent geometric-series formula, including explicit convergence
+   to a packaged sum and identification of that sum with the witnessed inverse;
 5. [x] a representative checked rational contraction bound at `1/2`.
 
 After that slice, implement domain-aware derivative rules before adding more
@@ -250,15 +256,19 @@ The current development slice is organized into semantic leaves:
 - `Complex.Analysis.Series.Geometric` exports modulus preservation for powers,
   nonnegative comparison, positive-rational geometric convergence, explicit
   rational contraction bounds, and the resulting complex convergence
-  theorems.  Its `Terms` and `Inverse` leaves provide eventual term decay,
-  apartness of `1ℂ -ℂ z`, and the finite inverse-correction/error identities.
+  theorems.  Its `Terms`, `Inverse`, and `Sum` leaves provide eventual term
+  decay, apartness of `1ℂ -ℂ z`, the finite inverse-correction/error
+  identities, and the geometric sum formula.
 - `Complex.Inverse.Modulus` identifies the modulus of a witnessed complex
   inverse with the corresponding witnessed real inverse.
 
 The geometric implementation avoids whole-function rewriting through
 `seqΣ`.  Indexed computation paths and explicit transports are used instead;
 this prevents pathological lossy unification around reducible recursive
-sequence aliases while keeping the public statements direct.
+sequence aliases.  The geometric sum is deliberately an opaque typed value
+with a separate inverse-identification path: putting the fully reducible
+witnessed inverse directly in the convergence target causes pathological
+unification, while the paired API is equivalent and checks predictably.
 
 ## Validation
 

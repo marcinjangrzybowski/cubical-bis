@@ -12,3 +12,5 @@ open import
   Cubical.HITs.CauchyReals.Complex.Analysis.Series.Geometric.Convergence public
 open import
   Cubical.HITs.CauchyReals.Complex.Analysis.Series.Geometric.Inverse public
+open import
+  Cubical.HITs.CauchyReals.Complex.Analysis.Series.Geometric.Sum public

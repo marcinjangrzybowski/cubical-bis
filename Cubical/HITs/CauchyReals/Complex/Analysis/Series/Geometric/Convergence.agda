@@ -3,6 +3,7 @@ module Cubical.HITs.CauchyReals.Complex.Analysis.Series.Geometric.Convergence wh
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat as ℕ
+open import Cubical.Data.Nat.Order as ℕ
 open import Cubical.Data.Rationals.Order as ℚ
 open import Cubical.Data.Sigma
 
@@ -36,6 +37,8 @@ open import
   Cubical.HITs.CauchyReals.Complex.Analysis.Series.Geometric.Comparison
 open import
   Cubical.HITs.CauchyReals.Complex.Analysis.Series.Geometric.Real
+open import
+  Cubical.HITs.CauchyReals.Complex.Analysis.Series.Geometric.Terms
 
 
 RationalContractionBound : ℂ → Type₀
@@ -43,6 +46,18 @@ RationalContractionBound z =
   Σ[ q ∈ ℚ₊ ]
     ((modulus z <ᵣ rat (fst q)) ×
      (fst q ℚ.< 1))
+
+
+opaque
+  rationalContractionBound→modulus<1 :
+    (z : ℂ) →
+    RationalContractionBound z →
+    modulus z <ᵣ 1
+  rationalContractionBound→modulus<1
+    z (q , modulus<q , q<1) =
+    isTrans<ᵣ _ _ _
+      modulus<q
+      (<ℚ→<ᵣ (fst q) 1 q<1)
 
 
 private
@@ -95,6 +110,34 @@ opaque
           modulusNonnegative
           (<ᵣWeaken≤ᵣ _ _ modulus<q))
       (positiveRationalGeometricConverges q q<1)
+
+
+opaque
+  geometricPowersEventuallySmall :
+    (z : ℂ) →
+    RationalContractionBound z →
+    (ε : ℚ₊) →
+    Σ[ N ∈ ℕ ]
+      ((n : ℕ) → N ℕ.< n →
+        modulus z ^ⁿ n <ᵣ rat (fst ε))
+  geometricPowersEventuallySmall z bound ε =
+    let
+      N , powersSmall =
+        convergentSeriesTermsEventuallySmall
+          (geometricModulusPowers z)
+          (geometricModulusSeriesConverges z bound)
+          ε
+    in
+    N ,
+    λ n N<n →
+      subst
+        (_<ᵣ rat (fst ε))
+        (absᵣNonNeg
+          (modulus z ^ⁿ n)
+          (0≤x^ⁿ
+            (modulus z) n
+            (modulusNonNeg z)))
+        (powersSmall n N<n)
 
 
 private
