@@ -39,9 +39,10 @@ The main missing layer at the baseline was closure theory: complex operations
 were not systematically known to preserve convergence, general derivative
 rules were absent, and the series API had no absolute- or
 geometric-convergence theorem.  The current slice supplies the first metric,
-sequence, and series closure results together with the domain-aware derivative
-foundation; multiplication, inversion, and derivative closure rules remain
-the next broad gaps.
+sequence, and series closure results together with domain-aware additive,
+fixed-scalar, product, and conditional chain rules.  Extending composition
+beyond apart-increment-preserving inner maps, together with inverse and
+quotient closure, remains the next broad calculus gap.
 
 ## Phase 0: architecture and performance
 
@@ -165,9 +166,12 @@ Status: in progress.
 - [ ] Prove uniqueness of the complex derivative.
 - [ ] Prove that complex differentiability implies continuity.
 - [ ] Add congruence under pointwise equality.
-- [x] Add sum, negation, and subtraction rules.
-- [ ] Add constant-scalar, product, and chain rules.
-- [ ] Add natural-power and polynomial derivative theorems.
+- [x] Add sum, negation, subtraction, constant-scalar, and product rules.
+- [x] Add a chain rule for inner maps that preserve apart increments.
+- [ ] Extend the chain rule to arbitrary inner maps through a remainder-form
+      derivative or an equivalent constructive interface.
+- [x] Add natural-power derivative theorems.
+- [x] Add polynomial derivative theorems.
 - [ ] Add inverse and quotient rules on apart domains.
 - [ ] Package closure laws for `Holomorphic` and `HolomorphicOn`.
 - [ ] Connect real two-coordinate differentiability and the Cauchy--Riemann
@@ -244,10 +248,14 @@ The first bounded implementation slice is:
 After that slice, implement domain-aware derivative rules before adding more
 isolated transcendental identities.
 
-The domain-aware follow-up now has its predicate/open-ball foundation and its
-additive derivative closure laws.  Constant scaling is next; multiplication
-and composition follow after the local boundedness and continuity lemmas they
-need are available.
+The domain-aware follow-up now has its predicate/open-ball foundation,
+additive derivative closure laws, fixed-complex-scalar closure, a quantitative
+product rule, a conditional chain rule, natural-power derivatives in the
+standard `(n + 1) · z ^ n` form, and Horner-form finite-polynomial
+derivatives.  Inverse and quotient rules on apart domains are the next
+algebraic layer.  General continuity, local-boundedness, and remainder-form
+packaging can then reduce explicit bound arguments and remove the chain
+rule's apart-increment restriction.
 
 ## Implemented modules
 
@@ -267,6 +275,14 @@ The current development slice is organized into semantic leaves:
   identities, and the geometric sum formula.
 - `Complex.Inverse.Modulus` identifies the modulus of a witnessed complex
   inverse with the corresponding witnessed real inverse.
+- `Complex.Modulus.Bounds` packages explicit positive-rational upper bounds
+  for a complex modulus, proves their propositionally truncated existence,
+  and supplies the quantitative multiplication estimate used by calculus.
+  `Complex.Modulus.BoundAlgebra` constructs bounds for zero, one, negation,
+  addition, multiplication, and natural powers.  The general
+  modulus-of-power theorem now lives in the lower `Complex.Modulus.Power`
+  layer; its previous geometric-series entry point remains a compatibility
+  re-export.
 - `Complex.Domain` packages complex predicates, their canonical premetric
   subspaces, the whole complex plane, rational open balls, and constructive
   open-domain witnesses.
@@ -275,10 +291,52 @@ The current development slice is organized into semantic leaves:
   `ComplexDifferentiableWithinAt` and `HolomorphicOn`, restriction laws,
   whole-space conversions in both directions, and domain-aware affine,
   identity, constant, and square examples.
-- `Complex.Calculus.Derivative.Algebra` exports addition, negation, and
-  subtraction rules at the `HasComplexDerivativeWithinAt`,
+- `Complex.Calculus.Derivative.Algebra` exports addition, negation,
+  subtraction, fixed-scalar, product, conditional composition, and
+  natural-power and finite-polynomial rules at the
+  `HasComplexDerivativeWithinAt`,
   `ComplexDifferentiableWithinAt`, and `HolomorphicOn` levels, together with
-  corresponding rules for the existing total derivative API.
+  corresponding rules for the existing total derivative API.  Positive
+  powers have the standard derivative
+  `positiveNaturalComplex n ·ℂ z ^ℂ n`; the zero power has derivative zero.
+  The scalar rule accepts an explicit
+  `ComplexScalarBound c`, consisting of a positive rational upper bound for
+  `modulus c`; `complexScalarHasRationalBound` proves that such data always
+  exists propositionally truncated.  This distinction preserves the explicit
+  convergence radius required by the derivative definition.  The product
+  rule similarly accepts separate bounds for both function values and both
+  derivatives.  Its error is split into two quarter-sized linear terms and a
+  half-sized quotient cross term; quotient bounds follow from unit derivative
+  error estimates.  Keeping these four bounds as separate arguments also
+  avoids a pathological normalization observed when pairing dependent
+  `ComplexScalarBound` values in an otherwise redundant wrapper.
+  `HasComplexDerivativeWithinAt-compose` additionally requires the inner map
+  to map the source predicate into the outer predicate and to satisfy
+  `LocallyPreservesApartIncrementsWithinAt`, including an explicit rational
+  radius.  This second hypothesis is necessary for the current
+  punctured-quotient definition: an outer difference quotient cannot be
+  formed when the inner increment is not known apart from zero.  Identity and
+  affine maps with an apart coefficient have constructors for this condition.
+
+The natural-power implementation keeps positive powers separate at the
+`HasComplexDerivative...` level and unifies them with the zero case at the
+differentiability level.  This avoids forcing Agda to normalize a recursive
+dependent `ComplexScalarBound`.  Small opaque paths separately expose power
+unfolding, coefficient succession, and the product-rule derivative
+recurrence; directly applying generic ring identity proofs to reducible
+powered terms was observed to cause multi-gigabyte elaboration stalls.
+
+Finite polynomials use coefficient lists in increasing degree order and
+Horner evaluation.  Their derivative evaluator follows the matching Horner
+recurrence.  The quantitative theorem accepts a
+`PolynomialTailBoundsAt z coefficients` certificate containing explicit
+value and derivative bounds for every recursive tail; empty and singleton
+certificates and a linear-polynomial constructor are provided.  The public
+evaluators are opaque with separate empty/cons computation paths.  A
+transparent recursive derivative evaluator, or a single definition combining
+the product rule, addition rule, and both transports, was observed to force
+multi-gigabyte normalization.  Splitting these stages into opaque typed
+lemmas keeps the polynomial leaf checking in a few seconds.
 
 The geometric implementation avoids whole-function rewriting through
 `seqΣ`.  Indexed computation paths and explicit transports are used instead;
