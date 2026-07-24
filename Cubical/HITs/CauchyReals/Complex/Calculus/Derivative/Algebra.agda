@@ -10,4 +10,6 @@ open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.Product
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.Composition public
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.NaturalPower public
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.Polynomial public
+open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.Inverse public
+open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.Quotient public
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.Total public

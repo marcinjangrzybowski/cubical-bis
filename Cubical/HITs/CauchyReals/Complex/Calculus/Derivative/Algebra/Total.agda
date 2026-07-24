@@ -21,6 +21,8 @@ open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.Product
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.Composition
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.NaturalPower
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.Polynomial
+open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.Inverse
+open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Algebra.Quotient
 
 
 hasComplexDerivativeAt-add :
@@ -568,3 +570,251 @@ holomorphic-polynomial
     coefficients z
     (zBound z)
     (tailBounds z)
+
+
+hasComplexDerivativeAt-reciprocal :
+  ∀ {f derivativeF g z} →
+  ReciprocalOn wholeℂ f g →
+  ComplexScalarBound derivativeF →
+  ComplexScalarBound (g z) →
+  ComplexLocalBoundWithinAt wholeℂ g z →
+  HasComplexDerivativeAt f derivativeF z →
+  HasComplexDerivativeAt g
+    (reciprocalDerivative g derivativeF z) z
+hasComplexDerivativeAt-reciprocal
+  {f} {derivativeF} {g} {z}
+  reciprocal derivativeBound valueBound localBound
+  derivativeFAt =
+  hasComplexDerivativeWithinWholeAt→At
+    {f = g}
+    {derivative =
+      reciprocalDerivative g derivativeF z}
+    {z = z}
+    (hasComplexDerivativeWithinAt-reciprocal
+      {P = wholeℂ}
+      {f = f} {derivativeF = derivativeF}
+      {g = g} {z = z}
+      reciprocal tt
+      derivativeBound valueBound localBound
+      (hasComplexDerivativeAt→Within wholeℂ
+        {f = f} {derivative = derivativeF} {z = z}
+        derivativeFAt))
+
+
+complexDifferentiableAt-reciprocal :
+  ∀ {f g z}
+  (differentiableF :
+    ComplexDifferentiableAt f z) →
+  ReciprocalOn wholeℂ f g →
+  ComplexScalarBound (fst differentiableF) →
+  ComplexScalarBound (g z) →
+  ComplexLocalBoundWithinAt wholeℂ g z →
+  ComplexDifferentiableAt g z
+complexDifferentiableAt-reciprocal
+  {f} {g} {z}
+  differentiableF reciprocal
+  derivativeBound valueBound localBound =
+  reciprocalDerivative g (fst differentiableF) z ,
+  hasComplexDerivativeAt-reciprocal
+    {f = f}
+    {derivativeF = fst differentiableF}
+    {g = g} {z = z}
+    reciprocal derivativeBound valueBound localBound
+    (snd differentiableF)
+
+
+holomorphic-reciprocal :
+  ∀ {f g}
+  (holomorphicF : Holomorphic f) →
+  ReciprocalOn wholeℂ f g →
+  ((z : ℂ) →
+    ComplexScalarBound (fst (holomorphicF z))) →
+  ((z : ℂ) → ComplexScalarBound (g z)) →
+  ((z : ℂ) →
+    ComplexLocalBoundWithinAt wholeℂ g z) →
+  Holomorphic g
+holomorphic-reciprocal
+  {f} {g} holomorphicF reciprocal
+  derivativeBound valueBound localBound z =
+  complexDifferentiableAt-reciprocal
+    {f = f} {g = g} {z = z}
+    (holomorphicF z) reciprocal
+    (derivativeBound z)
+    (valueBound z)
+    (localBound z)
+
+
+hasComplexDerivativeAt-quotient :
+  ∀ {numerator derivativeNumerator
+    denominator derivativeDenominator
+    reciprocalDenominator z} →
+  ReciprocalOn wholeℂ
+    denominator reciprocalDenominator →
+  ComplexScalarBound derivativeDenominator →
+  ComplexScalarBound (reciprocalDenominator z) →
+  ComplexLocalBoundWithinAt
+    wholeℂ reciprocalDenominator z →
+  ComplexScalarBound (numerator z) →
+  ComplexScalarBound derivativeNumerator →
+  ComplexScalarBound
+    (reciprocalDerivative
+      reciprocalDenominator derivativeDenominator z) →
+  HasComplexDerivativeAt
+    numerator derivativeNumerator z →
+  HasComplexDerivativeAt
+    denominator derivativeDenominator z →
+  HasComplexDerivativeAt
+    (quotientComplexFunctions
+      numerator reciprocalDenominator)
+    (quotientDerivative
+      numerator derivativeNumerator
+      reciprocalDenominator derivativeDenominator z)
+    z
+hasComplexDerivativeAt-quotient
+  {numerator} {derivativeNumerator}
+  {denominator} {derivativeDenominator}
+  {reciprocalDenominator} {z}
+  reciprocal
+  derivativeDenominatorBound
+  reciprocalValueBound reciprocalLocalBound
+  numeratorValueBound numeratorDerivativeBound
+  reciprocalDerivativeBound
+  numeratorDerivativeAt denominatorDerivativeAt =
+  hasComplexDerivativeWithinWholeAt→At
+    {f =
+      quotientComplexFunctions
+        numerator reciprocalDenominator}
+    {derivative =
+      quotientDerivative
+        numerator derivativeNumerator
+        reciprocalDenominator derivativeDenominator z}
+    {z = z}
+    (hasComplexDerivativeWithinAt-quotient
+      {P = wholeℂ}
+      {numerator = numerator}
+      {derivativeNumerator = derivativeNumerator}
+      {denominator = denominator}
+      {derivativeDenominator = derivativeDenominator}
+      {reciprocalDenominator = reciprocalDenominator}
+      {z = z}
+      reciprocal tt
+      derivativeDenominatorBound
+      reciprocalValueBound reciprocalLocalBound
+      numeratorValueBound numeratorDerivativeBound
+      reciprocalDerivativeBound
+      (hasComplexDerivativeAt→Within wholeℂ
+        {f = numerator}
+        {derivative = derivativeNumerator}
+        {z = z}
+        numeratorDerivativeAt)
+      (hasComplexDerivativeAt→Within wholeℂ
+        {f = denominator}
+        {derivative = derivativeDenominator}
+        {z = z}
+        denominatorDerivativeAt))
+
+
+complexDifferentiableAt-quotient :
+  ∀ {numerator denominator reciprocalDenominator z}
+  (differentiableNumerator :
+    ComplexDifferentiableAt numerator z)
+  (differentiableDenominator :
+    ComplexDifferentiableAt denominator z) →
+  ReciprocalOn wholeℂ
+    denominator reciprocalDenominator →
+  ComplexScalarBound (fst differentiableDenominator) →
+  ComplexScalarBound (reciprocalDenominator z) →
+  ComplexLocalBoundWithinAt
+    wholeℂ reciprocalDenominator z →
+  ComplexScalarBound (numerator z) →
+  ComplexScalarBound (fst differentiableNumerator) →
+  ComplexScalarBound
+    (reciprocalDerivative
+      reciprocalDenominator
+      (fst differentiableDenominator) z) →
+  ComplexDifferentiableAt
+    (quotientComplexFunctions
+      numerator reciprocalDenominator)
+    z
+complexDifferentiableAt-quotient
+  {numerator} {denominator}
+  {reciprocalDenominator} {z}
+  differentiableNumerator differentiableDenominator
+  reciprocal
+  derivativeDenominatorBound
+  reciprocalValueBound reciprocalLocalBound
+  numeratorValueBound numeratorDerivativeBound
+  reciprocalDerivativeBound =
+  quotientDerivative
+    numerator (fst differentiableNumerator)
+    reciprocalDenominator
+    (fst differentiableDenominator) z ,
+  hasComplexDerivativeAt-quotient
+    {numerator = numerator}
+    {derivativeNumerator =
+      fst differentiableNumerator}
+    {denominator = denominator}
+    {derivativeDenominator =
+      fst differentiableDenominator}
+    {reciprocalDenominator = reciprocalDenominator}
+    {z = z}
+    reciprocal
+    derivativeDenominatorBound
+    reciprocalValueBound reciprocalLocalBound
+    numeratorValueBound numeratorDerivativeBound
+    reciprocalDerivativeBound
+    (snd differentiableNumerator)
+    (snd differentiableDenominator)
+
+
+holomorphic-quotient :
+  ∀ {numerator denominator reciprocalDenominator}
+  (holomorphicNumerator : Holomorphic numerator)
+  (holomorphicDenominator : Holomorphic denominator) →
+  ReciprocalOn wholeℂ
+    denominator reciprocalDenominator →
+  ((z : ℂ) →
+    ComplexScalarBound
+      (fst (holomorphicDenominator z))) →
+  ((z : ℂ) →
+    ComplexScalarBound (reciprocalDenominator z)) →
+  ((z : ℂ) →
+    ComplexLocalBoundWithinAt
+      wholeℂ reciprocalDenominator z) →
+  ((z : ℂ) →
+    ComplexScalarBound (numerator z)) →
+  ((z : ℂ) →
+    ComplexScalarBound
+      (fst (holomorphicNumerator z))) →
+  ((z : ℂ) →
+    ComplexScalarBound
+      (reciprocalDerivative
+        reciprocalDenominator
+        (fst (holomorphicDenominator z))
+        z)) →
+  Holomorphic
+    (quotientComplexFunctions
+      numerator reciprocalDenominator)
+holomorphic-quotient
+  {numerator} {denominator}
+  {reciprocalDenominator}
+  holomorphicNumerator holomorphicDenominator
+  reciprocal
+  derivativeDenominatorBound
+  reciprocalValueBound reciprocalLocalBound
+  numeratorValueBound numeratorDerivativeBound
+  reciprocalDerivativeBound z =
+  complexDifferentiableAt-quotient
+    {numerator = numerator}
+    {denominator = denominator}
+    {reciprocalDenominator = reciprocalDenominator}
+    {z = z}
+    (holomorphicNumerator z)
+    (holomorphicDenominator z)
+    reciprocal
+    (derivativeDenominatorBound z)
+    (reciprocalValueBound z)
+    (reciprocalLocalBound z)
+    (numeratorValueBound z)
+    (numeratorDerivativeBound z)
+    (reciprocalDerivativeBound z)

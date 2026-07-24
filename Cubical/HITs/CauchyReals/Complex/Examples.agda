@@ -21,6 +21,7 @@ open import Cubical.HITs.CauchyReals.Complex.Algebra
 open import Cubical.HITs.CauchyReals.Complex.Modulus.Definition
 open import Cubical.HITs.CauchyReals.Complex.Modulus.Laws
 open import Cubical.HITs.CauchyReals.Complex.Modulus.Bounds
+open import Cubical.HITs.CauchyReals.Complex.Modulus.BoundAlgebra
 open import Cubical.HITs.CauchyReals.Complex.Domain
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative
 open import Cubical.HITs.CauchyReals.Complex.Calculus.Derivative.Within
@@ -111,6 +112,59 @@ iLinearPolynomialDerivativeAtI :
 iLinearPolynomialDerivativeAtI =
   hasComplexDerivativeAt-linearPolynomial
     iℂ 1ℂ iℂ iScalarBound iScalarBound
+
+
+constantIReciprocal :
+  ReciprocalOn wholeℂ
+    (λ _ → iℂ)
+    (λ _ → -ℂ iℂ)
+constantIReciprocal z _ =
+  ℂ≡ ℝ! ℝ!
+
+
+constantMinusILocalBound :
+  ∀ z →
+  ComplexScalarBound (-ℂ iℂ) →
+  ComplexLocalBoundWithinAt
+    wholeℂ (λ _ → -ℂ iℂ) z
+constantMinusILocalBound z (bound , estimate) =
+  1 , bound ,
+  λ h _ _ →
+    estimate
+
+
+identityOverIHasDerivativeAtI :
+  ComplexScalarBound (-ℂ iℂ) →
+  ComplexScalarBound
+    (reciprocalDerivative
+      (λ _ → -ℂ iℂ) 0ℂ iℂ) →
+  HasComplexDerivativeAt
+    (quotientComplexFunctions
+      (λ z → z)
+      (λ _ → -ℂ iℂ))
+    (quotientDerivative
+      (λ z → z) 1ℂ
+      (λ _ → -ℂ iℂ) 0ℂ iℂ)
+    iℂ
+identityOverIHasDerivativeAtI
+  reciprocalValueBound reciprocalDerivativeBound =
+  hasComplexDerivativeAt-quotient
+    {numerator = λ z → z}
+    {derivativeNumerator = 1ℂ}
+    {denominator = λ _ → iℂ}
+    {derivativeDenominator = 0ℂ}
+    {reciprocalDenominator = λ _ → -ℂ iℂ}
+    {z = iℂ}
+    constantIReciprocal
+    zeroComplexScalarBound
+    reciprocalValueBound
+    (constantMinusILocalBound
+      iℂ reciprocalValueBound)
+    iScalarBound
+    oneScalarBound
+    reciprocalDerivativeBound
+    (identityHasDerivative iℂ)
+    (constantHasDerivative iℂ iℂ)
 
 
 affineAfterIdentityDerivativeAtI :

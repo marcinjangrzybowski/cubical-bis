@@ -40,9 +40,10 @@ were not systematically known to preserve convergence, general derivative
 rules were absent, and the series API had no absolute- or
 geometric-convergence theorem.  The current slice supplies the first metric,
 sequence, and series closure results together with domain-aware additive,
-fixed-scalar, product, and conditional chain rules.  Extending composition
-beyond apart-increment-preserving inner maps, together with inverse and
-quotient closure, remains the next broad calculus gap.
+fixed-scalar, product, conditional chain, inverse, and quotient rules.
+Extending composition beyond apart-increment-preserving inner maps and
+deriving continuity/local boundedness systematically remain the next broad
+calculus gaps.
 
 ## Phase 0: architecture and performance
 
@@ -172,7 +173,7 @@ Status: in progress.
       derivative or an equivalent constructive interface.
 - [x] Add natural-power derivative theorems.
 - [x] Add polynomial derivative theorems.
-- [ ] Add inverse and quotient rules on apart domains.
+- [x] Add inverse and quotient rules on apart domains.
 - [ ] Package closure laws for `Holomorphic` and `HolomorphicOn`.
 - [ ] Connect real two-coordinate differentiability and the Cauchy--Riemann
       equations to the complex derivative.
@@ -252,10 +253,11 @@ The domain-aware follow-up now has its predicate/open-ball foundation,
 additive derivative closure laws, fixed-complex-scalar closure, a quantitative
 product rule, a conditional chain rule, natural-power derivatives in the
 standard `(n + 1) · z ^ n` form, and Horner-form finite-polynomial
-derivatives.  Inverse and quotient rules on apart domains are the next
-algebraic layer.  General continuity, local-boundedness, and remainder-form
-packaging can then reduce explicit bound arguments and remove the chain
-rule's apart-increment restriction.
+derivatives, together with inverse and quotient rules for total extensions
+that agree with witnessed inversion on the selected predicate.  General
+continuity, reusable local-boundedness constructors, and remainder-form
+packaging are the next calculus layer; they can reduce explicit bound
+arguments and remove the chain rule's apart-increment restriction.
 
 ## Implemented modules
 
@@ -332,11 +334,33 @@ recurrence.  The quantitative theorem accepts a
 `PolynomialTailBoundsAt z coefficients` certificate containing explicit
 value and derivative bounds for every recursive tail; empty and singleton
 certificates and a linear-polynomial constructor are provided.  The public
-evaluators are opaque with separate empty/cons computation paths.  A
-transparent recursive derivative evaluator, or a single definition combining
-the product rule, addition rule, and both transports, was observed to force
-multi-gigabyte normalization.  Splitting these stages into opaque typed
-lemmas keeps the polynomial leaf checking in a few seconds.
+  evaluators are opaque with separate empty/cons computation paths.  A
+  transparent recursive derivative evaluator, or a single definition combining
+  the product rule, addition rule, and both transports, was observed to force
+  multi-gigabyte normalization.  Splitting these stages into opaque typed
+  lemmas keeps the polynomial leaf checking in a few seconds.
+
+`Complex.Calculus.Derivative.Algebra.Inverse` represents a constructive
+reciprocal on a predicate by `ReciprocalOn P f g`; the stronger
+`WitnessedInverseExtensionOn P f g` records explicit apartness witnesses and
+agreement with `invℂ`, and implies the reciprocal relation.  Because the
+derivative API takes total functions, `g` is a total extension, while all
+inverse equations are required only on `P`.  The derivative is
+`(-g z) ·ℂ f′ z ·ℂ g z`.  Its quantitative proof takes a bound for `g z` and
+a `ComplexLocalBoundWithinAt P g z` controlling nearby reciprocal values.
+The error separates into a linear derivative-error term and a quadratic
+cross term.  Their estimates multiply by the two center reciprocals, two
+difference quotients, and the nearby reciprocal in separate opaque stages;
+packaging the five-factor bound as one dependent value reproduced the known
+multi-gigabyte elaboration pathology.
+
+`Complex.Calculus.Derivative.Algebra.Quotient` combines that inverse rule with
+the product rule.  It exports domain-aware and total derivative,
+differentiability, and holomorphic closure APIs for a numerator and a chosen
+reciprocal extension of the denominator.  Apartness remains explicit through
+`WitnessedInverseExtensionOn`, and all quantitative derivative/value bounds
+remain caller-visible rather than being extracted from truncated
+Archimedean existence.
 
 The geometric implementation avoids whole-function rewriting through
 `seqΣ`.  Indexed computation paths and explicit transports are used instead;
