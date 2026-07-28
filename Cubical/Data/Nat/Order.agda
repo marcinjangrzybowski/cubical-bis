@@ -165,6 +165,14 @@ suc-< p = pred-≤-pred (≤-suc p)
 ¬-<-zero : ¬ m < 0
 ¬-<-zero (k , p) = snotz ((sym (+-suc k _)) ∙ p)
 
+≤-·sk-cancel : m · suc k ≤ n · suc k → m ≤ n
+≤-·sk-cancel {zero}  {n = n}     = λ _ → zero-≤
+≤-·sk-cancel {suc m} {n = zero}  = ⊥.rec ∘ ¬-<-zero
+≤-·sk-cancel {suc m} {n = suc n} = suc-≤-suc ∘ ≤-·sk-cancel {m} {n = n} ∘ ≤-k+-cancel
+
+≤-sk·-cancel : suc k · m ≤ suc k · n → m ≤ n
+≤-sk·-cancel {k = k} = ≤-·sk-cancel ∘ subst2 _≤_ (·-comm (suc k) _) (·-comm (suc k) _)
+
 ¬m<m : ¬ m < m
 ¬m<m {m} = ¬-<-zero ∘ ≤-+k-cancel {k = m}
 
@@ -177,6 +185,9 @@ predℕ-≤-predℕ {zero} {zero}   ineq = ≤-refl
 predℕ-≤-predℕ {zero} {suc n}  ineq = zero-≤
 predℕ-≤-predℕ {suc m} {zero}  ineq = ⊥.rec (¬-<-zero ineq)
 predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
+
+zero-<suc : zero < suc n
+zero-<suc = suc-≤-suc zero-≤
 
 ¬m+n<m : ¬ m + n < m
 ¬m+n<m {m} {n} = ¬-<-zero ∘ <-k+-cancel ∘ subst (m + n <_) (sym (+-zero m))
@@ -258,15 +269,16 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-·sk' {zero} {m} {n} 0<0 = ⊥.rec (¬-<-zero 0<0)
 <-·sk' {suc k} {m} {n}  _ = <-·sk {m} {n} {k}
 
-<-·sk-cancel : ∀ {m n k} → m · suc k < n · suc k → m < n
-<-·sk-cancel {n = zero} x = ⊥.rec (¬-<-zero x)
-<-·sk-cancel {zero} {n = suc n} x = suc-≤-suc (zero-≤ {n})
-<-·sk-cancel {suc m} {n = suc n} {k} x =
-  suc-≤-suc {suc m} {n}
-    (<-·sk-cancel {m} {n} {k}
-     (≤-k+-cancel (subst (_≤ (k + n · suc k))
-       (sym (+-suc _ _)) (pred-≤-pred x))))
+<-sk· : m < n → suc k · m < suc k · n
+<-sk· {k = k} = subst2 _<_ (·-comm _ (suc k)) (·-comm _ (suc k)) ∘ <-·sk {k = k}
 
+<-·sk-cancel : ∀ {m n k} → m · suc k < n · suc k → m < n
+<-·sk-cancel {m}     {n = zero}  = ⊥.rec ∘ ¬-<-zero
+<-·sk-cancel {zero}  {n = suc n} = λ _ → zero-<suc
+<-·sk-cancel {suc m} {n = suc n} = suc-≤-suc ∘ <-·sk-cancel {m} {n = n} ∘ <-k+-cancel
+
+<-sk·-cancel : suc k · m < suc k · n → m < n
+<-sk·-cancel {k = k} = <-·sk-cancel ∘ subst2 _<_ (·-comm (suc k) _) (·-comm (suc k) _)
 
 ∸-≤ : ∀ m n → m ∸ n ≤ m
 ∸-≤ m zero = ≤-refl
@@ -320,6 +332,34 @@ minGLB {suc m} {zero}  _   x≤0   = x≤0
 minGLB {suc m} {suc n} x≤sm x≤sn with m <ᵇ n
 ... | false = x≤sn
 ... | true  = x≤sm
+
+0<^ : ∀ n → 0 < (suc m) ^ n
+0<^ {m} (zero ) = <-suc
+0<^ {m} (suc n) = subst (_< (suc m ^ suc n)) (sym (0≡m·0 (suc m))) (<-sk· {k = m} (0<^ n))
+
+≤-sk^ : m ≤ n → (suc k) ^ m ≤ (suc k) ^ n
+≤-sk^ {zero}  {n}     {k} = λ _ → 0<^ n
+≤-sk^ {suc m} {zero}  {k} = ⊥.rec ∘ ¬-<-zero
+≤-sk^ {suc m} {suc n} {k} = ≤-k· {k = suc k} ∘ ≤-sk^ ∘ pred-≤-pred
+
+1<^suc : ∀ n → 1 < (suc (suc m)) ^ (suc n)
+1<^suc {m} zero    = suc-≤-suc (zero-<suc)
+1<^suc {m} (suc n) = <≤-trans (1<^suc n) (≤-sk^ (≤-sucℕ {suc n}))
+
+<-ssk^ : m < n → (suc (suc k)) ^ m < (suc (suc k)) ^ n
+<-ssk^ {m}     {zero}  {k} = ⊥.rec ∘ ¬-<-zero
+<-ssk^ {zero}  {suc n} {k} = λ _ → 1<^suc n
+<-ssk^ {suc m} {suc n} {k} = <-sk· {k = suc k} ∘ <-ssk^ ∘ pred-≤-pred
+
+≤-ssk^-cancel : (suc (suc k)) ^ m ≤ (suc (suc k)) ^ n → m ≤ n
+≤-ssk^-cancel {k} {zero}  {n}     = λ _ → zero-≤
+≤-ssk^-cancel {k} {suc m} {zero}  = ⊥.rec ∘ <-asym (1<^suc m)
+≤-ssk^-cancel {k} {suc m} {suc n} = suc-≤-suc ∘ ≤-ssk^-cancel ∘ ≤-sk·-cancel {suc k}
+
+<-ssk^-cancel : (suc (suc k)) ^ m < (suc (suc k)) ^ n → m < n
+<-ssk^-cancel {k} {m}     {zero}  = ⊥.rec ∘ flip <-asym (0<^ m)
+<-ssk^-cancel {k} {zero}  {suc n} = λ _ → zero-<suc
+<-ssk^-cancel {k} {suc m} {suc n} = suc-≤-suc ∘ <-ssk^-cancel ∘ <-sk·-cancel {suc k}
 
 -- Boolean order relations and their conversions to/from ≤ and <
 
