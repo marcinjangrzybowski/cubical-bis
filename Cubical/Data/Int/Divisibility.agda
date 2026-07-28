@@ -30,7 +30,7 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
-open import Cubical.Tactics.CommRingSolver
+open import Cubical.Algebra.Ring.Properties
 
 private
   variable
@@ -40,16 +40,57 @@ private
 -- The following is a work-around.
 private
   module Helper {ℓ : Level}(𝓡 : CommRing ℓ) where
-    open CommRingStr (𝓡 .snd)
+    module CR = CommRingStr (𝓡 .snd)
+    open CR
+    module RT = RingTheory (CommRing→Ring 𝓡)
 
     helper1 : (a b m d r : 𝓡 .fst) → (- a · d + b) · m + a · (d · m + r) ≡ a · r + b · m
-    helper1 _ _ _ _ _ = solve! 𝓡
+    helper1 a b m d r =
+      (- a · d + b) · m + a · (d · m + r)
+        ≡⟨ cong₂ _+_ (CR.·DistL+ _ _ _) (CR.·DistR+ _ _ _) ⟩
+      ((- a · d) · m + b · m) + (a · (d · m) + a · r)
+        ≡⟨ cong₂ _+_
+             (cong (_+ b · m)
+               (cong (_· m) (RT.-DistL· a d) ∙ RT.-DistL· (a · d) m))
+             (cong (_+ a · r) (CR.·Assoc a d m)) ⟩
+      (- ((a · d) · m) + b · m) + ((a · d) · m + a · r)
+        ≡⟨ sym (CR.+Assoc _ _ _) ⟩
+      - ((a · d) · m) + (b · m + ((a · d) · m + a · r))
+        ≡⟨ cong (- ((a · d) · m) +_) (CR.+Assoc _ _ _) ⟩
+      - ((a · d) · m) + ((b · m + (a · d) · m) + a · r)
+        ≡⟨ cong (λ x → - ((a · d) · m) + (x + a · r))
+             (CR.+Comm (b · m) ((a · d) · m)) ⟩
+      - ((a · d) · m) + (((a · d) · m + b · m) + a · r)
+        ≡⟨ cong (- ((a · d) · m) +_) (sym (CR.+Assoc _ _ _)) ⟩
+      - ((a · d) · m) + ((a · d) · m + (b · m + a · r))
+        ≡⟨ CR.+Assoc (- ((a · d) · m)) ((a · d) · m)
+                  (b · m + a · r) ⟩
+      (- ((a · d) · m) + (a · d) · m) + (b · m + a · r)
+        ≡⟨ cong (_+ (b · m + a · r)) (CR.+InvL ((a · d) · m)) ⟩
+      0r + (b · m + a · r)
+        ≡⟨ CR.+IdL _ ⟩
+      b · m + a · r
+        ≡⟨ CR.+Comm _ _ ⟩
+      a · r + b · m ∎
 
     helper2 : (d m r : 𝓡 .fst) → (d · m + r) + (- d) · m ≡ r
-    helper2 _ _ _ = solve! 𝓡
+    helper2 d m r =
+      (d · m + r) + (- d) · m
+        ≡⟨ cong ((d · m + r) +_) (RT.-DistL· d m) ⟩
+      (d · m + r) + (- (d · m))
+        ≡⟨ sym (CR.+Assoc _ _ _) ⟩
+      d · m + (r + (- (d · m)))
+        ≡⟨ cong (d · m +_) (CR.+Comm r (- (d · m))) ⟩
+      d · m + ((- (d · m)) + r)
+        ≡⟨ CR.+Assoc _ _ _ ⟩
+      (d · m + (- (d · m))) + r
+        ≡⟨ cong (_+ r) (CR.+InvR (d · m)) ⟩
+      0r + r
+        ≡⟨ CR.+IdL r ⟩
+      r ∎
 
     helper3 : (n m d r : 𝓡 .fst) → n ≡ d · m + r → n + (- d) · m ≡ r
-    helper3 n m d r p = (λ t → p t + (- d) · m) ∙ helper2 d m r
+    helper3 n m d r p = cong (_+ (- d) · m) p ∙ helper2 d m r
 
 open Helper ℤCommRing
 

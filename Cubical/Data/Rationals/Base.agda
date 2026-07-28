@@ -3,6 +3,7 @@ module Cubical.Data.Rationals.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat as ℕ using (discreteℕ)
 open import Cubical.Data.NatPlusOne hiding (_+₁_)
@@ -22,9 +23,12 @@ open BinaryRelation
 _∼_ : ℤ × ℕ₊₁ → ℤ × ℕ₊₁ → Type₀
 (a , b) ∼ (c , d) = a · ℕ₊₁→ℤ d ≡ c · ℕ₊₁→ℤ b
 
+isProp∼ : ∀ (x y : ℤ × ℕ₊₁) → isProp (x ∼ y)
+isProp∼ x@(a , b) y@(c , d) xy xy' =
+  isSetℤ (a · ℕ₊₁→ℤ d) (c · ℕ₊₁→ℤ b) xy xy'
+
 ℚ : Type₀
 ℚ = (ℤ × ℕ₊₁) // _∼_
-
 
 isSetℚ : isSet ℚ
 isSetℚ = SetQuotient.squash/
@@ -54,6 +58,12 @@ eq/⁻¹ = SetQuotient.effective (λ _ _ → isSetℤ _ _) isEquivRel∼
 
 eqℚ : ∀ {k m k' m'} → (k , 1+ m) ∼ (k' , 1+ m') → [ k / 1+ m ] ≡ [ k' / 1+ m' ]
 eqℚ = eq/ _ _
+
+path∼ : ∀ (x  y : ℤ × ℕ₊₁) → Path ℚ [ x ] [ y ] ≡ x ∼ y
+path∼ x y = isoToPath (iso (eq/⁻¹ x y) (eq/ x y)
+            (λ b → isProp∼ x y (eq/⁻¹ x y (eq/ x y b)) b)
+            (λ a → isSetℚ [ x ] [ y ]
+              (eq/ x y (eq/⁻¹ x y a)) a))
 
 discreteℚ : Discrete ℚ
 discreteℚ = discreteSetQuotients isEquivRel∼ (λ _ _ → discreteℤ _ _)

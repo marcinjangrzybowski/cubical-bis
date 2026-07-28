@@ -35,11 +35,11 @@ open PositiveHalvesℚ public
 open OrderedCommRingTheory ℚOrderedCommRing hiding (_#_) public
 module ℚExponentiation = Exponentiation ℚCommRing
 
-open import Cubical.Data.Rationals.Base public
+open import Cubical.Data.Rationals.Base hiding (isProp∼) public
 
 module ℚ where
  
- open import Cubical.Data.Rationals.Base public
+ open import Cubical.Data.Rationals.Base hiding (isProp∼) public
  open import Cubical.Data.Rationals.Properties public
  open import Cubical.Data.Rationals.Order public
  open import Cubical.Data.Rationals.Order.AbsoluteValue public
