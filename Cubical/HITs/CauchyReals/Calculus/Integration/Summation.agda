@@ -15,6 +15,7 @@ open import Cubical.Data.Nat as ℕ hiding (_·_;_+_)
 import Cubical.Data.Nat.Mod as ℕ
 import Cubical.Data.Nat.Order as ℕ
 import Cubical.Data.Nat.Order.Inductive as ℕ
+import Cubical.Data.Nat.Logarithm as ℕLog
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Int as ℤ using (pos)
@@ -518,6 +519,19 @@ deltas-sum n f =
 2^-^ (suc n) = cong₂ ℕ._+_ (2^-^ n) (2^-^ n)
  ∙ cong ((2 ℕ.^ n) ℕ.+_) (sym (ℕ.+-zero _))
 
+dyadicLevel : ℕ → ℕ
+dyadicLevel n = ℕLog.log 2 (suc n)
+
+dyadicLevel-lower : ∀ n → 2^ (dyadicLevel n) ℕ.≤ suc n
+dyadicLevel-lower n =
+  subst (ℕ._≤ suc n) (sym (2^-^ (dyadicLevel n)))
+    (ℕLog.Logℕ.^log≤ (ℕLog.logℕ 0 n))
+
+dyadicLevel-upper : ∀ n → suc n ℕ.< 2^ (suc (dyadicLevel n))
+dyadicLevel-upper n =
+  subst (suc n ℕ.<_) (sym (2^-^ (suc (dyadicLevel n))))
+    (ℕLog.Logℕ.<^1+log (ℕLog.logℕ 0 n))
+
 2^+ : ∀ n m → 2^ (n ℕ.+ m) ≡ (2^ n) ℕ.· (2^ m)
 2^+ n m =
   2^-^ (n ℕ.+ m)
@@ -643,8 +657,8 @@ foldFin-sum-concat n m f =
      (foldFin+map m _ _ injectFin+ (idfun _))
 
 0<2^ : ∀ n → 0 ℕ.< 2^ n
-0<2^ zero = ℕ.zero-<-suc
-0<2^ (suc n) = ℕ.<-+-< (0<2^ n) (0<2^ n)
+0<2^ n =
+  subst (0 ℕ.<_) (sym (2^-^ n)) (ℕ.0<^ {m = 1} n)
 
 
 Fin^2· : ∀ n m → (Fin (2^ n) × Fin (2^ m))

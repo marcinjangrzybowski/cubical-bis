@@ -1814,7 +1814,7 @@ module _ (Z N : ℕ) where
             (≤ℤ→≤ℚ _ _ (ℤ.ℕ≤→pos-≤-pos _ _
               (subst (ℕ._≤ ((2 ℕ.+ Z) ^ suc n))
                 (cong (suc ∘ suc) (·-identityʳ Z))
-                 (ℕ.^-monotone (2 ℕ.+ Z) 0 n (ℕ.zero-≤ {n}))))))))
+                 (ℕ.≤-sk^ (ℕ.suc-≤-suc (ℕ.zero-≤ {n}))))))))
        (subst (ℚ._<
           (fromNat (2 ℕ.+ Z) ℚ^ⁿ suc n) ℚ.· fst (invℚ₊ sn₊))
             (ℚ.x·invℚ₊[x] sn₊)

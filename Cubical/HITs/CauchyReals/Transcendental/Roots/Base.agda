@@ -453,7 +453,9 @@ module NthRoot (m : ℕ) where
               (ℤ.ℕ≤→pos-≤-pos
                   _ _ (subst (ℕ._≤ (lo𝑵 ℕ.^ suc (suc m)))
                     (ℕ.·-identityʳ lo𝑵)
-                     ((ℕ.^-monotone lo𝑵 0 (suc m) ℕ.zero-≤))))
+                     (ℕ.≤-sk^
+                       {m = 1} {n = suc (suc m)} {k = -1+ lo𝑵₊}
+                       (ℕ.suc-≤-suc ℕ.zero-≤))))
                      )
               (ℚ.≡Weaken≤ (fromNat (lo𝑵 ℕ.^ suc (suc m)))
                 ((fromNat lo𝑵 ℚ^ⁿ (2 ℕ.+ m)))
@@ -481,7 +483,9 @@ module NthRoot (m : ℕ) where
      ((≤ℤ→≤ℚ (pos (suc M)) (pos ((2 ℕ.+ M) ℕ.^ suc (suc m))) (ℤ.ℕ≤→pos-≤-pos _ _
        (ℕ.≤-trans (ℕ.≤-suc ℕ.≤-refl) (subst (ℕ._≤ (suc (suc M) ℕ.^ suc (suc m)))
            (sym (cong (suc ∘ suc) (sym (·-identityʳ M))))
-            (ℕ.^-monotone (suc (suc M)) 0 (suc m) ℕ.zero-≤ )))
+            (ℕ.≤-sk^
+              {m = 1} {n = suc (suc m)} {k = suc M}
+              (ℕ.suc-≤-suc ℕ.zero-≤))))
        )))
 
 

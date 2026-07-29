@@ -17,6 +17,7 @@ open import Cubical.Data.Bool as 𝟚 hiding (_≤_)
 open import Cubical.Data.Nat as ℕ hiding (_·_;_+_)
 import Cubical.Data.Nat.Mod as ℕ
 import Cubical.Data.Nat.Order as ℕ
+import Cubical.Data.Nat.Logarithm as ℕLog
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎
 import Cubical.Data.Fin as F
@@ -63,6 +64,20 @@ digits N q =
  where
  open ℚ.Floor (ℚ.floorℚ q)
  module Ffp = ℚ.Floor (ℚ.floorℚ ([ pos (10 ℕ.^ N) / 1 ] ℚ.· fst fractionalPart))
+
+decimalDigitsCount : ℕ → ℕ
+decimalDigitsCount zero = 1
+decimalDigitsCount (suc n) = suc (ℕLog.log 10 (suc n))
+
+decimalDigitsCount-bounds : ∀ n →
+  (10 ℕ.^ predℕ (decimalDigitsCount (suc n)) ℕ.≤ suc n)
+  × (suc n ℕ.< 10 ℕ.^ decimalDigitsCount (suc n))
+decimalDigitsCount-bounds n =
+  ℕLog.Logℕ.^log≤ magnitude ,
+  ℕLog.Logℕ.<^1+log magnitude
+  where
+  magnitude : ℕLog.Logℕ 10 (suc n)
+  magnitude = ℕLog.logℕ 8 n
 
 
 open import Cubical.Tactics.CauchyReals.ExpressionLifting

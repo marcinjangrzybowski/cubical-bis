@@ -578,6 +578,19 @@ module EqualPartition a b (a≤b : a ≤ᵣ b) where
  equalPartition-2ⁿ : ℕ → Partition[ a , b ]
  equalPartition-2ⁿ n = equalPartition (predℕ (2^ (suc n)))
 
+ -- The argument n represents the positive interval budget suc n.
+ equalPartition-dyadicWithin : ℕ → Partition[ a , b ]
+ equalPartition-dyadicWithin n =
+   equalPartition (predℕ (2^ (dyadicLevel n)))
+
+ equalPartition-dyadicWithin-count≤ : ∀ n →
+   1 ℕ.+ len (equalPartition-dyadicWithin n) ℕ.≤ suc n
+ equalPartition-dyadicWithin-count≤ n =
+   subst (ℕ._≤ suc n)
+     (sym (ℕ.k+predℕₖ
+       {1} {2^ (dyadicLevel n)} (0<2^ (dyadicLevel n))))
+     (dyadicLevel-lower n)
+
  equalPartition-mesh : ∀ n →
   mesh≤ᵣ (equalPartition n)
    ((b -ᵣ a) ·ᵣ (rat [ 1 / 1+ n  ]) )
@@ -1113,8 +1126,9 @@ llll = ≡ᵣWeaken≤ᵣ _ _
  (ℤ.ℕ<→pos-<-pos 0 _ (0<2^ n) ))
 
 2^-mon : ∀ n → 2^ n ℕ.< 2^ (suc n)
-2^-mon zero = ℕ.≤-solver 2 2
-2^-mon (suc n) = ℕ.<-+-< (2^-mon n) (2^-mon n)
+2^-mon n =
+  subst2 ℕ._<_ (sym (2^-^ n)) (sym (2^-^ (suc n)))
+    (ℕ.<-ssk^ {m = n} {n = suc n} {k = 0} ℕ.<-suc)
 
 lemXX : ∀ n → 1 ℕ.+ predℕ (2^ (suc n)) ≡ 2^ (suc n)
 lemXX n = ℕ.k+predℕₖ {1} {2^ (suc n)} (0<2^ (suc n))
