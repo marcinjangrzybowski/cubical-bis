@@ -8,8 +8,8 @@ open import Cubical.Algebra.OrderedCommRing
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals.Fast
 
 open import Cubical.Data.NatPlusOne as ℕ₊₁
-open import Cubical.Data.Rationals.Fast.Base as ℚ
-import Cubical.Data.Rationals.Fast.Properties as ℚ
+open import Cubical.Data.Rationals.Base as ℚ
+import Cubical.Data.Rationals.Properties as ℚ
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as PT

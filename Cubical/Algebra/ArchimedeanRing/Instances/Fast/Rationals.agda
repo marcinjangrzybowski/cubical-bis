@@ -9,9 +9,9 @@ open import Cubical.Data.NatPlusOne as ℕ₊₁ using (1+_)
 open import Cubical.Data.Nat as ℕ using (zero ; suc)
 open import Cubical.Data.Int.Fast as ℤ using (pos ; negsuc)
 open import Cubical.Data.Int.Fast.Order as ℤ using ()
-open import Cubical.Data.Rationals.Fast as ℚ renaming (
+open import Cubical.Data.Rationals as ℚ renaming (
   _+_ to _+ℚ_ ; _·_ to _·ℚ_ ; -_ to -ℚ_ ; _-_ to _-ℚ_ )
-open import Cubical.Data.Rationals.Fast.Order as ℚ renaming (
+open import Cubical.Data.Rationals.Order as ℚ renaming (
   _<_ to _<ℚ_ ; _≤_ to _≤ℚ_ )
 
 open import Cubical.Data.Empty as ⊥

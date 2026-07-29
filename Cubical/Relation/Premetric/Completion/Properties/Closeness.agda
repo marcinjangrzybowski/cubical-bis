@@ -58,7 +58,8 @@ private
   open OrderedCommRingTheory ℚOCR using (0<Δ→<)
 
   open PremetricStr (M' .snd)
-  open import Cubical.Relation.Premetric.Completion.Base M' renaming (ℭ to ℭM)
+  open import Cubical.Relation.Premetric.Completion.Base M'
+    renaming (ℭ to ℭM ; isProp∼ to isProp∼ℭ)
   open import Cubical.Relation.Premetric.Completion.Elim M'
 
 substℚ₊ : ∀ {ℓP} {P : ℚ₊ → Type ℓP} {ε ε'} → ⟨ ε ⟩₊ ≡ ⟨ ε' ⟩₊ → P ε → P ε'
@@ -94,12 +95,12 @@ isRefl∼ = Elimℭ-Prop.go e where
   Elimℭ-Prop.limA    e x xc IH ε =
     lim-lim x x ε (ε /4₊) (ε /4₊) xc xc <≤ℚ!
       (IH (ε /4₊) (ε -₊ (ε /4₊ +₊ ε /4₊) , <≤ℚ!))
-  Elimℭ-Prop.isPropA e = λ _ → isPropΠ (λ _ → isProp∼ _ _ _)
+  Elimℭ-Prop.isPropA e = λ _ → isPropΠ (λ _ → isProp∼ℭ _ _ _)
 
 -- lemma 3.6
 isSetℭ : isSet ℭM
 isSetℭ = reflPropRelImpliesIdentity→isSet
-  (λ x y → ∀ ε → x ∼[ ε ] y) isRefl∼ (λ _ _ → isPropΠ (λ _ → isProp∼ _ _ _)) (eqℭ _ _)
+  (λ x y → ∀ ε → x ∼[ ε ] y) isRefl∼ (λ _ _ → isPropΠ (λ _ → isProp∼ℭ _ _ _)) (eqℭ _ _)
 
 -- lemma 3.7
 isSym∼ : ∀ x y ε → x ∼[ ε ] y → y ∼[ ε ] x
@@ -111,7 +112,7 @@ isSym∼ = λ _ _ _ → Recℭ∼.go∼ r where
   Recℭ∼.lim-lim-B r x y ε δ η xc yc Δ _ q =
     lim-lim y x ε η δ yc xc <≤ℚ![ Δ ] (subst∼ (y η) (x δ) ℚ!! q)
     
-  Recℭ∼.isPropB   r x y ε                 = isProp∼ y ε x
+  Recℭ∼.isPropB   r x y ε                 = isProp∼ℭ y ε x
 
 -- Using isSym∼, we can introduce a variant for Casesℭ:
 
@@ -889,24 +890,24 @@ opaque
 
     e : Elimℭ-Prop2 λ x y → ∀ ε → B[ ε ]⟨ x , y ⟩ → x ∼[ ε ] y
     ι-ιA     e x y ε (lift x≈y) = ι-ι x y ε x≈y
-    ι-limA   e x y yc IH ε = PT.rec (isProp∼ (ι x) ε (lim y yc))
+    ι-limA   e x y yc IH ε = PT.rec (isProp∼ℭ (ι x) ε (lim y yc))
       λ (δ , δ<ε , B[ε-δ]x,yδ) →
         ι-lim x y ε δ yc _ (IH δ (ε -₊ δ , _) B[ε-δ]x,yδ)
-    lim-ιA   e x xc y IH ε = PT.rec (isProp∼ (lim x xc) ε (ι y))
+    lim-ιA   e x xc y IH ε = PT.rec (isProp∼ℭ (lim x xc) ε (ι y))
       λ (δ , δ<ε , B[ε-δ]xδ,y) →
         lim-ι x y ε δ xc _ (
           IH δ (ε -₊ δ , _) B[ε-δ]xδ,y)
-    lim-limA e x xc y yc IH ε = PT.rec (isProp∼ (lim x xc) ε (lim y yc))
+    lim-limA e x xc y yc IH ε = PT.rec (isProp∼ℭ (lim x xc) ε (lim y yc))
       λ (δ , η , δ+η<ε , B[ε-[δ+η]]xδ,yη) →
         lim-lim x y ε δ η xc yc _ (
           IH δ η (ε -₊ (δ +₊ η) , _) B[ε-[δ+η]]xδ,yη)
 
-    isPropA  e x y = isPropΠ λ ε → isProp→ (isProp∼ x ε y)
+    isPropA  e x y = isPropΠ λ ε → isProp→ (isProp∼ℭ x ε y)
 
   -- Theorem 3.15
   ∼≃B : ∀ {x y ε} → (x ∼[ ε ] y) ≃ B[ ε ]⟨ x , y ⟩
   ∼≃B {x} {y} {ε} =
-    propBiimpl→Equiv (isProp∼ x ε y) (IsBall.isPropBall (snd B⟨ x ,⟩) ε y) ∼→B B→∼
+    propBiimpl→Equiv (isProp∼ℭ x ε y) (IsBall.isPropBall (snd B⟨ x ,⟩) ε y) ∼→B B→∼
 
   isTriangular∼ : ∀ x y z ε δ → x ∼[ ε ] y → y ∼[ δ ] z → x ∼[ ε +₊ δ ] z
   isTriangular∼ x y z ε δ x∼y y∼z =
@@ -936,7 +937,7 @@ PremetricStr.isPremetric (snd ℭPremetricSpace) = isPMℭ
 
     isPMℭ : IsPremetric _∼[_]_
     isSetM        isPMℭ = isSetℭ
-    isProp≈       isPMℭ = flip ∘ isProp∼
+    isProp≈       isPMℭ = flip ∘ isProp∼ℭ
     isRefl≈       isPMℭ = isRefl∼
     isSym≈        isPMℭ = isSym∼
     isSeparated≈  isPMℭ = eqℭ
@@ -951,13 +952,13 @@ isLimitLim x xc ε θ = Elimℭ-Prop.go e (x ε) x xc ε θ (isRefl∼ (x ε) θ
   ιA      e u x xc ε θ =
     subst∼ _ _ (ℚ.+Comm ⟨ θ ⟩₊ ⟨ ε ⟩₊) ∘ ι-lim+₊ u x θ ε xc
   limA    e u uc IH x xc ε θ limu∼[θ]xε = PT.rec
-    (isProp∼ (lim u uc) (ε +₊ θ) (lim x xc))
+    (isProp∼ℭ (lim u uc) (ε +₊ θ) (lim x xc))
     ((λ (δ , (δ<θ , limu∼[δ]xε)) →
     let η = [ θ -₊ δ ]⟨ δ<θ ⟩ /4₊        
     in lim-lim u x (ε +₊ θ) η ε uc xc <≤ℚ!
        (subst∼ (u η) (x ε) ℚ!! ((IH η u uc _ _ (uc η η)) ▴ limu∼[δ]xε))))
     (isRounded∼ (lim u uc) (x ε) θ limu∼[θ]xε)
-  isPropA e u = isPropΠ4 λ _ _ _ _ → isProp→ (isProp∼ _ _ _)
+  isPropA e u = isPropΠ4 λ _ _ _ _ → isProp→ (isProp∼ℭ _ _ _)
 
 -- Theorem 3.18
 isCompleteℭ : isComplete ℭPremetricSpace

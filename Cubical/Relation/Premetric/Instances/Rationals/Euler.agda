@@ -20,9 +20,9 @@ open import Cubical.Data.Int.Fast as ℤ renaming (
   _+_ to _+ℤ_ ; _·_ to _·ℤ_ ; _-_ to _-ℤ_ ; -_ to -ℤ_)
 open import Cubical.Data.Int.Fast.Order as ℤ renaming (_≤_ to _≤ℤ_ ; _<_ to _<ℤ_)
 
-open import Cubical.Data.Rationals.Fast.Base
-open import Cubical.Data.Rationals.Fast.Properties as ℚ using (reduce ; reduced)
-open import Cubical.Data.Rationals.Fast.Order renaming (_<_ to _<ℚ_ ; _≤_ to _≤ℚ_)
+open import Cubical.Data.Rationals.Base
+open import Cubical.Data.Rationals.Properties as ℚ using (reduce ; reduced ; reducedEqual)
+open import Cubical.Data.Rationals.Order renaming (_<_ to _<ℚ_ ; _≤_ to _≤ℚ_)
 
 
 open import Cubical.Algebra.Semiring
@@ -99,7 +99,9 @@ syntax ∑ʳ-syntax n (λ k → xₖ) = ∑ʳ[0 < k < n ] xₖ
 
 ∑ʳ≡∑ : ∀ n → (x : ℕ → ℚ) → (∑ʳ[0 < k < n ] (x k) ≡ ∑[0 < k < n ] (x k))
 ∑ʳ≡∑ zero    x = refl
-∑ʳ≡∑ (suc n) x = cong₂ _+_ (ℚ.reduce≡id (x 0)) (ℚ.reduce≡id _ ∙ ∑ʳ≡∑ n (x ∘ suc))
+∑ʳ≡∑ (suc n) x =
+  cong₂ _+_ (sym (ℚ.reducedEqual (x 0)))
+    (sym (ℚ.reducedEqual _) ∙ ∑ʳ≡∑ n (x ∘ suc))
 
 -- lemmas about !
 private
