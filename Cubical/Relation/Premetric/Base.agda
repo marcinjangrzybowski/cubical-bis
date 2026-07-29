@@ -28,7 +28,7 @@ private
 
 record IsPremetric {M : Type ℓ}
                         (_≈[_]_ : M → ℚ₊ → M → Type ℓ') : Type (ℓ-max ℓ ℓ') where
-
+  no-eta-equality
   constructor ispremetric
 
   field

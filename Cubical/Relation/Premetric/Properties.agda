@@ -56,6 +56,18 @@ module PremetricTheory (M' : PremetricSpace ℓ ℓ') where
   subst≈R : ∀ {x y z ε} → y ≡ z → x ≈[ ε ] y → x ≈[ ε ] z
   subst≈R = subst (_ ≈[ _ ]_)
 
+  isRounded≈Gap : ∀ {x y} ε → x ≈[ ε ] y
+                → ∃[ (δ , Δ) ∈ ℚ₊ × ℚ₊ ]
+                    (⟨ δ +₊ Δ ⟩₊ ≡ ⟨ ε ⟩₊) × (x ≈[ δ ] y)
+  isRounded≈Gap ε = PT.map roundedWithGap ∘ isRounded≈ _ _ ε
+    where
+    roundedWithGap : _ → Σ (ℚ₊ × ℚ₊) λ _ → _ × _
+    roundedWithGap (δ , δ<ε , x≈δy) .fst .fst = δ
+    roundedWithGap (δ , δ<ε , x≈δy) .fst .snd = [ ε -₊ δ ]⟨ δ<ε ⟩
+    roundedWithGap (δ , δ<ε , x≈δy) .snd .fst =
+      ℚ.+Comm ⟨ δ ⟩₊ _ ∙ minusPlus₊ ε δ
+    roundedWithGap (δ , δ<ε , x≈δy) .snd .snd = x≈δy
+
   module PremetricReasoning where
 
     private
@@ -143,6 +155,13 @@ module PremetricTheory (M' : PremetricSpace ℓ ℓ') where
                  → x ≈[ ε ] y
     begin≈[ ε ]⟨ p ⟩ ≈step+ x≈y _ = subst≈ _ _ p x≈y
 
+    infix 1 begin≈[_]⟨⟩_
+    begin≈[_]⟨⟩_ : ∀ ε {x y}
+                 → (r : x ≈ y ≈ y [ ε :+ 1 ])
+                 → {is≈Step+ r}
+                 → x ≈[ ε ] y
+    begin≈[ ε ]⟨⟩ ≈step+ x≈y _ = x≈y
+
   open PremetricReasoning
 
   -- Cauchy Approximations/Sequences
@@ -194,6 +213,31 @@ module PremetricTheory (M' : PremetricSpace ℓ ℓ') where
       l          ≈≡[ ε /2₊ ]⟨ /4+/4≡/2 ⟨ ε ⟩₊ ⟩⟨ ≈⁻ l-lim (ε /4₊) (ε /4₊) ⟩
       x (ε /4₊)  ≈≡[ ε /2₊ ]⟨ /4+/4≡/2 ⟨ ε ⟩₊ ⟩⟨   l'-lim (ε /4₊) (ε /4₊) ⟩
       l'         ≈∎
+
+  isLimitSeq : (ℕ → M) → M → Type ℓ'
+  isLimitSeq x l =
+    ∀ ε → ∃[ N ∈ ℕ ] (∀ n → N ≤ℕ n → x n ≈[ ε ] l)
+
+  isPropIsLimitSeq : ∀ x l → isProp (isLimitSeq x l)
+  isPropIsLimitSeq x l = isPropΠ λ _ → squash₁
+
+  limitSeq : (ℕ → M) → Type (ℓ-max ℓ ℓ')
+  limitSeq x = Σ[ l ∈ M ] isLimitSeq x l
+
+  isPropLimitSeq : ∀ x → isProp (limitSeq x)
+  isPropLimitSeq x (l , l-lim) (l' , l'-lim) =
+    Σ≡Prop (isPropIsLimitSeq x) $
+      isSeparated≈ l l' λ ε →
+        PT.rec (isProp≈ l l' ε)
+          (λ (N₁ , N₁≤→≈) →
+            PT.rec (isProp≈ l l' ε)
+              (λ (N₂ , N₂≤→≈) →
+                begin≈[ ε ]⟨ /2+/2≡id ⟨ ε ⟩₊ ⟩
+                  l                ≈[ ε /2₊ ]⟨ ≈⁻ N₁≤→≈ _ N.L≤∨ ⟩
+                  x (ℕ.max N₁ N₂)  ≈[ ε /2₊ ]⟨ N₂≤→≈ _ (N.R≤∨ {N₁}) ⟩
+                  l'               ≈∎)
+              (l'-lim (ε /2₊)))
+          (l-lim (ε /2₊))
 
   isComplete : Type (ℓ-max ℓ ℓ')
   isComplete = ∀ x → isCauchy x → limit x

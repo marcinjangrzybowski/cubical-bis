@@ -7,6 +7,7 @@ open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _//_)
@@ -86,13 +87,22 @@ module PositiveRationals where
 
   opaque
     0<+Closed : ∀ x y → 0 <ℚ x → 0 <ℚ y → 0 <ℚ x +ℚ y
-    0<+Closed = SQ.elimProp2 (λ _ _ → isProp→ (isProp→ (isProp< 0 _)))
-     λ
-      { (pos (suc n) , _) (pos (suc m) , _) (pos<pos p) (pos<pos q) → pos<pos tt }
+    0<+Closed =
+      SQ.elimProp2 (λ _ _ → isProp→ (isProp→ (isProp< 0 _))) onFrac
+      where
+      onFrac : ∀ x y → 0 <ℚ [ x ] → 0 <ℚ [ y ] → 0 <ℚ [ x ] ℚ.+ [ y ]
+      onFrac (pos zero , _) (pos _ , _) (pos<pos ())
+      onFrac (pos (suc n) , _) (pos zero , _) _ (pos<pos ())
+      onFrac (pos (suc n) , _) (pos (suc m) , _) _ _ = pos<pos tt
 
     0<·Closed : ∀ x y → 0 <ℚ x → 0 <ℚ y → 0 <ℚ x ·ℚ y
-    0<·Closed = SQ.elimProp2 (λ _ _ → isProp→ (isProp→ (isProp< 0 _))) λ
-      { (pos (suc n) , _) (pos (suc m) , _) (pos<pos p) (pos<pos q) → pos<pos tt   }
+    0<·Closed =
+      SQ.elimProp2 (λ _ _ → isProp→ (isProp→ (isProp< 0 _))) onFrac
+      where
+      onFrac : ∀ x y → 0 <ℚ [ x ] → 0 <ℚ [ y ] → 0 <ℚ [ x ] ℚ.· [ y ]
+      onFrac (pos zero , _) (pos _ , _) (pos<pos ())
+      onFrac (pos (suc n) , _) (pos zero , _) _ (pos<pos ())
+      onFrac (pos (suc n) , _) (pos (suc m) , _) _ _ = pos<pos tt
 
   open Positive ℚOrderedCommRing 0<+Closed 0<·Closed public renaming (
       R₊ to ℚ₊ ; isSetR₊ to isSetℚ₊ ; R₊≡ to ℚ₊≡
@@ -136,6 +146,20 @@ module PositiveRationals where
   max₊ : ℚ₊ → ℚ₊ → ℚ₊
   fst (max₊ x y) = ℚ.max (fst x) (fst y)
   snd (max₊ x y) = 0<max (fst x) (fst y) (snd x) (snd y)
+
+  max₊LUB< : ∀ δ η ε → δ <₊ ε → η <₊ ε → max₊ δ η <₊ ε
+  max₊LUB< δ η ε δ<ε η<ε =
+    PT.rec (ℚ.isProp< _ _) proof (ℚ.isTotal≤ ⟨ δ ⟩₊ ⟨ η ⟩₊)
+    where
+    proof : (δ ≤₊ η) ⊎ (η ≤₊ δ) → max₊ δ η <₊ ε
+    proof (inl δ≤η) =
+      ℚ.recompute< $
+        subst (ℚ._< ⟨ ε ⟩₊) (sym (ℚ.≤→max ⟨ δ ⟩₊ ⟨ η ⟩₊ δ≤η)) η<ε
+    proof (inr η≤δ) =
+      ℚ.recompute< $ subst (ℚ._< ⟨ ε ⟩₊)
+        (sym (ℚ.maxComm ⟨ δ ⟩₊ ⟨ η ⟩₊
+          ∙ ℚ.≤→max ⟨ η ⟩₊ ⟨ δ ⟩₊ η≤δ))
+        δ<ε
 
   opaque
    0<min : ∀ a b → 0 ℚ.< a → 0 ℚ.< b → 0 ℚ.< ℚ.min a b 

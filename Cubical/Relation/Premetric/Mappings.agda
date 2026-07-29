@@ -43,6 +43,7 @@ open import Cubical.Reflection.StrictEquiv
 
 open import Cubical.Relation.Binary.Properties
 open import Cubical.Relation.Premetric.Base
+open import Cubical.Relation.Premetric.Properties
 
 open OrderedCommRingTheory ℚOrderedCommRing
 open 1/2∈ℚ
@@ -52,7 +53,7 @@ open PositiveHalvesℚ
 
 private
   variable
-    ℓ ℓ' ℓM ℓM' ℓN ℓN' : Level
+    ℓ ℓ' ℓM ℓM' ℓN ℓN' ℓO ℓO' : Level
 
 module _
   {A : Type ℓM} {B : Type ℓN}
@@ -195,6 +196,70 @@ NE→UC : ∀ {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'} �
 fst (NE→UC f) = fst f
 snd (NE→UC f) = isNonExpanding→isUniformlyContinuous _ (fst f) _ (snd f)
 
+L→UC : ∀ {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'}
+      → L[ M , N ] → UC[ M , N ]
+fst (L→UC f) = fst f
+snd (L→UC f) = isLipschitz→isUniformlyContinuous _ (fst f) _ (snd f)
+
+UC→C : ∀ {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'}
+      → UC[ M , N ] → C[ M , N ]
+fst (UC→C f) = fst f
+snd (UC→C f) = isUniformlyContinuous→isContinuous _ (fst f) _ (snd f)
+
+L→C : ∀ {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'}
+     → L[ M , N ] → C[ M , N ]
+L→C = UC→C ∘ L→UC
+
+NE→C : ∀ {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'}
+      → NE[ M , N ] → C[ M , N ]
+NE→C = UC→C ∘ NE→UC
+
+module _
+  {M : PremetricSpace ℓM ℓM'}
+  {N : PremetricSpace ℓN ℓN'}
+  where
+  private
+    module M where
+      open PremetricStr (snd M) public
+      open PremetricTheory M public
+    module N where
+      open PremetricStr (snd N) public
+      open PremetricTheory N public
+
+  NE→presLim : (f : NE[ M , N ]) → ∀ x l
+             → M.isLimit x l → N.isLimit (fst f ∘ x) (fst f l)
+  NE→presLim f x l l-lim ε θ =
+    IsNonExpanding.pres≈ (snd f) (x ε) l (ε +₊ θ) (l-lim ε θ)
+
+  C→seqContinuous : (f : C[ M , N ]) → ∀ x l
+                  → M.isLimitSeq x l
+                  → N.isLimitSeq (fst f ∘ x) (fst f l)
+  C→seqContinuous f x l l-lim ε = do
+    δ , close→close ← IsContinuousAt.pres≈ (snd f l) ε
+    n , eventuallyClose ← l-lim δ
+    return
+      ( n
+      , λ k n≤k →
+          N.isSym≈ _ _ _
+            (close→close (x k)
+              (M.isSym≈ _ _ _ (eventuallyClose k n≤k)))
+      )
+
+  NE→seqContinuous : (f : NE[ M , N ]) → ∀ x l
+                   → M.isLimitSeq x l
+                   → N.isLimitSeq (fst f ∘ x) (fst f l)
+  NE→seqContinuous = C→seqContinuous ∘ NE→C
+
+  L→seqContinuous : (f : L[ M , N ]) → ∀ x l
+                  → M.isLimitSeq x l
+                  → N.isLimitSeq (fst f ∘ x) (fst f l)
+  L→seqContinuous = C→seqContinuous ∘ L→C
+
+  UC→seqContinuous : (f : UC[ M , N ]) → ∀ x l
+                   → M.isLimitSeq x l
+                   → N.isLimitSeq (fst f ∘ x) (fst f l)
+  UC→seqContinuous = C→seqContinuous ∘ UC→C
+
 module CategoryStructures where
   open OrderedCommRingStr (str ℚOrderedCommRing)
 
@@ -214,13 +279,19 @@ module CategoryStructures where
   fst idᴸ = idfun _
   snd idᴸ = isNonExpanding→isLipschitz _ _ _ (idⁿ .snd)
 
-  _∘NE_ : ∀ {M N O : PremetricSpace ℓM ℓM'} → NE[ N , O ] → NE[ M , N ] → NE[ M , O ]
+  _∘NE_ : ∀ {M : PremetricSpace ℓM ℓM'}
+             {N : PremetricSpace ℓN ℓN'}
+             {O : PremetricSpace ℓO ℓO'}
+         → NE[ N , O ] → NE[ M , N ] → NE[ M , O ]
   fst (g ∘NE f) = fst g ∘ fst f
   IsNonExpanding.pres≈ (snd (g ∘NE f)) =
     λ x y ε → g .snd .pres≈ (fst f x) (fst f y) ε ∘ f .snd .pres≈ x y ε
     where open IsNonExpanding
 
-  _∘C_ : ∀ {M N O : PremetricSpace ℓM ℓM'} → C[ N , O ] → C[ M , N ] → C[ M , O ]
+  _∘C_ : ∀ {M : PremetricSpace ℓM ℓM'}
+            {N : PremetricSpace ℓN ℓN'}
+            {O : PremetricSpace ℓO ℓO'}
+        → C[ N , O ] → C[ M , N ] → C[ M , O ]
   fst (g ∘C f) = fst g ∘ fst f
   IsContinuousAt.pres≈ (snd (g ∘C f) x) = λ ε → do
     (δ , ≈δ→≈ε) ← g .snd (fst f x) .pres≈ ε
@@ -230,7 +301,10 @@ module CategoryStructures where
       .snd y → ≈δ→≈ε (fst f y) ∘ ≈η→≈δ y
     where open IsContinuousAt
 
-  _∘UC_ : ∀ {M N O : PremetricSpace ℓM ℓM'} → UC[ N , O ] → UC[ M , N ] → UC[ M , O ]
+  _∘UC_ : ∀ {M : PremetricSpace ℓM ℓM'}
+             {N : PremetricSpace ℓN ℓN'}
+             {O : PremetricSpace ℓO ℓO'}
+         → UC[ N , O ] → UC[ M , N ] → UC[ M , O ]
   fst (g ∘UC f) = fst g ∘ fst f
   snd (g ∘UC f) = do
     (μ , μ-uc) ← f .snd
@@ -240,7 +314,10 @@ module CategoryStructures where
       .snd .pres≈ x y ε → ν-uc .pres≈ (fst f x) (fst f y) ε ∘ μ-uc .pres≈ x y (ν ε)
     where open IsUniformlyContinuousWith
 
-  _∘L_ : ∀ {M N O : PremetricSpace ℓM ℓM'} → L[ N , O ] → L[ M , N ] → L[ M , O ]
+  _∘L_ : ∀ {M : PremetricSpace ℓM ℓM'}
+            {N : PremetricSpace ℓN ℓN'}
+            {O : PremetricSpace ℓO ℓO'}
+        → L[ N , O ] → L[ M , N ] → L[ M , O ]
   fst (g ∘L f) = fst g ∘ fst f
   snd (_∘L_ {O = O} g f) = do
     (L , L-lip) ← f .snd
@@ -255,16 +332,20 @@ module CategoryStructures where
       open IsLipschitzWith
       open PremetricStr
 
-  C≡ : ∀ {M N : PremetricSpace ℓM ℓM'} → {f g : C[ M , N ]} → fst f ≡ fst g → f ≡ g
+  C≡ : ∀ {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'}
+     → {f g : C[ M , N ]} → fst f ≡ fst g → f ≡ g
   C≡ = ΣPathPProp (flip (isPropIsContinuous _) _)
 
-  UC≡ : ∀ {M N : PremetricSpace ℓM ℓM'} → {f g : UC[ M , N ]} → fst f ≡ fst g → f ≡ g
+  UC≡ : ∀ {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'}
+      → {f g : UC[ M , N ]} → fst f ≡ fst g → f ≡ g
   UC≡ = ΣPathPProp λ _ → squash₁
 
-  L≡ : ∀ {M N : PremetricSpace ℓM ℓM'} → {f g : L[ M , N ]} → fst f ≡ fst g → f ≡ g
+  L≡ : ∀ {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'}
+     → {f g : L[ M , N ]} → fst f ≡ fst g → f ≡ g
   L≡ = ΣPathPProp λ _ → squash₁
 
-  NE≡ : ∀ {M N : PremetricSpace ℓM ℓM'} → {f g : NE[ M , N ]} → fst f ≡ fst g → f ≡ g
+  NE≡ : ∀ {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'}
+      → {f g : NE[ M , N ]} → fst f ≡ fst g → f ≡ g
   NE≡ = ΣPathPProp (flip (isPropIsNonExpanding _) _)
 
   module _ (ℓM ℓM' : Level) where
@@ -326,6 +407,40 @@ module CategoryStructures where
   inv (snd (CatIsoⁿ→CatIsoᴸ f)) = NE→L (inv (snd f))
   sec (snd (CatIsoⁿ→CatIsoᴸ f)) = L≡ (cong fst (sec (snd f)))
   ret (snd (CatIsoⁿ→CatIsoᴸ f)) = L≡ (cong fst (ret (snd f)))
+
+  CatIsoⁿ→CatIsoᵘᶜ : ∀ {M N : PremetricSpace ℓM ℓM'}
+                   → CatIso (PremetricSpaceCategoryⁿ ℓM ℓM') M N
+                   → CatIso (PremetricSpaceCategoryᵘᶜ ℓM ℓM') M N
+  fst (CatIsoⁿ→CatIsoᵘᶜ f)       = NE→UC (fst f)
+  inv (snd (CatIsoⁿ→CatIsoᵘᶜ f)) = NE→UC (inv (snd f))
+  sec (snd (CatIsoⁿ→CatIsoᵘᶜ f)) = UC≡ (cong fst (sec (snd f)))
+  ret (snd (CatIsoⁿ→CatIsoᵘᶜ f)) = UC≡ (cong fst (ret (snd f)))
+
+  CatIsoᴸ→CatIsoᵘᶜ : ∀ {M N : PremetricSpace ℓM ℓM'}
+                   → CatIso (PremetricSpaceCategoryᴸ ℓM ℓM') M N
+                   → CatIso (PremetricSpaceCategoryᵘᶜ ℓM ℓM') M N
+  fst (CatIsoᴸ→CatIsoᵘᶜ f)       = L→UC (fst f)
+  inv (snd (CatIsoᴸ→CatIsoᵘᶜ f)) = L→UC (inv (snd f))
+  sec (snd (CatIsoᴸ→CatIsoᵘᶜ f)) = UC≡ (cong fst (sec (snd f)))
+  ret (snd (CatIsoᴸ→CatIsoᵘᶜ f)) = UC≡ (cong fst (ret (snd f)))
+
+  CatIsoᵘᶜ→CatIsoᶜ : ∀ {M N : PremetricSpace ℓM ℓM'}
+                   → CatIso (PremetricSpaceCategoryᵘᶜ ℓM ℓM') M N
+                   → CatIso (PremetricSpaceCategoryᶜ ℓM ℓM') M N
+  fst (CatIsoᵘᶜ→CatIsoᶜ f)       = UC→C (fst f)
+  inv (snd (CatIsoᵘᶜ→CatIsoᶜ f)) = UC→C (inv (snd f))
+  sec (snd (CatIsoᵘᶜ→CatIsoᶜ f)) = C≡ (cong fst (sec (snd f)))
+  ret (snd (CatIsoᵘᶜ→CatIsoᶜ f)) = C≡ (cong fst (ret (snd f)))
+
+  CatIsoⁿ→CatIsoᶜ : ∀ {M N : PremetricSpace ℓM ℓM'}
+                  → CatIso (PremetricSpaceCategoryⁿ ℓM ℓM') M N
+                  → CatIso (PremetricSpaceCategoryᶜ ℓM ℓM') M N
+  CatIsoⁿ→CatIsoᶜ = CatIsoᵘᶜ→CatIsoᶜ ∘ CatIsoⁿ→CatIsoᵘᶜ
+
+  CatIsoᴸ→CatIsoᶜ : ∀ {M N : PremetricSpace ℓM ℓM'}
+                  → CatIso (PremetricSpaceCategoryᴸ ℓM ℓM') M N
+                  → CatIso (PremetricSpaceCategoryᶜ ℓM ℓM') M N
+  CatIsoᴸ→CatIsoᶜ = CatIsoᵘᶜ→CatIsoᶜ ∘ CatIsoᴸ→CatIsoᵘᶜ
 
 record IsIsometry {A : Type ℓM} {B : Type ℓN}
   (M : PremetricStr ℓM' A) (e : A ≃ B) (N : PremetricStr ℓN' B)
