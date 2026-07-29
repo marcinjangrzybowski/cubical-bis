@@ -1,6 +1,7 @@
 module Cubical.Relation.Premetric.Instances.Subspace where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv.Base using (fiber)
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
@@ -15,11 +16,72 @@ open PositiveRationals using (ℚ₊)
 
 open import Cubical.Relation.Premetric.Base
 open import Cubical.Relation.Premetric.Mappings
+open import Cubical.Relation.Premetric.Properties
 
 
 private
   variable
-    ℓ ℓ' ℓM ℓM' ℓN ℓN' : Level
+    ℓ ℓ' ℓA ℓM ℓM' ℓN ℓN' : Level
+
+module SubspaceAlongInjection
+  (M : PremetricSpace ℓM ℓM')
+  {A : Type ℓA}
+  (isSetA : isSet A)
+  (ι : A → ⟨ M ⟩)
+  (isInjectiveι : ∀ x y → ι x ≡ ι y → x ≡ y)
+  where
+  private
+    module PM = PremetricStr (snd M)
+    module MT = PremetricTheory M
+
+  infix 5 _≈↪[_]_
+
+  _≈↪[_]_ : A → ℚ₊ → A → Type ℓM'
+  x ≈↪[ ε ] y = ι x PM.≈[ ε ] ι y
+
+  isPremetricAlongInjection : IsPremetric _≈↪[_]_
+  isPremetricAlongInjection .IsPremetric.isSetM = isSetA
+  isPremetricAlongInjection .IsPremetric.isProp≈ x y =
+    PM.isProp≈ (ι x) (ι y)
+  isPremetricAlongInjection .IsPremetric.isRefl≈ x =
+    PM.isRefl≈ (ι x)
+  isPremetricAlongInjection .IsPremetric.isSym≈ x y =
+    PM.isSym≈ (ι x) (ι y)
+  isPremetricAlongInjection .IsPremetric.isSeparated≈ x y allClose =
+    isInjectiveι x y (PM.isSeparated≈ (ι x) (ι y) allClose)
+  isPremetricAlongInjection .IsPremetric.isTriangular≈ x y z =
+    PM.isTriangular≈ (ι x) (ι y) (ι z)
+  isPremetricAlongInjection .IsPremetric.isRounded≈ x y =
+    PM.isRounded≈ (ι x) (ι y)
+
+  injectionPremetricSpace : PremetricSpace ℓA ℓM'
+  fst injectionPremetricSpace = A
+  PremetricStr._≈[_]_ (snd injectionPremetricSpace) = _≈↪[_]_
+  PremetricStr.isPremetric (snd injectionPremetricSpace) =
+    isPremetricAlongInjection
+
+  injectionNE : NE[ injectionPremetricSpace , M ]
+  fst injectionNE = ι
+  IsNonExpanding.pres≈ (snd injectionNE) x y ε = idfun _
+
+  injectionC : C[ injectionPremetricSpace , M ]
+  injectionC = NE→C injectionNE
+
+  injectionUC : UC[ injectionPremetricSpace , M ]
+  injectionUC = NE→UC injectionNE
+
+  injectionL : L[ injectionPremetricSpace , M ]
+  injectionL = NE→L injectionNE
+
+  module _ (M-complete : MT.isComplete) where
+    fiberLimit→isComplete :
+      (∀ x xs → fiber ι (fst (M-complete (ι ∘ x) xs)))
+      → PremetricTheory.isComplete injectionPremetricSpace
+    fst (fiberLimit→isComplete limitInFiber x xs) =
+      fst (limitInFiber x xs)
+    snd (fiberLimit→isComplete limitInFiber x xs) ε θ =
+      MT.subst≈R (sym (snd (limitInFiber x xs)))
+        (snd (M-complete (ι ∘ x) xs) ε θ)
 
 
 PremetricSubspaceStr : {M : Type ℓ} →
@@ -67,6 +129,19 @@ base≈→subspace≈ :
   PremetricStr._≈[_]_ (snd M) (fst x) ε (fst y) →
   PremetricStr._≈[_]_ (snd (PremetricSubspace M P)) x ε y
 base≈→subspace≈ M P x y ε = idfun _
+
+subspaceLimit→isComplete :
+  (M : PremetricSpace ℓ ℓ')
+  (P : ℙ ⟨ M ⟩)
+  (M-complete : PremetricTheory.isComplete M)
+  → (∀ x xs → fst (M-complete (fst ∘ x) xs) ∈ P)
+  → PremetricTheory.isComplete (PremetricSubspace M P)
+fst (fst (subspaceLimit→isComplete M P M-complete limitInP x xs)) =
+  fst (M-complete (fst ∘ x) xs)
+snd (fst (subspaceLimit→isComplete M P M-complete limitInP x xs)) =
+  limitInP x xs
+snd (subspaceLimit→isComplete M P M-complete limitInP x xs) =
+  snd (M-complete (fst ∘ x) xs)
 
 
 subspaceInclusionNE :
