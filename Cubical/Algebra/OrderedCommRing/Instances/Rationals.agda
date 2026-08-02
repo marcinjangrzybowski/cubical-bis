@@ -120,6 +120,24 @@ module PositiveRationals where
                        ; fromNat = λ { (suc n) .fst → [ pos (suc n) / 1 ]
                                      ; (suc n) .snd → pos<pos tt } }
 
+  record Γ : Type where
+    no-eta-equality
+    field
+      γ τ : ℚ₊ → ℚ₊
+      mon-γ : ∀ q₀ q₁ → fst q₀ <ℚ fst q₁ → fst (γ q₀) <ℚ fst (γ q₁)
+      -- I am not sure if this is required
+      -- mon-τ : ∀ q₀ q₁ → fst q₀ <ℚ fst q₁ → fst (τ q₀) <ℚ fst (τ q₁)
+      γ∘τ≤id : ∀ q → fst (γ (τ q)) ≤ℚ fst q
+
+  open Γ public
+
+  Γid : Γ
+  Γid .γ ε = ε
+  Γid .mon-γ _ _ ε<δ = ε<δ
+  Γid .τ x = x
+  Γid .γ∘τ≤id q = isRefl≤ (fst q)
+
+
   [_/_]₊ : ℕ₊₁ → ℕ₊₁ → ℚ₊
   [ 1+ n / 1+ m ]₊ = [ pos (suc n) / 1+ m ] , pos<pos tt
 

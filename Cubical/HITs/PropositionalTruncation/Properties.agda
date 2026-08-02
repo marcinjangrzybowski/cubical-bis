@@ -181,22 +181,52 @@ map3 f = rec (isPropΠ2 λ _ _ → squash₁) (map2 ∘ f)
 -- constant.' The details of this can be found in the following paper:
 --
 --   https://arxiv.org/pdf/1411.2682.pdf
+record Rec→Set {A : Type ℓ} (B : Type ℓ') :
+  Type (ℓ-max ℓ ℓ') where
+
+  no-eta-equality
+
+  field
+    isSetB : isSet B
+    f      : A → B
+    fconst : 2-Constant f
+
+  private
+    isSetB' : isSet' B
+    isSetB' = isSet→isSet' isSetB
+
+  go : ∥ A ∥₁ → B
+  helper : (t u : ∥ A ∥₁) → go t ≡ go u
+
+  go ∣ x ∣₁ = f x
+  go (squash₁ t u i) = helper t u i
+
+  helper ∣ x ∣₁ ∣ y ∣₁ = fconst x y
+  helper (squash₁ t u i) v =
+    isSetB' (helper t v) (helper u v) (helper t u) refl i
+  helper t (squash₁ u v i) =
+    isSetB' (helper t u) (helper t v) refl (helper u v) i
+
+  β-go : ∀ x → go ∣ x ∣₁ ≡ f x
+  β-go _ = refl
+
+
 module SetElim (Bset : isSet B) where
   Bset' : isSet' B
   Bset' = isSet→isSet' Bset
+
+  private
+    recData : (f : A → B) → 2-Constant f → Rec→Set B
+    recData f kf .Rec→Set.isSetB = Bset
+    recData f kf .Rec→Set.f = f
+    recData f kf .Rec→Set.fconst = kf
 
   rec→Set : (f : A → B) (kf : 2-Constant f) → ∥ A ∥₁ → B
   helper  : (f : A → B) (kf : 2-Constant f) → (t u : ∥ A ∥₁)
           → rec→Set f kf t ≡ rec→Set f kf u
 
-  rec→Set f kf ∣ x ∣₁ = f x
-  rec→Set f kf (squash₁ t u i) = helper f kf t u i
-
-  helper f kf ∣ x ∣₁ ∣ y ∣₁ = kf x y
-  helper f kf (squash₁ t u i) v
-    = Bset' (helper f kf t v) (helper f kf u v) (helper f kf t u) refl i
-  helper f kf t (squash₁ u v i)
-    = Bset' (helper f kf t u) (helper f kf t v) refl (helper f kf u v) i
+  rec→Set f kf = Rec→Set.go (recData f kf)
+  helper f kf = Rec→Set.helper (recData f kf)
 
   kcomp : (f : ∥ A ∥₁ → B) → 2-Constant (f ∘ ∣_∣₁)
   kcomp f x y = cong f (squash₁ ∣ x ∣₁ ∣ y ∣₁)

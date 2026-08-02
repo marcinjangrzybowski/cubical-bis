@@ -6,10 +6,17 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Nat as ℕ
+open import Cubical.Data.Nat.Order as ℕ
+  renaming (_≤_ to _≤ℕ_)
 open import Cubical.Data.Rationals as ℚ using (fromNatℚ)
 open import Cubical.Data.Rationals.Properties as ℚ
 open import Cubical.Data.Rationals.Order as ℚ
 open import Cubical.Data.Rationals.Order.Algebra as ℚ
+
+open import Cubical.Relation.Binary.Order.Pseudolattice
+open import
+  Cubical.Relation.Binary.Order.Pseudolattice.Instances.Nat
 
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.PropositionalTruncation.Monad
@@ -19,11 +26,14 @@ open PositiveRationals
 
 open import Cubical.Relation.Premetric.Base
 open import Cubical.Relation.Premetric.Mappings
+open import Cubical.Relation.Premetric.Properties
 
 
 private
   variable
     ℓM ℓM' ℓN ℓN' ℓO ℓO' : Level
+
+  module NatMax = JoinProperties ℕ≤Pseudolattice
 
 
 PremetricProductStr :
@@ -147,6 +157,56 @@ IsContinuousAt.pres≈ (snd (pairC {O = O} f g) x) ε = do
           (min₊ δM δN) δM (min₊≤L δM δN) x≈y)
       , gδ y (PremetricStr.isMonotone≈≤ (snd O) x y
           (min₊ δM δN) δN (min₊≤R δM δN) x≈y)))
+
+
+pairPresIsLimitSeq :
+  {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'} →
+  (x : ℕ → fst M) (y : ℕ → fst N) (l : fst M) (m : fst N) →
+  PremetricTheory.isLimitSeq M x l →
+  PremetricTheory.isLimitSeq N y m →
+  PremetricTheory.isLimitSeq
+    (PremetricProduct M N)
+    (λ n → x n , y n)
+    (l , m)
+pairPresIsLimitSeq x y l m x-lim y-lim ε =
+  PT.map2
+    (λ (i , i≤→x≈l) (j , j≤→y≈m) →
+      ℕ.max i j
+      , λ n max≤n →
+          i≤→x≈l n
+            (ℕ.≤-trans
+              (NatMax.L≤∨ {a = i} {b = j}) max≤n)
+          , j≤→y≈m n
+            (ℕ.≤-trans
+              (NatMax.R≤∨ {a = i} {b = j}) max≤n))
+    (x-lim ε)
+    (y-lim ε)
+
+
+pairPresIsCauchySeq :
+  {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'} →
+  (x : ℕ → fst M) (y : ℕ → fst N) →
+  PremetricTheory.isCauchySeq M x →
+  PremetricTheory.isCauchySeq N y →
+  PremetricTheory.isCauchySeq
+    (PremetricProduct M N)
+    (λ n → x n , y n)
+pairPresIsCauchySeq
+  x y (i , x-close) (j , y-close) .fst ε =
+    ℕ.max (i ε) (j ε)
+pairPresIsCauchySeq
+  x y (i , x-close) (j , y-close)
+  .snd ε m n max≤m max≤n =
+    x-close ε m n
+      (ℕ.≤-trans
+        (NatMax.L≤∨ {a = i ε} {b = j ε}) max≤m)
+      (ℕ.≤-trans
+        (NatMax.L≤∨ {a = i ε} {b = j ε}) max≤n)
+    , y-close ε m n
+      (ℕ.≤-trans
+        (NatMax.R≤∨ {a = i ε} {b = j ε}) max≤m)
+      (ℕ.≤-trans
+        (NatMax.R≤∨ {a = i ε} {b = j ε}) max≤n)
 
 
 pairUC :

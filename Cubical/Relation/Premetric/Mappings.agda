@@ -226,10 +226,102 @@ module _
       open PremetricStr (snd N) public
       open PremetricTheory N public
 
+  NE→presIsCauchySeq : (f : NE[ M , N ]) → ∀ x
+                     → M.isCauchySeq x
+                     → N.isCauchySeq (fst f ∘ x)
+  NE→presIsCauchySeq f x (modulus , eventuallyClose) =
+    modulus
+    , λ ε m n modulus≤m modulus≤n →
+        IsNonExpanding.pres≈ (snd f)
+          (x m) (x n) ε
+        (eventuallyClose ε m n modulus≤m modulus≤n)
+
+  NE→presIsCauchy : (f : NE[ M , N ]) → ∀ x
+                    → M.isCauchy x
+                    → N.isCauchy (fst f ∘ x)
+  NE→presIsCauchy f x x-cauchy ε δ =
+    IsNonExpanding.pres≈ (snd f)
+      (x ε) (x δ) (ε +₊ δ)
+      (x-cauchy ε δ)
+
+  UCWith→presIsCauchySeq :
+    ∀ {μ} (f : fst M → fst N) →
+    IsUniformlyContinuousWith
+      (snd M) f (snd N) μ →
+    ∀ x →
+    M.isCauchySeq x →
+    N.isCauchySeq (f ∘ x)
+  UCWith→presIsCauchySeq {μ} f f-uc x
+    (modulus , eventuallyClose) =
+      (λ ε → modulus (μ ε))
+      , λ ε m n modulus≤m modulus≤n →
+          IsUniformlyContinuousWith.pres≈ f-uc
+            (x m) (x n) ε
+            (eventuallyClose
+              (μ ε) m n modulus≤m modulus≤n)
+
+  LWith→presIsCauchySeq :
+    ∀ L (f : fst M → fst N) →
+    IsLipschitzWith
+      (snd M) f (snd N) L →
+    ∀ x →
+    M.isCauchySeq x →
+    N.isCauchySeq (f ∘ x)
+  LWith→presIsCauchySeq L f f-lip x
+    (modulus , eventuallyClose) =
+      (λ ε → modulus (ε ₊／₊ L))
+      , λ ε m n modulus≤m modulus≤n →
+          N.subst≈
+            (f (x m)) (f (x n))
+            (·／ L ε)
+            (IsLipschitzWith.pres≈ f-lip
+              (x m) (x n) (ε ₊／₊ L)
+              (eventuallyClose
+                (ε ₊／₊ L) m n modulus≤m modulus≤n))
+
   NE→presLim : (f : NE[ M , N ]) → ∀ x l
              → M.isLimit x l → N.isLimit (fst f ∘ x) (fst f l)
   NE→presLim f x l l-lim ε θ =
     IsNonExpanding.pres≈ (snd f) (x ε) l (ε +₊ θ) (l-lim ε θ)
+
+  retractPresIsComplete :
+    M.isComplete →
+    (section : NE[ N , M ]) →
+    (retraction : NE[ M , N ]) →
+    (∀ point → fst retraction (fst section point) ≡ point) →
+    N.isComplete
+  retractPresIsComplete
+    M-complete section retraction retraction-section
+    x x-cauchy =
+      candidate , candidate-is-limit
+    where
+    ambient-sequence : ℚ₊ → fst M
+    ambient-sequence = fst section ∘ x
+
+    ambient-cauchy : M.isCauchy ambient-sequence
+    ambient-cauchy ε δ =
+      IsNonExpanding.pres≈ (snd section)
+        (x ε) (x δ) (ε +₊ δ)
+        (x-cauchy ε δ)
+
+    ambient-limit : M.limit ambient-sequence
+    ambient-limit =
+      M-complete ambient-sequence ambient-cauchy
+
+    candidate : fst N
+    candidate =
+      fst retraction (fst ambient-limit)
+
+    candidate-is-limit : N.isLimit x candidate
+    candidate-is-limit ε θ =
+      subst
+        (λ point → point N.≈[ ε +₊ θ ] candidate)
+        (retraction-section (x ε))
+        (IsNonExpanding.pres≈ (snd retraction)
+          (fst section (x ε))
+          (fst ambient-limit)
+          (ε +₊ θ)
+          (snd ambient-limit ε θ))
 
   C→seqContinuous : (f : C[ M , N ]) → ∀ x l
                   → M.isLimitSeq x l

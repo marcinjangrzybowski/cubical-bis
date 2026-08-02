@@ -175,6 +175,44 @@ module PremetricTheory (M' : PremetricSpace ℓ ℓ') where
   isCauchySeq< : (ℕ → M) → Type ℓ'
   isCauchySeq< x = Σ[ N ∈ (ℚ₊ → ℕ) ] (∀ ε m n → m <ℕ n → N ε ≤ℕ m → x m ≈[ ε ] x n)
 
+  EventuallyEqualSeq : (ℕ → M) → (ℕ → M) → Type ℓ
+  EventuallyEqualSeq x y =
+    Σ[ N ∈ ℕ ] (∀ n → N ≤ℕ n → x n ≡ y n)
+
+  eventuallyEqualSeqRefl : ∀ x →
+    EventuallyEqualSeq x x
+  eventuallyEqualSeqRefl x =
+    0 , λ _ _ → refl
+
+  eventuallyEqualSeqSym : ∀ x y →
+    EventuallyEqualSeq x y →
+    EventuallyEqualSeq y x
+  eventuallyEqualSeqSym x y (N , equal) =
+    N , λ n N≤n → sym (equal n N≤n)
+
+  eventuallyEqualSeqPresIsCauchySeq : ∀ x y →
+    EventuallyEqualSeq x y →
+    isCauchySeq x →
+    isCauchySeq y
+  eventuallyEqualSeqPresIsCauchySeq
+    x y (K , equal) (N , eventuallyClose) .fst ε =
+      ℕ.max K (N ε)
+  eventuallyEqualSeqPresIsCauchySeq
+    x y (K , equal) (N , eventuallyClose)
+    .snd ε m n max≤m max≤n =
+      subst2 (_≈[ ε ]_)
+        (equal m
+          (ℕ.≤-trans
+            (N.L≤∨ {a = K} {b = N ε}) max≤m))
+        (equal n
+          (ℕ.≤-trans
+            (N.L≤∨ {a = K} {b = N ε}) max≤n))
+        (eventuallyClose ε m n
+          (ℕ.≤-trans
+            (N.R≤∨ {a = K} {b = N ε}) max≤m)
+          (ℕ.≤-trans
+            (N.R≤∨ {a = K} {b = N ε}) max≤n))
+
   isCauchySeq→isCauchy : ∀ x → isCauchySeq x → Σ[ y ∈ (ℚ₊ → M) ] isCauchy y
   isCauchySeq→isCauchy x (N , N≤→≈) .fst ε   = x (N ε)
   isCauchySeq→isCauchy x (N , N≤→≈) .snd ε δ =
@@ -238,6 +276,89 @@ module PremetricTheory (M' : PremetricSpace ℓ ℓ') where
                   l'               ≈∎)
               (l'-lim (ε /2₊)))
           (l-lim (ε /2₊))
+
+  eventuallyEqualSeqPresIsLimitSeq : ∀ x y l →
+    EventuallyEqualSeq x y →
+    isLimitSeq x l →
+    isLimitSeq y l
+  eventuallyEqualSeqPresIsLimitSeq
+    x y l (K , equal) x-lim ε =
+      PT.map
+        (λ (Nₑ , Nₑ≤→close) →
+          ℕ.max K Nₑ
+          , λ n max≤n →
+              subst (_≈[ ε ] l)
+                (equal n
+                  (ℕ.≤-trans
+                    (N.L≤∨ {a = K} {b = Nₑ}) max≤n))
+                (Nₑ≤→close n
+                  (ℕ.≤-trans
+                    (N.R≤∨ {a = K} {b = Nₑ}) max≤n)))
+        (x-lim ε)
+
+  shiftSeq : ℕ → (ℕ → M) → (ℕ → M)
+  shiftSeq k x =
+    x ∘ (k ℕ.+_)
+
+  shiftPresIsCauchySeq : ∀ k x →
+    isCauchySeq x →
+    isCauchySeq (shiftSeq k x)
+  shiftPresIsCauchySeq
+    k x (modulus , eventuallyClose) =
+      modulus
+      , λ ε m n modulus≤m modulus≤n →
+          eventuallyClose ε
+            (k ℕ.+ m) (k ℕ.+ n)
+            (ℕ.≤-trans modulus≤m ℕ.≤SumRight)
+            (ℕ.≤-trans modulus≤n ℕ.≤SumRight)
+
+  shiftPresIsLimitSeq : ∀ k x l →
+    isLimitSeq x l →
+    isLimitSeq (shiftSeq k x) l
+  shiftPresIsLimitSeq k x l x-lim ε =
+    PT.map
+      (λ (Nₑ , Nₑ≤→close) →
+        Nₑ
+        , λ n Nₑ≤n →
+            Nₑ≤→close (k ℕ.+ n)
+              (ℕ.≤-trans Nₑ≤n ℕ.≤SumRight))
+      (x-lim ε)
+
+  shiftReflectsIsLimitSeq : ∀ k x l →
+    isLimitSeq (shiftSeq k x) l →
+    isLimitSeq x l
+  shiftReflectsIsLimitSeq k x l shifted-limit ε =
+    PT.map
+      (λ (Nₑ , Nₑ≤→close) →
+        Nₑ ℕ.+ k
+        , λ n threshold≤n →
+            let
+              k≤n : k ≤ℕ n
+              k≤n =
+                ℕ.≤-trans
+                  (ℕ.≤SumRight {n = k} {k = Nₑ})
+                  threshold≤n
+
+              Nₑ≤remainder : Nₑ ≤ℕ (n ℕ.∸ k)
+              Nₑ≤remainder =
+                subst
+                  (_≤ℕ (n ℕ.∸ k))
+                  (ℕ.+∸ Nₑ k)
+                  (ℕ.≤-∸-≤
+                    (Nₑ ℕ.+ k) n k threshold≤n)
+
+              shifted-index-path :
+                k ℕ.+ (n ℕ.∸ k) ≡ n
+              shifted-index-path =
+                ℕ.+-comm k (n ℕ.∸ k)
+                ∙ ℕ.≤-∸-+-cancel k≤n
+            in
+            subst
+              (_≈[ ε ] l)
+              (cong x shifted-index-path)
+              (Nₑ≤→close
+                (n ℕ.∸ k) Nₑ≤remainder))
+      (shifted-limit ε)
 
   isComplete : Type (ℓ-max ℓ ℓ')
   isComplete = ∀ x → isCauchy x → limit x

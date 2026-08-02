@@ -806,3 +806,4 @@ clamp d u x = ℚ.min (ℚ.max d x) u
 
 <ℤ→<ℚ/ : ∀ m n k → m ℤ.< n → [ m , k ] < [ n , k ]
 <ℤ→<ℚ/ m n (1+ k) m<n = inj (ℤ.<-·o {m} m<n)
+

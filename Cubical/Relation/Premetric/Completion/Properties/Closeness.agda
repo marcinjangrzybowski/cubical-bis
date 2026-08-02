@@ -909,6 +909,9 @@ opaque
   ∼≃B {x} {y} {ε} =
     propBiimpl→Equiv (isProp∼ℭ x ε y) (IsBall.isPropBall (snd B⟨ x ,⟩) ε y) ∼→B B→∼
 
+  ι-ι→≈ : ∀ x y ε → ι x ∼[ ε ] ι y → x ≈[ ε ] y
+  ι-ι→≈ x y ε ιx∼ιy = equivFun ∼≃B ιx∼ιy .lower
+
   isTriangular∼ : ∀ x y z ε δ → x ∼[ ε ] y → y ∼[ δ ] z → x ∼[ ε +₊ δ ] z
   isTriangular∼ x y z ε δ x∼y y∼z =
     (B→∼ (isTriangularBall (snd B⟨ x ,⟩) ε δ y z (∼→B x∼y) y∼z))
