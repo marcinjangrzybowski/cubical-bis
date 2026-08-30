@@ -156,8 +156,9 @@ from the constructors of a particular real-number HIT.
 - Closed intervals and closed absolute-radius balls are now inherited
   premetric subspaces with non-expanding inclusions and clamp retractions.
   Both are complete by generic retract completeness; the unit interval is
-  exposed as a specialization.  Open lower/upper half-lines and intervals are
-  inherited subspaces with checked openness witnesses.
+  exposed as a specialization.  Open lower/upper half-lines, intervals, and
+  absolute-radius balls are inherited subspaces with checked openness
+  witnesses.
 - `Real.Functions.Powers` illustrates compositional analysis: powers and square
   are continuous because multiplication takes continuous pairs to a continuous
   product; no new completion recursion is needed.
@@ -196,16 +197,21 @@ from the constructors of a particular real-number HIT.
   telescoping.  Series expose monotonicity and arbitrary summable-majorant
   bounds.
 - Geometric series have a division-free finite identity and an explicit
-  modulus for every rational `|q| ≤ 1/2`, yielding native Cauchy witnesses,
-  summability, and the reciprocal sum formula.  Uniform series distinguish a
+  block/binary decay modulus for every rational `|q| < 1`, yielding native
+  Cauchy witnesses, summability, and the reciprocal sum formula.  Uniform series distinguish a
   selected point-independent modulus from its propositionally truncated
-  interface.  A single geometric majorant now proves bounded-coefficient
-  power-series convergence uniformly across a closed rational radius.
+  interface.  Uniform convergence of continuous partial sums gives a
+  continuous canonical sum.  A single geometric majorant therefore proves
+  bounded-coefficient power-series convergence and continuity uniformly
+  across a closed rational radius.
 - The first differential-calculus kernel uses a division-free first-order
   remainder.  It supports general premetric parameter spaces, continuous
   reparameterization, and continuous difference-factor proofs; constants and
-  identity are differentiable, and derivative values and functions are
-  unique without a choice principle.
+  identity are differentiable, and derivative values and functions are unique
+  without a choice principle.  Addition, negation, subtraction, arbitrary
+  real scaling, and rational scaling preserve derivatives.  Differentiable
+  maps are continuous, and open-predicate subspaces support restriction and
+  pointwise ambient derivative adapters.
 
 ## Work log
 
@@ -243,6 +249,10 @@ from the constructors of a particular real-number HIT.
 - [x] Add signed half-contraction geometric series, point-independent uniform
   series moduli, uniform closed-radius power-series convergence, open
   intervals, and the definition/basic/uniqueness derivative kernel.
+- [x] Add open absolute-radius domains, uniform-limit continuity and continuous
+  closed-radius power-series values, derivative linear algebra and continuity,
+  open-subspace derivative adapters, and arbitrary strict-rational geometric
+  convergence.
 - [ ] Generalize geometric and power-series convergence, extend domain-local
   continuity and calculus algebra,
   integration, and elementary functions in the phases recorded in

@@ -1,16 +1,24 @@
 module Cubical.Analysis.Real.Series.Uniform where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Nat as ℕ using (ℕ)
+open import Cubical.Data.Nat as ℕ using (ℕ; zero; suc)
 open import Cubical.Data.Nat.Order as ℕ
+open import Cubical.Data.Rationals.Base as ℚ
+import Cubical.Data.Rationals.Properties as ℚ
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 
+open import Cubical.Relation.Premetric.Base
+open import Cubical.Relation.Premetric.Mappings
+
 open import Cubical.Analysis.Real.Base
+open import Cubical.Analysis.Real.Algebra.Addition
+open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.AbsoluteValue
 open import Cubical.Analysis.Real.Order.Base
 open import Cubical.Analysis.Real.Sequence
@@ -18,7 +26,12 @@ open import Cubical.Analysis.Real.Series.Base
 open import Cubical.Analysis.Real.Series.Absolute
 
 open PositiveRationals using (ℚ₊)
-open PositiveRationals.PositiveHalvesℚ using (_/4₊)
+open PositiveRationals using (_+₊_; ℚ₊≡)
+open PositiveRationals.PositiveHalvesℚ using (_/2₊; _/4₊)
+open 1/2∈ℚ using (/2+/2≡id; /4+/4≡/2)
+
+private
+  module Pℝ = PremetricStr (ℝPremetricSpace .snd)
 
 
 -- A single selected modulus controls all partial-sum sequences in the family.
@@ -163,3 +176,166 @@ uniformlyDominatedSeriesIsUniformlyCauchy terms bound dominates =
         (dominatedChosenCauchySeriesIsChosenCauchy
           (terms point) bound (dominates point) bound-cauchy)
         ε m n modulus≤m modulus≤n
+
+
+chosenUniformSeriesLimitIsUniformSeriesValue :
+  ∀ {ℓ} {A : Type ℓ} (terms : A → RealSequence)
+    (chosen : ChosenUniformlyCauchySeries A terms) →
+  chosenUniformSeriesLimit terms chosen ≡
+  uniformSeriesValue terms ∣ chosen ∣₁
+chosenUniformSeriesLimitIsUniformSeriesValue
+    terms chosen@(modulus , close) =
+  funExt λ point →
+    canonicalLimit≡
+      (partialSum (terms point))
+      ∣ modulus , close point ∣₁
+      (uniformSeriesValue terms ∣ chosen ∣₁ point)
+      (seriesSumHasSum
+        (terms point)
+        (uniformlyCauchySeriesSummableAt ∣ chosen ∣₁ point))
+
+
+uniformlyCauchySeriesHasUniformSum :
+  ∀ {ℓ} {A : Type ℓ} (terms : A → RealSequence)
+    (uniform : UniformlyCauchySeries A terms) →
+  UniformHasSum terms (uniformSeriesValue terms uniform)
+uniformlyCauchySeriesHasUniformSum {A = A} terms uniform =
+  PT.rec
+    (isPropUniformHasSum terms (uniformSeriesValue terms uniform))
+    (λ chosen →
+      subst
+        (UniformHasSum terms)
+        ( chosenUniformSeriesLimitIsUniformSeriesValue terms chosen
+        ∙ cong (uniformSeriesValue terms)
+            (isPropUniformlyCauchySeries A terms
+              ∣ chosen ∣₁ uniform))
+        (chosenUniformlyCauchySeriesHasUniformSum terms chosen))
+    uniform
+
+
+private
+  quarterHalfQuarter : ∀ ε →
+    fst ((ε /4₊) +₊ ((ε /2₊) +₊ (ε /4₊))) ≡ fst ε
+  quarterHalfQuarter ε =
+    ℚ.+Assoc
+      (fst (ε /4₊)) (fst (ε /2₊)) (fst (ε /4₊))
+    ∙ cong (ℚ._+ fst (ε /4₊))
+        (ℚ.+Comm (fst (ε /4₊)) (fst (ε /2₊)))
+    ∙ sym (ℚ.+Assoc
+        (fst (ε /2₊)) (fst (ε /4₊)) (fst (ε /4₊)))
+    ∙ cong (fst (ε /2₊) ℚ.+_)
+        (/4+/4≡/2 (fst ε))
+    ∙ /2+/2≡id (fst ε)
+
+
+partialSumFamilyIsContinuous :
+  ∀ {ℓ ℓ'} {A : Type ℓ}
+    (source : PremetricStr ℓ' A)
+    (terms : A → RealSequence) →
+  (∀ n →
+    isContinuous source
+      (λ point → terms point n)
+      (ℝPremetricSpace .snd)) →
+  ∀ n →
+  isContinuous source
+    (λ point → partialSum (terms point) n)
+    (ℝPremetricSpace .snd)
+partialSumFamilyIsContinuous
+    source terms term-continuous zero point
+    .IsContinuousAt.pres≈ ε =
+  ∣ ε , (λ _ _ → refl∼ 0ℝ ε) ∣₁
+partialSumFamilyIsContinuous
+    source terms term-continuous (suc n) =
+  addOfContinuousIsContinuous
+    source
+    (λ point → partialSum (terms point) n)
+    (λ point → terms point n)
+    (partialSumFamilyIsContinuous
+      source terms term-continuous n)
+    (term-continuous n)
+
+
+uniformSeriesValueIsContinuousFromPartialSums :
+  ∀ {ℓ ℓ'} {A : Type ℓ}
+    (source : PremetricStr ℓ' A)
+    (terms : A → RealSequence)
+    (uniform : UniformlyCauchySeries A terms) →
+  (∀ n →
+    isContinuous source
+      (λ point → partialSum (terms point) n)
+      (ℝPremetricSpace .snd)) →
+  isContinuous source
+    (uniformSeriesValue terms uniform)
+    (ℝPremetricSpace .snd)
+uniformSeriesValueIsContinuousFromPartialSums
+  {A = A} source terms uniform partial-sum-continuous point
+  .IsContinuousAt.pres≈ ε =
+  PT.rec squash₁ useUniformCutoff
+    (uniformlyCauchySeriesHasUniformSum terms uniform (ε /4₊))
+  where
+  value : A → ℝ
+  value = uniformSeriesValue terms uniform
+
+  useUniformCutoff :
+    (Σ[ cutoff ∈ ℕ ]
+      (∀ y n → cutoff ℕ.≤ n →
+        partialSum (terms y) n ∼[ ε /4₊ ] value y)) →
+    ∃[ δ ∈ ℚ₊ ]
+      (∀ y →
+        PremetricStr._≈[_]_ source point δ y →
+        value point ∼[ ε ] value y)
+  useUniformCutoff (cutoff , close-to-value) =
+    PT.map usePartialSumContinuity
+      (partial-sum-continuous cutoff point
+        .IsContinuousAt.pres≈ (ε /2₊))
+    where
+    usePartialSumContinuity :
+      (Σ[ δ ∈ ℚ₊ ]
+        (∀ y →
+          PremetricStr._≈[_]_ source point δ y →
+          partialSum (terms point) cutoff ∼[ ε /2₊ ]
+          partialSum (terms y) cutoff)) →
+      Σ[ δ ∈ ℚ₊ ]
+        (∀ y →
+          PremetricStr._≈[_]_ source point δ y →
+          value point ∼[ ε ] value y)
+    usePartialSumContinuity (δ , partial-close) =
+      δ , λ y point≈y →
+        Pℝ.subst≈ (value point) (value y)
+          (quarterHalfQuarter ε)
+          (triangle∼
+            (value point)
+            (partialSum (terms point) cutoff)
+            (value y)
+            (ε /4₊) ((ε /2₊) +₊ (ε /4₊))
+            (sym∼
+              (partialSum (terms point) cutoff)
+              (value point) (ε /4₊)
+              (close-to-value point cutoff ℕ.≤-refl))
+            (triangle∼
+              (partialSum (terms point) cutoff)
+              (partialSum (terms y) cutoff)
+              (value y)
+              (ε /2₊) (ε /4₊)
+              (partial-close y point≈y)
+              (close-to-value y cutoff ℕ.≤-refl)))
+
+
+uniformSeriesValueIsContinuous :
+  ∀ {ℓ ℓ'} {A : Type ℓ}
+    (source : PremetricStr ℓ' A)
+    (terms : A → RealSequence)
+    (uniform : UniformlyCauchySeries A terms) →
+  (∀ n →
+    isContinuous source
+      (λ point → terms point n)
+      (ℝPremetricSpace .snd)) →
+  isContinuous source
+    (uniformSeriesValue terms uniform)
+    (ℝPremetricSpace .snd)
+uniformSeriesValueIsContinuous
+    source terms uniform term-continuous =
+  uniformSeriesValueIsContinuousFromPartialSums
+    source terms uniform
+    (partialSumFamilyIsContinuous
+      source terms term-continuous)
