@@ -8,3 +8,5 @@ open import Cubical.Analysis.Real.Functions public
 open import Cubical.Analysis.Real.Metric public
 open import Cubical.Analysis.Real.Order public
 open import Cubical.Analysis.Real.Sequence public
+open import Cubical.Analysis.Real.FiniteSum public
+open import Cubical.Analysis.Real.Series public

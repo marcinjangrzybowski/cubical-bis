@@ -106,3 +106,6 @@ open import Cubical.Analysis.Real.Algebra.Positive public
     ; _·>0_
     )
 open import Cubical.Analysis.Real.Algebra.Lattice public
+open import Cubical.Analysis.Real.Algebra.Inverse public
+open import Cubical.Analysis.Real.Algebra.Natural public
+open import Cubical.Analysis.Real.Algebra.Polynomial public

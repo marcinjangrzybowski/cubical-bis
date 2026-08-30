@@ -18,9 +18,11 @@ from the constructors of a particular real-number HIT.
   `Completion.Base` may be used to transfer an already generic theorem (for
   example density/extensionality), but not as a hidden definition of an
   arithmetic operation.
-- Definitions retain visible computation on `rat` and use limit uniqueness for
-  `lim` equations.  No opaque boundary has been placed around an operation;
-  this avoids accidentally blocking constructor computation.
+- Primitive lifted definitions retain visible computation on `rat` and use
+  limit uniqueness for `lim` equations.  Witness-eliminating derived
+  operations may be opaque when their public computation and law theorems are
+  already exposed; this prevents proof witnesses from becoming a reduction
+  interface.
 - Non-expanding lifting is preferred whenever the base operation admits it.
   Ordinary addition is separately non-expanding, but its uncurried product map
   is only Lipschitz with constant two.  This distinction is represented in the
@@ -93,6 +95,9 @@ from the constructors of a particular real-number HIT.
 - `Completion.Completeness` proves generically that the sequence-backed
   completion is complete, using the non-expanding isometric retract to the
   already complete regular presentation.
+- `Completion.Lipschitz` extends a base map at one fixed positive rational
+  Lipschitz constant and proves that the exact constant survives completion.
+  It is the quantitative engine for bounded reciprocal.
 
 ### Real-number layer now available
 
@@ -155,6 +160,22 @@ from the constructors of a particular real-number HIT.
   radius.  Widening it gives strict rational bounds, and the rational floor
   theory upgrades these to strict natural upper, lower, absolute, and
   two-sided bounds.
+- Reciprocal is constructed in layers: a globally Lipschitz rational
+  reciprocal clamped away from zero, compatibility between bounds, elimination
+  of a positive-gap witness, and finally the signed apartness split.  The API
+  includes rational computation, positivity, two-sided laws, involution,
+  product/negation laws, division, cancellation, and multiplicative-apartness
+  reflection.
+- Natural-number embedding, Horner polynomial evaluation, and finite sums are
+  available.  Polynomial evaluation computes on rational coefficients and is
+  continuous under continuous substitution; finite sums preserve both native
+  sequence witnesses and ordinary limits.
+- `Real.Sequence` now distinguishes native `SeqWitness` data from ordinary
+  convergence, packages unique sequence limits, and proves constant, shift,
+  unary, additive, multiplicative, and subtractive limit preservation.
+- `Real.Series` provides partial sums, summability, additive and scalar closure,
+  proof-independent sums, and the necessary theorem that terms of a summable
+  series tend to zero.
 
 ## Work log
 
@@ -178,8 +199,13 @@ from the constructors of a particular real-number HIT.
 - [x] Prove locatedness/cotransitivity, the metric/strict-order
   characterization, and package apartness and the standard ordered-ring
   interfaces.
-- [ ] Add inverses away from zero, finite sums, series, and elementary analysis
-  only where their definitions can continue to be expressed by the new lifts.
+- [x] Add inverses away from zero, natural embeddings, polynomial evaluation,
+  and finite sums using quantitative lifts and finite recursion.
+- [x] Establish the sequence/series baseline: ordinary limit combinators,
+  partial sums, linear operations, and the summable-term test.
+- [ ] Add absolute convergence, comparison and geometric series, domain-local
+  continuity, calculus, integration, power series, and elementary functions in
+  the phases recorded in `SCOPE_ROADMAP.md`.
 
 ## Computational behavior
 
@@ -222,6 +248,12 @@ from the constructors of a particular real-number HIT.
   identify their changing endpoint explicitly.
 - No ring/order solver is used anywhere under `Cubical.Analysis`; rational and
   real laws are proved from named algebraic lemmas and dense extensionality.
+- A direct attempt to synthesize multiplication's diagonal `SeqWitness`
+  through the product-completion comparison ran for more than two minutes and
+  was removed.  This confirms that witness plumbing across a large comparison
+  should first be factored into a lightweight generic combinator.  The public
+  ordinary-limit theorem for multiplication remains fast because it uses
+  continuity instead.
 
 ## Open technical questions
 
@@ -230,7 +262,12 @@ from the constructors of a particular real-number HIT.
 - A categorical identity/composition API for non-expanding lifts is desirable,
   but it needs an abstraction that does not instantiate the heavy construction
   several times in one generic module.
-- Inversion away from zero is the next major non-uniform operation.  Its
-  completion-centred lift should be organized so that the newly available
-  apartness and natural-bound APIs provide the local denominator bounds,
-  without recreating the constructor-specific inverse development.
+- `SeqWitness` is a truncation of a globally chosen modulus, whereas
+  `isLimitSequence` has radiuswise truncated tails.  A convergent sequence does
+  not automatically regain a native witness without an additional choice
+  step.  The series API therefore treats `Summable` as primary and exposes
+  only the sound native-Cauchy-to-summable direction.
+- Multiplication's completion-centred construction knows enough to preserve
+  suitable Cauchy graphs, but its cheapest reusable binary witness interface
+  is not yet exposed.  This should be solved generically before polynomial or
+  series clients request multiplication witnesses.

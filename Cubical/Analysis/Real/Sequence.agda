@@ -3,9 +3,15 @@ module Cubical.Analysis.Real.Sequence where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
+open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Sigma
+open import Cubical.HITs.PropositionalTruncation as PT
+
 open import Cubical.Analysis.Real.Base
 open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
+open import Cubical.Analysis.Real.Algebra.AdditionLaws
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup
 open import Cubical.Analysis.Real.Algebra.AbsoluteValue
 open import Cubical.Analysis.Real.Algebra.Multiplication
 open import Cubical.Analysis.Real.Algebra.Multiplication.Base
@@ -13,8 +19,10 @@ open import Cubical.Analysis.Real.Algebra.Lattice.Base
 open import Cubical.Analysis.Real.Metric.Distance
 
 open import Cubical.Relation.Premetric.Mappings
+open import Cubical.Relation.Premetric.Properties
 open import Cubical.Relation.Premetric.Instances.Rationals
 open import Cubical.Relation.Premetric.Instances.FunctionSpace
+open import Cubical.Relation.Premetric.Instances.Product
 
 import Cubical.Analysis.Completion.Limit as LimitDefinition
 import Cubical.Analysis.Completion.BinaryLimit as BinaryLimitDefinition
@@ -25,6 +33,150 @@ private
     ℚPremetricSpace ℚPremetricSpace ℚPremetricSpace
   module RealBinary = BinaryNonExpanding
     ℝPremetricSpace ℝPremetricSpace ℝPremetricSpace
+  module ℝTheory = PremetricTheory ℝPremetricSpace
+
+  ℝ²PremetricSpace =
+    PremetricProduct ℝPremetricSpace ℝPremetricSpace
+
+
+-- Ordinary convergent sequences.  `SeqWitness` is the native input to the
+-- completion constructor: a merely chosen global Cauchy modulus.
+
+ChosenIsCauchySequence : (ℕ → ℝ) → Type₀
+ChosenIsCauchySequence = ℝTheory.isCauchySeq
+
+isLimitSequence : (ℕ → ℝ) → ℝ → Type₀
+isLimitSequence = ℝTheory.isLimitSeq
+
+isPropIsLimitSequence : ∀ x l →
+  isProp (isLimitSequence x l)
+isPropIsLimitSequence = ℝTheory.isPropIsLimitSeq
+
+SequenceLimit : (ℕ → ℝ) → Type₀
+SequenceLimit = ℝTheory.limitSeq
+
+isPropSequenceLimit : ∀ x → isProp (SequenceLimit x)
+isPropSequenceLimit = ℝTheory.isPropLimitSeq
+
+sequenceLimit : ∀ x → SeqWitness x → SequenceLimit x
+sequenceLimit x gx = lim x gx , lim-isLimitSeq x gx
+
+limitOfSequence : ∀ x → SeqWitness x → ℝ
+limitOfSequence x gx = lim x gx
+
+limitOfSequenceIsLimit : ∀ x gx →
+  isLimitSequence x (limitOfSequence x gx)
+limitOfSequenceIsLimit = lim-isLimitSeq
+
+limitOfSequenceIndependent : ∀ x
+  (gx gy : SeqWitness x) →
+  limitOfSequence x gx ≡ limitOfSequence x gy
+limitOfSequenceIndependent x gx gy =
+  cong fst
+    (isPropSequenceLimit x
+      (sequenceLimit x gx) (sequenceLimit x gy))
+
+canonicalLimit≡ : ∀ x gx l →
+  isLimitSequence x l →
+  limitOfSequence x gx ≡ l
+canonicalLimit≡ x gx l x→l =
+  cong fst
+    (isPropSequenceLimit x
+      (sequenceLimit x gx) (l , x→l))
+
+
+constantSeqWitness : ∀ x →
+  SeqWitness (λ _ → x)
+constantSeqWitness x =
+  ∣ (λ _ → 0) ,
+    (λ ε _ _ _ _ → refl∼ x ε) ∣₁
+
+constantIsLimitSequence : ∀ x →
+  isLimitSequence (λ _ → x) x
+constantIsLimitSequence x ε =
+  ∣ 0 , (λ _ _ → refl∼ x ε) ∣₁
+
+
+continuousPreservesIsLimitSequence :
+  (f : ℝ → ℝ) →
+  isContinuous
+    (ℝPremetricSpace .snd) f
+    (ℝPremetricSpace .snd) →
+  ∀ {x l} → isLimitSequence x l →
+  isLimitSequence (f ∘ x) (f l)
+continuousPreservesIsLimitSequence f f-cont =
+  C→seqContinuous
+    {M = ℝPremetricSpace} {N = ℝPremetricSpace}
+    (f , f-cont) _ _
+
+
+continuousBinaryPreservesIsLimitSequence :
+  (f : ℝ × ℝ → ℝ) →
+  isContinuous (ℝ²PremetricSpace .snd) f
+    (ℝPremetricSpace .snd) →
+  ∀ {x y l m} →
+  isLimitSequence x l → isLimitSequence y m →
+  isLimitSequence (λ n → f (x n , y n)) (f (l , m))
+continuousBinaryPreservesIsLimitSequence f f-cont
+    {x} {y} {l} {m} x→l y→m =
+  C→seqContinuous
+    {M = ℝ²PremetricSpace} {N = ℝPremetricSpace}
+    (f , f-cont)
+    (λ n → x n , y n) (l , m)
+    (pairPresIsLimitSeq
+      {M = ℝPremetricSpace} {N = ℝPremetricSpace}
+      x y l m x→l y→m)
+
+
+addPresIsLimitSequence : ∀ {x y l m} →
+  isLimitSequence x l → isLimitSequence y m →
+  isLimitSequence (λ n → x n + y n) (l + m)
+addPresIsLimitSequence =
+  continuousBinaryPreservesIsLimitSequence
+    (uncurry _+_)
+    (addOfContinuousIsContinuous
+      (ℝ²PremetricSpace .snd)
+      fst snd (snd productFstC) (snd productSndC))
+
+
+mulPresIsLimitSequence : ∀ {x y l m} →
+  isLimitSequence x l → isLimitSequence y m →
+  isLimitSequence (λ n → x n · y n) (l · m)
+mulPresIsLimitSequence =
+  continuousBinaryPreservesIsLimitSequence
+    (uncurry _·_)
+    (mulOfContinuousIsContinuous
+      (ℝ²PremetricSpace .snd)
+      fst snd (snd productFstC) (snd productSndC))
+
+
+negPresIsLimitSequence : ∀ {x l} →
+  isLimitSequence x l →
+  isLimitSequence (-_ ∘ x) (- l)
+negPresIsLimitSequence =
+  continuousPreservesIsLimitSequence -_ neg-isContinuous
+
+
+subPresIsLimitSequence : ∀ {x y l m} →
+  isLimitSequence x l → isLimitSequence y m →
+  isLimitSequence (λ n → x n - y n) (l - m)
+subPresIsLimitSequence x→l y→m =
+  addPresIsLimitSequence x→l
+    (negPresIsLimitSequence y→m)
+
+
+shiftSequence : ℕ → (ℕ → ℝ) → ℕ → ℝ
+shiftSequence = ℝTheory.shiftSeq
+
+shiftPresIsLimitSequence : ∀ k x l →
+  isLimitSequence x l →
+  isLimitSequence (shiftSequence k x) l
+shiftPresIsLimitSequence = ℝTheory.shiftPresIsLimitSeq
+
+shiftReflectsIsLimitSequence : ∀ k x l →
+  isLimitSequence (shiftSequence k x) l →
+  isLimitSequence x l
+shiftReflectsIsLimitSequence = ℝTheory.shiftReflectsIsLimitSeq
 
 
 negSeqWitness : ∀ {x} → SeqWitness x → SeqWitness (-_ ∘ x)
