@@ -205,13 +205,26 @@ from the constructors of a particular real-number HIT.
   of continuous partial sums gives a continuous canonical sum.  A single
   geometric majorant therefore proves bounded-coefficient power-series
   convergence and continuity uniformly across every closed positive rational
-  radius strictly below one.
+  radius strictly below one.  More generally, coefficients satisfying
+  `|a n| ≤ B G^n` converge absolutely and uniformly on every closed rational
+  radius `R` with `G R < 1`; the corresponding canonical value is continuous
+  and has the geometric-majorant absolute bound.  These growth certificates
+  are closed under addition, subtraction, negation, and explicitly bounded
+  real scaling.  Evaluation at zero is unconditionally summable with value
+  equal to the constant coefficient.  Eventual coefficient equality transports
+  Cauchy and summability witnesses, and explicit cutoffs give exact finite
+  corrections to power-series values.
 - Cauchy products expose bilinearity, commutativity, unit laws, triangular and
   rectangular partial-sum identities, an explicit remainder and its absolute
   majorant.  The quantitative Mertens theorem proves convergence and sum
   multiplication from native absolute/Cauchy witnesses plus explicit uniform
   partial-sum bounds, without asserting a choice-producing converse from mere
-  summability.
+  summability.  Native Cauchy witnesses now construct merely existing rational
+  partial-sum bounds; eliminating those only into propositions gives
+  bound-free remainder, `HasSum`, summability, and product-value theorems.
+  Cauchy multiplication of coefficient sequences evaluates exactly to the
+  Cauchy product of the corresponding power-series terms, with both
+  explicit-bound and native-Cauchy convergence wrappers.
 - The first differential-calculus kernel uses a division-free first-order
   remainder.  It supports general premetric parameter spaces, continuous
   reparameterization, and continuous difference-factor proofs; constants and
@@ -220,10 +233,25 @@ from the constructors of a particular real-number HIT.
   real scaling, rational scaling, multiplication, composition, natural powers,
   Horner polynomials, and finite sums preserve derivatives.  Differentiable
   maps are continuous, and open-predicate subspaces support restriction and
-  pointwise ambient derivative adapters.  Reciprocal derivatives are checked
-  on explicit positive and negative rationally bounded domains, with transfer
-  to proof-independent inverse values; controlled division by the coordinate
-  has a quotient rule.
+  pointwise ambient derivative adapters.  An indexed chain theorem also
+  composes two derivatives living on the same parameter space.  Reciprocal
+  derivatives are checked on explicit positive and negative rationally bounded
+  domains, with transfer to proof-independent inverse values; arbitrary
+  differentiable numerators and denominators have a quotient rule whenever a
+  uniform positive rational bound separates the denominator from zero on
+  either side.
+- Formal power-series differentiation is available at the coefficient and
+  term levels: it respects addition and scaling, computes on rational
+  coefficients, and identifies every successor power term with its derivative
+  term.  Generic coefficient majorants are preserved by formal
+  differentiation.  The finite divided-difference factor now has its power
+  factorization, diagonal formal-derivative identity, continuity,
+  closed-radius bound, and derivative-majorant domination.  The remaining
+  family is uniformly Cauchy on a closed radius whenever the corresponding
+  derivative-majorant series is native Cauchy, including by restriction from a
+  larger radius.  The remaining analytic step is deliberately separate:
+  identify the canonical factor sum with the series difference and its
+  diagonal before deriving a derivative for the infinite sum.
 
 ## Work log
 
@@ -272,6 +300,12 @@ from the constructors of a particular real-number HIT.
   controlled positive/negative reciprocal and quotient rules, finite
   Cauchy-product algebra, explicit remainder bounds, and a quantitative
   Mertens convergence theorem.
+- [x] Add indexed derivative composition, arbitrary-denominator quotients on
+  uniformly positive/negative domains, constructive native bounds and
+  bound-free Mertens theorems, exponential coefficient-growth convergence and
+  closure laws, exact zero/finite-modification formulas, power-series products,
+  generic majorants, and the uniform formal-derivative/divided-difference
+  foundation.
 - [ ] Generalize geometric and power-series convergence, extend domain-local
   continuity and calculus algebra,
   integration, and elementary functions in the phases recorded in
@@ -343,6 +377,21 @@ from the constructors of a particular real-number HIT.
   pushed a focused check past thirty seconds.  It was removed because all
   consumers need only the sharper termwise domination theorem, which checks in
   about four seconds.
+- Composing an arbitrary negative denominator through the proof-indexed signed
+  inverse again made completion-level normalization run past forty seconds.
+  Pulling back the already checked uniformly upper-bounded negative reciprocal
+  gives the same inverse law and reduced the complete quotient module to about
+  four seconds.  Bounded reciprocal representations should remain visible
+  through derivative composition and be erased only at the convenience API.
+- A decidable `<` split for the finite-prefix/tail cases in the native Cauchy
+  bound theorem ran past a minute.  Replacing it by structural natural-number
+  `≤` case induction, with the prefix ending at `suc cutoff`, made the complete
+  module check in about five seconds.
+- The exact coefficient-product theorem expressed through proof-indexed
+  `powerSeriesValue` ran past fifty-eight seconds.  Its underlying `HasSum`
+  theorem and summability wrapper each check in about five seconds, so the slow
+  convenience theorem was removed and the proof-independent sum equation is
+  the exported boundary.
 
 ## Open technical questions
 
@@ -360,3 +409,9 @@ from the constructors of a particular real-number HIT.
   suitable Cauchy graphs, but its cheapest reusable binary witness interface
   is not yet exposed.  This should be solved generically before polynomial or
   series clients request multiplication witnesses.
+- Termwise power-series differentiation should be built from a uniformly
+  summed divided-difference factor, not from division by `y - x`.  This matches
+  the division-free derivative kernel and makes the diagonal/formal-derivative
+  identity a finite algebraic theorem.  The remaining design question is how
+  much of that family belongs in generic uniform-series infrastructure versus
+  the power-series layer.

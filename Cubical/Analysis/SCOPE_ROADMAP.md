@@ -35,15 +35,15 @@ real-analysis interfaces have stabilized.
 | Additive/ring/lattice algebra | Complete baseline plus rational module | Both | Integer embedding and derivative-facing linear API |
 | Non-strict and strict order | Complete baseline plus closed interval/radius subspaces | Both | Open domains and domain-restricted mapping API |
 | Apartness | Additive and multiplicative laws | Both | Decide whether a standard field/apartness bundle fits without API churn |
-| Reciprocal and division | Implemented away from zero; checked derivatives on explicit positive/negative rationally bounded domains | Both | Performant full-apart derivative adapter and arbitrary-denominator quotient rule |
+| Reciprocal and division | Implemented away from zero; arbitrary numerator/denominator quotient derivatives are checked on explicit uniform positive and negative rationally bounded domains | Both | Performant full-apart derivative adapter and rational-function packaging |
 | Naturals and powers | Naturals and rational scalars implemented | Both | Integer embedding and scalar/power compatibility |
 | Polynomials | Horner evaluation, majorants, absolute bounds, local Lipschitz estimates, and structural derivative/composition rules | Both | Reusable closed-ball packaging and rational-function closure |
 | Ordinary sequences | Limits, eventual equality/order, two asymptotic witness levels, and squeeze theorems | Both | Monotone convergence once supremum infrastructure exists |
 | Finite sums | Witness/limit preservation, algebra, exchange, telescoping, monotonicity, absolute bounds, and convolution-oriented diagonal/triangular reindexing | `CauchyRealsP` | Partition reindexing as demanded by integration |
-| Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, rational/real contraction results, uniform family convergence, and quantitative Mertens products | Both | Package uniform partial-sum boundedness and radiuswise/weaker uniform witness variants |
-| Power series | Terms, linear algebra, geometric majorants, uniform convergence, and continuity on every closed positive rational radius below one | `CauchyRealsP` | General coefficient-growth radii, products, and termwise differentiation |
+| Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, rational/real contraction results, uniform family convergence, constructive native-Cauchy bounds, and bound-free Mertens products | Both | Radiuswise/weaker uniform witness variants and modulus-driven tests |
+| Power series | Terms, zero/finite-modification laws, linear algebra, exponential coefficient-growth criteria and closure laws, exact Cauchy products, uniform closed-radius convergence/continuity, formal coefficient derivatives, and uniformly Cauchy divided differences | `CauchyRealsP` | Divided-difference sum identities and termwise differentiation |
 | Continuity on domains | Complete closed interval/radius retracts plus open half-lines, intervals, and absolute-radius balls | Mostly `CauchyReals` and newer completion reals | Domain maps, products, and pasting |
-| Derivatives | Division-free kernel, uniqueness, algebra, product/chain/power/Horner/finite-sum rules, controlled reciprocal and quotient rules, continuity, and open-subspace adapters | Both | Full apart-domain reciprocal, arbitrary quotients, and rational functions |
+| Derivatives | Division-free kernel, uniqueness, algebra, ordinary and indexed chain rules, power/Horner/finite-sum rules, controlled reciprocal and arbitrary-denominator quotient rules, continuity, and open-subspace adapters | Both | Full apart-domain reciprocal and rational-function packaging |
 | Integration | Missing | Newer completion reals and parts of `CauchyReals` | Uniform-limit and partition infrastructure first |
 | Elementary functions | Missing | Mostly `CauchyReals` | Exponential/logarithm before trigonometry |
 | Complex analysis | Out of current core scope | `CauchyReals` | Revisit after real elementary analysis |
@@ -203,14 +203,21 @@ the finite-sum layer now supplies the anti-diagonal/triangular reindexing used
 by convolution.  The Cauchy-product layer proves its finite algebra,
 rectangular decomposition, explicit remainder bounds, and the quantitative
 Mertens theorem from native Cauchy hypotheses plus explicit uniform
-partial-sum bounds.  The remaining dependency order is:
+  partial-sum bounds.  A native `SeqWitness` now yields the mere existence of
+  one positive rational absolute bound.  Eliminating those bounds only into
+  propositions gives Mertens remainder convergence, product summability, and
+  the exact product value directly from native absolute/Cauchy hypotheses,
+  without adding a choice principle.  The remaining dependency order is:
 
 1. uniform-limit closure for continuous partial sums is implemented; extend it
    to reusable radiuswise/weaker uniform witness variants;
-2. comparison tests driven by explicit Cauchy moduli;
-3. package constructive uniform positive-rational bounds for native-Cauchy
-   partial-sum families, simplifying the Mertens interface; and
-4. coefficient-growth criteria beyond uniformly bounded coefficients.
+2. comparison tests driven by explicit Cauchy moduli.
+
+Explicit exponential coefficient growth is now handled separately: a bound
+`|a n| ≤ B G^n` reduces evaluation on `|x| ≤ R` to the geometric ratio
+`G R`.  It supplies absolute convergence, a sum bound, uniform convergence,
+and continuity whenever `G R < 1`.  Addition, subtraction, negation, and
+bounded real scaling preserve the packaged growth hypotheses.
 
 Do not begin convolution before finite-sum reindexing and absolute bounds are
 available as separate checked modules.
@@ -237,14 +244,18 @@ and proves uniqueness.  Constants and the coordinate/identity function,
 addition, negation, subtraction, real/rational scaling, multiplication,
 composition, natural powers, Horner polynomials, and finite sums are checked.
 Differentiability implies continuity, and open-predicate subspaces have
-restriction and pointwise ambient adapters.  Reciprocal differentiation is
-checked on explicit positive and negative rationally bounded domains,
-including proof-independent positive and signed inverse values; a numerator
-divided by the domain coordinate has the corresponding product/quotient rule.
-Continue in this order:
+restriction and pointwise ambient adapters.  An indexed chain rule now lets
+both derivatives live on the same parameter space, which is the missing
+composition shape for subtype-valued denominators.  Reciprocal
+differentiation is checked on explicit positive and negative rationally
+bounded domains, including proof-independent positive and signed inverse
+values.  Arbitrary differentiable numerators and denominators now have the
+product-form quotient derivative whenever one fixed positive rational bound
+separates the whole denominator family from zero on either side.  Continue in
+this order:
 
 1. isolate a performant full-apart reciprocal adapter; and
-2. arbitrary-denominator quotients and rational functions.
+2. package rational functions over composable bounded denominator domains.
 
 The signed reciprocal derivative should consume an explicit domain proof that
 the denominator stays apart from zero; it should not repeatedly eliminate
@@ -265,8 +276,37 @@ sealed implementation modules should not be copied wholesale.
   positive rational radius below one are implemented.  The canonical value is
   continuous there because its term functions are continuous and the partial
   sums converge uniformly.
-- Extend convergence to general coefficient-growth radii and prove termwise
-  differentiation on strict interiors.
+- Explicit exponential coefficient growth now gives the more general radius
+  criterion `G R < 1`, with absolute evaluation bounds and a continuous
+  closed-radius value.  Growth certificates have additive, subtractive,
+  negative, and bounded-scaling closure laws.
+- Evaluation at zero is unconditionally summable with value `a 0`.  Eventual
+  equality of coefficient sequences transports native Cauchy witnesses and
+  summability, while an explicit cutoff gives the exact finite correction to
+  the value; cutoff-dependent data remains truncated when the equality is
+  merely eventual.
+- The formal derivative shifts and weights coefficients, respects the linear
+  operations, and identifies each derivative-series term with the derivative
+  of the corresponding successor power-series term.
+- Cauchy multiplication of coefficient sequences evaluates termwise to the
+  Cauchy product of the two evaluated series.  Explicit-bound and native-Cauchy
+  wrappers give summability and an exact `HasSum` product value.
+- The finite divided-difference factor, its power factorization, its diagonal
+  formal-derivative identity, continuity, closed-radius bound, and domination
+  by a derivative majorant are checked.  Derivative-majorant Cauchy convergence
+  now makes the whole factor family uniformly Cauchy on a closed radius, also
+  when obtained by restriction from a larger radius.  Next identify its
+  canonical sum with the power-series difference and with the formal
+  derivative on the diagonal, then derive termwise differentiation on strict
+  interiors.
+
+For the final step, the transferable architecture is the divided-difference
+one used by both reference developments: construct a finite geometric
+`powerDifferenceFactor x y n`, sum the resulting coefficient family uniformly
+on a closed radius, prove that its diagonal is the formal derivative series,
+and feed the continuous factorization directly to the division-free
+derivative kernel.  This is preferable to transporting a classical
+difference quotient through completion-level division.
 - Exponential from a power series, then its algebraic and derivative laws.
 - Logarithm on positive reals using inverse/integration or a controlled local
   series.
@@ -325,19 +365,29 @@ quantitative-domain modules each remain near four seconds; a future full-apart
 facade should eliminate into a small named local witness instead of unfolding
 those transports in the derivative proposition.
 
+The negative arbitrary-denominator quotient exposed the same issue one layer
+later.  Composing through a proof-indexed signed inverse ran for more than
+forty seconds.  Pulling back the already checked uniformly upper-bounded
+negative reciprocal, which is extensionally the same inverse on the domain,
+made the complete module check in about four seconds.  Quotient clients should
+therefore compose bounded reciprocal maps first and only erase the bound at a
+small public convenience layer.
+
+A proof-indexed `powerSeriesValue` convenience theorem for the coefficient
+Cauchy product crossed fifty-eight seconds even though the underlying exact
+`HasSum` theorem checks in about five seconds.  The slow wrapper was removed.
+Analytic value APIs should prefer proof-independent `HasSum` equations and use
+summability proof irrelevance only in a small client theorem when necessary.
+
 ## Near-term work queue
 
-1. Package uniform positive-rational bounds for native-Cauchy partial sums and
-   simplify the checked quantitative Mertens theorem.
-2. Design a performant full-apart reciprocal derivative adapter, then extend
-   the quotient rule from the domain coordinate to arbitrary denominators.
-3. Generalize power-series convergence from bounded coefficients to explicit
-   coefficient-growth/radius hypotheses.
-4. Add the generic domain-map and pasting combinators demanded by calculus.
-5. Generalize uniform convergence to radiuswise/weaker witness interfaces.
-6. Add power-series products and termwise differentiation using the checked
-   convolution algebra and uniform-tail bounds.
-7. Begin partition and Riemann-sum infrastructure only after
+1. Add the uniformly convergent divided-difference family and its diagonal sum
+   theorem, then derive termwise differentiation.
+2. Design a performant full-apart reciprocal derivative adapter and package
+   bounded-domain rational functions.
+3. Add the generic domain-map and pasting combinators demanded by calculus.
+4. Generalize uniform convergence to radiuswise/weaker witness interfaces.
+5. Begin partition and Riemann-sum infrastructure only after
    convolution and uniform-tail bounds are separately checked.
 
 This queue deliberately alternates user-facing theorems with generic support
