@@ -135,6 +135,39 @@ module LiftCompleteCodomain (N-com : PremetricTheory.isComplete N') where
   liftLipschitzWithFun̂ L f f-lip =
     fst (liftLipschitzWitĥ L f f-lip)
 
+  liftLipschitzWithFun̂-independent : ∀ L K f fL fK →
+    liftLipschitzWithFun̂ L f fL ≡
+      liftLipschitzWithFun̂ K f fK
+  liftLipschitzWithFun̂-independent L K f fL fK =
+    cong (_∘ ←̂)
+      (RegularComplete.isIrrelevantLiftLipschitzWith L K f fL fK)
+
+  liftLipschitzWithFun̂-ext :
+    ∀ L K (f g : M → N)
+      (fL : IsLipschitzWith (M' .snd) f (N' .snd) L)
+      (gK : IsLipschitzWith (M' .snd) g (N' .snd) K) →
+    (∀ x → f x ≡ g x) →
+    liftLipschitzWithFun̂ L f fL ≡
+      liftLipschitzWithFun̂ K g gK
+  liftLipschitzWithFun̂-ext L K f g fL gK f∼g =
+    lift-cong f fL (funExt f∼g) K gK
+    where
+    lift-cong :
+      ∀ (f : M → N)
+        (fL : IsLipschitzWith (M' .snd) f (N' .snd) L)
+        {g : M → N} → f ≡ g →
+        ∀ K (gK : IsLipschitzWith (M' .snd) g (N' .snd) K) →
+      liftLipschitzWithFun̂ L f fL ≡
+        liftLipschitzWithFun̂ K g gK
+    lift-cong f fL {g} f≡g =
+      J (λ g _ → ∀ K
+          (gK : IsLipschitzWith (M' .snd) g (N' .snd) K) →
+        liftLipschitzWithFun̂ L f fL ≡
+            liftLipschitzWithFun̂ K g gK)
+        (λ K fK →
+          liftLipschitzWithFun̂-independent L K f fL fK)
+        f≡g
+
   liftNonExpandinĝ : NE[ M' , N' ] → NE[ ℭ̂PremetricSpace , N' ]
   liftNonExpandinĝ f =
     map-snd (isLipschitzWith1→isNonExpanding _ _ _)
@@ -143,6 +176,14 @@ module LiftCompleteCodomain (N-com : PremetricTheory.isComplete N') where
 
   liftNonExpandinĝ∘ι : ∀ f → fst (liftNonExpandinĝ f) ∘ ι ≡ fst f
   liftNonExpandinĝ∘ι f = refl
+
+  liftNonExpandinĝ-ext : ∀ f g →
+    (∀ x → fst f x ≡ fst g x) →
+    liftNonExpandinĝ f ≡ liftNonExpandinĝ g
+  liftNonExpandinĝ-ext f g f∼g = cong liftNonExpandinĝ
+    (Σ≡Prop
+      (λ h → isPropIsNonExpanding (M' .snd) h (N' .snd))
+      (funExt f∼g))
 
 
 -- Open question left by this module: IsΓModulusWith is enough to turn each

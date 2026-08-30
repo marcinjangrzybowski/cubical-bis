@@ -1,0 +1,785 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=25mm,headheight=14pt]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{mathtools,amssymb,amsthm}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{seqsplit}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{bookmark}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!45!black,
+  urlcolor=blue!55!black,
+  citecolor=blue!45!black,
+  pdftitle={Strengthened results in the Cauchy-sequence completion of the reals},
+  pdfauthor={Source audit of cubical-master-reals}
+}
+
+\definecolor{deepblue}{HTML}{17365D}
+\definecolor{softblue}{HTML}{EAF2F8}
+\definecolor{softgreen}{HTML}{EAF6EC}
+\definecolor{softamber}{HTML}{FFF4D6}
+\definecolor{softred}{HTML}{FBE9E7}
+\definecolor{softgray}{HTML}{F4F5F6}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cauchy-real comparison}
+\rhead{Source audit, 12 August 2026}
+\cfoot{\thepage}
+
+\setlist[itemize]{leftmargin=1.5em,itemsep=.25em,topsep=.3em}
+\setlist[enumerate]{leftmargin=1.7em,itemsep=.35em,topsep=.3em}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\LTpre}{.5em}
+\setlength{\LTpost}{.5em}
+\setlength{\emergencystretch}{2em}
+
+% HoTT Book-style conventions, kept self-contained for this report.
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Qp}{\mathbb{Q}_{+}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\RC}{\mathbb{R}_{\mathrm C}}
+\newcommand{\RP}{\mathbb{R}_{\mathrm P}}
+\newcommand{\RS}{\mathbb{R}_{\mathrm S}}
+\newcommand{\Type}{\mathcal{U}}
+\newcommand{\Prop}{\mathsf{Prop}}
+\newcommand{\brck}[1]{\left\lVert #1\right\rVert}
+\newcommand{\prd}[2]{\prod_{#1} #2}
+\newcommand{\sm}[2]{\sum_{#1} #2}
+\newcommand{\eqv}{\simeq}
+\newcommand{\close}[1]{\mathrel{\sim_{#1}}}
+\newcommand{\Tail}{\mathsf{Tail}}
+\newcommand{\Cch}{\mathsf{C}_{\mathrm{ch}}}
+\newcommand{\Cbd}{\mathsf{C}_{\mathrm{bd}}}
+\newcommand{\Crad}{\mathsf{C}_{\mathrm{rad}}}
+\newcommand{\Lim}{\mathsf{Lim}}
+\newcommand{\Sum}{\mathsf{Sum}}
+\newcommand{\AbsC}{\mathsf{AbsC}}
+\newcommand{\UC}{\mathsf{UC}}
+\newcommand{\RU}{\mathsf{RU}}
+\newcommand{\PS}{\mathsf{PS}}
+\newcommand{\RatContr}{\mathsf{RatContr}}
+\newcommand{\CP}{\mathbin{*_{\mathrm C}}}
+\newcommand{\code}[1]{{\ttfamily\seqsplit{#1}}}
+\newcommand{\strength}{\textcolor{deepblue}{\textsf{strengthening}}}
+\newcommand{\newcov}{\textcolor{green!40!black}{\textsf{new coverage}}}
+\newcommand{\gap}{\textcolor{red!55!black}{\textsf{older side broader}}}
+
+\newtheorem{finding}{Finding}
+\newtheorem{caveat}{Scope caveat}
+
+\title{\textbf{Strengthened Results in the Cauchy-Sequence Completion of the Reals}\\
+\large A theorem-level comparison with \code{HITs/CauchyReals} and \code{HITs/CauchyRealsP}}
+\author{Source audit of \code{cubical-master-reals}}
+\date{12 August 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The material improvement in the \code{Completion/CauchySequence/Reals} development is not
+that it proves ordinary completeness once again.  It changes the logical strength of the
+input accepted by completeness and then consistently propagates that change through
+sequences, series, uniform convergence, power series, and integration.  A Cauchy tail is
+chosen only at the radius currently being used, under propositional truncation.  No global
+modulus is manufactured.  Consequently, the new development proves the choice-free
+equivalence
+\[
+  \Crad(x) \eqv \Lim(x),
+\]
+whereas the older sequential APIs start from a simultaneously chosen modulus.  This yields
+genuinely stronger theorem interfaces: arbitrary-real rather than rational scaling of
+Cauchy series, sharp hypotheses such as $|x|<1$ rather than a selected rational contraction,
+Mertens theorems without selected sum bounds, and uniform-limit/integration results without
+global modulus data.  The report also records an important negative result: a suitably
+structured inverse from the regular completion to the new completion is equivalent to the
+missing sequential tail-choice principle.  Finally, the older \code{HITs/CauchyReals}
+development still has substantially broader global calculus, logarithm, $\pi$, inverse
+trigonometry, circle, and complex-number coverage.  Thus the new line is logically sharper
+in its sequential interfaces, not yet globally dominant in library coverage.
+\end{abstract}
+
+\tableofcontents
+
+\section{Scope, names, and the comparison being made}
+
+There are three related, but not interchangeable, code lines in scope.
+
+\paragraph{$\RC$ --- the HoTT-style higher inductive-inductive real.}
+  \path{Cubical/HITs/CauchyReals}.  Its constructors follow HoTT Book
+  Definition~11.3.2: rational points, limits of $\Qp$-indexed Cauchy
+  approximations, and paths identifying points close at every radius.
+
+\paragraph{$\RP$ --- the generic regular completion specialised to $\Q$.}
+  \path{Cubical/HITs/CauchyRealsP}.  This is the direct predecessor of most of
+  the sequence/series/power-series code audited here.  Its foundation re-exports
+  \path{Relation/Premetric/Completion/Base}; its analysis API ordinarily exposes
+  chosen sequential moduli.
+
+\paragraph{$\RS$ --- the radiuswise Cauchy-sequence completion.}
+  \path{Cubical/Relation/Premetric/Completion/CauchySequence/Reals}.  Its limit
+  constructor takes an $\N$-sequence and a separately truncated tail at each
+  radius.  Most direct old/new theorem pairs are therefore $\RP$ versus $\RS$.
+
+The source contains an unconditional canonical nonexpanding map
+\[
+  c : \RP \longrightarrow \RS
+\]
+which fixes rational points; companion modules prove preservation of distance, lattice,
+multiplication, and commutative-ring structure.  No unconditional inverse is asserted.
+There is also no source theorem identifying the full \code{HITs/CauchyReals} development
+with $\RS$.  Accordingly, this report does not silently transport old theorems across an
+unproved equivalence.
+
+We use HoTT Book conventions: $\Qp$ for positive rationals, $\brck{A}$ for propositional
+truncation, dependent products and sums for $\prod$ and $\sum$, and $\eqv$ for equivalence.
+Write $x_m\close{\varepsilon}x_n$ for premetric closeness.  This notation suppresses
+the implementation's two concrete closeness relations, which is immaterial to the logical
+comparison.
+
+\paragraph{Classification used below.}
+A \strength{} weakens a premise, strengthens a conclusion, or removes data that cannot be
+recovered constructively.  \newcov{} means a construction is new relative to $\RP$ but is
+not necessarily a stronger counterpart of a theorem already in $\RC$.  A \gap{} marks an
+area where the mature $\RC$ hierarchy remains broader.
+
+\section{The foundational material difference}
+
+\subsection{The HoTT constructor and the new constructor}
+
+The HoTT Book and \code{HITs/CauchyReals} use Cauchy approximations.  Schematically,
+\begin{equation}
+\label{eq:hott-lim}
+  \mathsf{lim}_{\mathrm C} :
+  \prd{x:\Qp\to\RC}
+  \left(\prd{\delta,\varepsilon:\Qp}
+    x_\delta\close{\delta+\varepsilon}x_\varepsilon\right)
+  \longrightarrow \RC .
+\end{equation}
+This is the free-completion idea of HoTT Book \S11.3: limits and quotient paths are added
+simultaneously, avoiding a choice of representatives for a sequence in a quotient.
+
+The new completion instead has a genuinely sequential constructor
+\begin{equation}
+\label{eq:seq-lim}
+  \mathsf{lim}_{\mathrm S} :
+  \prd{x:\N\to\RS} \Crad(x) \longrightarrow \RS,
+\end{equation}
+where
+\begin{align}
+  \Tail(x,\varepsilon)
+  &\;\coloneqq\;
+  \sm{N:\N}
+  \prd{m,n:\N}
+  (N\le m)\to(N\le n)\to(x_m\close{\varepsilon}x_n),
+  \label{eq:tail}\\
+  \Crad(x)
+  &\;\coloneqq\;
+  \prd{\varepsilon:\Qp}\brck{\Tail(x,\varepsilon)}.
+  \label{eq:radiuswise}
+\end{align}
+The one common cutoff needed at a particular $\varepsilon$ exists merely; the definition
+contains no function selecting all cutoffs at once.
+
+\subsection{Three placements of truncation}
+
+The comparison module isolates three distinct propositions/data types:
+\begin{align}
+  \Cch(x)
+  &\;\coloneqq\;
+    \prd{\varepsilon:\Qp}\Tail(x,\varepsilon)
+    \;\eqv\;
+    \sm{M:\Qp\to\N}
+    \prd{\varepsilon:\Qp}\text{tail-law}(M\varepsilon),
+    \label{eq:chosen}\\
+  \Cbd(x)
+  &\;\coloneqq\; \brck{\Cch(x)},
+    \label{eq:bundled}\\
+  \Crad(x)
+  &\;\coloneqq\;
+    \prd{\varepsilon:\Qp}\brck{\Tail(x,\varepsilon)}.
+    \label{eq:radagain}
+\end{align}
+There are constructive maps
+\[
+  \Cch(x)\longrightarrow\Cbd(x)\longrightarrow\Crad(x),
+\]
+but the missing reverse direction is exactly the passage
+\begin{equation}
+\label{eq:choice-gap}
+  \left(\prd{\varepsilon:\Qp}\brck{A_\varepsilon}\right)
+  \longrightarrow
+  \brck{\prd{\varepsilon:\Qp}A_\varepsilon}.
+\end{equation}
+That is a countable-choice principle over $\Qp$, not a law of propositional truncation.
+The older $\RC$ sequential predicate \code{IsCauchySequence'} and $\RP$ predicate
+\code{isCauchySeq} inhabit the chosen side of this divide (their concrete packaging differs,
+but both expose simultaneous tail choices).  The $\RS$ predicate inhabits the radiuswise side.
+
+\begin{finding}[Exact obstruction]
+Let $\mathsf{TC}$ be the real-specific sequential tail-choice statement that turns every
+radiuswise Cauchy sequence in the intermediate sequential presentation into one bundled
+sequential witness.  The source proves
+\begin{equation}
+\label{eq:structured-inverse}
+  \mathsf{StructuredInverse}(c) \eqv \mathsf{TC}.
+\end{equation}
+Here ``structured'' means an equivalence $c:\RP\eqv\RS$ whose inverse also supplies the
+bundled Cauchy witness demanded by the regular/sequential presentation.  Propositional choice
+over $\Qp$ implies $\mathsf{TC}$ and hence such an inverse.  Bare invertibility of $c$ is
+deliberately not claimed sufficient, because inverse values alone do not compute the missing
+tail witnesses.
+\end{finding}
+
+Equation~\eqref{eq:structured-inverse} is the sharpest material comparison in the repository.
+It says where choice would enter and characterises exactly the extra structure it would buy.
+This directly echoes the warning in HoTT Book \S11.3: quotient-first Cauchy completions need
+countable choice to lift a sequence of quotient elements to representatives.  The new issue
+is not representative choice but tail choice; the same placement-of-truncation phenomenon is
+made explicit in the type.
+
+\section{The principal strengthened theorem}
+
+For a sequence $x:\N\to\RS$, define its type of limits by
+\begin{align}
+  \mathsf{isLim}(x,\ell)
+  &\;\coloneqq\;
+  \prd{\varepsilon:\Qp}
+  \brck{\sm{N:\N}\prd{n:\N}
+    (N\le n)\to(x_n\close{\varepsilon}\ell)},\\
+  \Lim(x)
+  &\;\coloneqq\;
+  \sm{\ell:\RS}\mathsf{isLim}(x,\ell).
+\end{align}
+Separatedness makes $\Lim(x)$ a proposition.  The constructor gives
+$\Crad(x)\to\Lim(x)$; the triangle inequality gives
+$\Lim(x)\to\Crad(x)$ without choosing tails at all radii.  Therefore:
+\begin{equation}
+\boxed{\qquad \Crad(x)\;\eqv\;\Lim(x). \qquad}
+\label{eq:main-equivalence}
+\end{equation}
+In source this is \code{isCauchySequence}$\simeq$\code{sequenceLimit}.  The older direct
+counterpart \code{cauchySequenceLimit} proves only
+\[
+  \Cch(x)\longrightarrow\Lim(x).
+\]
+Thus equation~\eqref{eq:main-equivalence} is stronger in both directions: its forward map
+accepts less structured Cauchy evidence, and its reverse map establishes a full criterion for
+convergence.  It does \emph{not} imply $\Crad(x)\to\Cbd(x)$; completeness returns a real limit,
+not a global modulus.
+
+Two important corollaries are then obtained at the correct strength:
+\begin{align*}
+  &f\text{ continuous},\ \Crad(x)
+    \quad\Longrightarrow\quad \Crad(f\circ x),\\
+  &f\text{ nonexpanding},\ \mathsf{isLim}(x,\ell)
+    \quad\Longrightarrow\quad \mathsf{isLim}(f\circ x,f\ell).
+\end{align*}
+The first implication uses completeness of $\RS$: obtain the unique limit, apply sequential
+continuity, then use convergence $\Rightarrow$ radiuswise Cauchy.  It would be false for an
+arbitrary incomplete target space, so the proof is not merely a repackaged Lipschitz lemma.
+
+\section{Theorem-by-theorem strength ledger}
+
+\rowcolors{2}{softgray}{white}
+\begin{longtable}{>{\raggedright\arraybackslash}p{.17\textwidth}
+                  >{\raggedright\arraybackslash}p{.32\textwidth}
+                  >{\raggedright\arraybackslash}p{.39\textwidth}}
+\toprule
+\textbf{Area / class} & \textbf{Earlier statement or burden} &
+\textbf{Strengthened $\RS$ result and why it matters}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Area / class} & \textbf{Earlier statement or burden} &
+\textbf{Strengthened $\RS$ result and why it matters}\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Cauchy predicate
+\newline\strength
+& $\Cch(x)$: a cutoff at every radius is simultaneously selected.
+& $\Crad(x)=\prod_\varepsilon\brck{\Tail(x,\varepsilon)}$.  This is implied by the old
+predicate; the converse is precisely tail choice and is not assumed.\\
+
+Completeness
+\newline\strength
+& \code{cauchySequenceLimit}: $\Cch(x)\to\Lim(x)$.
+& \code{isCauchySequence}$\simeq$\code{sequenceLimit}:
+$\Crad(x)\eqv\Lim(x)$.  This is the central stronger result, not merely a new constructor.\\
+
+Eventually equal and ordered
+\newline\strength
+& The established predicates store $\sum_N\prod_{n\ge N}(\cdots)$ and expose $N$.
+& \code{EventuallyEqualSequence}, \code{EventuallyLeSequence}, and
+\code{EventuallyLtSequence} truncate the cutoff.  Eventual $\le$ and even eventual $<$ pass
+to $\le$ of limits without choosing a witness.\\
+
+Asymptotic closeness
+\newline\strength
+& A selected cutoff is returned at each radius and clients often retain the witness.
+& \code{EventuallyClose} follows the same radiuswise truncation discipline and preserves
+Cauchyness and limits by proposition-valued elimination.\\
+
+Series criterion
+\newline\strength
+& $\mathsf{CauchySeries}(a)\to\mathsf{Summable}(a)$, with the former built from a chosen
+modulus of partial sums.
+& \code{isCauchySeries}$\simeq$\code{summable} gives an equivalence at the radiuswise
+strength:
+\[
+  \Crad\!\left(n\mapsto\sum_{k<n}a_k\right)\eqv\Sum(a).
+\]
+No global series modulus is recovered or required.\\
+
+Scalar closure
+\newline\strength
+& \code{rationalScaleSeriesIsCauchy} and
+\code{rationalScaleSeriesIsAbsolutelyCauchy} only scale by $q:\Q$.
+& \code{scaleSeriesIsCauchy} and \code{scaleSeriesIsAbsolutelyCauchy} accept every
+$c:\RS$.  Native completeness plus continuity of multiplication removes the rational-only
+restriction.\\
+
+Majorants
+\newline\strength
+& From $|a_n|\le b_n$, old power-series theorems additionally request
+$0\le b_n$ for all $n$.
+& \code{coefficientMajorantIsNonnegative} derives
+\[
+  0\le |a_n|\le b_n,
+\]
+so all coefficient-majorant convergence theorems drop the redundant nonnegativity premise.\\
+
+Absolute bounds
+\newline\strength
+& Mertens and iterated-product clients select explicit $A:\Qp$ bounding an absolute sum.
+& \code{mereAbsoluteCauchySeriesSumBound} proves only
+\[
+  \brck{\sm{A:\Qp}\mathsf{AbsSumBound}(A,a)}.
+\]
+Clients open such a bound only inside a proposition.  The useful conclusion survives while
+the arbitrary bound is removed from the public theorem.\\
+
+Mertens product
+\newline\strength
+& Old absolute Mertens statements take $A,B:\Qp$ and proofs that the two absolute sums are
+bounded by them; separate theorems establish ordinary or absolute Cauchyness.
+& For the Cauchy product $(a\CP b)_n=\sum_{k\le n}a_kb_{n-k}$:
+\[
+ \begin{gathered}
+ \AbsC(a)\to\AbsC(b)\to\AbsC(a\CP b),\\[-2pt]
+ \sum(a\CP b)=(\sum a)(\sum b).
+ \end{gathered}
+\]
+Theorems \code{absoluteMertensCauchyProductIsAbsolutelyCauchy} and
+\code{absoluteMertensSeriesSum-cauchyProduct} need no selected sum bounds.\\
+
+Geometric series
+\newline\strength
+& Callers provide
+\[
+ \begin{aligned}
+ \RatContr(x)\coloneqq\sum_{q:\Qp}&(|x|<q)\\[-2pt]
+ &{}\times(q<1).
+ \end{aligned}
+\]
+& \code{geometricSeriesIsAbsolutelyCauchyOfAbs<1} and its summability/value variants assume
+only the sharp open condition $|x|<1$.  Density yields $\brck{\RatContr(x)}$, which is opened
+only into the propositional conclusion.\\
+
+Bounded power series
+\newline\strength
+& With $|a_n|\le C$, convergence at $x$ requires a selected
+$\RatContr(x)$.
+& \code{powerSeriesIsAbsolutelyCauchyOfAbs<1},
+\code{powerSeriesIsAbsolutelySummableOfAbs<1}, and
+\code{powerSeriesIsSummableOfAbs<1} require only $|x|<1$.  Product and interior convergence
+layers reuse the same sharp interface rather than leaking an intermediate rational radius.\\
+
+Uniform series
+\newline\strength
+& A whole uniform modulus $M:\Qp\to\N$ is part of
+\code{UniformlyCauchySeries}.
+& The new definition is
+\[
+ \begin{gathered}
+ \mathsf{UCauchy}(S)\coloneqq\\[-2pt]
+ \displaystyle\prod_{\varepsilon:\Qp}
+ \brck{\mathsf{UniformTail}(S,\varepsilon)}.
+ \end{gathered}
+\]
+Here \(\mathsf{UniformTail}\) contains one cutoff common to all parameters.  Thus the
+definition does not collapse to pointwise convergence.  It yields uniform convergence to
+the canonical sum and continuity of that sum with no chosen global modulus.\\
+
+Uniform continuity
+\newline\strength
+& Conventional APIs package a modulus choosing an input radius for every requested output
+radius.
+& \code{IsRadiuswiseUniformlyContinuous} uses
+\[
+ \RU(f)\coloneqq\prod_{\varepsilon:\Qp}
+ \brck{\mathsf{ModulusAt}(f,\varepsilon)}.
+\]
+Here \(\mathsf{ModulusAt}\) contains an adequate input radius and its preservation law.
+Conventional uniform continuity implies $\RU(f)$; no converse is exported because it would
+again commute product with truncation.\\
+
+Uniform limits and integration
+\newline\strength{} / \newcov
+& The older $\RP$ series hierarchy has no Riemann-integration layer; the older $\RC$ layer
+uses stronger uniform-continuity/modulus interfaces.
+& An arbitrary uniformly convergent sequence of radiuswise uniformly continuous functions
+has a radiuswise uniformly continuous limit.  The completed dyadic integral preserves both
+global and interval-local uniform limits:
+\[
+ \begin{gathered}
+ f_n\to f\text{ uniformly on }[a,b]\\[-2pt]
+ \Longrightarrow\ \int_a^b f_n\to\int_a^b f.
+ \end{gathered}
+\]
+Completing the sequence of integrals independently is proved equal to integrating the limit.\\
+
+Transcendental construction
+\newline\newcov
+& $\RP$ stops at generic power-series machinery.  $\RC$ already has a different, mature
+transcendental hierarchy.
+& $\RS$ now constructs power-series $\exp$, $\sin$, $\cos$, hyperbolic functions, a partial
+tangent layer, local arctangent/reciprocal results, and $-\log(1-x)$ on $|x|<1$, with addition,
+derivative, order, and identity theorems.  This is substantial new coverage relative to
+$\RP$, but not by itself a stronger theorem than the corresponding mature $\RC$ results.\\
+\end{longtable}
+\rowcolors{2}{}{}
+
+\section{Four representative proof improvements}
+
+\subsection{Sharp open hypotheses without selected rational witnesses}
+
+The geometric-series change is the cleanest recurring proof pattern.  The old implementation
+already proves convergence from $\RatContr(x)$.  Rational density proves only
+\[
+  |x|<1\quad\longrightarrow\quad\brck{\RatContr(x)},
+\]
+which is exactly what constructive density should provide.  In $\RS$, absolute Cauchyness is
+a proposition, so truncation elimination gives
+\[
+  |x|<1\quad\longrightarrow\quad
+  \AbsC\bigl(n\mapsto x^n\bigr)
+\]
+without selecting $q$.  The same proof architecture supplies the sharp hypotheses for bounded
+power series and their products.  The mathematical condition visible to a client is now the
+standard one; the rational $q$ remains an internal estimate.
+
+This is materially stronger than adding a convenience lemma only if the target is genuinely
+propositional.  The report therefore does not claim a construction of a canonical contraction
+radius.  Such a construction is neither present nor needed.
+
+\subsection{Mertens without bound plumbing}
+
+For an absolutely Cauchy series $a$, Archimedean boundedness gives
+\[
+  \AbsC(a)\longrightarrow
+  \brck{\sm{A:\Qp}\mathsf{AbsSumBound}(A,a)}.
+\]
+The old Mertens interface made $A$ and its proof caller-visible.  The new proof eliminates
+mere bounds for $a$ and $b$ directly into the proposition that rectangular partial sums
+approximate triangular Cauchy-product sums.  It then derives, in order,
+\begin{align*}
+  \AbsC(a),\AbsC(b)
+    &\Longrightarrow \mathsf{RectangularApproximation}(a,b),\\
+    &\Longrightarrow \mathsf{Cauchy}(a\CP b),\\
+    &\Longrightarrow \AbsC(a\CP b),\\
+    &\Longrightarrow \mathsf{AbsolutelySummable}(a\CP b).
+\end{align*}
+The public theorem has the textbook premise, while the quantitative estimates still use
+explicit bounds locally.  This is a good example of truncation serving abstraction rather
+than erasing information prematurely.
+
+\subsection{Arbitrary-real scaling from native completeness}
+
+The old Cauchy proof scaled a modulus by a rational and therefore exported only
+\[
+  q:\Q,\ \mathsf{CauchySeries}(a)
+  \Longrightarrow \mathsf{CauchySeries}(q a).
+\]
+In $\RS$, a constant real sequence is radiuswise Cauchy, multiplication preserves native
+Cauchy sequences, and the partial sums of $ca$ are eventually equal to
+$c$ times the partial sums of $a$.  Hence
+\[
+  c:\RS,\ \mathsf{CauchySeries}(a)
+  \Longrightarrow \mathsf{CauchySeries}(ca),
+\]
+with the analogous absolute result.  This is a genuine extension of the scalar domain, not
+only a change in witness packaging.
+
+\subsection{Uniformity is retained, global choice is not}
+
+The location of truncation in the new uniform-series predicate is deliberate:
+\[
+  \prd{\varepsilon}\brck{\sm{N}
+  \prd{x}\prd{m,n\ge N}S_m(x)\close{\varepsilon}S_n(x)}.
+\]
+Placing $\prod_x$ \emph{inside} the truncation retains a single cutoff common to the whole
+family.  Placing it outside would yield only pointwise Cauchyness.  Placing the outer
+$\prod_\varepsilon$ inside one truncation would restore a globally chosen modulus.  The new
+definition occupies the exact middle position needed by uniform-limit proofs.
+
+At a requested output radius, the continuity proof opens one common approximation index and
+one input radius for that single approximant.  Both eliminations land in propositions.  This
+is the same radius-by-radius discipline as the completion constructor, propagated through a
+nontrivial analytic construction.
+
+\section{Integration: what is stronger and what is only newer}
+
+The $\RS$ integration layer contains two distinct accomplishments.
+
+\begin{enumerate}
+\item \textbf{Stronger interface discipline.}  Riemann resampling and dyadic refinement use
+  $\RU(f)$, not a selected uniform modulus.  Vanishing-mesh quadrature sequences are proved
+  radiuswise Cauchy and completed directly.  Integrability, uniqueness, linearity, endpoint
+  agreement, and scheme independence are proposition-valued where possible.
+
+\item \textbf{New completion-level uniform-limit construction.}  For
+  $f_n,f:\RS\to\RS$, define uniform convergence by
+  \[
+    \prd{\varepsilon:\Qp}\brck{\sm{N:\N}
+      \prd{x:\RS}\prd{n\ge N}f_n(x)\close{\varepsilon}f(x)}.
+  \]
+  If every $f_n$ is radiuswise uniformly continuous, the limit $f$ is too, and
+  \[
+    \mathsf{isLim}\!\left(
+      n\mapsto I_{a,b}(f_n),\ I_{a,b}(f)\right)
+  \]
+  holds.  A local theorem assumes convergence only on $[a,b]$; it uses a merely existing
+  rational bound on $b-a$ inside the proposition.  A second construction first completes
+  the Cauchy sequence $I_{a,b}(f_n)$ and proves that independent completion agrees with
+  $I_{a,b}(f)$.
+\end{enumerate}
+
+These are stronger than the $\RP$ situation, which has no integration layer, and their
+hypotheses are constructively sharper than a chosen-modulus formulation.  They do not yet
+subsume the mature $\RC$ calculus.  In particular, no analogue of
+\path{HITs/CauchyReals/Calculus/Integration/FundamentalTheorem.agda} was found in $\RS$.
+
+\section{Coverage comparison: do not confuse sharpness with maturity}
+
+\begin{caveat}
+The new completion should not be described as simply ``stronger than
+\code{HITs/CauchyReals}.''  Its \emph{sequential propositions and theorems that consume them}
+are more constructively economical.  The older $\RC$ hierarchy nevertheless contains many
+major developments that have not been transported or reconstructed over $\RS$.
+\end{caveat}
+
+\rowcolors{2}{softgray}{white}
+\begin{longtable}{>{\raggedright\arraybackslash}p{.20\textwidth}
+                  >{\raggedright\arraybackslash}p{.34\textwidth}
+                  >{\raggedright\arraybackslash}p{.34\textwidth}}
+\toprule
+\textbf{Topic} & \textbf{$\RC$ / $\RP$ status} & \textbf{$\RS$ status}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Topic} & \textbf{$\RC$ / $\RP$ status} & \textbf{$\RS$ status}\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Sequential completeness
+& $\RC$ and $\RP$ complete chosen-modulus sequences.
+& Radiuswise Cauchy $\eqv$ convergent; exact tail-choice obstruction for the regular comparison.\\
+
+Series and power series
+& $\RP$ has a large generic hierarchy, but rational contractions, selected bounds, and
+chosen uniform moduli appear in public hypotheses.
+& Ported and extended with radiuswise predicates, sharp $|x|<1$ clients, arbitrary-real
+scaling, bound-free Mertens, and local/uniform differentiation.\\
+
+Differential calculus
+& $\RC$ has derivative, inverse, mean-value, scaling, uniqueness, and power rules;
+$\RP$ has an extensive derivative hierarchy.
+& Generic derivative algebra plus locally uniform power-series differentiation, including
+$\exp' = \exp$, $\sin'=\cos$, $\cos'=-\sin$, and hyperbolic derivatives.\\
+
+Integration
+& \gap: $\RC$ has uniform integration, properties, summation, and a fundamental theorem of
+calculus.
+& Radiuswise Riemann/dyadic integration, uniqueness, algebraic laws, scheme independence,
+and uniform-limit preservation; no fundamental theorem located.\\
+
+Exponential and logarithm
+& \gap: $\RC$ has normalized exponentials, global exp/log laws, logarithm order and
+derivative theory, rational and real powers.
+& Power-series exponential with addition, positivity/order reflection/injectivity and
+derivative theory.  The logarithm currently located is the local series $-\log(1-x)$ on the
+open unit ball, not a global inverse to $\exp$.\\
+
+Trigonometry
+& \gap: $\RC$ has trigonometric identities, $\pi$, arcsine, circle charts/equivalences,
+angle and winding infrastructure.
+& Power-series sine/cosine with convergence, addition, parity, derivatives and identities;
+partial tangent and local arctangent/reciprocal layers.  No $\pi$, periodicity, or global
+inverse-trigonometric layer was located.\\
+
+Hyperbolic functions
+& No comparably named dedicated hierarchy was located in $\RC$ or $\RP$.
+& \newcov: extensive $\sinh$, $\cosh$, $\tanh$ definitions, derivatives, addition/subtraction,
+shape/order, and fundamental identities.\\
+
+Complex analysis
+& \gap: $\RC$ has complex algebra, metric completeness, modulus, inverse, polar form,
+complex differentiation, Cauchy--Riemann, complex exponential/trigonometry, and roots of unity.
+& No complex-number layer over $\RS$ was located.\\
+\end{longtable}
+\rowcolors{2}{}{}
+
+\section{Source-to-claim ledger}
+
+The following are the decisive checked source locations.  Paths are relative to
+\path{Cubical/}.  To keep the ledger readable, $H$ abbreviates
+\code{HITs/CauchyReals}, $P$ abbreviates \code{HITs/CauchyRealsP}, $G$ abbreviates
+\code{Relation/Premetric/Completion}, and $S$ abbreviates
+\code{Relation/Premetric/Completion/CauchySequence/Reals}.
+
+\subsection*{Foundations and comparison}
+\begin{itemize}
+\item \path{H/Foundation/Base.agda}: HoTT Definition~11.3.2 constructors
+  \code{rat}, \code{lim}, and \code{eqR} (Agda: $\mathsf{eq}_{\R}$).
+\item \path{G/CauchySequence/Base.agda}: equations
+  \eqref{eq:tail}--\eqref{eq:radiuswise} and the sequential limit constructor.
+\item \path{G/Comparison.agda}: chosen, bundled, and radiuswise
+  witness placements; \code{PositiveRationalChoice}; \code{SequentialTailChoice}; conditional
+  comparison equivalences.
+\item \path{S/Comparison/Regular.agda}:
+  unconditional \code{fromRegular} and preservation of rational points/closeness.
+\item \path{S/Comparison/Regular/StructuredInverse.agda}:
+  \code{structuredCanonicalInverse}$\simeq$\code{sequentialTailChoice}, equation
+  \eqref{eq:structured-inverse}.
+\end{itemize}
+
+\subsection*{Sequences and series}
+\begin{itemize}
+\item \path{H/Analysis/Sequence/Base.agda}:
+  \code{IsCauchySequence'} and \code{fromCauchySequence'}.
+\item \path{P/Analysis/Sequence.agda}:
+  chosen-modulus \code{cauchySequenceLimit}, selected eventual order.
+\item \path{S/Analysis/Sequence/Base.agda}:
+  \code{chosen}$\to$\code{radiuswise}, explicit absence of the converse,
+  \code{isCauchySequence}$\simeq$\code{sequenceLimit}, continuous preservation, and
+  truncated eventual equality/asymptotic closeness.
+\item \path{S/Analysis/Sequence/Order.agda}:
+  merely eventual $\le$/$<$ and closedness under limits.
+\item \path{P/Analysis/Series/Base.agda} versus
+  \path{S/Analysis/Series/Base.agda}:
+  one-way chosen Cauchy $\to$ summable versus
+  \code{isCauchySeries}$\simeq$\code{summable}.
+\item \path{P/Analysis/Series/Operations.agda} and
+  \path{P/Analysis/Series/Absolute.agda} versus their $S$ counterparts:
+  rational-only versus arbitrary-real scaling.
+\end{itemize}
+
+\subsection*{Majorants, products, and sharp convergence}
+\begin{itemize}
+\item \path{P/Analysis/Series/PowerSeries/Majorant.agda} versus the $S$
+  file of the same suffix: removal of \code{NonnegativeCoefficients majorant} by
+  \code{coefficientMajorantIsNonnegative}.
+\item \path{P/Analysis/Series/Convolution/Mertens.agda} and
+  \path{Convolution/Absolute.agda} versus
+  \path{S/Analysis/Series/ConvolutionAbsolute.agda}:
+  explicit sum bounds versus merely existing internal bounds; stronger absolute conclusion.
+\item \path{P/Analysis/Series/Geometric/Comparison.agda} versus the $S$
+  file of the same suffix: selected \code{RationalContractionBound} versus sharp $|x|<1$.
+\item \path{P/Analysis/Series/PowerSeries/Convergence.agda} versus the $S$
+  file of the same suffix: rational contraction clients versus the
+  \code{...OfAbs<1} theorem family.
+\item \path{P/Analysis/Series/Uniform.agda} versus
+  \path{S/Analysis/Series/Uniform.agda}:
+  selected uniform modulus versus truncated common cutoffs radius by radius.
+\end{itemize}
+
+\subsection*{Integration and transcendental extensions}
+\begin{itemize}
+\item \path{S/Analysis/Integration/UniformContinuity.agda}:
+  $\RU(f)$ and conventional-uniform $\to$ radiuswise-uniform.
+\item \path{S/Analysis/Integration/RiemannIntegral/DyadicUniformLimit/Base.agda} and its
+  \path{Preservation/Global.agda}, \path{Preservation/Local.agda},
+  \path{Completion/Agreement.agda}: uniform-limit continuity, preservation by the dyadic
+  integral, and agreement of independent completion.
+\item \code{H/Calculus/Integration/FundamentalTheorem.agda},
+  \code{H/Exponentiation/}, \code{H/Trigonometry/},
+  \code{H/ArcSin/}, \code{H/Circle/}, and
+  \code{H/Complex/}: the principal older-coverage caveats.
+\item \code{S/Analysis/Series/PowerSeries/Exponential/},
+  \code{Trigonometric/}, \code{Hyperbolic/}, \code{Arctangent/}, and
+  \code{Logarithm.agda}: the new $\RS$ transcendental constructions.
+\end{itemize}
+
+\section{Relation to the HoTT Book}
+
+The local clone at \path{/Users/marcin/book} was used for terminology and notation.  The
+most relevant places are:
+\begin{itemize}
+\item \textbf{Definition 11.2.10}: Cauchy approximations, the $\Qp$-indexed presentation used
+  in the HIT constructor.
+\item \textbf{\S11.3 and Definition 11.3.2}: the higher inductive-inductive Cauchy reals,
+  including equations corresponding to \eqref{eq:hott-lim} and the path/extensionality
+  constructor.
+\item \textbf{\S11.3.4}: Cauchy completeness of the HIT real.
+\item \textbf{\S3.7}: propositional truncation; the notation $\brck{A}$ used throughout this
+  report follows the book.
+\item \textbf{\S3.8, especially equation (3.8.1)}: the axiom of choice and the movement of
+  truncation across dependent products.  Equation~\eqref{eq:choice-gap} is the relevant
+  positive-rational instance.
+\item \textbf{Corollary 3.9.2}: unique choice.  It does not solve the tail problem, because
+  tail indices are generally not unique; only limits are unique after separatedness.
+\item \textbf{\S6.9}: higher-inductive truncations, providing the conceptual background for
+  eliminating merely existing estimates into propositions.
+\end{itemize}
+
+The HoTT Book's central motivation for the HIT reals is to avoid choosing representatives of
+a Cauchy sequence in a quotient.  The $\RS$ development pushes the same design discipline one
+level further into ordinary analysis: it avoids choosing all moduli, contraction radii, sum
+bounds, uniform cutoffs, or continuity radii whenever the theorem consumes only one such
+witness at a time and returns a proposition.
+
+\section{Bottom line}
+
+The strongest justified summary is:
+\begin{enumerate}
+\item The $\RS$ development accepts the radiuswise predicate
+  $\prod_\varepsilon\brck{\Tail_\varepsilon}$, which is constructively weaker data than the
+  old chosen-modulus predicate.
+\item At exactly that strength it proves the full equivalence ``Cauchy if and only if
+  convergent.''  This is the root from which most later interface strengthenings grow.
+\item It systematically keeps arbitrary quantitative witnesses under truncation and opens
+  them only in proposition-valued clients.  The visible payoffs are sharp $|x|<1$ hypotheses,
+  bound-free Mertens, arbitrary-real scaling, uniform convergence without a global modulus,
+  and radiuswise integration.
+\item The missing reverse comparison is mathematically diagnosed: a structured inverse is
+  equivalent to sequential tail choice, with positive-rational propositional choice as a
+  sufficient assumption.
+\item The new line is not yet a replacement for all of \code{HITs/CauchyReals}.  The latter
+  remains materially broader in the fundamental theorem of calculus, global logarithm and
+  real exponentiation, $\pi$ and inverse trigonometry, circle theory, and complex analysis.
+\end{enumerate}
+
+\begin{thebibliography}{9}
+\bibitem{hottbook}
+The Univalent Foundations Program,
+\emph{Homotopy Type Theory: Univalent Foundations of Mathematics},
+Institute for Advanced Study, 2013.
+Local source consulted at \path{/Users/marcin/book}, especially Chapters 3, 6, and 11.
+\end{thebibliography}
+
+\end{document}

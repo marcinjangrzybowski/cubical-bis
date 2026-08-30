@@ -1,0 +1,103 @@
+module Cubical.Relation.Premetric.Completion.CauchySequence.Reals.Analysis.Integration.UniformContinuity where
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+
+open import Cubical.Data.Sigma
+open import Cubical.HITs.PropositionalTruncation as PT
+
+open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
+open PositiveRationals
+
+open import Cubical.Relation.Premetric.Base
+open import Cubical.Relation.Premetric.Mappings
+
+open import Cubical.Relation.Premetric.Completion.CauchySequence.Reals
+  as Real
+
+
+-- This is the uniform-continuity interface needed by sequential integration.
+-- For each requested output radius, an adequate input radius merely exists.
+-- No function choosing radii simultaneously is part of the definition.
+
+IsRadiuswiseUniformlyContinuous :
+  ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {B : Type ℓB} →
+  PremetricStr ℓA' A → (A → B) → PremetricStr ℓB' B →
+  Type (ℓ-max (ℓ-max ℓA ℓA') ℓB')
+IsRadiuswiseUniformlyContinuous source f target =
+  ∀ ε →
+    ∃[ δ ∈ ℚ₊ ]
+      (∀ x y →
+        PremetricStr._≈[_]_ source x δ y →
+        PremetricStr._≈[_]_ target (f x) ε (f y))
+
+
+isPropIsRadiuswiseUniformlyContinuous :
+  ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {B : Type ℓB}
+  (source : PremetricStr ℓA' A) (f : A → B)
+  (target : PremetricStr ℓB' B) →
+  isProp (IsRadiuswiseUniformlyContinuous source f target)
+isPropIsRadiuswiseUniformlyContinuous source f target =
+  isPropΠ λ _ → squash₁
+
+
+-- The library's conventional uniform continuity packages a whole modulus
+-- function under one truncation.  It implies the radiuswise form.  A converse
+-- is intentionally absent: assembling all the truncated radii is a choice
+-- principle and is not needed by the integration construction.
+
+isUniformlyContinuous→isRadiuswiseUniformlyContinuous :
+  ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {B : Type ℓB}
+  (source : PremetricStr ℓA' A) (f : A → B)
+  (target : PremetricStr ℓB' B) →
+  isUniformlyContinuous source f target →
+  IsRadiuswiseUniformlyContinuous source f target
+isUniformlyContinuous→isRadiuswiseUniformlyContinuous
+  source f target f-uc ε =
+  PT.map
+    (λ { (μ , uc) →
+      μ ε , λ x y →
+        IsUniformlyContinuousWith.pres≈ uc x y ε })
+    f-uc
+
+
+-- A nonexpanding change of variables does not require any new radius choice.
+
+radiuswisePrecomposeNonExpanding :
+  ∀ {ℓA ℓA' ℓB ℓB' ℓC ℓC'}
+  {A : Type ℓA} {B : Type ℓB} {C : Type ℓC}
+  (source : PremetricStr ℓA' A)
+  (middle : PremetricStr ℓB' B)
+  (target : PremetricStr ℓC' C)
+  (g : A → B) (f : B → C) →
+  IsNonExpanding source g middle →
+  IsRadiuswiseUniformlyContinuous middle f target →
+  IsRadiuswiseUniformlyContinuous source (f ∘ g) target
+radiuswisePrecomposeNonExpanding
+  source middle target g f g-ne f-uc ε =
+  PT.map
+    (λ { (δ , close) →
+      δ , λ x y x≈y →
+        close (g x) (g y)
+          (IsNonExpanding.pres≈ g-ne x y δ x≈y) })
+    (f-uc ε)
+
+
+IsRadiuswiseUniformlyContinuousℝ :
+  (Real.ℝ → Real.ℝ) → Type₀
+IsRadiuswiseUniformlyContinuousℝ f =
+  IsRadiuswiseUniformlyContinuous
+    (snd Real.ℝPremetricSpace) f
+    (snd Real.ℝPremetricSpace)
+
+
+isUniformlyContinuousℝ→isRadiuswiseUniformlyContinuousℝ : ∀ f →
+  isUniformlyContinuous
+    (snd Real.ℝPremetricSpace) f
+    (snd Real.ℝPremetricSpace) →
+  IsRadiuswiseUniformlyContinuousℝ f
+isUniformlyContinuousℝ→isRadiuswiseUniformlyContinuousℝ f =
+  isUniformlyContinuous→isRadiuswiseUniformlyContinuous
+    (snd Real.ℝPremetricSpace) f
+    (snd Real.ℝPremetricSpace)

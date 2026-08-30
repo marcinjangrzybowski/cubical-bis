@@ -1,0 +1,236 @@
+# Sequential real analysis development
+
+This directory develops real analysis from the sequence-backed completion in
+`Cubical.Relation.Premetric.Completion.Alternative.Sequential`.  Its organizing
+principle is that operations are extensions of rational functions.  Proofs
+should use the recently developed Cauchy-continuous, completion-centered, and
+uniformly-continuous lifting APIs instead of recursively rebuilding operations
+from the constructors of a particular real-number HIT.
+
+## Design decisions
+
+- The real carrier is the sequential completion of the ordinary rational
+  premetric.  It is denoted `ℝ` and rationals enter through `rat`.
+- Generic theorems remain generic.  In particular, extensionality for maps out
+  of a sequential completion belongs under `Cubical.Analysis.Completion`, not
+  in a rational-only module.
+- Arithmetic is defined by lifting rational arithmetic.  The comparison with
+  `Completion.Base` may be used to transfer an already generic theorem (for
+  example density/extensionality), but not as a hidden definition of an
+  arithmetic operation.
+- Definitions retain visible computation on `rat` and use limit uniqueness for
+  `lim` equations.  No opaque boundary has been placed around an operation;
+  this avoids accidentally blocking constructor computation.
+- Non-expanding lifting is preferred whenever the base operation admits it.
+  Ordinary addition is separately non-expanding, but its uncurried product map
+  is only Lipschitz with constant two.  This distinction is represented in the
+  API instead of weakening every operation to continuity.
+- Multiplication is the important exception: it is not globally uniformly
+  continuous, so its definition uses completion-centred continuity on the
+  rational product and then curries through the completion/product map.
+
+## Inventory and lessons
+
+### Existing completion machinery
+
+- `Sequential.Base` presents the completion with rationally indexed closeness,
+  an injection, and limits of ordinary sequences carrying merely a Cauchy
+  witness.
+- `Sequential.Properties` proves density, roundedness, constructs the
+  premetric structure, and identifies the `lim` constructor as a sequential
+  limit.
+- `Sequential.Lift.CauchyContinuous` gives the central universal property:
+  base maps satisfying the graph-Cauchy condition extend canonically, preserve
+  Cauchy sequences, compute definitionally on the base injection, and satisfy
+  uniqueness/extensionality.  It also packages restriction and extension as an
+  isomorphism of sigma types.
+- `Sequential.Lift.UniformlyContinuous` turns ordinary uniform continuity into
+  the graph-Cauchy condition and proves that the lifted map remains uniformly
+  continuous.
+- `Sequential.Lift.CompletionCentered` handles genuinely non-uniform maps.  A
+  local modulus centred at every completion point is enough to construct a
+  Cauchy-continuous extension, and the extension is continuous.
+- `Sequential.Product` proves that completion commutes with binary products.
+  This is the correct route for rational functions of several variables.
+- `Sequential.Comparison.Regular` is an isometric isomorphism with
+  `Completion.Base`, computing to the same base point in both directions.
+
+### What transfers well from `CauchyRealsP`
+
+- Dense extensionality is the main reusable proof pattern.  Algebraic laws can
+  be reduced to rational laws once both sides have suitable continuity.
+- Rational computation lemmas should be part of every lifted operation's
+  public API.
+- Bundled algebraic structures should be constructed only after the primitive
+  operations and their quantitative behavior are available.
+
+### What should not be copied
+
+- Constructor-by-constructor definitions of uniformly continuous operations:
+  the generic lift already provides them.
+- Bound-selection machinery for multiplication when completion-centred
+  continuity can lift the whole rational product map directly.
+- Specialized copies of generic lifting or extensionality lemmas.
+
+### New generic completion layer
+
+- `Completion.Extensionality` transfers dense continuous extensionality once,
+  generically, across the isometric comparison with `Completion.Base`.  It
+  includes unary and iterated binary/ternary forms.
+- `Completion.NonExpanding` constructs the sequential lift using the recent
+  uniformly-continuous/Cauchy-continuous machinery, then proves the exact
+  non-expanding estimate by comparison with the regular generic lift.  It
+  computes on the base injection and has lift-specific extensionality.
+- `Completion.BinaryNonExpanding` does the same for separately non-expanding
+  binary operations.  The underlying function comes from lifting the product
+  map with the half-radius modulus; only the quantitative proof is sharpened by
+  comparison with the regular completion.
+- `Completion.Limit` proves generic `map-lim` rules.  Non-expanding maps build
+  their image Cauchy witness directly.
+- `Completion.BinaryLimit` proves that a separately non-expanding binary map is
+  jointly Lipschitz with constant two and therefore commutes with synchronized
+  sequential limits, including construction of the image witness.
+- `Completion.Completeness` proves generically that the sequence-backed
+  completion is complete, using the non-expanding isometric retract to the
+  already complete regular presentation.
+
+### Real-number layer now available
+
+- `Real.Base` exposes `ℝ`, `rat`, closeness, sequence witnesses and limits,
+  density, sethood, and injectivity of `rat`.
+- `Real.UniversalProperty` exposes continuous extensionality and the existing
+  Cauchy-continuous restriction/extension isomorphism.
+- Negation, addition, absolute value, maximum, and minimum use non-expanding
+  lifts (or composites of them).  Their rational computation and exact
+  one-variable non-expansion laws are public.
+- Multiplication uses the completion-centred lift of rational multiplication on
+  `ℚ × ℚ`; its product and curried forms compute on rationals and preserve
+  synchronized limits.
+- Dense extensionality proves the additive-group, multiplication, lattice, and
+  absolute-value laws.  The resulting reals are packaged as an `AbGroup` and a
+  `CommRing` without importing either Cauchy-real implementation.
+- The fixed points of absolute value form an explicitly closed nonnegative cone
+  under addition and multiplication.  This predicate is equivalent to the
+  order-theoretic statement `0 ≤ x` once the lifted-max order is introduced.
+- `Real.Order` defines `x ≤ y` by `max x y = y`, packages a `Poset`, proves the
+  exact rational-order equivalence, and proves addition preserves and reflects
+  order.  Multiplication is monotone by a nonnegative factor.  Pointwise order
+  is closed under sequential limits.
+- `Real.Order.Strict` defines `x < y` by the mere existence of a positive
+  rational gap `δ` with `x + δ ≤ y`.  It proves the exact rational-order
+  equivalence, mixed and strict transitivity, weakening, irreflexivity,
+  asymmetry, translation/cancellation laws, negation reversal, and the
+  positive-difference characterization.  Rational density gives locatedness
+  and weak linearity, so the relation is packaged both as a `Quoset` and as a
+  `StrictOrder`.
+- Closeness is equivalent to the strict order bound
+  `abs (x - y) < rat ε`.  The difficult direction is proved directly from
+  rational density and the non-expanding absolute-value lift.  It yields the
+  arbitrarily-small-slack principle and the exact compatibility
+  `x ≤ y ≃ ¬ (y < x)`.
+- The symmetric closure of strict order is a cotransitive apartness relation.
+  Its rational restriction, translation invariance, cancellation, and
+  negation law are public, and it is packaged as the library's `Apartness`
+  structure.
+- The lifted `min` and `max` package the non-strict order as a
+  `Pseudolattice`.  Together with the strict-order compatibility and the
+  existing ring laws this gives a complete `ℝOrderedCommRing`; `rat` is
+  packaged as an ordered-commutative-ring homomorphism.
+- Positive real multiplication is now constructive at the gap level: positive
+  rational lower bounds multiply to a positive rational lower bound.  This
+  yields strict monotonicity of multiplication by a positive real.  The
+  subtype `ℝ>0`, its rational embedding, and its addition/multiplication
+  operations expose the positive cone independently of a still-pending total
+  strict-order bundle.
+- `Real.Metric.Distance` defines `|x - y|`; it is separately non-expanding,
+  symmetric, continuous, and computes on rational points.
+- `Real.Sequence` gives canonical witness-producing limit rules for negation,
+  absolute value, addition, distance, maximum, and minimum.  Multiplication's
+  rule retains an explicit image witness because it is not globally
+  non-expanding.
+- `Real.Functions.Powers` illustrates compositional analysis: powers and square
+  are continuous because multiplication takes continuous pairs to a continuous
+  product; no new completion recursion is needed.
+- Every real lies merely in a rational interval of any requested positive
+  radius.  Widening it gives strict rational bounds, and the rational floor
+  theory upgrades these to strict natural upper, lower, absolute, and
+  two-sided bounds.
+
+## Work log
+
+- [x] Surveyed the sequential completion, all three lifting interfaces, product
+  comparison, and the foundational/additive parts of `CauchyRealsP`.
+- [x] Selected a hierarchy separating generic completion principles from the
+  rational real-number development.
+- [x] Added generic sequential-completion extensionality, non-expanding lifts,
+  synchronized limit rules, and completeness.
+- [x] Added the sequential-real foundation and universal-property facade.
+- [x] Defined negation and addition by lifting rational maps; exposed rational
+  computation and continuity laws.
+- [x] Defined multiplication as a lifted map from the rational product and curried
+  it through the completion/product isomorphism.
+- [x] Established algebraic laws by dense extensionality and packaged additive
+  group and commutative-ring structures.
+- [x] Added lifted absolute value, lattice operations, distance, powers, a
+  partial order, monotonicity laws, completeness, and sequence-facing results.
+- [x] Develop the positive-gap strict order, its rational characterization,
+  additive laws, and multiplicative positivity/strict monotonicity.
+- [x] Prove locatedness/cotransitivity, the metric/strict-order
+  characterization, and package apartness and the standard ordered-ring
+  interfaces.
+- [ ] Add inverses away from zero, finite sums, series, and elementary analysis
+  only where their definitions can continue to be expressed by the new lifts.
+
+## Computational behavior
+
+- Unary and separately non-expanding binary lifts compute on `ι` through the
+  sequential lift's base computation equation.
+- `rat p + rat q`, `rat p · rat q`, `max (rat p) (rat q)`, and the analogous
+  operations all have checked public computation lemmas.
+- Unary/binary `lim` rules are stated by uniqueness of sequential limits.  For
+  non-expanding maps the target witness is constructed canonically from the
+  source witnesses; multiplication exposes why a more general lift needs an
+  explicit image witness.
+- The comparison with `Completion.Base` is used for generic theorems and exact
+  quantitative proofs, never as the hidden definition of a real operation.
+
+## Performance observations
+
+- A single module instantiating four fully generic non-expanding completion
+  lifts exhausted the checker.  Lift extensionality therefore lives beside one
+  lift instance; future identity/composition laws should use a lighter abstract
+  interface rather than multiply instantiating the implementation.
+- Bundling the nonnegative subtype as a `CommSemiring` forced the complete real
+  `CommRing` proof through every subtype law and also exhausted the checker.
+  The cone and its closed operations are retained; the redundant bundle is not.
+- Unrestricted public opens in aggregate facades caused an accidental scope
+  explosion.  Curating their exported names reduced `Algebra.Lattice` from
+  roughly 36 seconds to 4 seconds and `Algebra` from more than 15 minutes to
+  under 5 seconds; the top-level `Real` and `Analysis` facades then checked in
+  roughly 8.5 and 7.3 seconds respectively.
+- A dependent no-eta record whose field mentioned completed-real addition and
+  order made the positivity checker expand the entire lifting implementation
+  (over 9 GB without finishing).  The mathematically identical dependent-pair
+  representation of a positive gap avoids that checker pathology.  Splitting
+  strict order into base, rational, additive, and multiplicative modules keeps
+  each focused check around 4--6 seconds.
+- Leaving an endpoint as an unconstrained `refl` inside a transported strict
+  inequality made Agda unfold the implementations of lifted `max` and
+  addition and left several enormous constraints.  Replacing it with the
+  one-sided `subst` whose endpoint was explicit removed all metas and restored
+  a sub-five-second check.  Proof transports around lifted operations should
+  identify their changing endpoint explicitly.
+- No ring/order solver is used anywhere under `Cubical.Analysis`; rational and
+  real laws are proved from named algebraic lemmas and dense extensionality.
+
+## Open technical questions
+
+- Which completion-centred maps admit automatically generated image witnesses
+  for `lim` equations?  Multiplication currently exposes the witness explicitly.
+- A categorical identity/composition API for non-expanding lifts is desirable,
+  but it needs an abstraction that does not instantiate the heavy construction
+  several times in one generic module.
+- Inversion away from zero is the next major non-uniform operation.  Its
+  completion-centred lift should be organized so that the newly available
+  apartness and natural-bound APIs provide the local denominator bounds,
+  without recreating the constructor-specific inverse development.

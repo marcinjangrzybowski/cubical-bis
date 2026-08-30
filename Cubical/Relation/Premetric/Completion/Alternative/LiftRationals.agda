@@ -22,7 +22,7 @@ open import Cubical.Relation.Premetric.Properties
 open import Cubical.Relation.Premetric.Mappings
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Premetric.Instances.Rationals
-open import Cubical.Relation.Premetric.Instances.Rationals.SignedSquareCompletion
+open import Cubical.Relation.Premetric.Instances.Rationals.SignedSquare.Completion
 
 open import Cubical.Relation.Premetric.Completion.Alternative ℚPremetricSpace
 open import Cubical.Relation.Premetric.Completion.Alternative.Lift

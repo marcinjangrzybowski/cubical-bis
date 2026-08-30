@@ -224,38 +224,3 @@ lim-from₁ x = PT.Rec→Set.go w
  w .Rec→Set.isSetB = isSetℭ̂
  w .Rec→Set.f (g , cx) = lim x g cx
  w .Rec→Set.fconst _ _ = g-irrelevant _ _ _ _ _
-
-
-private
-  M = M' .fst
-  open PremetricStr (M' .snd)
-  open import Cubical.Relation.Premetric.Completion.Base M'
-    renaming (ℭ to ℭM)
-
-
-
-data ℭ̂' : Type (ℓ-max ℓ ℓ')
-data _∼̂'[_]_ : ℭ̂' → ℚ₊ → ℭ̂' → Type (ℓ-max ℓ ℓ')
-
-
-𝐆 : (ℚ₊ → ℭ̂') → Type (ℓ-max ℓ ℓ') 
-𝐆 x = ∃[ g ∈ Γ ] (∀ ε δ → x ε ∼̂'[ (g .γ ε) +₊ (g .γ δ) ] x δ)
-
-
-data ℭ̂' where
-  ι   : M → ℭ̂'
-  lim : (x : ℚ₊ → ℭ̂') → 𝐆 x → ℭ̂'
-  eqℭ : ∀ x y → (∀ ε → x ∼̂'[ ε ] y) → x ≡ y
-
-data _∼̂'[_]_ where
-  ι-ι     : ∀ x y ε → x ≈[ ε ] y → ι x ∼̂'[ ε ] ι y
-  -- ι-lim   : ∀ x y g ε δ yc Δ
-  --           → ι x ∼̂'[ ε -₊ (g .γ δ) , Δ ] y δ
-  --           → ι x ∼̂'[ ε ] lim y g yc
-  -- lim-ι   : ∀ x g y ε δ xc Δ
-  --           → x δ ∼̂'[ ε -₊ (g .γ δ) , Δ ] ι y
-  --           → lim x g xc ∼̂'[ ε ] ι y
-  -- lim-lim : ∀ x g y g' ε δ η xc yc Δ
-  --           → x δ ∼̂'[ ε -₊ ((g .γ δ) +₊ (g' .γ η)) , Δ ] y η
-  --           → lim x g xc ∼̂'[ ε ] lim y g' yc
-  isProp∼ : ∀ x ε y → isProp (x ∼̂'[ ε ] y)

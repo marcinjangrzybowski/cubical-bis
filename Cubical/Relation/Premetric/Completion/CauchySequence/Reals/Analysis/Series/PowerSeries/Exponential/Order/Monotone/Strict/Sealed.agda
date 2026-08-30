@@ -1,0 +1,20 @@
+module Cubical.Relation.Premetric.Completion.CauchySequence.Reals.Analysis.Series.PowerSeries.Exponential.Order.Monotone.Strict.Sealed where
+
+open import Cubical.Foundations.Prelude
+
+open import Cubical.Relation.Premetric.Completion.CauchySequence.Reals.Algebra.Multiplicative.Laws
+open import Cubical.Relation.Premetric.Completion.CauchySequence.Reals.Algebra.Lattice.Base
+open import Cubical.Relation.Premetric.Completion.CauchySequence.Reals.Algebra.Order.Strict.Base
+open import Cubical.Relation.Premetric.Completion.CauchySequence.Reals.Analysis.Series.PowerSeries.Exponential.Sealed
+open import Cubical.Relation.Premetric.Completion.CauchySequence.Reals.Analysis.Series.PowerSeries.Exponential.Order.Monotone.Difference
+open import Cubical.Relation.Premetric.Completion.CauchySequence.Reals.Analysis.Series.PowerSeries.Exponential.Order.Monotone.Strict.Scaled
+
+
+opaque
+  sealedExpℝ-strictMono : ∀ {x y} →
+    x <ℝ y → sealedExpℝ x <ℝ sealedExpℝ y
+  sealedExpℝ-strictMono {x} {y} x<y =
+    subst2 _<ℝ_
+      (mul-one-right (sealedExpℝ x))
+      (sym (sealedExpℝ-difference-factorization x y))
+      (scaled-sealedExpℝ-difference< x<y)

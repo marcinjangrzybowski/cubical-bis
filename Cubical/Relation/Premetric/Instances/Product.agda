@@ -319,3 +319,21 @@ rightInsertionUC :
   (M : PremetricSpace ℓM ℓM') (N : PremetricSpace ℓN ℓN') →
   ⟨ N ⟩ → UC[ M , PremetricProduct M N ]
 rightInsertionUC M N y = NE→UC (rightInsertionNE M N y)
+
+
+-- Completeness is inherited coordinatewise.  Notice that no choice is
+-- needed here: a Cauchy approximation in the product already contains the
+-- two coordinatewise Cauchy approximations, and their limits are supplied
+-- by the two given completeness structures.
+
+isCompleteProduct :
+  {M : PremetricSpace ℓM ℓM'} {N : PremetricSpace ℓN ℓN'} →
+  PremetricTheory.isComplete M →
+  PremetricTheory.isComplete N →
+  PremetricTheory.isComplete (PremetricProduct M N)
+isCompleteProduct {M = M} {N = N} M-complete N-complete x xc =
+  (fst M-limit , fst N-limit) ,
+  λ ε θ → snd M-limit ε θ , snd N-limit ε θ
+  where
+  M-limit = M-complete (fst ∘ x) (λ ε δ → fst (xc ε δ))
+  N-limit = N-complete (snd ∘ x) (λ ε δ → snd (xc ε δ))
