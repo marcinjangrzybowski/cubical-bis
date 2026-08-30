@@ -31,16 +31,16 @@ real-analysis interfaces have stabilized.
 | Area | Analysis status | Reference coverage | Next gap |
 | --- | --- | --- | --- |
 | Completion and density | Strong | Both | Keep generic; add helpers only when demanded by clients |
-| Quantitative maps | Non-expanding and fixed-Lipschitz lifts | Both | Bounded-domain/local-Lipschitz combinators |
-| Additive/ring/lattice algebra | Complete baseline | Both | Rational scalar and affine APIs |
+| Quantitative maps | Non-expanding, fixed-Lipschitz, affine, and first local polynomial estimates | Both | General bounded-domain/local-Lipschitz combinators |
+| Additive/ring/lattice algebra | Complete baseline plus rational module | Both | Integer embedding and derivative-facing linear API |
 | Non-strict and strict order | Complete baseline | Both | Interval/subspace packaging |
 | Apartness | Additive and multiplicative laws | Both | Decide whether a standard field/apartness bundle fits without API churn |
 | Reciprocal and division | Implemented away from zero | Both | Quotient continuity on domains; derivative rules |
-| Naturals and powers | Implemented baseline | Both | Integer/rational scalar compatibility |
-| Polynomials | Horner evaluation, rational computation, continuity, limits | Both | Bounds, local Lipschitz estimates, derivatives |
-| Ordinary sequences | Limits, constants, shifts, unary/binary preservation | Both | Eventually-equal/order API; witness hierarchy |
-| Finite sums | Preserve native witnesses and limits | `CauchyRealsP` | Ordered and absolute-value bounds |
-| Series | Partial sums, linear operations, term test | Both | Tails, absolute convergence, comparison, geometric series |
+| Naturals and powers | Naturals and rational scalars implemented | Both | Integer embedding and scalar/power compatibility |
+| Polynomials | Horner evaluation, majorants, absolute bounds, local Lipschitz estimates | Both | Derivatives and reusable closed-ball packaging |
+| Ordinary sequences | Limits, eventual equality/order, asymptotic closeness | Both | Squeeze/monotone results and witness hierarchy |
+| Finite sums | Witness/limit preservation, monotonicity, absolute bound | `CauchyRealsP` | Reindexing, splitting, and telescoping API |
+| Series | Linear operations, tails, finite modifications, absolute-Cauchy comparison | Both | Geometric series, uniform bounds, and Cauchy products |
 | Power series | Missing | `CauchyRealsP` | Start only after robust series bounds |
 | Continuity on domains | Missing | Mostly `CauchyReals` and newer completion reals | Open/closed intervals, subspaces, composition library |
 | Derivatives | Missing | Both | Definition, uniqueness, algebra, chain rule, polynomials |
@@ -91,6 +91,23 @@ this instead of falling back to ordinary continuity.  Future local estimates
 should follow the same rule: retain the numerical modulus until the last API
 layer, then derive continuity.
 
+### Radiuswise truncated asymptotic data
+
+Eventual equality/order uses one merely existing cutoff, while asymptotic
+closeness uses a merely existing cutoff separately at each positive radius.
+This is enough to transport ordinary limits and is closed under symmetry and
+transitivity.  It transfers the useful theorem shape from `CauchyRealsP`
+without choosing a global modulus and therefore fits the Analysis witness
+hierarchy exactly.
+
+### Central ordered-ring bounds
+
+The absolute-value triangle inequality and two-variable monotonicity now live
+in the real order layer.  Polynomial majorants, finite sums, and series tail
+bounds consume those common results.  This avoids the earlier pattern where
+each quantitative client rebuilt the same max-based proof and is the intended
+shape for future norm and integration estimates.
+
 ## Techniques that should be adapted, not copied
 
 ### Treat the other real developments as specifications
@@ -137,26 +154,30 @@ additional principle that a converse would require.
 Exit condition: checked rational computation and two-sided inverse laws, with
 no postulates and no carrier conversion.  This condition is met.
 
-### Phase 2: finite algebraic analysis — baseline complete
+### Phase 2: finite algebraic analysis — complete
 
 - Natural embedding and monotonicity.
-- Horner polynomials with rational computation and continuity.
+- Rational scalar and affine maps with exact global Lipschitz constants.
+- Horner polynomials with rational computation, majorants, absolute bounds,
+  and closed-ball local Lipschitz estimates.
 - Ordinary sequence limit-preservation combinators.
-- Finite sums preserving native Cauchy witnesses and limits.
+- Finite sums preserving native Cauchy witnesses and limits, with monotonicity
+  and a finite triangle inequality.
 
-Next additions: rational scalar multiplication, affine maps, polynomial
-majorants, finite triangle inequalities, and polynomial local Lipschitz
-bounds.
+Further finite-sum reindexing and telescoping laws should be added only as
+required by series products and integration partitions.
 
-### Phase 3: series core — started
+### Phase 3: series core — substantial baseline complete
 
-The base now has partial sums, additive and scalar operations, unique sums, and
-the term test.  Continue in this dependency order:
+The base now has partial sums, additive and scalar operations, unique sums, the
+term test, tail/drop equivalences, finite-modification correction laws,
+partial-sum distance bounds, and native-witness absolute comparison.  The
+remaining dependency order is:
 
-1. tail/drop and finite-modification invariance;
-2. partial-sum order and absolute-value bounds;
-3. absolute convergence and comparison;
-4. geometric series, first for rational ratios and then real ratios;
+1. geometric series, first for rational ratios and then real ratios;
+2. uniform partial-sum and tail bounds;
+3. comparison tests driven by explicit Cauchy moduli;
+4. finite-sum reindexing needed by convolution;
 5. Cauchy products and convolution under absolute hypotheses; and
 6. power-series definitions and interior convergence.
 
@@ -236,13 +257,13 @@ Cauchy-continuous witness combinator, not embedding the comparison proof in
 
 ## Near-term work queue
 
-1. Rational scalar and affine maps, with exact Lipschitz constants.
-2. Eventually-equal/eventual-order sequence operations without global choice.
-3. Series tails and finite modifications.
-4. Finite triangle inequality and absolute convergence comparison.
-5. Geometric series and its reciprocal identity.
-6. Polynomial majorants and derivative-ready local estimates.
-7. Domain/subspace continuity layer.
+1. Geometric series and its reciprocal identity for rational contractions.
+2. Uniform partial-sum/tail bounds and explicit comparison tests.
+3. Domain/subspace continuity for closed balls and intervals.
+4. A derivative definition and uniqueness kernel.
+5. Power and polynomial derivative rules using the checked local bounds.
+6. Convolution after the required finite-sum reindexing laws are isolated.
+7. Power-series definitions and convergence on strict interiors.
 
 This queue deliberately alternates user-facing theorems with generic support
 work so that no large specialized branch grows on a weak foundation.

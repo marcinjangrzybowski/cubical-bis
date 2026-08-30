@@ -64,6 +64,51 @@ negLeAbs : ∀ x → (- x) ≤ℝ absℝ x
 negLeAbs x = subst ((- x) ≤ℝ_)
   (sym (absAsMax x)) (right≤max x (- x))
 
+
+addPres≤ : ∀ x y z w →
+  x ≤ℝ y → z ≤ℝ w → x + z ≤ℝ y + w
+addPres≤ x y z w x≤y z≤w =
+  ≤ℝ-trans (x + z) (y + z) (y + w)
+    (addPres≤R x y z x≤y)
+    (addPres≤L z w y z≤w)
+
+
+absTriangle : ∀ x y →
+  absℝ (x + y) ≤ℝ absℝ x + absℝ y
+absTriangle x y =
+  subst (_≤ℝ (absℝ x + absℝ y))
+    (sym (absAsMax (x + y)))
+    (maxLeastUpperBound
+      (x + y) (- (x + y))
+      (absℝ x + absℝ y)
+      (addPres≤ x (absℝ x) y (absℝ y)
+        (leAbs x) (leAbs y))
+      (subst (_≤ℝ (absℝ x + absℝ y))
+        (sym (negAdd x y))
+        (addPres≤ (- x) (absℝ x) (- y) (absℝ y)
+          (negLeAbs x) (negLeAbs y))))
+
+
+absSubTriangle : ∀ x y →
+  absℝ (x - y) ≤ℝ absℝ x + absℝ y
+absSubTriangle x y =
+  subst (absℝ (x - y) ≤ℝ_)
+    (cong (absℝ x +_) (absNeg y))
+    (absTriangle x (- y))
+
+
+absSubComm : ∀ x y →
+  absℝ (x - y) ≡ absℝ (y - x)
+absSubComm x y =
+  cong absℝ subSwapNeg
+  ∙ absNeg (y - x)
+  where
+  subSwapNeg : x - y ≡ - (y - x)
+  subSwapNeg = sym
+    (negAdd y (- x)
+      ∙ cong ((- y) +_) (negInvol x)
+      ∙ addComm (- y) x)
+
 absNonnegative : ∀ x → 0ℝ ≤ℝ absℝ x
 absNonnegative = funExt⁻
   (continuousExtensionality

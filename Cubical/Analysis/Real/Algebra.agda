@@ -108,4 +108,7 @@ open import Cubical.Analysis.Real.Algebra.Positive public
 open import Cubical.Analysis.Real.Algebra.Lattice public
 open import Cubical.Analysis.Real.Algebra.Inverse public
 open import Cubical.Analysis.Real.Algebra.Natural public
+open import Cubical.Analysis.Real.Algebra.Scalar public
 open import Cubical.Analysis.Real.Algebra.Polynomial public
+open import Cubical.Analysis.Real.Algebra.Polynomial.Bounds public
+open import Cubical.Analysis.Real.Algebra.Polynomial.LocalLipschitz public

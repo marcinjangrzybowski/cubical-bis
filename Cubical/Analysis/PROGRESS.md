@@ -166,16 +166,24 @@ from the constructors of a particular real-number HIT.
   includes rational computation, positivity, two-sided laws, involution,
   product/negation laws, division, cancellation, and multiplicative-apartness
   reflection.
-- Natural-number embedding, Horner polynomial evaluation, and finite sums are
-  available.  Polynomial evaluation computes on rational coefficients and is
-  continuous under continuous substitution; finite sums preserve both native
-  sequence witnesses and ordinary limits.
+- Natural-number embedding, a rational module action, rational affine maps,
+  Horner polynomial evaluation, and finite sums are available.  The scalar
+  lift retains its exact positive Lipschitz bound and agrees with
+  multiplication by an embedded rational.  Polynomials have nonnegative
+  majorants, absolute evaluation bounds, and derivative-ready closed-ball
+  Lipschitz estimates.  Finite sums preserve native sequence witnesses and
+  ordinary limits and expose monotonicity and an absolute-value bound.
 - `Real.Sequence` now distinguishes native `SeqWitness` data from ordinary
   convergence, packages unique sequence limits, and proves constant, shift,
-  unary, additive, multiplicative, and subtractive limit preservation.
+  unary, additive, multiplicative, and subtractive limit preservation.  Its
+  choice-free tail layer covers eventual equality, eventual non-strict/strict
+  order, and radiuswise asymptotic closeness, including transport of limits.
 - `Real.Series` provides partial sums, summability, additive and scalar closure,
   proof-independent sums, and the necessary theorem that terms of a summable
-  series tend to zero.
+  series tend to zero.  Tail dropping and finite modification preserve and
+  reflect summability with exact correction formulas.  Partial-sum distance
+  bounds support dominated native Cauchy series, absolute-Cauchy convergence,
+  and the standard absolute bound on the resulting sum.
 
 ## Work log
 
@@ -203,9 +211,12 @@ from the constructors of a particular real-number HIT.
   and finite sums using quantitative lifts and finite recursion.
 - [x] Establish the sequence/series baseline: ordinary limit combinators,
   partial sums, linear operations, and the summable-term test.
-- [ ] Add absolute convergence, comparison and geometric series, domain-local
-  continuity, calculus, integration, power series, and elementary functions in
-  the phases recorded in `SCOPE_ROADMAP.md`.
+- [x] Add rational scalar/affine maps, polynomial majorants and local estimates,
+  choice-free eventual sequence relations, finite-sum bounds, series tails,
+  finite modifications, and native-witness absolute convergence comparison.
+- [ ] Add geometric and power series, domain-local continuity, calculus,
+  integration, and elementary functions in the phases recorded in
+  `SCOPE_ROADMAP.md`.
 
 ## Computational behavior
 
@@ -248,6 +259,9 @@ from the constructors of a particular real-number HIT.
   identify their changing endpoint explicitly.
 - No ring/order solver is used anywhere under `Cubical.Analysis`; rational and
   real laws are proved from named algebraic lemmas and dense extensionality.
+- Moving the max-based absolute triangle proof into `Real.Order.AbsoluteValue`
+  removed duplicate proof terms from both polynomial-bound modules and gives
+  finite sums and series one shared ordered-ring estimate.
 - A direct attempt to synthesize multiplication's diagonal `SeqWitness`
   through the product-completion comparison ran for more than two minutes and
   was removed.  This confirms that witness plumbing across a large comparison
