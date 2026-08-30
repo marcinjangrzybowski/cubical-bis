@@ -215,14 +215,20 @@ from the constructors of a particular real-number HIT.
   Cauchy and summability witnesses, and explicit cutoffs give exact finite
   corrections to power-series values.  Zero-padded finite coefficient lists
   have the explicit Cauchy modulus `length coefficients` and evaluate exactly
-  as Horner polynomials.  Coefficient rescaling by `c^n` transports Cauchy,
+  as Horner polynomials.  The same cutoff is a point-independent closed-radius
+  uniform modulus; weighted tail coefficients identify the canonical formal
+  derivative series with the Horner derivative, and the direct Horner source
+  has that canonical derivative along every closed radius.  Coefficient
+  rescaling by `c^n` transports Cauchy,
   absolute-Cauchy, summability, sums, and values along `x ↦ c x`.  The
   coefficient-level operations API also carries explicit absolute bounds and
   proof-independent values through negation and subtraction, in addition to
   its additive and scaling laws.  The constant-one coefficient series is
   identified with the quantitative geometric series, so every explicit
   rational contraction bound yields its Cauchy witness, summability, `HasSum`,
-  and proof-independent positive-reciprocal value.
+  and proof-independent positive-reciprocal value.  Its self-convolution has
+  the exact coefficients `n + 1` and the squared reciprocal value, using the
+  native Mertens path.
 - Cauchy products expose bilinearity, commutativity, unit laws, triangular and
   rectangular partial-sum identities, an explicit remainder and its absolute
   majorant.  The quantitative Mertens theorem proves convergence and sum
@@ -235,7 +241,10 @@ from the constructors of a particular real-number HIT.
   Cauchy product of the corresponding power-series terms, with both
   explicit-bound and native-Cauchy convergence wrappers.  Formal
   differentiation satisfies the exact coefficient-level Leibniz rule for
-  Cauchy products independently of convergence assumptions.
+  Cauchy products independently of convergence assumptions.  Selected
+  absolute-Cauchy witnesses are now closed under Cauchy products by an
+  explicit rectangular-product/remainder modulus; the native theorem opens
+  merely existing rational bounds only into its proposition-valued result.
 - The first differential-calculus kernel uses a division-free first-order
   remainder.  It supports general premetric parameter spaces, continuous
   reparameterization, and continuous difference-factor proofs; constants and
@@ -271,7 +280,31 @@ from the constructors of a particular real-number HIT.
   derivative to every explicitly agreeing ambient extension.  The
   power-series specialization also moves derivative-majorant convergence from
   an outer radius to an inner one and retains the derived uniform witness for
-  reuse.  A locally uniform function-level interface remains separate.
+  reuse.  A radiuswise entire-series interface selects the concrete radius
+  `|x| + 1`, gives a proof-independent global value, proves agreement with
+  every closed-radius uniform value, and returns the local derivative together
+  with its equality to the global formal-derivative value.  Radiuswise evidence
+  for all repeated formal derivatives and divided-difference factors lifts this
+  to every higher derivative, again pairing canonical-value equality with the
+  local derivative proof instead of transporting one through the other.
+- Iterated geometric coefficients are defined structurally by repeated Cauchy
+  products.  Their checked algebra includes simplex and binomial closed forms,
+  nonnegativity, a polynomial majorant, and
+  `D I_k = (k + 1) I_(k+1)`.  A structural native-Mertens layer gives the
+  successor sum law.  The selected absolute-product theorem constructs the
+  required all-order family directly from a rational contraction bound, giving
+  unconditional absolute/Cauchy convergence, summability, `HasSum`, and
+  proof-independent reciprocal-power values at every finite order.  The
+  exponential coefficient sequence is built from exact positive-rational
+  factorial reciprocals; its formal derivative and every repeated formal
+  derivative equal the original sequence without introducing a proof-indexed
+  real inverse.  The explicit estimate
+  `1/n! ≤ 2·(1/2)^n` already gives absolute, ordinary, and uniform convergence
+  on every closed positive rational radius below two.  The parameterized bound
+  `1/n! ≤ B^B·(1/B)^n` is now checked as well, yielding the same convergence
+  APIs on every explicit rational radius below a supplied positive natural
+  `B`.  Only the Archimedean packaging from arbitrary real radii into that
+  explicit interface remains for a global entire exponential value.
 
 ## Work log
 
@@ -327,6 +360,10 @@ from the constructors of a particular real-number HIT.
   finite-polynomial, rescaling, and geometric bridges, generic majorants,
   repeated formal derivatives, summed uniform divided differences, and
   closed-radius/strict-interior termwise differentiation.
+- [x] Add uniform Horner-polynomial calculus, radiuswise entire values and
+  higher derivatives, selected absolute-Cauchy product closure, unconditional
+  iterated-geometric reciprocal powers, and factorial-majorized exponential
+  convergence on arbitrary explicitly natural-bounded rational radii.
 - [ ] Generalize geometric and power-series convergence, extend domain-local
   continuity and calculus algebra,
   integration, and elementary functions in the phases recorded in

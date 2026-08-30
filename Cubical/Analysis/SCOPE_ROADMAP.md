@@ -40,8 +40,8 @@ real-analysis interfaces have stabilized.
 | Polynomials | Horner evaluation, majorants, absolute bounds, local Lipschitz estimates, and structural derivative/composition rules | Both | Reusable closed-ball packaging and rational-function closure |
 | Ordinary sequences | Limits, eventual equality/order, two asymptotic witness levels, and squeeze theorems | Both | Monotone convergence once supremum infrastructure exists |
 | Finite sums | Witness/limit preservation, algebra, exchange, telescoping, monotonicity, absolute bounds, and convolution-oriented diagonal/triangular reindexing | `CauchyRealsP` | Partition reindexing as demanded by integration |
-| Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, rational/real contraction results, uniform family convergence, constructive native-Cauchy bounds, and bound-free Mertens products | Both | Radiuswise/weaker uniform witness variants and modulus-driven tests |
-| Power series | Terms, finite-polynomial/rescaling/geometric laws, zero/finite-modification laws, coefficient growth, exact products, repeated formal derivatives, uniform closed-radius convergence/continuity, and closed-radius/strict-interior termwise differentiation | `CauchyRealsP` | Locally uniform higher derivatives and elementary series |
+| Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, rational/real contraction results, uniform family convergence, constructive native-Cauchy bounds, selected absolute-product closure, and bound-free Mertens products | Both | Radiuswise/weaker uniform witness variants and modulus-driven tests |
+| Power series | Terms, finite-polynomial/rescaling/geometric laws, zero/finite-modification laws, coefficient growth, exact products, repeated formal derivatives, radiuswise entire values, uniform closed-radius convergence/continuity, and closed-radius/strict-interior termwise differentiation | `CauchyRealsP` | Elementary-series convergence and locally uniform higher derivatives |
 | Continuity on domains | Complete closed interval/radius retracts plus open half-lines, intervals, and absolute-radius balls | Mostly `CauchyReals` and newer completion reals | Domain maps, products, and pasting |
 | Derivatives | Division-free kernel, uniqueness, algebra, ordinary and indexed chain rules, power/Horner/finite-sum rules, controlled reciprocal and arbitrary-denominator quotient rules, continuity, and open-subspace adapters | Both | Full apart-domain reciprocal and rational-function packaging |
 | Integration | Missing | Newer completion reals and parts of `CauchyReals` | Uniform-limit and partition infrastructure first |
@@ -287,11 +287,15 @@ sealed implementation modules should not be copied wholesale.
   merely eventual.
 - Zero-padded finite coefficient lists are native Cauchy with the explicit
   modulus `length coefficients`, and their power-series value agrees exactly
-  with Horner evaluation.  Coefficient rescaling by `c^n` transports Cauchy,
+  with Horner evaluation.  That length is also a uniform closed-radius modulus;
+  weighted derivative coefficients make the canonical formal derivative equal
+  the Horner derivative and give a direct closed-radius derivative theorem.
+  Coefficient rescaling by `c^n` transports Cauchy,
   absolute-Cauchy, `HasSum`, summability, and values along the substitution
   `x ↦ c x`.  The constant-one coefficient series is explicitly the geometric
   series and inherits its quantitative rational-contraction convergence and
-  positive-reciprocal value.
+  positive-reciprocal value.  Its self-convolution has coefficients `n + 1`
+  and evaluates to the square of that reciprocal through native Mertens.
 - The formal derivative shifts and weights coefficients, respects the linear
   operations, and identifies each derivative-series term with the derivative
   of the corresponding successor power-series term.  It also satisfies the
@@ -304,7 +308,9 @@ sealed implementation modules should not be copied wholesale.
   wrappers give summability and an exact `HasSum` product value.  Negation and
   subtraction now have native summability and proof-independent value laws,
   while the elementary coefficient operations preserve explicit absolute
-  bounds.
+  bounds.  A quantitative rectangular-product/remainder construction also
+  closes selected absolute-Cauchy witnesses under Cauchy products, with a
+  sealed native entry point for iterative clients.
 - The finite divided-difference factor, its power factorization, its diagonal
   formal-derivative identity, continuity, closed-radius bound, and domination
   by a derivative majorant are checked.  Derivative-majorant Cauchy convergence
@@ -317,7 +323,26 @@ sealed implementation modules should not be copied wholesale.
   ordinary ambient derivative for any explicit extension agreeing on the
   closed radius.  The power-series wrapper can derive and return the reusable
   inner-radius derivative witness from an outer derivative-majorant series.
-  Next package the locally uniform interface.
+  A radiuswise entire-series package now selects the closed radius `|x| + 1`,
+  constructs a global canonical value, proves its agreement with every local
+  uniform value, and exposes the local derivative plus its proof-independent
+  equality to the global formal-derivative value.  Radiuswise families for all
+  iterated formal derivatives and divided-difference factors give the same
+  paired equality/derivative interface at every higher order.
+- Repeated geometric convolution has a structural coefficient family with
+  simplex/binomial closed forms, nonnegative polynomial majorants, and the
+  formal law `D I_k = (k + 1) I_(k+1)`.  Native Mertens gives its successor sum
+  recurrence, while selected absolute-product closure constructs the
+  all-order absolute-Cauchy family directly from a rational contraction bound.
+  Thus every finite order has unconditional absolute/Cauchy convergence and a
+  proof-independent reciprocal-power value on that domain.  Exponential
+  coefficients are exact embedded rational factorial reciprocals and satisfy
+  `D a = a` as well as the corresponding repeated-derivative fixed point.  The concrete coefficient
+  bound `1/n! ≤ 2·(1/2)^n` supplies absolute and uniform convergence on every
+  closed positive rational radius below two.  The parameterized estimate
+  `1/n! ≤ B^B·(1/B)^n` now supplies the same APIs on every explicit rational
+  radius below a supplied positive natural `B`.  A global entire function only
+  needs an Archimedean bridge from arbitrary real radii to this interface.
 
 For the final step, the transferable architecture is the divided-difference
 one used by both reference developments: construct a finite geometric
@@ -398,10 +423,28 @@ Cauchy product crossed fifty-eight seconds even though the underlying exact
 Analytic value APIs should prefer proof-independent `HasSum` equations and use
 summability proof irrelevance only in a small client theorem when necessary.
 
+The entire-series derivative experiment found the same boundary twice.  A
+single theorem transporting the local derivative proof across canonical-sum
+equality ran beyond fifty seconds; returning the local derivative and the
+equality as separate components checks in about six seconds.  Adding a
+nonnegativity proof argument to every radiuswise convergence witness also ran
+beyond fifty-five seconds because that proof entered canonical values.  The
+checked interface therefore keeps radius evidence proof-free and leaves these
+transports at the client boundary.
+
+The finite-polynomial bridge found the analogous source-function boundary:
+transporting the Horner derivative proof to the extensionally equal canonical
+power-series source exceeded sixty seconds both as a whole-function `subst`
+and as a pointwise rewrite.  The fast modules instead export the canonical
+source-value equality, the canonical formal-derivative value equality, and the
+direct Horner derivative theorem separately; together they preserve all bridge
+data while keeping focused checks near six seconds.
+
 ## Near-term work queue
 
-1. Add a locally uniform higher-derivative power-series interface, then build
-   exponential coefficients and their formal fixed-point law.
+1. Package the natural-bounded exponential convergence theorem through an
+   Archimedean real-radius bridge, then lift the coefficient fixed-point law to
+   the checked entire/higher-derivative interface.
 2. Design a performant full-apart reciprocal derivative adapter and package
    bounded-domain rational functions.
 3. Add the generic domain-map and pasting combinators demanded by calculus.
