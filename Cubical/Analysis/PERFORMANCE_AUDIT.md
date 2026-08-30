@@ -2,7 +2,8 @@
 
 Date: 2026-08-30
 
-Status: investigation notes and an experiment plan; no Agda implementation changes are made by this audit.
+Status: baseline audit plus the first measured implementation pass.  The
+pre-optimization tree is preserved in checkpoint commit `d3bf8de33`.
 
 ## Executive summary
 
@@ -28,32 +29,83 @@ interfaces.  Addition and maximum both specialize this construction and store
 the result in a bundled binary non-expanding record.  This is the most plausible
 explanation for their unusually large interfaces and high memory use.
 
-The first improvement to try is therefore selective opacity, not a redesign:
-keep the computational sequential functions and their rational computation
-rules transparent, but seal the comparison construction, equality proof, and
-transported quantitative proofs.  At the same time, make implementation-only
-parameterized module aliases private.  This follows the successful boundary
-discipline in both Cauchy-real developments while preserving the more direct
-computational behavior intended by Analysis.
+The follow-up implementation tested selective opacity first.  It did not
+measurably change local checks or interface sizes and was reverted.  The
+decisive improvement was to stop constructing the lift twice: unary and binary
+non-expanding lifts now use the regular-completion lift transported through the
+existing isometries as their sole implementation.  Their public operation,
+non-expansion, extensionality, and injection theorem types are retained, as are
+the original `Construction` names through compatibility aliases.
 
-The next priorities are:
+The remaining priorities are:
 
-- split lightweight real extensionality from the broad universal-property
-  facade;
 - add binary and ternary non-expanding/Lipschitz extensionality and use the
   weakest adequate theorem in algebraic laws;
 - seal `_≤ℝ_` and `GapBound` behind small introduction/elimination lemmas;
-- separate operation functions from their large quantitative proof bundles;
 - narrow the `Order`, `Real`, and root barrel exports; and
 - prototype the newer direct binary sequential lift and
-  construction-independent completion presentation before changing the
-  architecture.
+  compare its computational behavior with the now-faster transported lift.
 
 The bounded/clamped multiplication technique from `CauchyRealsP` is valuable
 for future locally uniform functions such as inversion.  It is not yet a good
 first replacement for Analysis multiplication: the current multiplication
 kernel has useful judgmental rational computation and is not the dominant local
-hotspot.  Seal its proof-only completion-centred witness first.
+hotspot.  Opacity around its completion-centred witness was tested, preserved
+both `refl` rules, but did not improve the measurements and was reverted.
+
+## Implementation follow-up
+
+The first optimization pass applied three changes:
+
+1. `Completion.Extensionality` now instantiates the
+   construction-independent dense completion presentation and uses its direct
+   extensionality theorem.  It no longer transports the compared functions
+   through regular completion.
+2. `Real.Extensionality` is a lightweight module imported directly by
+   algebraic and order laws.  `Real.UniversalProperty` now contains only the
+   stronger graph-Cauchy mapping-space API and re-exports the lightweight
+   surface for compatibility.  Unused uniformly-continuous and
+   completion-centred module aliases were removed.
+3. `Completion.NonExpanding` and `Completion.BinaryNonExpanding` retain one
+   implementation rather than building a sequential/product implementation,
+   building a regular implementation, proving them equal, and transporting
+   quantitative proofs between them.
+
+The third change deliberately chooses the transported regular lift.  Thus the
+exported injection equations remain available propositionally, but the lifted
+functions no longer have the old sequential implementation's definitional
+behavior on arbitrary sequential constructors.  All in-tree clients use the
+exported computation theorems, and the complete Analysis root checks.  This
+trade-off should nevertheless be considered when stabilizing the public API.
+
+Measured before/after results are:
+
+| Target | Wall time | Peak RSS | Interface bytes |
+| --- | ---: | ---: | ---: |
+| unary non-expanding lift | 9.11 → 4.51 s | 2.45 → 1.66 GiB | 2,747,938 → 1,615,301 |
+| binary non-expanding lift | 44.37 → 9.29 s | 6.61 → 2.41 GiB | 5,493,985 → 2,578,501 |
+| real addition | 10.68 → 4.96 s | 4.56 → 2.30 GiB | 8,222,917 → 3,882,707 |
+| real lattice base | 10.87 → 5.37 s | 4.80 → 2.41 GiB | 8,232,020 → 3,876,150 |
+| real universal property | 4.43 → 2.01 s | 1.64 → 0.92 GiB | 2,663,877 → 114,849 |
+| Analysis root facade | 8.70 → 4.22 s | 2.71 → 1.91 GiB | — |
+
+The new `Real.Extensionality` interface is 1,031,477 bytes.  Counting it
+together with the reduced universal-property interface still halves that
+surface: 2,663,877 bytes becomes 1,146,326 bytes.  Addition-laws improves more
+modestly, from 3.09 to 2.92 seconds, because loading Addition itself remains
+the dominant part of that check.
+
+After a coherent root rebuild, all Analysis source interfaces—including the
+new extensionality module—total 37,903,360 bytes, down from 59,909,364 bytes.
+This is a 36.7% reduction while adding one module.
+
+Two negative results are worth retaining:
+
+- opacity around only the final unary/binary non-expansion fields did not
+  alter the relevant time, memory, or interface measurements; and
+- opacity around multiplication's completion-centred witness did not shrink
+  its own or Multiplication-laws' interface and slightly increased its local
+  check, so it was reverted.
 
 ## Scope and interpretation
 
@@ -64,8 +116,9 @@ facades.  It does not measure execution time of extracted programs.
 The measured tree was an active working tree rather than a clean release
 checkout.  In particular, `Cubical.Analysis` and some adjacent completion APIs
 are under development.  The measurements are consequently a baseline for this
-workspace, not a claim about an upstream release.  The audit did not alter any
-Agda source.
+workspace, not a claim about an upstream release.  The baseline sections below
+describe checkpoint `d3bf8de33`; the implementation follow-up above records the
+subsequent Agda changes.
 
 ## Method
 
@@ -451,8 +504,9 @@ away from zero, bounded powers, and future analytic functions.
 
 For current multiplication it is a fallback, not the first action.  The
 completion-centred Analysis construction is shorter and preserves judgmental
-rational computation.  Introduce the bound hierarchy only if selective opacity
-and a direct binary lift fail to control the existing implementation.
+rational computation.  Introduce the bound hierarchy only if this module
+becomes the dominant remaining hotspot or future locally uniform operations
+need the shared infrastructure.
 
 #### Opaque operation definitions
 
@@ -502,43 +556,40 @@ constructors.  Its `Extensionality` module proves equality directly from density
 and continuity.  `NonExpanding` packages a reusable non-expanding universal
 property and extension/restriction isomorphism.
 
-Instantiate a presentation for sequential completion from its injection,
-isometry/reflection, and density theorems.  This could replace Analysis
-extensionality's detour through regular-completion comparison and answer the
-open design question in `PROGRESS.md`: identity/composition laws can be proved
-once from a single universal-property value instead of repeatedly constructing
-heavy lifts.
+The implementation follow-up now instantiates this presentation for sequential
+completion from its injection, reflection, and density theorems.  Analysis
+extensionality therefore no longer transports the compared maps through
+regular completion.  The local check changed little, but the proof has a
+smaller and construction-independent surface.
 
-## Prioritized improvement plan
+## Prioritized improvement plan and disposition
 
-### P0: high confidence, preserve architecture
+### Completed or tested
 
-1. **Seal proof-only parts of unary and binary non-expanding lifts.**
-   Keep sequential functions and injection computation transparent.  Make
-   comparison functions, equality proofs, and transported quantitative fields
-   opaque.
-2. **Privatize implementation module aliases.**
-   Start in `Completion.NonExpanding`, `Completion.BinaryNonExpanding`,
-   multiplication, and real universal property.  Export named results only.
-3. **Separate operation functions from proof bundles.**
-   Apply first to addition and maximum, after sealing the generic construction.
-4. **Split lightweight real extensionality from the universal-property facade.**
-   Change the 39 downstream clients only as needed; avoid a broad public rename.
+1. **Proof-only opacity:** tested in unary and binary lifts; no measurable
+   effect, reverted.
+2. **Single lift construction:** implemented in unary and binary lifts; large
+   reductions in time, memory, and interface size.
+3. **Lightweight real extensionality:** implemented; law modules import it
+   directly while `Real.UniversalProperty` re-exports it for compatibility.
+4. **Construction-independent extensionality:** implemented using the dense
+   completion presentation.
+5. **Multiplication witness opacity:** tested with explicit local types; both
+   rational `refl` rules survived, but performance did not improve, so the
+   experiment was reverted.
 
-Expected signal: substantial reductions in the 5--8 MiB interfaces and in the
-4.5--6.6 GiB peaks.  If a P0 experiment does not shrink either interface size or
-local-check cost, revert it rather than accumulating cosmetic complexity.
+The decision rule—revert experiments that do not shrink an interface or local
+check—was useful and prevented opacity from becoming an unmeasured style
+change.
 
-### P1: focused structural improvements
+### P1: remaining focused improvements
 
 1. Add binary/ternary quantitative extensionality and use it in quantitative
    algebra/lattice laws.
 2. Seal `_≤ℝ_` and `GapBound` behind focused constructors/eliminators.
-3. Prototype extensionality from the construction-independent completion
-   presentation.
-4. Prototype a binary non-expanding lift over the direct binary sequential API.
-5. Seal multiplication's completion-centred and bound witnesses while
-   preserving both `multiplyℝ²-rat = refl` and `multiplyℝ-rat = refl`.
+3. Prototype a binary non-expanding lift over the direct binary sequential API
+   if constructor computation is important enough to justify it.
+4. Privatize or narrowly re-export remaining implementation module aliases.
 
 ### P2: ecosystem and maintenance work
 
@@ -551,12 +602,12 @@ local-check cost, revert it rather than accumulating cosmetic complexity.
 4. Use the bounded/clamped and common-bound pattern when implementing future
    locally uniform maps, rather than retrofitting it everywhere now.
 
-## Suggested experiment sequence
+## Experiment log and remaining sequence
 
 Each experiment should be a small commit or easily reversible patch.  Run the
 same isolated benchmark before and after, followed by a root check.
 
-### Experiment 1: unary proof opacity
+### Experiment 1: unary proof opacity — completed, reverted
 
 Targets:
 
@@ -564,10 +615,11 @@ Targets:
 - `Real.Algebra.Negation`;
 - `Real.Algebra.AbsoluteValue`.
 
-Record local wall/RSS and all three interface sizes.  Confirm injection/rational
-lemmas retain their present proofs.
+The computation lemmas survived, but time, RSS, and interface sizes were
+unchanged.  Replacing the dual construction with the transported lift then cut
+the unary check by about 51% and its interface by about 41%.
 
-### Experiment 2: binary proof opacity
+### Experiment 2: binary proof opacity — completed, reverted
 
 Targets:
 
@@ -576,23 +628,23 @@ Targets:
 - `Real.Algebra.Lattice.Base`;
 - Analysis root.
 
-This experiment addresses the measured dominant cost.  A reasonable initial
-success criterion is a multi-fold reduction—at least 2x in local time or peak
-RSS and preferably 4x in interface size—without changing the public operation
-API.  These are experiment gates, not promised outcomes.
+Opacity alone did not meet the gate.  Removing the duplicate sequential/product
+implementation cut the binary check by about 79%, peak RSS by about 64%, and
+the interface by about 53%.  Addition and maximum retain their exported
+rational computation theorems.
 
-### Experiment 3: function/proof separation and private aliases
+### Experiment 3: function/proof separation and private aliases — pending
 
 Do this after Experiment 2 so its effect can be distinguished from opacity.
 Inspect exported names as well as raw sizes; a private alias that is retained by
 a public transparent body may not reduce the interface until that body is also
 sealed.
 
-### Experiment 4: lightweight extensionality
+### Experiment 4: lightweight extensionality — completed
 
-Move the commonly imported theorem surface to a small module.  Benchmark one
-law module, the Algebra facade, and the root.  Then add quantitative binary and
-ternary variants and compare law proof terms separately.
+The surface moved to `Real.Extensionality`.  The universal-property check fell
+from 4.43 to 2.01 seconds and its interface from 2.66 MB to 0.11 MB.  Adding
+quantitative binary and ternary variants remains pending.
 
 ### Experiment 5: order boundaries
 
@@ -604,10 +656,11 @@ the source of any improvement or regression visible.
 
 In isolated, non-exported modules:
 
-- instantiate the construction-independent completion presentation and compare
-  its extensionality cost;
 - implement rational addition or maximum through the direct binary lift; and
 - only if needed, prototype bounded/clamped multiplication.
+
+The construction-independent completion presentation is no longer a prototype:
+it is now used by `Completion.Extensionality`.
 
 Do not migrate clients until a prototype beats the current implementation on
 both resource use and proof ergonomics.
@@ -644,21 +697,28 @@ effect.
 
 ## Conclusions
 
-The measurements point to a concentrated, tractable problem: generic binary
-completion machinery and its proof bundles are too transparent and too widely
-re-exported.  The strongest evidence is the combination of a 44.37-second,
-6.61-GiB local binary-lift check; 5--8 MiB foundational interfaces; and their
-large dependency fan-out.
+The audit correctly located a concentrated problem in the generic unary and
+binary completion lifts, but the initial opacity hypothesis was incomplete.
+Opacity did not change the measured costs because the defining function still
+contained the uniformly-continuous sequential construction and its proof
+argument.  Removing the duplicate implementation was the effective boundary:
+the binary lift became about 4.8 times faster, its peak memory fell by about
+64%, and its interface was reduced by about 53%.
 
-The Cauchy-real developments suggest a consistent remedy: name data and
-witnesses, put opacity at proof-heavy abstraction boundaries, use the least
-general extensionality theorem available, avoid dependent comparison of proof
-witnesses, and unfold only inside small API modules.  Analysis can apply these
-techniques without giving up its sequential implementation or its useful
-computation rules.
+Splitting extensionality from the graph-Cauchy universal property produced a
+second independent improvement.  It reduced the universal-property local
+check by about 55% and its own interface by about 96%; even after counting the
+new lightweight extensionality interface, the combined surface is less than
+half the previous size.
 
-The best first patch is deliberately narrow: selective opacity and private
-aliases in the unary and binary non-expanding lift modules, with explicit
-regression checks for rational computation.  Only after measuring that result
-should the project choose between the newer direct-binary/presentation APIs and
-the more elaborate bounded-gluing architecture from `CauchyRealsP`.
+The Cauchy-real developments remain useful guides: keep proof APIs narrow,
+name dependent witnesses, use direct density rather than comparison transport
+when available, and adopt bounded/glued constructions for genuinely local
+continuity.  Their opacity strategy should be applied only where a benchmark
+shows that clients were unfolding the sealed term.
+
+The next most promising work is order/`GapBound` isolation, quantitative binary
+and ternary extensionality, and export curation.  The direct binary sequential
+API remains worth prototyping if its constructor computation is required; the
+current faster implementation instead chooses transported regular lifts and
+retains propositional injection computation.

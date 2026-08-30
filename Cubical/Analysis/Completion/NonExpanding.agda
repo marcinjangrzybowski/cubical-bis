@@ -8,11 +8,6 @@ module Cubical.Analysis.Completion.NonExpanding
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
-open import Cubical.Algebra.OrderedCommRing
-open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
-
-open import Cubical.HITs.PropositionalTruncation as PT
-
 open import Cubical.Relation.Premetric.Mappings
 
 import Cubical.Analysis.Completion.Extensionality
@@ -25,8 +20,6 @@ import Cubical.Relation.Premetric.Completion.Alternative.Sequential.Properties
   as SequentialPropertiesDefinition
 import Cubical.Relation.Premetric.Completion.Alternative.Sequential.Comparison.Regular
   as ComparisonDefinition
-import Cubical.Relation.Premetric.Completion.Alternative.Sequential.Lift.UniformlyContinuous
-  as UniformlyContinuousDefinition
 
 module M = SequentialDefinition M'
 module MP = SequentialPropertiesDefinition M'
@@ -34,12 +27,10 @@ module N = SequentialDefinition N'
 module NP = SequentialPropertiesDefinition N'
 module MC = ComparisonDefinition M'
 module NC = ComparisonDefinition N'
-module U = UniformlyContinuousDefinition M' N'
 module Ext = ExtensionalityDefinition M'
 module RegularLift = RegularLiftDefinition.Liftℭ M' N'
 
 open CategoryStructures
-open PositiveRationals
 
 
 private
@@ -59,32 +50,11 @@ private
       (NP.ℭ̂ₛPremetricSpace .snd)
       NC.regularSequentialIsometry
 
-  identityModulus : ℚ₊ → ℚ₊
-  identityModulus ε = ε
-
-
 module Construction (fⁿ : NE[ M' , N' ]) where
 
   private
     f = fst fⁿ
 
-    f-uc-with : IsUniformlyContinuousWith
-      (M' .snd) f (N' .snd) identityModulus
-    f-uc-with .IsUniformlyContinuousWith.pres≈ x y ε =
-      fⁿ .snd .IsNonExpanding.pres≈ x y ε
-
-  sequentialFunction : M.ℭ̂ₛ → N.ℭ̂ₛ
-  sequentialFunction =
-    U.WithModulus.liftUniformlyContinuousWith
-      f identityModulus f-uc-with
-
-  sequentialFunction-ι : ∀ q →
-    sequentialFunction (M.ι q) ≡ N.ι (f q)
-  sequentialFunction-ι =
-    U.WithModulus.liftUniformlyContinuousWith-ι
-      f identityModulus f-uc-with
-
-  private
     regularBaseⁿ : NE[ M' , NC.C.ℭPremetricSpace ]
     regularBaseⁿ = RegularLiftDefinition.ιⁿ ∘NE fⁿ
 
@@ -92,50 +62,31 @@ module Construction (fⁿ : NE[ M' , N' ]) where
       NE[ MC.C.ℭPremetricSpace , NC.C.ℭPremetricSpace ]
     regularLiftⁿ = RegularLift.liftNonExpandingℭ regularBaseⁿ
 
-    transportedⁿ : NE[ MP.ℭ̂ₛPremetricSpace , NP.ℭ̂ₛPremetricSpace ]
-    transportedⁿ =
-      fromRegularNⁿ ∘NE (regularLiftⁿ ∘NE toRegularMⁿ)
+  transportedⁿ : NE[ MP.ℭ̂ₛPremetricSpace , NP.ℭ̂ₛPremetricSpace ]
+  transportedⁿ =
+    fromRegularNⁿ ∘NE (regularLiftⁿ ∘NE toRegularMⁿ)
 
-    transported-ι : ∀ q →
-      fst transportedⁿ (M.ι q) ≡ N.ι (f q)
-    transported-ι q =
-      cong (NC.fromRegular ∘ fst regularLiftⁿ) (MC.toRegular-ι q)
-      ∙ cong NC.fromRegular
-          (funExt⁻ (RegularLift.liftⁿℭ∘ι regularBaseⁿ) q)
-      ∙ NC.fromRegular-ι (f q)
+  transported-ι : ∀ q →
+    fst transportedⁿ (M.ι q) ≡ N.ι (f q)
+  transported-ι q =
+    cong (NC.fromRegular ∘ fst regularLiftⁿ) (MC.toRegular-ι q)
+    ∙ cong NC.fromRegular
+        (funExt⁻ (RegularLift.liftⁿℭ∘ι regularBaseⁿ) q)
+    ∙ NC.fromRegular-ι (f q)
 
-    sequential-isContinuous : isContinuous
-      (MP.ℭ̂ₛPremetricSpace .snd) sequentialFunction
-      (NP.ℭ̂ₛPremetricSpace .snd)
-    sequential-isContinuous =
-      isUniformlyContinuous→isContinuous
-        (MP.ℭ̂ₛPremetricSpace .snd) sequentialFunction
-        (NP.ℭ̂ₛPremetricSpace .snd)
-        ∣ U.WithModulus.inputBudget f identityModulus f-uc-with
-        , U.WithModulus.liftUniformlyContinuousWith-isUniformlyContinuousWith
-            f identityModulus f-uc-with ∣₁
+  -- Compatibility surface: the implementation now uses a single transported
+  -- lift, but clients of Construction retain the original names.
+  sequentialFunction : M.ℭ̂ₛ → N.ℭ̂ₛ
+  sequentialFunction = fst transportedⁿ
 
-    sequential≡transported : sequentialFunction ≡ fst transportedⁿ
-    sequential≡transported =
-      Ext.continuousExtensionality NP.ℭ̂ₛPremetricSpace
-        sequentialFunction (fst transportedⁿ)
-        sequential-isContinuous
-        (isNonExpanding→isContinuous
-          (MP.ℭ̂ₛPremetricSpace .snd) (fst transportedⁿ)
-          (NP.ℭ̂ₛPremetricSpace .snd) (snd transportedⁿ))
-        λ q →
-          U.WithModulus.liftUniformlyContinuousWith-ι
-            f identityModulus f-uc-with q
-          ∙ sym (transported-ι q)
+  sequentialFunction-ι : ∀ q →
+    sequentialFunction (M.ι q) ≡ N.ι (f q)
+  sequentialFunction-ι = transported-ι
 
   sequential-isNonExpanding : IsNonExpanding
     (MP.ℭ̂ₛPremetricSpace .snd) sequentialFunction
     (NP.ℭ̂ₛPremetricSpace .snd)
-  sequential-isNonExpanding = subst
-    (λ h → IsNonExpanding
-      (MP.ℭ̂ₛPremetricSpace .snd) h
-      (NP.ℭ̂ₛPremetricSpace .snd))
-    (sym sequential≡transported) (snd transportedⁿ)
+  sequential-isNonExpanding = snd transportedⁿ
 
 
 liftNonExpanding :

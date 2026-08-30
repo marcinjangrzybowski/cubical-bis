@@ -14,7 +14,7 @@ open import Cubical.Algebra.OrderedCommRing
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 
 open import Cubical.Analysis.Real.Base
-open import Cubical.Analysis.Real.UniversalProperty
+open import Cubical.Analysis.Real.Extensionality
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.Multiplication
 open import Cubical.Analysis.Real.Algebra.Multiplication.Laws

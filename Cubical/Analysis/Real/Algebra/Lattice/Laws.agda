@@ -9,7 +9,7 @@ import Cubical.Data.Rationals.Properties as ℚ
 open import Cubical.Data.Rationals.Order as ℚ
 
 open import Cubical.Analysis.Real.Base
-open import Cubical.Analysis.Real.UniversalProperty
+open import Cubical.Analysis.Real.Extensionality
 open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
 open import Cubical.Analysis.Real.Algebra.Lattice.Base

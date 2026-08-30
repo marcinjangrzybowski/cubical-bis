@@ -5,18 +5,19 @@ module Cubical.Analysis.Completion.Extensionality
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Relation.Premetric.Mappings
+open import Cubical.Relation.Premetric.Completion.UniversalProperty.Base
 
-import Cubical.Relation.Premetric.Completion.Properties.Lift
-  as RegularLiftDefinition
 import Cubical.Relation.Premetric.Completion.Alternative.Sequential.Base
   as SequentialDefinition
 import Cubical.Relation.Premetric.Completion.Alternative.Sequential.Properties
   as SequentialPropertiesDefinition
 import Cubical.Relation.Premetric.Completion.Alternative.Sequential.Comparison.Regular
   as ComparisonDefinition
+import Cubical.Relation.Premetric.Completion.UniversalProperty.Extensionality
+  as GenericExtensionalityDefinition
 
 module S = SequentialDefinition M'
 module SP = SequentialPropertiesDefinition M'
@@ -24,27 +25,35 @@ module Comparison = ComparisonDefinition M'
 
 private
   M = M' .fst
+  ℓC = ℓ-max ℓM ℓM'
+
+  module PM = PremetricStr (M' .snd)
+
+  sequentialCompletionPresentation : CompletionPresentation M' ℓC ℓC
+  sequentialCompletionPresentation .completionSpace =
+    SP.ℭ̂ₛPremetricSpace
+  sequentialCompletionPresentation .injection = S.ι
+  sequentialCompletionPresentation .injection-pres≈ x y ε =
+    propBiimpl→Equiv
+      (PM.isProp≈ x y ε)
+      (S.isProp∼ (S.ι x) ε (S.ι y))
+      (S.ι-ι x y ε)
+      (Comparison.ι-reflects∼ x y ε)
+  sequentialCompletionPresentation .dense = SP.∃approx
 
 open CategoryStructures
 
 
 -- Continuous maps out of the sequence-backed completion are determined by
--- their values on the original space.  The proof transports only the generic
--- density theorem for Completion.Base across the isometric comparison; no
--- map being compared is itself defined through that comparison.
+-- their values on the original space.  The construction-independent theorem
+-- uses only the isometric dense presentation above; no map being compared is
+-- transported through a second completion.
 
 module _ {ℓN ℓN'} (N' : PremetricSpace ℓN ℓN') where
 
   private
-    fromRegularᶜ :
-      C[ Comparison.C.ℭPremetricSpace , SP.ℭ̂ₛPremetricSpace ]
-    fromRegularᶜ =
-      Comparison.fromRegular ,
-      IsIsometry→isContinuous
-        (Comparison.C.ℭPremetricSpace .snd)
-        Comparison.regularSequentialEquiv
-        (SP.ℭ̂ₛPremetricSpace .snd)
-        Comparison.regularSequentialIsometry
+    module Direct = GenericExtensionalityDefinition
+      M' sequentialCompletionPresentation N'
 
   continuousExtensionality :
     (f g : S.ℭ̂ₛ → N' .fst) →
@@ -52,29 +61,7 @@ module _ {ℓN ℓN'} (N' : PremetricSpace ℓN ℓN') where
     isContinuous (SP.ℭ̂ₛPremetricSpace .snd) g (N' .snd) →
     (∀ q → f (S.ι q) ≡ g (S.ι q)) →
     f ≡ g
-  continuousExtensionality f g f-cont g-cont on-ι =
-    funExt λ x →
-      sym (cong f (Comparison.sequentialRegularIso .Iso.ret x))
-      ∙ funExt⁻ regular-equality (Comparison.toRegular x)
-      ∙ cong g (Comparison.sequentialRegularIso .Iso.ret x)
-    where
-    f-regular g-regular : C[ Comparison.C.ℭPremetricSpace , N' ]
-    f-regular = (f , f-cont) ∘C fromRegularᶜ
-    g-regular = (g , g-cont) ∘C fromRegularᶜ
-
-    on-regular-ι : ∀ q →
-      f (Comparison.fromRegular (Comparison.Regular.ι q)) ≡
-      g (Comparison.fromRegular (Comparison.Regular.ι q))
-    on-regular-ι q =
-      cong f (Comparison.fromRegular-ι q)
-      ∙ on-ι q
-      ∙ sym (cong g (Comparison.fromRegular-ι q))
-
-    regular-equality :
-      f ∘ Comparison.fromRegular ≡ g ∘ Comparison.fromRegular
-    regular-equality = cong fst
-      (RegularLiftDefinition.continuous≡ M' N' f-regular g-regular
-        (funExt on-regular-ι))
+  continuousExtensionality = Direct.continuousMap-ext
 
   uniformlyContinuousExtensionality :
     (f g : S.ℭ̂ₛ → N' .fst) →
