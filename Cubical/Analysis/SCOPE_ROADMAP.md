@@ -31,18 +31,18 @@ real-analysis interfaces have stabilized.
 | Area | Analysis status | Reference coverage | Next gap |
 | --- | --- | --- | --- |
 | Completion and density | Strong | Both | Keep generic; add helpers only when demanded by clients |
-| Quantitative maps | Non-expanding, fixed-Lipschitz, affine, and first local polynomial estimates | Both | General bounded-domain/local-Lipschitz combinators |
+| Quantitative maps | Non-expanding, fixed-Lipschitz, affine, local polynomial estimates, and non-expanding closed-domain clamps | Both | General bounded-domain/local-Lipschitz combinators |
 | Additive/ring/lattice algebra | Complete baseline plus rational module | Both | Integer embedding and derivative-facing linear API |
-| Non-strict and strict order | Complete baseline | Both | Interval/subspace packaging |
+| Non-strict and strict order | Complete baseline plus closed interval/radius subspaces | Both | Open domains and domain-restricted mapping API |
 | Apartness | Additive and multiplicative laws | Both | Decide whether a standard field/apartness bundle fits without API churn |
 | Reciprocal and division | Implemented away from zero | Both | Quotient continuity on domains; derivative rules |
 | Naturals and powers | Naturals and rational scalars implemented | Both | Integer embedding and scalar/power compatibility |
 | Polynomials | Horner evaluation, majorants, absolute bounds, local Lipschitz estimates | Both | Derivatives and reusable closed-ball packaging |
-| Ordinary sequences | Limits, eventual equality/order, asymptotic closeness | Both | Squeeze/monotone results and witness hierarchy |
-| Finite sums | Witness/limit preservation, monotonicity, absolute bound | `CauchyRealsP` | Reindexing, splitting, and telescoping API |
-| Series | Linear operations, tails, finite modifications, absolute-Cauchy comparison | Both | Geometric series, uniform bounds, and Cauchy products |
-| Power series | Missing | `CauchyRealsP` | Start only after robust series bounds |
-| Continuity on domains | Missing | Mostly `CauchyReals` and newer completion reals | Open/closed intervals, subspaces, composition library |
+| Ordinary sequences | Limits, eventual equality/order, two asymptotic witness levels, and squeeze theorems | Both | Monotone convergence once supremum infrastructure exists |
+| Finite sums | Witness/limit preservation, algebra, exchange, telescoping, monotonicity, and absolute bound | `CauchyRealsP` | Convolution-specific reindexing |
+| Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, and rational half-contraction geometric sums | Both | General rational contractions, uniform bounds, and Cauchy products |
+| Power series | Terms, linear algebra, geometric majorants, and bounded-coefficient convergence on radii at most one half | `CauchyRealsP` | General strict interiors, uniformity, and products |
+| Continuity on domains | Closed intervals and absolute-radius balls as complete retract subspaces | Mostly `CauchyReals` and newer completion reals | Open domains, domain maps, products, and pasting |
 | Derivatives | Missing | Both | Definition, uniqueness, algebra, chain rule, polynomials |
 | Integration | Missing | Newer completion reals and parts of `CauchyReals` | Uniform-limit and partition infrastructure first |
 | Elementary functions | Missing | Mostly `CauchyReals` | Exponential/logarithm before trigonometry |
@@ -100,6 +100,12 @@ transitivity.  It transfers the useful theorem shape from `CauchyRealsP`
 without choosing a global modulus and therefore fits the Analysis witness
 hierarchy exactly.
 
+The stronger `SelectedAsymptoticallyCloseSequence` merely selects one complete
+radius-indexed cutoff function.  It maps to the radiuswise relation, is an
+equivalence relation, and preserves and reflects the native `SeqWitness`.
+This makes the exact constructive strength required by witness-producing
+clients explicit instead of hiding a choice step.
+
 ### Central ordered-ring bounds
 
 The absolute-value triangle inequality and two-variable monotonicity now live
@@ -107,6 +113,14 @@ in the real order layer.  Polynomial majorants, finite sums, and series tail
 bounds consume those common results.  This avoids the earlier pattern where
 each quantitative client rebuilt the same max-based proof and is the intended
 shape for future norm and integration estimates.
+
+### Complete subspaces as quantitative retracts
+
+Closed intervals and absolute-radius balls inherit the ambient premetric.
+Their clamp maps are non-expanding retractions, so completeness follows from
+the generic theorem that a non-expanding retract of a complete space is
+complete.  This is preferable to rebuilding Cauchy-sequence limit proofs for
+each real domain and will scale to later uniformly continuous domain maps.
 
 ## Techniques that should be adapted, not copied
 
@@ -164,29 +178,35 @@ no postulates and no carrier conversion.  This condition is met.
 - Finite sums preserving native Cauchy witnesses and limits, with monotonicity
   and a finite triangle inequality.
 
-Further finite-sum reindexing and telescoping laws should be added only as
-required by series products and integration partitions.
+Further finite-sum reindexing laws should be added only as required by series
+products and integration partitions.
 
 ### Phase 3: series core — substantial baseline complete
 
 The base now has partial sums, additive and scalar operations, unique sums, the
 term test, tail/drop equivalences, finite-modification correction laws,
-partial-sum distance bounds, and native-witness absolute comparison.  The
-remaining dependency order is:
+partial-sum distance bounds, sum comparison and domination, and native-witness
+absolute comparison.  A first geometric layer proves the division-free
+partial-sum identity and gives an explicit global modulus, summability, and
+the reciprocal value for every rational `0 ≤ q ≤ 1/2`.  The remaining
+dependency order is:
 
-1. geometric series, first for rational ratios and then real ratios;
+1. extend geometric convergence from nonnegative half-contractions to
+   arbitrary rational `|q| < 1`, then to real ratios with rational bounds;
 2. uniform partial-sum and tail bounds;
 3. comparison tests driven by explicit Cauchy moduli;
 4. finite-sum reindexing needed by convolution;
 5. Cauchy products and convolution under absolute hypotheses; and
-6. power-series definitions and interior convergence.
+6. general strict-interior power-series convergence.
 
 Do not begin convolution before finite-sum reindexing and absolute bounds are
 available as separate checked modules.
 
 ### Phase 4: domains and local continuity
 
-- Metric balls, radii, closed/open intervals, and subspace premetrics.
+- Closed intervals, absolute-radius balls, their subspace premetrics,
+  non-expanding clamps, and completeness are implemented.
+- Add open intervals and open balls.
 - Continuous and uniformly continuous functions on a domain.
 - Restriction, composition, products, pasting, and uniform-limit closure.
 - Bounded-domain Lipschitz lemmas for powers, polynomials, and reciprocal.
@@ -219,7 +239,10 @@ sealed implementation modules should not be copied wholesale.
 
 ### Phase 7: power series and elementary functions
 
-- Power-series algebra and termwise differentiation on strict interiors.
+- Power-series terms, additive/scalar algebra, geometric majorants, and
+  bounded-coefficient absolute convergence on closed radii at most one half
+  are implemented.
+- Extend convergence and termwise differentiation to general strict interiors.
 - Exponential from a power series, then its algebraic and derivative laws.
 - Logarithm on positive reals using inverse/integration or a controlled local
   series.
@@ -255,15 +278,26 @@ removed.  The right follow-up is a lightweight generic binary
 Cauchy-continuous witness combinator, not embedding the comparison proof in
 `Real.Algebra.Multiplication.Base`.
 
+The rational geometric proof exposed a second normalization trap: expanding a
+proof-dependent positive denominator and its reciprocal directly inside the
+`HasSum` type made a focused check run for more than two minutes.  Naming the
+denominator proof and sum value reduced the completed module to about four
+seconds.  Proof-dependent analytic values should therefore be factored before
+they appear in large dependent statements.
+
 ## Near-term work queue
 
-1. Geometric series and its reciprocal identity for rational contractions.
-2. Uniform partial-sum/tail bounds and explicit comparison tests.
-3. Domain/subspace continuity for closed balls and intervals.
-4. A derivative definition and uniqueness kernel.
-5. Power and polynomial derivative rules using the checked local bounds.
-6. Convolution after the required finite-sum reindexing laws are isolated.
-7. Power-series definitions and convergence on strict interiors.
+1. Generalize geometric convergence from `0 ≤ q ≤ 1/2` to rational
+   `|q| < 1` without regressing checker time.
+2. Add uniform partial-sum/tail bounds and strict-interior power-series
+   convergence.
+3. Add open-domain and domain-restricted continuity interfaces on top of the
+   checked complete closed subspaces.
+4. Define the derivative kernel and prove uniqueness.
+5. Prove power and polynomial derivative rules using the checked local bounds.
+6. Add convolution after its remaining finite reindexing laws are isolated.
+7. Add power-series products and uniform evaluation only after convolution and
+   uniform-tail bounds are separately checked.
 
 This queue deliberately alternates user-facing theorems with generic support
 work so that no large specialized branch grows on a weak foundation.

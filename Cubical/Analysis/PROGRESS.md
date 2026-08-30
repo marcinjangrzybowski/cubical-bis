@@ -153,6 +153,10 @@ from the constructors of a particular real-number HIT.
   absolute value, addition, distance, maximum, and minimum.  Multiplication's
   rule retains an explicit image witness because it is not globally
   non-expanding.
+- Closed intervals and closed absolute-radius balls are now inherited
+  premetric subspaces with non-expanding inclusions and clamp retractions.
+  Both are complete by generic retract completeness; the unit interval is
+  exposed as a specialization.
 - `Real.Functions.Powers` illustrates compositional analysis: powers and square
   are continuous because multiplication takes continuous pairs to a continuous
   product; no new completion recursion is needed.
@@ -178,12 +182,24 @@ from the constructors of a particular real-number HIT.
   unary, additive, multiplicative, and subtractive limit preservation.  Its
   choice-free tail layer covers eventual equality, eventual non-strict/strict
   order, and radiuswise asymptotic closeness, including transport of limits.
+  A stronger merely selected asymptotic modulus preserves and reflects native
+  witnesses, and constructive pointwise/eventual squeeze theorems are public.
 - `Real.Series` provides partial sums, summability, additive and scalar closure,
   proof-independent sums, and the necessary theorem that terms of a summable
   series tend to zero.  Tail dropping and finite modification preserve and
   reflect summability with exact correction formulas.  Partial-sum distance
   bounds support dominated native Cauchy series, absolute-Cauchy convergence,
   and the standard absolute bound on the resulting sum.
+- Finite sums additionally expose extension, splitting, addition, negation,
+  subtraction, scalar and multiplicative distribution, exchange, and
+  telescoping.  Series expose monotonicity and arbitrary summable-majorant
+  bounds.
+- Geometric series have a division-free finite identity and an explicit
+  modulus for every rational `0 ≤ q ≤ 1/2`, yielding native Cauchy witnesses,
+  summability, and the reciprocal sum formula.  Power series now have a term
+  and value API, additive/scalar closure, power/order bounds, geometric
+  majorants, and bounded-coefficient absolute convergence on such closed
+  radii.
 
 ## Work log
 
@@ -214,7 +230,12 @@ from the constructors of a particular real-number HIT.
 - [x] Add rational scalar/affine maps, polynomial majorants and local estimates,
   choice-free eventual sequence relations, finite-sum bounds, series tails,
   finite modifications, and native-witness absolute convergence comparison.
-- [ ] Add geometric and power series, domain-local continuity, calculus,
+- [x] Add finite-sum algebra, selected asymptotic witnesses and squeeze,
+  complete closed domains, rational half-contraction geometric series, series
+  comparison, and the first bounded-coefficient power-series convergence
+  layer.
+- [ ] Generalize geometric and power-series convergence, add domain-local
+  continuity, calculus,
   integration, and elementary functions in the phases recorded in
   `SCOPE_ROADMAP.md`.
 
@@ -268,6 +289,15 @@ from the constructors of a particular real-number HIT.
   should first be factored into a lightweight generic combinator.  The public
   ordinary-limit theorem for multiplication remains fast because it uses
   continuity instead.
+- An inline proof-dependent reciprocal inside the geometric `HasSum` statement
+  caused more than two minutes of normalization.  Factoring the positive
+  denominator proof and the proof-dependent sum into named definitions reduced
+  the complete rational geometric check to roughly 4.2 seconds.
+- A redundant proof that the geometric majorant is nonnegative, phrased through
+  the fully general four-variable multiplication monotonicity theorem, also
+  pushed a focused check past thirty seconds.  It was removed because all
+  consumers need only the sharper termwise domination theorem, which checks in
+  about four seconds.
 
 ## Open technical questions
 

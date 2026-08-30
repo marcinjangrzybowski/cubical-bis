@@ -65,6 +65,16 @@ negLeAbs x = subst ((- x) ≤ℝ_)
   (sym (absAsMax x)) (right≤max x (- x))
 
 
+absLeastUpperBound : ∀ x bound →
+  x ≤ℝ bound → (- x) ≤ℝ bound →
+  absℝ x ≤ℝ bound
+absLeastUpperBound x bound x≤bound negX≤bound =
+  subst (_≤ℝ bound)
+    (sym (absAsMax x))
+    (maxLeastUpperBound x (- x) bound
+      x≤bound negX≤bound)
+
+
 addPres≤ : ∀ x y z w →
   x ≤ℝ y → z ≤ℝ w → x + z ≤ℝ y + w
 addPres≤ x y z w x≤y z≤w =

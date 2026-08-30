@@ -10,6 +10,10 @@ open import Cubical.Analysis.Real.Order public
 open import Cubical.Analysis.Real.Sequence public
 open import Cubical.Analysis.Real.Sequence.Eventually public
 open import Cubical.Analysis.Real.Sequence.Asymptotic public
+open import Cubical.Analysis.Real.Sequence.SelectedAsymptotic public
+open import Cubical.Analysis.Real.Sequence.Squeeze public
 open import Cubical.Analysis.Real.FiniteSum public
+open import Cubical.Analysis.Real.FiniteSum.Algebra public
 open import Cubical.Analysis.Real.FiniteSum.Bounds public
 open import Cubical.Analysis.Real.Series public
+open import Cubical.Analysis.Real.Domain public

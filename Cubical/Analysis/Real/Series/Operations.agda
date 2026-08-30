@@ -4,6 +4,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat using (zero; suc)
+open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
@@ -15,8 +16,13 @@ open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.CommRing
 open import Cubical.Analysis.Real.Algebra.Multiplication
 open import Cubical.Analysis.Real.Algebra.Multiplication.Laws
+open import Cubical.Analysis.Real.Algebra.Scalar
 open import Cubical.Analysis.Real.Sequence
+open import Cubical.Analysis.Real.Sequence.Eventually
 open import Cubical.Analysis.Real.Series.Base
+
+open import Cubical.Relation.Premetric.Properties
+open import Cubical.Relation.Premetric.Mappings
 
 
 private
@@ -69,3 +75,32 @@ seriesSum-scale c terms summable scaled-summable =
   seriesSumIndependent
     (scaleSeries c terms) scaled-summable
     (scaleSummable c terms summable)
+
+
+-- Real scaling preserves ordinary sums by continuity.  At the stronger
+-- native-Cauchy level we retain a global modulus for rational scalars via the
+-- exact Lipschitz action.
+rationalScaleSeriesIsCauchy : ∀ c terms →
+  IsCauchySeries terms →
+  IsCauchySeries (scaleSeries (rat c) terms)
+rationalScaleSeriesIsCauchy c terms terms-cauchy =
+  eventuallyEqualPresSeqWitness partialSumsEqual mapped-cauchy
+  where
+  mapped : RealSequence
+  mapped = (c ⋆_) ∘ partialSum terms
+
+  mapped-cauchy : SeqWitness mapped
+  mapped-cauchy =
+    PT.map
+      (LWith→presIsCauchySeq
+        (rationalScalarBound c) (c ⋆_)
+        (scalar-isLipschitzWith c) (partialSum terms))
+      terms-cauchy
+
+  partialSumsEqual :
+    EventuallyEqualSequence mapped
+      (partialSum (scaleSeries (rat c) terms))
+  partialSumsEqual =
+    ∣ 0 , (λ n _ →
+      scalar-as-mul c (partialSum terms n)
+      ∙ sym (partialSum-scale (rat c) terms n)) ∣₁
