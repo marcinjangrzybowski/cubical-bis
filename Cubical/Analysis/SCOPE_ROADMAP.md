@@ -41,7 +41,7 @@ real-analysis interfaces have stabilized.
 | Ordinary sequences | Limits, eventual equality/order, two asymptotic witness levels, and squeeze theorems | Both | Monotone convergence once supremum infrastructure exists |
 | Finite sums | Witness/limit preservation, algebra, exchange, telescoping, monotonicity, absolute bounds, and convolution-oriented diagonal/triangular reindexing | `CauchyRealsP` | Partition reindexing as demanded by integration |
 | Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, rational/real contraction results, uniform family convergence, constructive native-Cauchy bounds, and bound-free Mertens products | Both | Radiuswise/weaker uniform witness variants and modulus-driven tests |
-| Power series | Terms, zero/finite-modification laws, linear algebra, exponential coefficient-growth criteria and closure laws, exact Cauchy products, uniform closed-radius convergence/continuity, formal coefficient derivatives, and uniformly Cauchy divided differences | `CauchyRealsP` | Divided-difference sum identities and termwise differentiation |
+| Power series | Terms, finite-polynomial/rescaling/geometric laws, zero/finite-modification laws, coefficient growth, exact products, repeated formal derivatives, uniform closed-radius convergence/continuity, and closed-radius/strict-interior termwise differentiation | `CauchyRealsP` | Locally uniform higher derivatives and elementary series |
 | Continuity on domains | Complete closed interval/radius retracts plus open half-lines, intervals, and absolute-radius balls | Mostly `CauchyReals` and newer completion reals | Domain maps, products, and pasting |
 | Derivatives | Division-free kernel, uniqueness, algebra, ordinary and indexed chain rules, power/Horner/finite-sum rules, controlled reciprocal and arbitrary-denominator quotient rules, continuity, and open-subspace adapters | Both | Full apart-domain reciprocal and rational-function packaging |
 | Integration | Missing | Newer completion reals and parts of `CauchyReals` | Uniform-limit and partition infrastructure first |
@@ -285,20 +285,39 @@ sealed implementation modules should not be copied wholesale.
   summability, while an explicit cutoff gives the exact finite correction to
   the value; cutoff-dependent data remains truncated when the equality is
   merely eventual.
+- Zero-padded finite coefficient lists are native Cauchy with the explicit
+  modulus `length coefficients`, and their power-series value agrees exactly
+  with Horner evaluation.  Coefficient rescaling by `c^n` transports Cauchy,
+  absolute-Cauchy, `HasSum`, summability, and values along the substitution
+  `x ↦ c x`.  The constant-one coefficient series is explicitly the geometric
+  series and inherits its quantitative rational-contraction convergence and
+  positive-reciprocal value.
 - The formal derivative shifts and weights coefficients, respects the linear
   operations, and identifies each derivative-series term with the derivative
-  of the corresponding successor power-series term.
+  of the corresponding successor power-series term.  It also satisfies the
+  exact coefficient-level Leibniz rule for Cauchy products without requiring
+  convergence data.  Its finite iterates compose, preserve addition/scaling,
+  and satisfy the explicit coefficient formula
+  `D^k a n = ((n+1)⋯(n+k)) · a (n+k)`.
 - Cauchy multiplication of coefficient sequences evaluates termwise to the
   Cauchy product of the two evaluated series.  Explicit-bound and native-Cauchy
-  wrappers give summability and an exact `HasSum` product value.
+  wrappers give summability and an exact `HasSum` product value.  Negation and
+  subtraction now have native summability and proof-independent value laws,
+  while the elementary coefficient operations preserve explicit absolute
+  bounds.
 - The finite divided-difference factor, its power factorization, its diagonal
   formal-derivative identity, continuity, closed-radius bound, and domination
   by a derivative majorant are checked.  Derivative-majorant Cauchy convergence
   now makes the whole factor family uniformly Cauchy on a closed radius, also
-  when obtained by restriction from a larger radius.  Next identify its
-  canonical sum with the power-series difference and with the formal
-  derivative on the diagonal, then derive termwise differentiation on strict
-  interiors.
+  when obtained by restriction from a larger radius.  Its canonical sum now
+  factors the difference of two power-series values and agrees with the
+  formal-derivative value on the diagonal.  Continuity of that uniform factor
+  therefore gives a checked derivative of the canonical uniform sum along the
+  closed-radius coordinate.  A generic open-interior adapter now gives the
+  ordinary ambient derivative for any explicit extension agreeing on the
+  closed radius.  The power-series wrapper can derive and return the reusable
+  inner-radius derivative witness from an outer derivative-majorant series.
+  Next package the locally uniform interface.
 
 For the final step, the transferable architecture is the divided-difference
 one used by both reference developments: construct a finite geometric
@@ -381,8 +400,8 @@ summability proof irrelevance only in a small client theorem when necessary.
 
 ## Near-term work queue
 
-1. Add the uniformly convergent divided-difference family and its diagonal sum
-   theorem, then derive termwise differentiation.
+1. Add a locally uniform higher-derivative power-series interface, then build
+   exponential coefficients and their formal fixed-point law.
 2. Design a performant full-apart reciprocal derivative adapter and package
    bounded-domain rational functions.
 3. Add the generic domain-map and pasting combinators demanded by calculus.

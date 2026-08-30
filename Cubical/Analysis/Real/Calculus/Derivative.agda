@@ -6,6 +6,7 @@ open import Cubical.Analysis.Real.Calculus.Derivative.Algebra public
 open import Cubical.Analysis.Real.Calculus.Derivative.Uniqueness public
 open import Cubical.Analysis.Real.Calculus.Derivative.Continuity public
 open import Cubical.Analysis.Real.Calculus.Derivative.OpenSubspace public
+open import Cubical.Analysis.Real.Calculus.Derivative.Interior public
 open import Cubical.Analysis.Real.Calculus.Derivative.Product public
 open import Cubical.Analysis.Real.Calculus.Derivative.Chain public
 open import Cubical.Analysis.Real.Calculus.Derivative.Chain.Indexed public

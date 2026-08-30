@@ -213,7 +213,16 @@ from the constructors of a particular real-number HIT.
   real scaling.  Evaluation at zero is unconditionally summable with value
   equal to the constant coefficient.  Eventual coefficient equality transports
   Cauchy and summability witnesses, and explicit cutoffs give exact finite
-  corrections to power-series values.
+  corrections to power-series values.  Zero-padded finite coefficient lists
+  have the explicit Cauchy modulus `length coefficients` and evaluate exactly
+  as Horner polynomials.  Coefficient rescaling by `c^n` transports Cauchy,
+  absolute-Cauchy, summability, sums, and values along `x ↦ c x`.  The
+  coefficient-level operations API also carries explicit absolute bounds and
+  proof-independent values through negation and subtraction, in addition to
+  its additive and scaling laws.  The constant-one coefficient series is
+  identified with the quantitative geometric series, so every explicit
+  rational contraction bound yields its Cauchy witness, summability, `HasSum`,
+  and proof-independent positive-reciprocal value.
 - Cauchy products expose bilinearity, commutativity, unit laws, triangular and
   rectangular partial-sum identities, an explicit remainder and its absolute
   majorant.  The quantitative Mertens theorem proves convergence and sum
@@ -224,7 +233,9 @@ from the constructors of a particular real-number HIT.
   bound-free remainder, `HasSum`, summability, and product-value theorems.
   Cauchy multiplication of coefficient sequences evaluates exactly to the
   Cauchy product of the corresponding power-series terms, with both
-  explicit-bound and native-Cauchy convergence wrappers.
+  explicit-bound and native-Cauchy convergence wrappers.  Formal
+  differentiation satisfies the exact coefficient-level Leibniz rule for
+  Cauchy products independently of convergence assumptions.
 - The first differential-calculus kernel uses a division-free first-order
   remainder.  It supports general premetric parameter spaces, continuous
   reparameterization, and continuous difference-factor proofs; constants and
@@ -243,15 +254,24 @@ from the constructors of a particular real-number HIT.
 - Formal power-series differentiation is available at the coefficient and
   term levels: it respects addition and scaling, computes on rational
   coefficients, and identifies every successor power term with its derivative
-  term.  Generic coefficient majorants are preserved by formal
-  differentiation.  The finite divided-difference factor now has its power
-  factorization, diagonal formal-derivative identity, continuity,
-  closed-radius bound, and derivative-majorant domination.  The remaining
+  term.  Iterated formal differentiation has zero/successor, composition,
+  addition, scaling, and zero laws together with the closed coefficient
+  formula `D^k a n = ((n+1)⋯(n+k)) · a (n+k)`.  Generic coefficient majorants
+  are preserved by formal differentiation.  The finite divided-difference
+  factor now has its power factorization, diagonal formal-derivative identity,
+  continuity, closed-radius bound, and derivative-majorant domination.  The remaining
   family is uniformly Cauchy on a closed radius whenever the corresponding
   derivative-majorant series is native Cauchy, including by restriction from a
-  larger radius.  The remaining analytic step is deliberately separate:
-  identify the canonical factor sum with the series difference and its
-  diagonal before deriving a derivative for the infinite sum.
+  larger radius.  The canonical factor sum now factors two power-series values
+  and equals the formal-derivative value on the diagonal.  Its uniform-limit
+  continuity feeds directly into the division-free kernel, proving that the
+  canonical uniform sum has the canonical formal-derivative sum as its
+  derivative along any closed absolute-radius domain.  A generic
+  closed-radius-to-open-interior adapter now transfers that relative
+  derivative to every explicitly agreeing ambient extension.  The
+  power-series specialization also moves derivative-majorant convergence from
+  an outer radius to an inner one and retains the derived uniform witness for
+  reuse.  A locally uniform function-level interface remains separate.
 
 ## Work log
 
@@ -304,8 +324,9 @@ from the constructors of a particular real-number HIT.
   uniformly positive/negative domains, constructive native bounds and
   bound-free Mertens theorems, exponential coefficient-growth convergence and
   closure laws, exact zero/finite-modification formulas, power-series products,
-  generic majorants, and the uniform formal-derivative/divided-difference
-  foundation.
+  finite-polynomial, rescaling, and geometric bridges, generic majorants,
+  repeated formal derivatives, summed uniform divided differences, and
+  closed-radius/strict-interior termwise differentiation.
 - [ ] Generalize geometric and power-series convergence, extend domain-local
   continuity and calculus algebra,
   integration, and elementary functions in the phases recorded in
