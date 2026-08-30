@@ -193,25 +193,27 @@ from the constructors of a particular real-number HIT.
   bounds support dominated native Cauchy series, absolute-Cauchy convergence,
   and the standard absolute bound on the resulting sum.
 - Finite sums additionally expose extension, splitting, addition, negation,
-  subtraction, scalar and multiplicative distribution, exchange, and
-  telescoping.  Series expose monotonicity and arbitrary summable-majorant
-  bounds.
+  subtraction, scalar and multiplicative distribution, exchange, telescoping,
+  reversal, anti-diagonal sums, and triangular reindexing.  Series expose
+  monotonicity and arbitrary summable-majorant bounds.
 - Geometric series have a division-free finite identity and an explicit
   block/binary decay modulus for every rational `|q| < 1`, yielding native
-  Cauchy witnesses, summability, and the reciprocal sum formula.  Uniform series distinguish a
-  selected point-independent modulus from its propositionally truncated
-  interface.  Uniform convergence of continuous partial sums gives a
-  continuous canonical sum.  A single geometric majorant therefore proves
-  bounded-coefficient power-series convergence and continuity uniformly
-  across a closed rational radius.
+  Cauchy witnesses, summability, and the reciprocal sum formula.  A real ratio
+  dominated by such a rational contraction inherits the same conclusions and
+  reciprocal value.  Uniform series distinguish a selected point-independent
+  modulus from its propositionally truncated interface.  Uniform convergence
+  of continuous partial sums gives a continuous canonical sum.  A single
+  geometric majorant therefore proves bounded-coefficient power-series
+  convergence and continuity uniformly across every closed positive rational
+  radius strictly below one.
 - The first differential-calculus kernel uses a division-free first-order
   remainder.  It supports general premetric parameter spaces, continuous
   reparameterization, and continuous difference-factor proofs; constants and
   identity are differentiable, and derivative values and functions are unique
   without a choice principle.  Addition, negation, subtraction, arbitrary
-  real scaling, and rational scaling preserve derivatives.  Differentiable
-  maps are continuous, and open-predicate subspaces support restriction and
-  pointwise ambient derivative adapters.
+  real scaling, rational scaling, multiplication, and composition preserve
+  derivatives.  Differentiable maps are continuous, and open-predicate
+  subspaces support restriction and pointwise ambient derivative adapters.
 
 ## Work log
 
@@ -253,6 +255,9 @@ from the constructors of a particular real-number HIT.
   closed-radius power-series values, derivative linear algebra and continuity,
   open-subspace derivative adapters, and arbitrary strict-rational geometric
   convergence.
+- [x] Add real geometric convergence under rational contraction bounds,
+  strict-interior rational-radius power-series convergence and continuity,
+  product and chain rules, and convolution-oriented finite-sum reindexing.
 - [ ] Generalize geometric and power-series convergence, extend domain-local
   continuity and calculus algebra,
   integration, and elementary functions in the phases recorded in

@@ -4,3 +4,4 @@ open import Cubical.Analysis.Real.Series.Geometric.Base public
 open import Cubical.Analysis.Real.Series.Geometric.Rational public
 open import Cubical.Analysis.Real.Series.Geometric.SignedRational public
 open import Cubical.Analysis.Real.Series.Geometric.StrictRational public
+open import Cubical.Analysis.Real.Series.Geometric.BoundedReal public

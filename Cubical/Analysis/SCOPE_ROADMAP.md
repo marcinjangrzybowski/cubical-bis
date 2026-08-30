@@ -39,11 +39,11 @@ real-analysis interfaces have stabilized.
 | Naturals and powers | Naturals and rational scalars implemented | Both | Integer embedding and scalar/power compatibility |
 | Polynomials | Horner evaluation, majorants, absolute bounds, local Lipschitz estimates | Both | Derivatives and reusable closed-ball packaging |
 | Ordinary sequences | Limits, eventual equality/order, two asymptotic witness levels, and squeeze theorems | Both | Monotone convergence once supremum infrastructure exists |
-| Finite sums | Witness/limit preservation, algebra, exchange, telescoping, monotonicity, and absolute bound | `CauchyRealsP` | Convolution-specific reindexing |
-| Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, signed rational contractions, and uniform family convergence with continuous limits | Both | Cauchy products and radiuswise/weaker uniform witness variants |
-| Power series | Terms, linear algebra, geometric majorants, uniform closed-radius convergence, and continuity of the canonical value on radii at most one half | `CauchyRealsP` | General strict interiors, products, and termwise differentiation |
+| Finite sums | Witness/limit preservation, algebra, exchange, telescoping, monotonicity, absolute bounds, and convolution-oriented diagonal/triangular reindexing | `CauchyRealsP` | Partition reindexing as demanded by integration |
+| Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, rational contractions, real ratios with rational contraction bounds, and uniform family convergence with continuous limits | Both | Cauchy products and radiuswise/weaker uniform witness variants |
+| Power series | Terms, linear algebra, geometric majorants, uniform convergence, and continuity on every closed positive rational radius below one | `CauchyRealsP` | General coefficient-growth radii, products, and termwise differentiation |
 | Continuity on domains | Complete closed interval/radius retracts plus open half-lines, intervals, and absolute-radius balls | Mostly `CauchyReals` and newer completion reals | Domain maps, products, and pasting |
-| Derivatives | Division-free kernel, uniqueness, linear algebra, continuity consequence, and open-subspace adapters | Both | Product/chain rules, powers, and polynomials |
+| Derivatives | Division-free kernel, uniqueness, linear algebra, product and chain rules, continuity consequence, and open-subspace adapters | Both | Powers, polynomials, reciprocal, and quotient |
 | Integration | Missing | Newer completion reals and parts of `CauchyReals` | Uniform-limit and partition infrastructure first |
 | Elementary functions | Missing | Mostly `CauchyReals` | Exponential/logarithm before trigonometry |
 | Complex analysis | Out of current core scope | `CauchyReals` | Revisit after real elementary analysis |
@@ -185,8 +185,9 @@ no postulates and no carrier conversion.  This condition is met.
 - Finite sums preserving native Cauchy witnesses and limits, with monotonicity
   and a finite triangle inequality.
 
-Further finite-sum reindexing laws should be added only as required by series
-products and integration partitions.
+Anti-diagonal reversal and triangular reindexing are now available for series
+products.  Further finite-sum reindexing laws should be added only as required
+by convolution estimates and integration partitions.
 
 ### Phase 3: series core — substantial baseline complete
 
@@ -195,18 +196,17 @@ term test, tail/drop equivalences, finite-modification correction laws,
 partial-sum distance bounds, sum comparison and domination, and native-witness
 absolute comparison.  The geometric layer proves the division-free
 partial-sum identity and gives an explicit block/binary modulus, summability,
-and the reciprocal value for every rational `|q| < 1`.  A uniform layer lets
-one selected majorant modulus control a whole family.  The remaining
-dependency order is:
+and the reciprocal value for every rational `|q| < 1`.  Real ratios inherit
+these results when supplied with an explicit rational contraction bound.  A
+uniform layer lets one selected majorant modulus control a whole family, and
+the finite-sum layer now supplies the anti-diagonal/triangular reindexing used
+by convolution.  The remaining dependency order is:
 
-1. extend geometric convergence to real ratios equipped with rational
-   contraction bounds;
-2. uniform-limit closure for continuous partial sums is implemented; extend it
+1. uniform-limit closure for continuous partial sums is implemented; extend it
    to reusable radiuswise/weaker uniform witness variants;
-3. comparison tests driven by explicit Cauchy moduli;
-4. finite-sum reindexing needed by convolution;
-5. Cauchy products and convolution under absolute hypotheses; and
-6. general strict-interior power-series convergence.
+2. comparison tests driven by explicit Cauchy moduli;
+3. Cauchy products and convolution under absolute hypotheses; and
+4. coefficient-growth criteria beyond uniformly bounded coefficients.
 
 Do not begin convolution before finite-sum reindexing and absolute bounds are
 available as separate checked modules.
@@ -230,13 +230,13 @@ The kernel now defines a division-free first-order error on a general
 premetric parameter space, provides ambient and pointwise derivatives,
 supports continuous reparameterization and continuous difference factors,
 and proves uniqueness.  Constants and the coordinate/identity function,
-addition, negation, subtraction, and real/rational scaling are checked.
-Differentiability implies continuity, and open-predicate subspaces have
-restriction and pointwise ambient adapters.  Continue in this order:
+addition, negation, subtraction, real/rational scaling, multiplication, and
+composition are checked.  Differentiability implies continuity, and
+open-predicate subspaces have restriction and pointwise ambient adapters.
+Continue in this order:
 
-1. product and chain rules;
-2. powers and polynomials; and
-3. reciprocal, quotient, and rational functions on apart domains.
+1. powers and polynomials; and
+2. reciprocal, quotient, and rational functions on apart domains.
 
 The signed reciprocal derivative should consume an explicit domain proof that
 the denominator stays apart from zero; it should not repeatedly eliminate
@@ -253,10 +253,12 @@ sealed implementation modules should not be copied wholesale.
 ### Phase 7: power series and elementary functions
 
 - Power-series terms, additive/scalar algebra, geometric majorants, and
-  bounded-coefficient absolute and uniform convergence on closed radii at most
-  one half are implemented.  The canonical value is continuous there because
-  its term functions are continuous and the partial sums converge uniformly.
-- Extend convergence and termwise differentiation to general strict interiors.
+  bounded-coefficient absolute and uniform convergence on every closed
+  positive rational radius below one are implemented.  The canonical value is
+  continuous there because its term functions are continuous and the partial
+  sums converge uniformly.
+- Extend convergence to general coefficient-growth radii and prove termwise
+  differentiation on strict interiors.
 - Exponential from a power series, then its algebraic and derivative laws.
 - Logarithm on positive reals using inverse/integration or a controlled local
   series.
@@ -308,14 +310,16 @@ projections and transport endpoints should remain syntactically explicit.
 
 ## Near-term work queue
 
-1. Extend strict-rational geometric convergence to real ratios equipped with
-   rational contraction bounds, without regressing checker time.
-2. Prove product and chain rules, followed by power and polynomial
-   derivatives.
-3. Extend the open-predicate adapters to reciprocal/apart domains.
-4. Generalize uniform convergence to strict-interior power-series radii.
+1. Prove power and polynomial derivatives using the checked product and chain
+   rules.
+2. Extend the open-predicate adapters to reciprocal/apart domains and prove
+   reciprocal and quotient rules.
+3. Add Cauchy products under absolute hypotheses using the checked triangular
+   reindexing layer.
+4. Generalize power-series convergence from bounded coefficients to explicit
+   coefficient-growth/radius hypotheses.
 5. Add the generic domain-map and pasting combinators demanded by calculus.
-6. Add convolution after its remaining finite reindexing laws are isolated.
+6. Generalize uniform convergence to radiuswise/weaker witness interfaces.
 7. Add power-series products and termwise differentiation only after
    convolution and uniform-tail bounds are separately checked.
 

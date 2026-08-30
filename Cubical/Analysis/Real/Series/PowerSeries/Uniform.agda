@@ -58,6 +58,26 @@ powerSeriesUniformlyCauchyByHalfMajorant
       bound radius radius≤half)
 
 
+powerSeriesUniformlyCauchyByStrictMajorant :
+  ∀ bound radius coefficients →
+  CoefficientAbsBound bound coefficients →
+  fst radius ℚ.< 1 →
+  UniformlyCauchySeries
+    (ClosedRationalRadius radius)
+    (powerSeriesOnClosedRadius coefficients radius)
+powerSeriesUniformlyCauchyByStrictMajorant
+    bound radius coefficients coefficients-bounded radius<1 =
+  uniformlyDominatedSeriesIsUniformlyCauchy
+    (powerSeriesOnClosedRadius coefficients radius)
+    (coefficientGeometricMajorant bound radius)
+    (λ point →
+      powerSeriesTermAbsBound
+        bound radius coefficients (fst point)
+        coefficients-bounded (snd point))
+    (coefficientGeometricMajorantIsCauchyByStrictRadius
+      bound radius radius<1)
+
+
 powerSeriesClosedRadiusSummable :
   ∀ bound radius coefficients →
   (coefficients-bounded : CoefficientAbsBound bound coefficients) →
@@ -68,6 +88,19 @@ powerSeriesClosedRadiusSummable
   uniformlyCauchySeriesSummableAt
     (powerSeriesUniformlyCauchyByHalfMajorant
       bound radius coefficients coefficients-bounded radius≤half)
+    point
+
+
+powerSeriesClosedRadiusSummableByStrictMajorant :
+  ∀ bound radius coefficients →
+  (coefficients-bounded : CoefficientAbsBound bound coefficients) →
+  (radius<1 : fst radius ℚ.< 1) →
+  ∀ point → PowerSeriesSummableAt coefficients (fst point)
+powerSeriesClosedRadiusSummableByStrictMajorant
+    bound radius coefficients coefficients-bounded radius<1 point =
+  uniformlyCauchySeriesSummableAt
+    (powerSeriesUniformlyCauchyByStrictMajorant
+      bound radius coefficients coefficients-bounded radius<1)
     point
 
 
@@ -82,6 +115,19 @@ powerSeriesClosedRadiusValue
     (powerSeriesOnClosedRadius coefficients radius)
     (powerSeriesUniformlyCauchyByHalfMajorant
       bound radius coefficients coefficients-bounded radius≤half)
+
+
+powerSeriesClosedRadiusValueByStrictMajorant :
+  ∀ bound radius coefficients →
+  CoefficientAbsBound bound coefficients →
+  fst radius ℚ.< 1 →
+  ClosedRationalRadius radius → ℝ
+powerSeriesClosedRadiusValueByStrictMajorant
+    bound radius coefficients coefficients-bounded radius<1 =
+  uniformSeriesValue
+    (powerSeriesOnClosedRadius coefficients radius)
+    (powerSeriesUniformlyCauchyByStrictMajorant
+      bound radius coefficients coefficients-bounded radius<1)
 
 
 private
@@ -145,4 +191,23 @@ powerSeriesClosedRadiusValueIsContinuous
     (powerSeriesOnClosedRadius coefficients radius)
     (powerSeriesUniformlyCauchyByHalfMajorant
       bound radius coefficients coefficients-bounded radius≤half)
+    (powerSeriesTermOnClosedRadiusIsContinuous coefficients radius)
+
+
+powerSeriesClosedRadiusValueByStrictMajorantIsContinuous :
+  ∀ bound radius coefficients →
+  (coefficients-bounded : CoefficientAbsBound bound coefficients) →
+  (radius<1 : fst radius ℚ.< 1) →
+  isContinuous
+    (ClosedAbsRadiusPremetricSpace (rat (fst radius)) .snd)
+    (powerSeriesClosedRadiusValueByStrictMajorant
+      bound radius coefficients coefficients-bounded radius<1)
+    (ℝPremetricSpace .snd)
+powerSeriesClosedRadiusValueByStrictMajorantIsContinuous
+    bound radius coefficients coefficients-bounded radius<1 =
+  uniformSeriesValueIsContinuous
+    (ClosedAbsRadiusPremetricSpace (rat (fst radius)) .snd)
+    (powerSeriesOnClosedRadius coefficients radius)
+    (powerSeriesUniformlyCauchyByStrictMajorant
+      bound radius coefficients coefficients-bounded radius<1)
     (powerSeriesTermOnClosedRadiusIsContinuous coefficients radius)

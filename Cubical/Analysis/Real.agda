@@ -15,6 +15,7 @@ open import Cubical.Analysis.Real.Sequence.Squeeze public
 open import Cubical.Analysis.Real.FiniteSum public
 open import Cubical.Analysis.Real.FiniteSum.Algebra public
 open import Cubical.Analysis.Real.FiniteSum.Bounds public
+open import Cubical.Analysis.Real.FiniteSum.Reindexing public
 open import Cubical.Analysis.Real.Series public
 open import Cubical.Analysis.Real.Domain public
 open import Cubical.Analysis.Real.Calculus public
