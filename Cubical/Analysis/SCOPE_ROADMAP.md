@@ -40,10 +40,10 @@ real-analysis interfaces have stabilized.
 | Polynomials | Horner evaluation, majorants, absolute bounds, local Lipschitz estimates | Both | Derivatives and reusable closed-ball packaging |
 | Ordinary sequences | Limits, eventual equality/order, two asymptotic witness levels, and squeeze theorems | Both | Monotone convergence once supremum infrastructure exists |
 | Finite sums | Witness/limit preservation, algebra, exchange, telescoping, monotonicity, and absolute bound | `CauchyRealsP` | Convolution-specific reindexing |
-| Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, and rational half-contraction geometric sums | Both | General rational contractions, uniform bounds, and Cauchy products |
-| Power series | Terms, linear algebra, geometric majorants, and bounded-coefficient convergence on radii at most one half | `CauchyRealsP` | General strict interiors, uniformity, and products |
-| Continuity on domains | Closed intervals and absolute-radius balls as complete retract subspaces | Mostly `CauchyReals` and newer completion reals | Open domains, domain maps, products, and pasting |
-| Derivatives | Missing | Both | Definition, uniqueness, algebra, chain rule, polynomials |
+| Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, signed rational half-contractions, and uniform family Cauchy/sum interfaces | Both | General strict contractions, Cauchy products, and uniform-limit closure |
+| Power series | Terms, linear algebra, geometric majorants, bounded-coefficient convergence, and one-modulus uniform convergence on closed radii at most one half | `CauchyRealsP` | General strict interiors, products, and termwise differentiation |
+| Continuity on domains | Closed intervals and absolute-radius balls as complete retract subspaces; open half-lines and intervals as open premetric subspaces | Mostly `CauchyReals` and newer completion reals | Open balls, domain maps, products, and pasting |
+| Derivatives | Division-free local-error definition, reparameterization, factor criterion, constants/identity, and uniqueness | Both | Algebra, chain rule, continuity, and polynomials |
 | Integration | Missing | Newer completion reals and parts of `CauchyReals` | Uniform-limit and partition infrastructure first |
 | Elementary functions | Missing | Mostly `CauchyReals` | Exponential/logarithm before trigonometry |
 | Complex analysis | Out of current core scope | `CauchyReals` | Revisit after real elementary analysis |
@@ -105,6 +105,13 @@ radius-indexed cutoff function.  It maps to the radiuswise relation, is an
 equivalence relation, and preserves and reflects the native `SeqWitness`.
 This makes the exact constructive strength required by witness-producing
 clients explicit instead of hiding a choice step.
+
+The uniform-series layer follows the same discipline.  A
+`ChosenUniformlyCauchySeries` contains one modulus shared by every point of a
+family; its public proposition-valued form merely truncates that datum.  A
+single native Cauchy majorant therefore supplies uniform convergence without
+selecting separate pointwise moduli.  This is the constructive ingredient
+used by bounded-coefficient power series on a closed rational radius.
 
 ### Central ordered-ring bounds
 
@@ -186,14 +193,15 @@ products and integration partitions.
 The base now has partial sums, additive and scalar operations, unique sums, the
 term test, tail/drop equivalences, finite-modification correction laws,
 partial-sum distance bounds, sum comparison and domination, and native-witness
-absolute comparison.  A first geometric layer proves the division-free
+absolute comparison.  The geometric layer proves the division-free
 partial-sum identity and gives an explicit global modulus, summability, and
-the reciprocal value for every rational `0 ≤ q ≤ 1/2`.  The remaining
-dependency order is:
+the reciprocal value for every rational `|q| ≤ 1/2`.  A uniform layer lets one
+selected majorant modulus control a whole family.  The remaining dependency
+order is:
 
-1. extend geometric convergence from nonnegative half-contractions to
-   arbitrary rational `|q| < 1`, then to real ratios with rational bounds;
-2. uniform partial-sum and tail bounds;
+1. extend geometric convergence to arbitrary rational `|q| < 1`, then to real
+   ratios equipped with rational contraction bounds;
+2. uniform-limit closure for continuous families;
 3. comparison tests driven by explicit Cauchy moduli;
 4. finite-sum reindexing needed by convolution;
 5. Cauchy products and convolution under absolute hypotheses; and
@@ -206,7 +214,8 @@ available as separate checked modules.
 
 - Closed intervals, absolute-radius balls, their subspace premetrics,
   non-expanding clamps, and completeness are implemented.
-- Add open intervals and open balls.
+- Open half-lines and intervals, including their openness witnesses, are
+  implemented; add open balls.
 - Continuous and uniformly continuous functions on a domain.
 - Restriction, composition, products, pasting, and uniform-limit closure.
 - Bounded-domain Lipschitz lemmas for powers, polynomials, and reciprocal.
@@ -216,14 +225,17 @@ it should not create real-specific copies of generic structures.
 
 ### Phase 5: differential calculus
 
-Implement a small derivative kernel before specialized functions:
+The kernel now defines a division-free first-order error on a general
+premetric parameter space, provides ambient and pointwise derivatives,
+supports continuous reparameterization and continuous difference factors,
+and proves uniqueness.  Constants and the coordinate/identity function are
+checked.  Continue in this order:
 
-1. derivative at a point and on a domain;
-2. uniqueness from punctured/local control;
-3. constants, identity, addition, negation, and scalar rules;
-4. product and chain rules;
-5. powers and polynomials; and
-6. reciprocal, quotient, and rational functions on apart domains.
+1. addition, negation, subtraction, and scalar rules;
+2. continuity as a consequence of differentiability;
+3. product and chain rules;
+4. powers and polynomials; and
+5. reciprocal, quotient, and rational functions on apart domains.
 
 The signed reciprocal derivative should consume an explicit domain proof that
 the denominator stays apart from zero; it should not repeatedly eliminate
@@ -240,8 +252,8 @@ sealed implementation modules should not be copied wholesale.
 ### Phase 7: power series and elementary functions
 
 - Power-series terms, additive/scalar algebra, geometric majorants, and
-  bounded-coefficient absolute convergence on closed radii at most one half
-  are implemented.
+  bounded-coefficient absolute and uniform convergence on closed radii at most
+  one half are implemented.
 - Extend convergence and termwise differentiation to general strict interiors.
 - Exponential from a power series, then its algebraic and derivative laws.
 - Logarithm on positive reals using inverse/integration or a controlled local
@@ -285,19 +297,26 @@ denominator proof and sum value reduced the completed module to about four
 seconds.  Proof-dependent analytic values should therefore be factored before
 they appear in large dependent statements.
 
+Open-interval openness exposed the same issue at hidden arguments: using the
+abstract `width gap` projection left its implicit real endpoints to inference,
+which unfolded lifted order and addition until the checker occupied roughly
+13.4 GB.  Using `fst gap` and explicitly instantiated generic order transports
+made the finished module check in about 2.8 seconds.  Local witness
+projections and transport endpoints should remain syntactically explicit.
+
 ## Near-term work queue
 
-1. Generalize geometric convergence from `0 ≤ q ≤ 1/2` to rational
-   `|q| < 1` without regressing checker time.
-2. Add uniform partial-sum/tail bounds and strict-interior power-series
-   convergence.
-3. Add open-domain and domain-restricted continuity interfaces on top of the
-   checked complete closed subspaces.
-4. Define the derivative kernel and prove uniqueness.
-5. Prove power and polynomial derivative rules using the checked local bounds.
+1. Generalize geometric convergence from `|q| ≤ 1/2` to rational `|q| < 1`
+   without regressing checker time.
+2. Prove derivative addition, negation, subtraction, and scalar rules on top
+   of the checked kernel.
+3. Add open balls and domain-restricted continuity interfaces.
+4. Prove uniform-limit closure for continuous families, then general
+   strict-interior power-series convergence.
+5. Prove product/chain rules followed by power and polynomial derivatives.
 6. Add convolution after its remaining finite reindexing laws are isolated.
-7. Add power-series products and uniform evaluation only after convolution and
-   uniform-tail bounds are separately checked.
+7. Add power-series products and termwise differentiation only after
+   convolution and uniform-tail bounds are separately checked.
 
 This queue deliberately alternates user-facing theorems with generic support
 work so that no large specialized branch grows on a weak foundation.

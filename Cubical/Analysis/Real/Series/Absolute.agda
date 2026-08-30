@@ -46,30 +46,39 @@ isPropAbsolutelySummable terms =
 -- This comparison deliberately consumes the native Cauchy witness of the
 -- dominating series.  Mere convergence does not choose the global modulus
 -- required by the sequential-completion constructor.
+dominatedChosenCauchySeriesIsChosenCauchy :
+  (terms bound : RealSequence) →
+  (∀ n → absℝ (terms n) ≤ℝ bound n) →
+  ChosenIsCauchySequence (partialSum bound) →
+  ChosenIsCauchySequence (partialSum terms)
+dominatedChosenCauchySeriesIsChosenCauchy
+    terms bound dominates bound-cauchy .fst =
+  fst bound-cauchy
+dominatedChosenCauchySeriesIsChosenCauchy
+    terms bound dominates bound-cauchy .snd
+    ε m n modulus≤m modulus≤n =
+  absDifference<→closeness
+    (partialSum terms m) (partialSum terms n) ε
+    (≤<ℝ-trans
+      (absℝ (partialSum terms m - partialSum terms n))
+      (absℝ (partialSum bound m - partialSum bound n))
+      (rat (fst ε))
+      (partialSumDistanceBoundBy
+        terms bound dominates m n)
+      (closeness→absDifference<
+        (partialSum bound m) (partialSum bound n) ε
+        (snd bound-cauchy ε m n modulus≤m modulus≤n)))
+
+
 dominatedCauchySeriesIsCauchy :
   (terms bound : RealSequence) →
   (∀ n → absℝ (terms n) ≤ℝ bound n) →
   IsCauchySeries bound →
   IsCauchySeries terms
 dominatedCauchySeriesIsCauchy terms bound dominates =
-  PT.map convert
-  where
-  convert :
-    ChosenIsCauchySequence (partialSum bound) →
-    ChosenIsCauchySequence (partialSum terms)
-  convert bound-cauchy .fst = fst bound-cauchy
-  convert bound-cauchy .snd ε m n modulus≤m modulus≤n =
-    absDifference<→closeness
-      (partialSum terms m) (partialSum terms n) ε
-      (≤<ℝ-trans
-        (absℝ (partialSum terms m - partialSum terms n))
-        (absℝ (partialSum bound m - partialSum bound n))
-        (rat (fst ε))
-        (partialSumDistanceBoundBy
-          terms bound dominates m n)
-        (closeness→absDifference<
-          (partialSum bound m) (partialSum bound n) ε
-          (snd bound-cauchy ε m n modulus≤m modulus≤n)))
+  PT.map
+    (dominatedChosenCauchySeriesIsChosenCauchy
+      terms bound dominates)
 
 
 dominatedCauchySeriesIsSummable :

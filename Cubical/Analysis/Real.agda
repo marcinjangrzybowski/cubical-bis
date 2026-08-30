@@ -17,3 +17,4 @@ open import Cubical.Analysis.Real.FiniteSum.Algebra public
 open import Cubical.Analysis.Real.FiniteSum.Bounds public
 open import Cubical.Analysis.Real.Series public
 open import Cubical.Analysis.Real.Domain public
+open import Cubical.Analysis.Real.Calculus public

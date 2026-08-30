@@ -156,7 +156,8 @@ from the constructors of a particular real-number HIT.
 - Closed intervals and closed absolute-radius balls are now inherited
   premetric subspaces with non-expanding inclusions and clamp retractions.
   Both are complete by generic retract completeness; the unit interval is
-  exposed as a specialization.
+  exposed as a specialization.  Open lower/upper half-lines and intervals are
+  inherited subspaces with checked openness witnesses.
 - `Real.Functions.Powers` illustrates compositional analysis: powers and square
   are continuous because multiplication takes continuous pairs to a continuous
   product; no new completion recursion is needed.
@@ -195,11 +196,16 @@ from the constructors of a particular real-number HIT.
   telescoping.  Series expose monotonicity and arbitrary summable-majorant
   bounds.
 - Geometric series have a division-free finite identity and an explicit
-  modulus for every rational `0 ≤ q ≤ 1/2`, yielding native Cauchy witnesses,
-  summability, and the reciprocal sum formula.  Power series now have a term
-  and value API, additive/scalar closure, power/order bounds, geometric
-  majorants, and bounded-coefficient absolute convergence on such closed
-  radii.
+  modulus for every rational `|q| ≤ 1/2`, yielding native Cauchy witnesses,
+  summability, and the reciprocal sum formula.  Uniform series distinguish a
+  selected point-independent modulus from its propositionally truncated
+  interface.  A single geometric majorant now proves bounded-coefficient
+  power-series convergence uniformly across a closed rational radius.
+- The first differential-calculus kernel uses a division-free first-order
+  remainder.  It supports general premetric parameter spaces, continuous
+  reparameterization, and continuous difference-factor proofs; constants and
+  identity are differentiable, and derivative values and functions are
+  unique without a choice principle.
 
 ## Work log
 
@@ -234,8 +240,11 @@ from the constructors of a particular real-number HIT.
   complete closed domains, rational half-contraction geometric series, series
   comparison, and the first bounded-coefficient power-series convergence
   layer.
-- [ ] Generalize geometric and power-series convergence, add domain-local
-  continuity, calculus,
+- [x] Add signed half-contraction geometric series, point-independent uniform
+  series moduli, uniform closed-radius power-series convergence, open
+  intervals, and the definition/basic/uniqueness derivative kernel.
+- [ ] Generalize geometric and power-series convergence, extend domain-local
+  continuity and calculus algebra,
   integration, and elementary functions in the phases recorded in
   `SCOPE_ROADMAP.md`.
 
@@ -278,6 +287,13 @@ from the constructors of a particular real-number HIT.
   one-sided `subst` whose endpoint was explicit removed all metas and restored
   a sub-five-second check.  Proof transports around lifted operations should
   identify their changing endpoint explicitly.
+- The first open-interval proof inherited `width gap`, whose hidden real
+  endpoints were harmless mathematically but disastrous for elaboration:
+  checking reached roughly 13.4 GB without finishing.  Projecting the sigma
+  witness as `fst gap`, pinning both endpoints of order transports, and using
+  small generic transport helpers reduced the complete module to about 2.8
+  seconds.  In dependent quantitative proofs, apparently redundant explicit
+  endpoints are an important performance boundary.
 - No ring/order solver is used anywhere under `Cubical.Analysis`; rational and
   real laws are proved from named algebraic lemmas and dense extensionality.
 - Moving the max-based absolute triangle proof into `Real.Order.AbsoluteValue`
