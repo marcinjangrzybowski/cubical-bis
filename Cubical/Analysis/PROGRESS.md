@@ -206,14 +206,24 @@ from the constructors of a particular real-number HIT.
   geometric majorant therefore proves bounded-coefficient power-series
   convergence and continuity uniformly across every closed positive rational
   radius strictly below one.
+- Cauchy products expose bilinearity, commutativity, unit laws, triangular and
+  rectangular partial-sum identities, an explicit remainder and its absolute
+  majorant.  The quantitative Mertens theorem proves convergence and sum
+  multiplication from native absolute/Cauchy witnesses plus explicit uniform
+  partial-sum bounds, without asserting a choice-producing converse from mere
+  summability.
 - The first differential-calculus kernel uses a division-free first-order
   remainder.  It supports general premetric parameter spaces, continuous
   reparameterization, and continuous difference-factor proofs; constants and
   identity are differentiable, and derivative values and functions are unique
   without a choice principle.  Addition, negation, subtraction, arbitrary
-  real scaling, rational scaling, multiplication, and composition preserve
-  derivatives.  Differentiable maps are continuous, and open-predicate
-  subspaces support restriction and pointwise ambient derivative adapters.
+  real scaling, rational scaling, multiplication, composition, natural powers,
+  Horner polynomials, and finite sums preserve derivatives.  Differentiable
+  maps are continuous, and open-predicate subspaces support restriction and
+  pointwise ambient derivative adapters.  Reciprocal derivatives are checked
+  on explicit positive and negative rationally bounded domains, with transfer
+  to proof-independent inverse values; controlled division by the coordinate
+  has a quotient rule.
 
 ## Work log
 
@@ -258,6 +268,10 @@ from the constructors of a particular real-number HIT.
 - [x] Add real geometric convergence under rational contraction bounds,
   strict-interior rational-radius power-series convergence and continuity,
   product and chain rules, and convolution-oriented finite-sum reindexing.
+- [x] Add natural-power, Horner-polynomial, and finite-sum derivative rules,
+  controlled positive/negative reciprocal and quotient rules, finite
+  Cauchy-product algebra, explicit remainder bounds, and a quantitative
+  Mertens convergence theorem.
 - [ ] Generalize geometric and power-series convergence, extend domain-local
   continuity and calculus algebra,
   integration, and elementary functions in the phases recorded in

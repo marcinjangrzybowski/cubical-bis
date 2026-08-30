@@ -9,4 +9,5 @@ open import Cubical.Analysis.Real.Series.Comparison public
 open import Cubical.Analysis.Real.Series.Absolute public
 open import Cubical.Analysis.Real.Series.Uniform public
 open import Cubical.Analysis.Real.Series.Geometric public
+open import Cubical.Analysis.Real.Series.Product public
 open import Cubical.Analysis.Real.Series.PowerSeries public
