@@ -43,11 +43,17 @@ has cosine zero, because successive differences tend to zero and the nonzero
 rational half-scalar can be cancelled.  Its remaining existence obligation is
 `DampedBishopPiHalfCauchy`.
 
-The cosine-zero characterization implies `sin half * sin half = 1`; positivity
-of that sine is enough to select `sin half = 1`.  A generic positive-quarter-
-turn API then gives phase-shift, half-turn, and full-period identities.  For a
-characterized half-pi these yield the expected values at pi and periodicity at
-twice pi, conditional only on that remaining sine-orientation fact.
+The cosine-zero characterization implies `sin half * sin half = 1`.
+`Orientation.agda` now proves the positive sign from the characterization:
+the derivative of sine at zero makes `sin h` positive for sufficiently small
+positive rational `h`, and
+`cos(half-h) = sin(half) * sin(h)` has a positive left-hand side.
+Thus `characterizedHalfPi-sineOne` proves `sin half = 1`, and
+`characterizedHalfPi-quarterTurn` supplies the quarter-turn structure without
+an additional orientation input. The generic phase-shift, half-turn, and
+full-period identities therefore apply to every characterized half-pi.
+Older APIs accepting `CharacterizedHalfPiSineOne` remain compatible; the
+witness can always be supplied by `characterizedHalfPi-sineOne`.
 
 ## Restricted sine equivalence target
 
@@ -128,6 +134,36 @@ equivalence theorems, including the approximate-IVT and rational-lift routes, to
 `[-pi/2,pi/2]` statement is explicit even before the unconditional half-pi
 construction is available.
 
+## Checked closed-domain inverses
+
+`QuarterTurn/Restriction/Inverse.agda` names the inverse of any restricted-sine
+equivalence as `restrictedArcSin`. It proves both inverse laws, uniqueness,
+and independence from the equivalence proof. Its cosine counterpart uses the
+interval reflection `x ↦ quarter - x` between `[0,2*quarter]` and
+`[-quarter,quarter]`, so `restrictedArcCos y = quarter - restrictedArcSin y`.
+For a positive quarter turn this gives the restricted-cosine equivalence and
+both cosine inverse laws, without a separate cosine-surjectivity assumption.
+
+Both inverses are continuous using the existing radiuswise sine-closeness
+reflection modulus, without selecting a global modulus. Their checked
+endpoint values are `arcsin(-1)=-quarter`, `arcsin(1)=quarter`,
+`arccos(-1)=2*quarter`, and `arccos(1)=0`.
+
+For the pi-specialized interface, supply:
+
+- `construction : CharacterizedHalfPi`;
+- `intermediate : CharacterizedHalfPiSineIntermediateValue construction`.
+
+`characterizedRestrictedSineEquiv` and `characterizedRestrictedCosineEquiv`
+then give the two equivalences. `Inverse.agda` exports `characterizedArcSin`
+and `characterizedArcCos`, their inverse laws and continuity, with no extra
+orientation, injectivity, cosine-IVT, or choice inputs. Their ranges are
+`[-characterizedHalfPi,characterizedHalfPi]` and `[0,characterizedPi]`:
+`characterizedPi-asHalfTurn` identifies the latter endpoint.
+
+These are conditional inverse constructions, not a proof of the remaining
+restricted-sine intermediate-value obligation.
+
 The historical `Cubical/HITs/CauchyReals/ArcSin` development remains a useful
 specification, but its inverse theorem is for open intervals and depends on a
 much larger roots, integration, fundamental-theorem, and arcsine stack.  There
@@ -186,9 +222,9 @@ central analytic obligations.
    derive exact global one-Lipschitz estimates.
 3. Use the damped contraction and geometric-series domination to construct a
    Cauchy witness.
-4. Prove positivity before the limit and positivity of sine at the limit,
-   package `IsFirstPositiveCosineZero`, and only then expose unconditional
-   `halfPiℝ`, `piℝ`, and their periodicity laws.
+4. Prove positivity before the limit and package `IsFirstPositiveCosineZero`;
+   sine orientation now follows from `Orientation.agda`. Only then expose
+   unconditional `halfPiℝ`, `piℝ`, and their periodicity laws.
 5. Finish restricted-sine surjectivity by proving
    `SineQuarterApproximateImageDensity` with finite located bisection, or by
    constructing the stronger `RationalSineInverseConstruction`.  Under the

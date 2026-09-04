@@ -12,10 +12,12 @@ open import Cubical.Analysis.Real.Completeness
 open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
+open import Cubical.Analysis.Real.Algebra.AbsoluteValue
 open import Cubical.Analysis.Real.Algebra.Multiplication.Laws
 open import Cubical.Analysis.Real.Algebra.Lattice
 open import Cubical.Analysis.Real.Order.Base
 open import Cubical.Analysis.Real.Order.Addition
+open import Cubical.Analysis.Real.Order.AbsoluteValue
 open import Cubical.Analysis.Real.Order.Lattice
 
 open import Cubical.Relation.Premetric.Base
@@ -41,6 +43,17 @@ ClosedInterval a b =
 isSetClosedInterval : ∀ a b → isSet (ClosedInterval a b)
 isSetClosedInterval a b =
   isSetΣSndProp isSetℝ (isPropClosedIntervalMembership a b)
+
+
+symmetricIntervalFromAbsBound : ∀ radius x →
+  absℝ x ≤ℝ radius → ClosedInterval (- radius) radius
+symmetricIntervalFromAbsBound radius x bounded =
+  x
+  , subst ((- radius) ≤ℝ_) (negInvol x)
+      (negPres≤ (- x) radius
+        (≤ℝ-trans (- x) (absℝ x) radius (negLeAbs x) bounded))
+  , ≤ℝ-trans x (absℝ x) radius (leAbs x) bounded
+
 
 ClosedIntervalPremetricSpace :
   ℝ → ℝ → PremetricSpace ℓ-zero ℓ-zero

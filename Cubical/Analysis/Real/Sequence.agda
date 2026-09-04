@@ -58,6 +58,15 @@ SequenceLimit = ℝTheory.limitSeq
 isPropSequenceLimit : ∀ x → isProp (SequenceLimit x)
 isPropSequenceLimit = ℝTheory.isPropLimitSeq
 
+opaque
+  limitSequenceUnique : (sequence : ℕ → ℝ) (left right : ℝ) →
+    isLimitSequence sequence left →
+    isLimitSequence sequence right → left ≡ right
+  limitSequenceUnique sequence left right left-limit right-limit =
+    cong fst
+      (isPropSequenceLimit sequence
+        (left , left-limit) (right , right-limit))
+
 sequenceLimit : ∀ x → SeqWitness x → SequenceLimit x
 sequenceLimit x gx = lim x gx , lim-isLimitSeq x gx
 
@@ -108,6 +117,18 @@ continuousPreservesIsLimitSequence f f-cont =
   C→seqContinuous
     {M = ℝPremetricSpace} {N = ℝPremetricSpace}
     (f , f-cont) _ _
+
+
+-- An opaque boundary for limits of maps with expensive continuity witnesses
+-- (for example completed power series).
+opaque
+  continuousRealMapPreservesLimit :
+    (function : ℝ → ℝ) →
+    isContinuous
+      (ℝPremetricSpace .snd) function (ℝPremetricSpace .snd) →
+    ∀ {sequence limit} → isLimitSequence sequence limit →
+    isLimitSequence (function ∘ sequence) (function limit)
+  continuousRealMapPreservesLimit = continuousPreservesIsLimitSequence
 
 
 continuousBinaryPreservesIsLimitSequence :
@@ -177,6 +198,22 @@ shiftReflectsIsLimitSequence : ∀ k x l →
   isLimitSequence (shiftSequence k x) l →
   isLimitSequence x l
 shiftReflectsIsLimitSequence = ℝTheory.shiftReflectsIsLimitSeq
+
+
+opaque
+  convergentSuccessiveDifferences→zero :
+    (sequence : ℕ → ℝ) (limit : ℝ) →
+    isLimitSequence sequence limit →
+    isLimitSequence
+      (λ n → shiftSequence 1 sequence n - sequence n) 0ℝ
+  convergentSuccessiveDifferences→zero sequence limit sequence→limit =
+    subst
+      (isLimitSequence
+        (λ n → shiftSequence 1 sequence n - sequence n))
+      (subSelf limit)
+      (subPresIsLimitSequence
+        (shiftPresIsLimitSequence 1 sequence limit sequence→limit)
+        sequence→limit)
 
 
 negSeqWitness : ∀ {x} → SeqWitness x → SeqWitness (-_ ∘ x)

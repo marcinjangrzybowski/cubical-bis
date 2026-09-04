@@ -28,6 +28,37 @@ CharacterizedHalfPiSineIntermediateValue construction =
   SineQuarterIntermediateValue (fst construction)
 
 
+-- The characterization supplies both orientation and strict monotonicity.
+-- Only the intermediate-value obligation remains for the equivalence.
+characterizedRestrictedSine-isEquiv :
+  (construction : CharacterizedHalfPi) →
+  CharacterizedHalfPiSineIntermediateValue construction →
+  isEquiv (restrictedSine (fst construction))
+characterizedRestrictedSine-isEquiv construction intermediate =
+  restrictedSine-isEquivFromIntermediateValue
+    (fst construction) (characterizedHalfPi-quarterTurn construction)
+    (snd construction) intermediate
+
+
+characterizedRestrictedSineEquiv :
+  (construction : CharacterizedHalfPi) →
+  CharacterizedHalfPiSineIntermediateValue construction →
+  SineQuarterInterval (fst construction) ≃ SineUnitInterval
+characterizedRestrictedSineEquiv construction intermediate =
+  restrictedSine (fst construction)
+  , characterizedRestrictedSine-isEquiv construction intermediate
+
+
+characterizedRestrictedCosineEquiv :
+  (construction : CharacterizedHalfPi) →
+  CharacterizedHalfPiSineIntermediateValue construction →
+  CosineHalfInterval (fst construction) ≃ SineUnitInterval
+characterizedRestrictedCosineEquiv construction intermediate =
+  restrictedCosineEquivFromSine (fst construction)
+    (characterizedHalfPi-quarterTurn construction)
+    (characterizedRestrictedSine-isEquiv construction intermediate)
+
+
 CharacterizedHalfPiSineApproximateIntermediateValue :
   CharacterizedHalfPi → Type₀
 CharacterizedHalfPiSineApproximateIntermediateValue construction =
@@ -101,8 +132,9 @@ characterizedRestrictedSineEquivFromBoundaries :
   SineQuarterInterval (fst construction) ≃ SineUnitInterval
 characterizedRestrictedSineEquivFromBoundaries
     construction strictly-increasing intermediate =
-  restrictedSineEquivFromStrictIncreaseAndIntermediateValue
-    (fst construction) strictly-increasing intermediate
+  restrictedSine (fst construction)
+  , characterizedRestrictedSine-isEquivFromBoundaries
+    construction strictly-increasing intermediate
 
 
 characterizedRestrictedSine-isEmbedding :
@@ -137,11 +169,9 @@ characterizedRestrictedSineEquivFromIntermediateValue :
   SineQuarterInterval (fst construction) ≃ SineUnitInterval
 characterizedRestrictedSineEquivFromIntermediateValue
     construction sine-one intermediate =
-  restrictedSineEquivFromIntermediateValue
-    (fst construction)
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    intermediate
+  restrictedSine (fst construction)
+  , characterizedRestrictedSine-isEquivFromIntermediateValue
+    construction sine-one intermediate
 
 
 characterizedRestrictedSine-isEquivFromApproximateIntermediateValue :
@@ -165,11 +195,9 @@ characterizedRestrictedSineEquivFromApproximateIntermediateValue :
   SineQuarterInterval (fst construction) ≃ SineUnitInterval
 characterizedRestrictedSineEquivFromApproximateIntermediateValue
     construction sine-one approximate =
-  restrictedSineEquivFromApproximateIntermediateValue
-    (fst construction)
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    approximate
+  restrictedSine (fst construction)
+  , characterizedRestrictedSine-isEquivFromApproximateIntermediateValue
+    construction sine-one approximate
 
 
 characterizedRestrictedSine-isEquivFromImageApproximateIntermediateValue :
@@ -196,12 +224,9 @@ characterizedRestrictedSineEquivFromImageApproximateIntermediateValue :
   SineQuarterInterval (fst construction) ≃ SineUnitInterval
 characterizedRestrictedSineEquivFromImageApproximateIntermediateValue
     choice construction sine-one image-approximation =
-  restrictedSineEquivFromImageApproximateIntermediateValue
-    (fst construction)
-    choice
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    image-approximation
+  restrictedSine (fst construction)
+  , characterizedRestrictedSine-isEquivFromImageApproximateIntermediateValue
+    choice construction sine-one image-approximation
 
 
 characterizedRestrictedSine-isEquivFromApproximateImageDensity :
@@ -228,12 +253,9 @@ characterizedRestrictedSineEquivFromApproximateImageDensity :
   SineQuarterInterval (fst construction) ≃ SineUnitInterval
 characterizedRestrictedSineEquivFromApproximateImageDensity
     choice construction sine-one density =
-  restrictedSineEquivFromApproximateImageDensity
-    (fst construction)
-    choice
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    density
+  restrictedSine (fst construction)
+  , characterizedRestrictedSine-isEquivFromApproximateImageDensity
+    choice construction sine-one density
 
 
 characterizedRestrictedSine-isEquivFromRationalInverse :
@@ -257,11 +279,9 @@ characterizedRestrictedSineEquivFromRationalInverse :
   SineQuarterInterval (fst construction) ≃ SineUnitInterval
 characterizedRestrictedSineEquivFromRationalInverse
     construction sine-one inverse-data =
-  restrictedSineEquivFromRationalInverse
-    (fst construction)
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    inverse-data
+  restrictedSine (fst construction)
+  , characterizedRestrictedSine-isEquivFromRationalInverse
+    construction sine-one inverse-data
 
 
 characterizedRestrictedSine-isEquivFromRationalConstruction :
@@ -289,11 +309,9 @@ characterizedRestrictedSineEquivFromRationalConstruction :
   SineQuarterInterval (fst construction) ≃ SineUnitInterval
 characterizedRestrictedSineEquivFromRationalConstruction
     construction sine-one modulus inverse-construction =
-  restrictedSineEquivFromRationalConstruction
-    (fst construction)
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    modulus inverse-construction
+  restrictedSine (fst construction)
+  , characterizedRestrictedSine-isEquivFromRationalConstruction
+    construction sine-one modulus inverse-construction
 
 
 characterizedRestrictedSine-isEquivFromRationalConstructionWithPositiveRationalChoice :
@@ -320,12 +338,9 @@ characterizedRestrictedSineEquivFromRationalConstructionWithPositiveRationalChoi
   SineQuarterInterval (fst construction) ≃ SineUnitInterval
 characterizedRestrictedSineEquivFromRationalConstructionWithPositiveRationalChoice
     choice construction sine-one inverse-construction =
-  restrictedSineEquivFromRationalConstructionWithPositiveRationalChoice
-    (fst construction)
-    choice
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    inverse-construction
+  restrictedSine (fst construction)
+  , characterizedRestrictedSine-isEquivFromRationalConstructionWithPositiveRationalChoice
+    choice construction sine-one inverse-construction
 
 
 characterizedRestrictedSine-isEquivFromRationalApproximationFamily :
@@ -368,12 +383,9 @@ characterizedRestrictedSineEquivFromRationalApproximationFamily :
   SineQuarterInterval (fst construction) ≃ SineUnitInterval
 characterizedRestrictedSineEquivFromRationalApproximationFamily
     choice construction sine-one approximations =
-  restrictedSineEquivFromRationalApproximationFamily
-    (fst construction)
-    choice
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    approximations
+  restrictedSine (fst construction)
+  , characterizedRestrictedSine-isEquivFromRationalApproximationFamily
+    choice construction sine-one approximations
 
 
 characterizedRestrictedSine-isEquivFromRationalPointApproximationFamily :

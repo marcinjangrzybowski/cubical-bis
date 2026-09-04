@@ -71,32 +71,8 @@ opaque
   restrictedSine : ∀ quarter →
     SineQuarterInterval quarter → SineUnitInterval
   restrictedSine quarter point =
-    sinℝ (fst point) , lower-bound , upper-bound
-    where
-    absolute-bound : absℝ (sinℝ (fst point)) ≤ℝ 1ℝ
-    absolute-bound = sinℝ-abs≤one (fst point)
-
-    upper-bound : sinℝ (fst point) ≤ℝ 1ℝ
-    upper-bound =
-      ≤ℝ-trans
-        (sinℝ (fst point))
-        (absℝ (sinℝ (fst point)))
-        1ℝ
-        (leAbs (sinℝ (fst point)))
-        absolute-bound
-
-    lower-bound : (- 1ℝ) ≤ℝ sinℝ (fst point)
-    lower-bound =
-      subst ((- 1ℝ) ≤ℝ_)
-        (negInvol (sinℝ (fst point)))
-        (negPres≤
-          (- sinℝ (fst point)) 1ℝ
-          (≤ℝ-trans
-            (- sinℝ (fst point))
-            (absℝ (sinℝ (fst point)))
-            1ℝ
-            (negLeAbs (sinℝ (fst point)))
-            absolute-bound))
+    symmetricIntervalFromAbsBound 1ℝ (sinℝ (fst point))
+      (sinℝ-abs≤one (fst point))
 
 
   restrictedSine-value : ∀ quarter point →

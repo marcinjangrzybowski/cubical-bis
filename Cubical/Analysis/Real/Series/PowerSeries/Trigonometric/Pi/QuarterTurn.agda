@@ -20,11 +20,12 @@ open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Definition
 open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Consequences
+open import
+  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Orientation
 
 
--- The cosine-zero characterization already gives `sin² = 1`.  Selecting the
--- positive sign is the one remaining orientation fact needed by the purely
--- algebraic quarter-turn/periodicity layer.
+-- Kept for compatibility with callers that supply an orientation witness.
+-- `characterizedHalfPi-sineOne` now derives it from the characterization.
 
 CharacterizedHalfPiSineOne :
   CharacterizedHalfPi → Type₀
@@ -46,6 +47,14 @@ characterizedHalfPi-positiveQuarterTurn :
 characterizedHalfPi-positiveQuarterTurn construction sine-one =
   firstPositiveCosineZero-zero (snd construction)
   , sine-one
+
+
+characterizedHalfPi-quarterTurn :
+  (construction : CharacterizedHalfPi) →
+  IsPositiveQuarterTurn (fst construction)
+characterizedHalfPi-quarterTurn construction =
+  characterizedHalfPi-positiveQuarterTurn construction
+    (characterizedHalfPi-sineOne construction)
 
 
 characterizedHalfPi-positiveSine→positiveQuarterTurn :

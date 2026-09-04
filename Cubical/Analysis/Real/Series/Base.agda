@@ -256,38 +256,7 @@ summableTermsTendToZero : ∀ terms →
 summableTermsTendToZero terms summable =
   subst
     (λ sequence → isLimitSequence sequence 0ℝ)
-    difference≡terms
-    difference→zero
-  where
-  sum : ℝ
-  sum = seriesSum terms summable
-
-  partialSums : RealSequence
-  partialSums = partialSum terms
-
-  differenceSequence : RealSequence
-  differenceSequence n =
-    partialSums (suc n) - partialSums n
-
-  shifted-partial-sums-limit :
-    isLimitSequence (shiftSequence 1 partialSums) sum
-  shifted-partial-sums-limit =
-    shiftPresIsLimitSequence 1 partialSums sum
-      (seriesSumHasSum terms summable)
-
-  difference→selfDifference :
-    isLimitSequence differenceSequence (sum - sum)
-  difference→selfDifference =
-    subPresIsLimitSequence
-      shifted-partial-sums-limit
-      (seriesSumHasSum terms summable)
-
-  difference→zero :
-    isLimitSequence differenceSequence 0ℝ
-  difference→zero =
-    subst (isLimitSequence differenceSequence)
-      (subSelf sum) difference→selfDifference
-
-  difference≡terms : differenceSequence ≡ terms
-  difference≡terms =
-    funExt (partialSumDifference terms)
+    (funExt (partialSumDifference terms))
+    (convergentSuccessiveDifferences→zero
+      (partialSum terms) (seriesSum terms summable)
+      (seriesSumHasSum terms summable))
