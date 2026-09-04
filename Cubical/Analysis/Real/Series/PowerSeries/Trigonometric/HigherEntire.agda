@@ -143,49 +143,33 @@ sineEntireHigherDerivativeValue-addFour : ∀ order x →
   sineEntireHigherDerivativeValue (4 ℕ.+ order) x ≡
   sineEntireHigherDerivativeValue order x
 sineEntireHigherDerivativeValue-addFour order x =
-  seriesSumPresPath
-    (powerSeriesTerms
-      (repeatedFormalDerivative (4 ℕ.+ order) sineCoefficients) x)
-    (powerSeriesTerms
-      (repeatedFormalDerivative order sineCoefficients) x)
-    (cong
-      (λ coefficients → powerSeriesTerms coefficients x)
-      (repeatedFormalDerivative-sine-addFour order))
-    (entirePowerSeriesSummableAt
-      (repeatedFormalDerivative (4 ℕ.+ order) sineCoefficients)
-      (entireRepeatedFormalDerivativeUniform
-        sineCoefficients
-        sinePowerSeriesEntireRepeatedFormalDerivativesUniformlyCauchy
-        (4 ℕ.+ order)) x)
-    (entirePowerSeriesSummableAt
-      (repeatedFormalDerivative order sineCoefficients)
-      (entireRepeatedFormalDerivativeUniform
-        sineCoefficients
-        sinePowerSeriesEntireRepeatedFormalDerivativesUniformlyCauchy
-        order) x)
+  entirePowerSeriesValuePresPath
+    (repeatedFormalDerivative (4 ℕ.+ order) sineCoefficients)
+    (repeatedFormalDerivative order sineCoefficients)
+    (repeatedFormalDerivative-sine-addFour order)
+    (entireRepeatedFormalDerivativeUniform
+      sineCoefficients
+      sinePowerSeriesEntireRepeatedFormalDerivativesUniformlyCauchy
+      (4 ℕ.+ order))
+    (entireRepeatedFormalDerivativeUniform
+      sineCoefficients
+      sinePowerSeriesEntireRepeatedFormalDerivativesUniformlyCauchy
+      order) x
 
 
 cosineEntireHigherDerivativeValue-addFour : ∀ order x →
   cosineEntireHigherDerivativeValue (4 ℕ.+ order) x ≡
   cosineEntireHigherDerivativeValue order x
 cosineEntireHigherDerivativeValue-addFour order x =
-  seriesSumPresPath
-    (powerSeriesTerms
-      (repeatedFormalDerivative (4 ℕ.+ order) cosineCoefficients) x)
-    (powerSeriesTerms
-      (repeatedFormalDerivative order cosineCoefficients) x)
-    (cong
-      (λ coefficients → powerSeriesTerms coefficients x)
-      (repeatedFormalDerivative-cosine-addFour order))
-    (entirePowerSeriesSummableAt
-      (repeatedFormalDerivative (4 ℕ.+ order) cosineCoefficients)
-      (entireRepeatedFormalDerivativeUniform
-        cosineCoefficients
-        cosinePowerSeriesEntireRepeatedFormalDerivativesUniformlyCauchy
-        (4 ℕ.+ order)) x)
-    (entirePowerSeriesSummableAt
-      (repeatedFormalDerivative order cosineCoefficients)
-      (entireRepeatedFormalDerivativeUniform
-        cosineCoefficients
-        cosinePowerSeriesEntireRepeatedFormalDerivativesUniformlyCauchy
-        order) x)
+  entirePowerSeriesValuePresPath
+    (repeatedFormalDerivative (4 ℕ.+ order) cosineCoefficients)
+    (repeatedFormalDerivative order cosineCoefficients)
+    (repeatedFormalDerivative-cosine-addFour order)
+    (entireRepeatedFormalDerivativeUniform
+      cosineCoefficients
+      cosinePowerSeriesEntireRepeatedFormalDerivativesUniformlyCauchy
+      (4 ℕ.+ order))
+    (entireRepeatedFormalDerivativeUniform
+      cosineCoefficients
+      cosinePowerSeriesEntireRepeatedFormalDerivativesUniformlyCauchy
+      order) x

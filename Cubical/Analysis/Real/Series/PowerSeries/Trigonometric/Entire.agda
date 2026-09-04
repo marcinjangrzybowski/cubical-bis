@@ -151,17 +151,11 @@ cosℝ-agreesWithSineFormalDerivative : ∀ x →
     (formalDerivative sineCoefficients)
     sineFormalDerivativePowerSeriesEntireUniformlyCauchy x
 cosℝ-agreesWithSineFormalDerivative x =
-  seriesSumPresPath
-    (powerSeriesTerms cosineCoefficients x)
-    (powerSeriesTerms (formalDerivative sineCoefficients) x)
-    (cong
-      (λ coefficients → powerSeriesTerms coefficients x)
-      (sym formalDerivative-sineCoefficients))
-    (entirePowerSeriesSummableAt
-      cosineCoefficients cosinePowerSeriesEntireUniformlyCauchy x)
-    (entirePowerSeriesSummableAt
-      (formalDerivative sineCoefficients)
-      sineFormalDerivativePowerSeriesEntireUniformlyCauchy x)
+  entirePowerSeriesValuePresPath
+    cosineCoefficients (formalDerivative sineCoefficients)
+    (sym formalDerivative-sineCoefficients)
+    cosinePowerSeriesEntireUniformlyCauchy
+    sineFormalDerivativePowerSeriesEntireUniformlyCauchy x
 
 
 cosℝ-agreesWithSineLocalDerivative : ∀ x →

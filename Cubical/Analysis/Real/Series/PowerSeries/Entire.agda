@@ -102,6 +102,23 @@ entirePowerSeriesValueIndependent coefficients first second x =
     (entirePowerSeriesSummableAt coefficients second x)
 
 
+-- Equal coefficients give equal values even when convergence was proved
+-- independently.  Keep the witness transport inside series-sum uniqueness.
+entirePowerSeriesValuePresPath : ∀ a b →
+  a ≡ b →
+  (a-uniform : EntirePowerSeriesUniformlyCauchy a) →
+  (b-uniform : EntirePowerSeriesUniformlyCauchy b) →
+  ∀ x →
+  entirePowerSeriesValue a a-uniform x ≡
+  entirePowerSeriesValue b b-uniform x
+entirePowerSeriesValuePresPath a b a≡b a-uniform b-uniform x =
+  seriesSumPresPath
+    (powerSeriesTerms a x) (powerSeriesTerms b x)
+    (cong (λ coefficients → powerSeriesTerms coefficients x) a≡b)
+    (entirePowerSeriesSummableAt a a-uniform x)
+    (entirePowerSeriesSummableAt b b-uniform x)
+
+
 entirePowerSeriesValue-agreesOnClosedRadius :
   ∀ coefficients
     (entire-uniform :

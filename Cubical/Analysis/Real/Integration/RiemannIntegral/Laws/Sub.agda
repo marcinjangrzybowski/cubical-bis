@@ -11,13 +11,22 @@ open import Cubical.Analysis.Real.Integration.RiemannIntegral.Laws.Add
 open import Cubical.Analysis.Real.Integration.RiemannIntegral.Laws.Neg
 
 
+subHasRiemannIntegral : ∀ {a b} (f g : ℝ → ℝ) value value' →
+  HasRiemannIntegralOn f a b value →
+  HasRiemannIntegralOn g a b value' →
+  HasRiemannIntegralOn (λ x → f x - g x) a b (value - value')
+subHasRiemannIntegral f g value value' hasValue hasValue' =
+  addHasRiemannIntegral f (λ x → - g x) value (- value')
+    hasValue (negHasRiemannIntegral g value' hasValue')
+
+
 subIsRiemannIntegrable : ∀ {a b} (f g : ℝ → ℝ) →
   IsRiemannIntegrableOn f a b →
   IsRiemannIntegrableOn g a b →
   IsRiemannIntegrableOn (λ x → f x - g x) a b
-subIsRiemannIntegrable f g f-integrable g-integrable =
-  addIsRiemannIntegrable f (λ x → - g x)
-    f-integrable (negIsRiemannIntegrable g g-integrable)
+subIsRiemannIntegrable f g (value , hasValue) (value' , hasValue') =
+  value - value'
+  , subHasRiemannIntegral f g value value' hasValue hasValue'
 
 
 integral-sub : ∀ {a b} (f g : ℝ → ℝ)

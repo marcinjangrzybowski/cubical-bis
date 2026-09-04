@@ -18,8 +18,6 @@ open import Cubical.Analysis.Real.Algebra.AbsoluteValue
 open import Cubical.Analysis.Real.Algebra.Multiplication
 open import Cubical.Analysis.Real.Algebra.CommRing
 open import Cubical.Analysis.Real.Order.Base
-open import Cubical.Analysis.Real.Order.AbsoluteValue
-open import Cubical.Analysis.Real.Order.Multiplication
 open import Cubical.Analysis.Real.Order.Metric.AbsoluteDifference
 open import Cubical.Analysis.Real.Order.Strict.Properties using (<ℝ-weaken)
 open import Cubical.Analysis.Real.FiniteSum.Algebra
@@ -58,14 +56,10 @@ riemannSumResamplingAbsBound {a} {b}
   tagged sample f error pointwise =
   subst2 _≤ℝ_
     (cong absℝ differencePath)
-    totalBoundPath
-    (≤ℝ-trans
-      (absℝ (∑ differenceTerms))
-      (∑ (λ i → absℝ (differenceTerms i)))
-      (∑ errorTerms)
-      (finiteSumAbsBound differenceTerms)
-      (finiteSumMono
-        (λ i → absℝ (differenceTerms i)) errorTerms termBound))
+    (cong (_· error) (totalWidth partition))
+    (finiteSumWeightedAbsBound
+      (width partition) (λ i → f (tags i) - f (newTags i)) error
+      (width-nonnegative partition) pointwise)
   where
   partition = TaggedPartition.partition tagged
   tags = TaggedPartition.tags tagged
@@ -74,9 +68,6 @@ riemannSumResamplingAbsBound {a} {b}
   differenceTerms : FinVec ℝ (Partition.intervalCount partition)
   differenceTerms i =
     width partition i · (f (tags i) - f (newTags i))
-
-  errorTerms : FinVec ℝ (Partition.intervalCount partition)
-  errorTerms i = width partition i · error
 
   differencePath :
     ∑ differenceTerms ≡
@@ -88,27 +79,6 @@ riemannSumResamplingAbsBound {a} {b}
     ∙ finiteSumSub
       (λ i → width partition i · f (tags i))
       (λ i → width partition i · f (newTags i))
-
-  termBound : ∀ i → absℝ (differenceTerms i) ≤ℝ errorTerms i
-  termBound i =
-    subst (_≤ℝ errorTerms i)
-      (sym
-        (absMul
-          (width partition i) (f (tags i) - f (newTags i))
-        ∙ cong (_· absℝ (f (tags i) - f (newTags i)))
-            (absOfNonnegative
-              (width partition i) (width-nonnegative partition i))))
-      (mulPres≤L
-        (absℝ (f (tags i) - f (newTags i)))
-        error (width partition i)
-        (0≤→isNonnegative
-          (width partition i) (width-nonnegative partition i))
-        (pointwise i))
-
-  totalBoundPath : ∑ errorTerms ≡ (b - a) · error
-  totalBoundPath =
-    sym (finiteSumMulRight error (width partition))
-    ∙ cong (_· error) (totalWidth partition)
 
 
 riemannSumResamplingCloseBound : ∀ {a b}

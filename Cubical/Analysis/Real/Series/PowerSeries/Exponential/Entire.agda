@@ -106,24 +106,15 @@ exponentialEntireHigherDerivativeValue-fixedPoint : ∀ order x →
   exponentialEntireHigherDerivativeValue order x
     ≡ exponentialEntireValue x
 exponentialEntireHigherDerivativeValue-fixedPoint order x =
-  seriesSumPresPath
-    (powerSeriesTerms
-      (repeatedFormalDerivative order exponentialCoefficients) x)
-    (powerSeriesTerms exponentialCoefficients x)
-    (cong
-      (λ coefficients → powerSeriesTerms coefficients x)
-      (repeatedFormalDerivative-exponentialCoefficients order))
-    (entirePowerSeriesSummableAt
-      (repeatedFormalDerivative order exponentialCoefficients)
-      (entireRepeatedFormalDerivativeUniform
-        exponentialCoefficients
-        exponentialPowerSeriesEntireRepeatedFormalDerivativesUniformlyCauchy
-        order)
-      x)
-    (entirePowerSeriesSummableAt
+  entirePowerSeriesValuePresPath
+    (repeatedFormalDerivative order exponentialCoefficients)
+    exponentialCoefficients
+    (repeatedFormalDerivative-exponentialCoefficients order)
+    (entireRepeatedFormalDerivativeUniform
       exponentialCoefficients
-      exponentialPowerSeriesEntireUniformlyCauchy
-      x)
+      exponentialPowerSeriesEntireRepeatedFormalDerivativesUniformlyCauchy
+      order)
+    exponentialPowerSeriesEntireUniformlyCauchy x
 
 
 exponentialEntireHigherDerivativeLocalSuccessorValue :

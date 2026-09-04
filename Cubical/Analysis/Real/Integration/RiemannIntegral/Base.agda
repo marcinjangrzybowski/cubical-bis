@@ -3,16 +3,13 @@ module Cubical.Analysis.Real.Integration.RiemannIntegral.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
+open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Nat.Order as ℕ
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
-open PositiveRationals
-open PositiveHalvesℚ using (_/2₊)
-open 1/2∈ℚ using (/2+/2≡id)
-
-open import Cubical.Relation.Premetric.Base using (PremetricStr)
+open PositiveRationals using (ℚ₊)
 
 open import Cubical.Analysis.Real.Base
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
@@ -20,14 +17,11 @@ open import Cubical.Analysis.Real.Algebra.AbsoluteValue
 open import Cubical.Analysis.Real.Order.Base
 open import Cubical.Analysis.Real.Order.Strict.Base
 open import Cubical.Analysis.Real.Order.Metric.AbsoluteDifference
+open import Cubical.Analysis.Real.Sequence
 open import Cubical.Analysis.Real.Integration.Partition
 open import Cubical.Analysis.Real.Integration.Partition.Mesh
 open import Cubical.Analysis.Real.Integration.Partition.Equal.Dyadic
 open import Cubical.Analysis.Real.Integration.RiemannSum.Algebra
-
-
-private
-  module Pℝ = PremetricStr (ℝPremetricSpace .snd)
 
 
 HasRiemannIntegralOn : (ℝ → ℝ) → ℝ → ℝ → ℝ → Type₀
@@ -54,6 +48,26 @@ integral : ∀ {f a b} → IsRiemannIntegrableOn f a b → ℝ
 integral = fst
 
 
+-- Every sequence of tagged partitions with vanishing mesh computes the same
+-- integral, independently of how its partitions and tags were chosen.
+riemannSumsConverge : ∀ {a b} (f : ℝ → ℝ) value
+  (partitions : ℕ → TaggedPartition[ a , b ]) →
+  HasVanishingMesh partitions →
+  HasRiemannIntegralOn f a b value →
+  isLimitSequence (λ n → riemannSum (partitions n) f) value
+riemannSumsConverge f value partitions vanishing hasValue ε =
+  PT.rec squash₁
+    (λ { (δ , closeToValue) →
+      PT.map
+        (λ { (N , fineTail) →
+          N , λ n N≤n →
+            absDifference<→closeness
+              (riemannSum (partitions n) f) value ε
+              (closeToValue (partitions n) (fineTail n N≤n)) })
+        (vanishing δ) })
+    (hasValue ε)
+
+
 fineTaggedPartition : ∀ a b → a ≤ℝ b →
   ∀ δ →
   ∃[ tagged ∈ TaggedPartition[ a , b ] ]
@@ -71,30 +85,13 @@ riemannIntegralUnique : ∀ a b → a ≤ℝ b → ∀ f value value' →
   HasRiemannIntegralOn f a b value' →
   value ≡ value'
 riemannIntegralUnique a b a≤b f value value' hasValue hasValue' =
-  eqℝ value value' λ ε →
-    PT.rec2 (Pℝ.isProp≈ value value' ε)
-      (λ { (δ , closeToValue) (δ' , closeToValue') →
-        PT.rec (Pℝ.isProp≈ value value' ε)
-          (λ { (tagged , fine) →
-            Pℝ.subst≈ value value' (/2+/2≡id (fst ε))
-              (triangle∼ value (riemannSum tagged f) value'
-                (ε /2₊) (ε /2₊)
-                (sym∼ (riemannSum tagged f) value (ε /2₊)
-                  (absDifference<→closeness
-                    (riemannSum tagged f) value (ε /2₊)
-                    (closeToValue tagged
-                      (meshBelowMonotone
-                        (TaggedPartition.partition tagged)
-                        (min₊ δ δ') δ (min₊≤L δ δ') fine))))
-                (absDifference<→closeness
-                  (riemannSum tagged f) value' (ε /2₊)
-                  (closeToValue' tagged
-                    (meshBelowMonotone
-                      (TaggedPartition.partition tagged)
-                      (min₊ δ δ') δ' (min₊≤R δ δ') fine)))) })
-          (fineTaggedPartition a b a≤b (min₊ δ δ')) })
-      (hasValue (ε /2₊))
-      (hasValue' (ε /2₊))
+  cong fst
+    (isPropSequenceLimit (λ n → riemannSum (partitions n) f)
+      (value , riemannSumsConverge f value partitions vanishing hasValue)
+      (value' , riemannSumsConverge f value' partitions vanishing hasValue'))
+  where
+  partitions = dyadicLeftTaggedPartition a b a≤b
+  vanishing = dyadicLeftTaggedPartitionsHaveVanishingMesh a b a≤b
 
 
 isPropIsRiemannIntegrableOn : ∀ a b → a ≤ℝ b → ∀ f →

@@ -16,3 +16,4 @@ open import Cubical.Analysis.Real.Integration.RiemannIntegral.Laws.Add public
 open import Cubical.Analysis.Real.Integration.RiemannIntegral.Laws.Neg public
 open import Cubical.Analysis.Real.Integration.RiemannIntegral.Laws.Sub public
 open import Cubical.Analysis.Real.Integration.RiemannIntegral.Laws.Scale public
+open import Cubical.Analysis.Real.Integration.FundamentalTheorem.IntegralBound public

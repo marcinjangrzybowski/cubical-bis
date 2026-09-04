@@ -594,6 +594,32 @@ from the constructors of a particular real-number HIT.
   convenience theorem was removed and the proof-independent sum equation is
   the exported boundary.
 
+## Refactoring and verification
+
+- `Real.Series.PowerSeries.Entire.entirePowerSeriesValuePresPath` identifies
+  values of equal coefficient sequences with independently supplied convergence
+  witnesses.  Exponential fixed-point and trigonometric derivative-periodicity
+  proofs now use this common theorem.
+- `Real.FiniteSum.Bounds` exposes pointwise and nonnegative-weighted absolute
+  bounds.  Riemann resampling, integral bounds, and the uniform mean-value
+  estimate reuse these finite-sum proofs.
+- `Real.Integration.RiemannIntegral.Base.riemannSumsConverge` connects an
+  integral to any tagged partition sequence with vanishing mesh.  Uniqueness
+  and the integral absolute bound now use existing sequence-limit theorems.
+  `Integration` exports the absolute bound, and subtraction has both a
+  `HasRiemannIntegralOn` theorem and an integrability wrapper.
+- The uniform derivative predicate explicitly quantifies over positive
+  rational error radii.  Its partition proof reconstructs the difference from
+  the remainder in the correct direction, using a small local estimate.
+- Trigonometric subtraction states the argument as `x + (- y)`, definitionally
+  equal to `x - y`, to match the addition theorem without unfolding entire
+  series values.  Generic local algebra lemmas shorten the displacement
+  expansions.
+- Run `agda-codex Cubical/Analysis/Everything.agda` to check both the public
+  facade and the additional mean-value and trigonometric estimate modules.
+  New developments that are not reachable from `Real` should be imported by
+  this check entry point.
+
 ## Open technical questions
 
 - Which completion-centred maps admit automatically generated image witnesses

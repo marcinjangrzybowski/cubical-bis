@@ -3,7 +3,6 @@ module Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Estimates.Addition
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.Ring
 import Cubical.Algebra.Ring.Properties as RingProperties
 
 open import Cubical.Analysis.Real.Base
@@ -30,14 +29,35 @@ private
     ∙ cong (x +_) (addInvL y)
     ∙ addIdR x
 
+  -- Prove the algebra with real variables before substituting series values.
+  -- This keeps type checking from expanding the trigonometric definitions.
+  opaque
+    addMulSub : ∀ a b c → (a + b · c) - c ≡ a + (b - 1ℝ) · c
+    addMulSub a b c =
+      sym (addAssoc a (b · c) (- c))
+      ∙ cong (a +_)
+          (cong (λ z → b · c - z) (sym (mulIdL c))
+          ∙ sym (ℝRing.·DistL- b 1ℝ c))
+
+    subMulSub : ∀ a b c → (a · b - c) - b ≡ (a - 1ℝ) · b - c
+    subMulSub a b c =
+      sym (addAssoc (a · b) (- c) (- b))
+      ∙ cong (a · b +_) (addComm (- c) (- b))
+      ∙ addAssoc (a · b) (- b) (- c)
+      ∙ cong (_+ (- c))
+          (cong (λ z → a · b - z) (sym (mulIdL b))
+          ∙ sym (ℝRing.·DistL- a 1ℝ b))
+
 
 -- Subtraction formulas are immediate consequences of the total addition
 -- laws and parity.  Keeping them named avoids repeating ring normalization
 -- in later estimates.
+-- Spell x - y as x + (- y) under sinℝ and cosℝ to match the addition
+-- theorem syntactically without expanding the completed series values.
 
 opaque
   sinℝ-sub : ∀ x y →
-    sinℝ (x - y)
+    sinℝ (x + (- y))
       ≡
     (sinℝ x · cosℝ y) - (cosℝ x · sinℝ y)
   sinℝ-sub x y =
@@ -50,7 +70,7 @@ opaque
 
 
   cosℝ-sub : ∀ x y →
-    cosℝ (x - y)
+    cosℝ (x + (- y))
       ≡
     (cosℝ x · cosℝ y) + (sinℝ x · sinℝ y)
   cosℝ-sub x y =
@@ -76,18 +96,8 @@ opaque
     cong (λ z → z - sinℝ x)
       (cong sinℝ (sym (subAddCancel y x))
         ∙ sinℝ-add (y - x) x)
-    ∙ sym
-        (addAssoc
-          (sinℝ (y - x) · cosℝ x)
-          (cosℝ (y - x) · sinℝ x)
-          (- sinℝ x))
-    ∙ cong (sinℝ (y - x) · cosℝ x +_)
-        (cong
-          (λ z → (cosℝ (y - x) · sinℝ x) - z)
-          (sym (mulIdL (sinℝ x)))
-        ∙ sym
-          (ℝRing.·DistL-
-            (cosℝ (y - x)) 1ℝ (sinℝ x)))
+    ∙ addMulSub
+        (sinℝ (y - x) · cosℝ x) (cosℝ (y - x)) (sinℝ x)
 
 
   cosℝ-difference-expansion : ∀ x y →
@@ -99,24 +109,5 @@ opaque
     cong (λ z → z - cosℝ x)
       (cong cosℝ (sym (subAddCancel y x))
         ∙ cosℝ-add (y - x) x)
-    ∙ sym
-        (addAssoc
-          (cosℝ (y - x) · cosℝ x)
-          (- (sinℝ (y - x) · sinℝ x))
-          (- cosℝ x))
-    ∙ cong (cosℝ (y - x) · cosℝ x +_)
-        (addComm
-          (- (sinℝ (y - x) · sinℝ x))
-          (- cosℝ x))
-    ∙ addAssoc
-        (cosℝ (y - x) · cosℝ x)
-        (- cosℝ x)
-        (- (sinℝ (y - x) · sinℝ x))
-    ∙ cong
-        (_+ (- (sinℝ (y - x) · sinℝ x)))
-        (cong
-          (λ z → (cosℝ (y - x) · cosℝ x) - z)
-          (sym (mulIdL (cosℝ x)))
-        ∙ sym
-          (ℝRing.·DistL-
-            (cosℝ (y - x)) 1ℝ (cosℝ x)))
+    ∙ subMulSub
+        (cosℝ (y - x)) (cosℝ x) (sinℝ (y - x) · sinℝ x)

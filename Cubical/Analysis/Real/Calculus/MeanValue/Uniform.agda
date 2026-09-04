@@ -54,7 +54,7 @@ open ℝSum using (∑)
 IsRadiuswiseUniformDerivative :
   (function derivative : ℝ → ℝ) → Type₀
 IsRadiuswiseUniformDerivative function derivative =
-  ∀ ε →
+  ∀ (ε : ℚ₊) →
     ∃[ δ ∈ ℚ₊ ]
       (∀ x y →
         x ∼[ δ ] y →
@@ -83,26 +83,35 @@ radiuswiseUniformDerivative→derivative
 
 
 private
-  derivativeErrorReconstructsDifference : ∀ function derivative x y →
-    ((function y - function x) - derivative x · (y - x)) +
-        derivative x · (y - x)
-      ≡
-    function y - function x
-  derivativeErrorReconstructsDifference function derivative x y =
-    sym (addAssoc
-      (function y - function x)
-      (- (derivative x · (y - x)))
-      (derivative x · (y - x)))
-    ∙ cong ((function y - function x) +_)
-        (addInvL (derivative x · (y - x)))
-    ∙ addIdR (function y - function x)
+  -- Bound a difference by its linear part and its remainder before
+  -- substituting the partition-dependent expressions.
+  differenceBoundFromRemainder : ∀ difference linear errorBound linearBound →
+    absℝ (difference - linear) ≤ℝ errorBound →
+    absℝ linear ≤ℝ linearBound →
+    absℝ difference ≤ℝ errorBound + linearBound
+  differenceBoundFromRemainder difference linear errorBound linearBound
+      error≤bound linear≤bound =
+    subst (_≤ℝ errorBound + linearBound)
+      (cong absℝ
+        (sym (addAssoc difference (- linear) linear)
+        ∙ cong (difference +_) (addInvL linear)
+        ∙ addIdR difference))
+      (≤ℝ-trans
+        (absℝ ((difference - linear) + linear))
+        (absℝ (difference - linear) + absℝ linear)
+        (errorBound + linearBound)
+        (absTriangle (difference - linear) linear)
+        (addPres≤
+          (absℝ (difference - linear)) errorBound
+          (absℝ linear) linearBound error≤bound linear≤bound))
 
 
 -- A fine partition turns the uniform first-order estimate into a global
 -- endpoint bound.  This is the telescoping core of the mean-value
 -- inequality and is independent of any integration existence theorem.
 
-uniformDerivativePartitionBound : ∀ function derivative ε δ →
+uniformDerivativePartitionBound :
+  ∀ (function derivative : ℝ → ℝ) (ε δ : ℚ₊) →
   (∀ x y →
     x ∼[ δ ] y →
     absℝ
@@ -123,12 +132,7 @@ uniformDerivativePartitionBound
   subst2 _≤ℝ_
     (cong absℝ endpoint-difference-path)
     total-bound-path
-    ( ≤ℝ-trans
-      (absℝ (∑ differences))
-      (∑ (absℝ ∘ differences))
-      (∑ bounds)
-      (finiteSumAbsBound differences)
-      (finiteSumMono (absℝ ∘ differences) bounds term-bound))
+    (finiteSumAbsBoundBy differences bounds term-bound)
   where
   open Partition partition
 
@@ -176,52 +180,27 @@ uniformDerivativePartitionBound
 
   term-bound : ∀ i → absℝ (differences i) ≤ℝ bounds i
   term-bound i =
-    subst2 _≤ℝ_
-      (cong absℝ
-        (sym
-          (derivativeErrorReconstructsDifference
-            function derivative
-            (points (FD.weakenFin i))
-            (points (FD.suc i)))))
+    subst (absℝ (differences i) ≤ℝ_)
       (sym
         (mulDistL (rat (fst ε)) bound (width partition i)))
-      (≤ℝ-trans
-        (absℝ
-          (((differences i) -
-              derivative (points (FD.weakenFin i)) · width partition i)
-            + derivative (points (FD.weakenFin i)) · width partition i))
-        (absℝ
-            ((differences i) -
-              derivative (points (FD.weakenFin i)) · width partition i)
-          + absℝ
-              (derivative (points (FD.weakenFin i)) · width partition i))
-        (rat (fst ε) · width partition i +
-          bound · width partition i)
-        (absTriangle
-          ((differences i) -
-            derivative (points (FD.weakenFin i)) · width partition i)
-          (derivative (points (FD.weakenFin i)) · width partition i))
-        (addPres≤
+      (differenceBoundFromRemainder
+        (differences i)
+        (derivative (points (FD.weakenFin i)) · width partition i)
+        (rat (fst ε) · width partition i)
+        (bound · width partition i)
+        (subst
           (absℝ
-            ((differences i) -
-              derivative (points (FD.weakenFin i)) · width partition i))
-          (rat (fst ε) · width partition i)
-          (absℝ
-            (derivative (points (FD.weakenFin i)) · width partition i))
-          (bound · width partition i)
-          (subst
-            (absℝ
-                ((differences i) -
-                  derivative (points (FD.weakenFin i)) · width partition i)
-              ≤ℝ_)
-            (cong (rat (fst ε) ·_)
-              (absOfNonnegative
-                (width partition i) (width-nonnegative partition i)))
-            (remainder-bound
-              (points (FD.weakenFin i))
-              (points (FD.suc i))
-              (point-close i)))
-          (linear-bound i)))
+              (differences i -
+                derivative (points (FD.weakenFin i)) · width partition i)
+            ≤ℝ_)
+          (cong (rat (fst ε) ·_)
+            (absOfNonnegative
+              (width partition i) (width-nonnegative partition i)))
+          (remainder-bound
+            (points (FD.weakenFin i))
+            (points (FD.suc i))
+            (point-close i)))
+        (linear-bound i))
 
   endpoint-difference-path : ∑ differences ≡ function b - function a
   endpoint-difference-path =
