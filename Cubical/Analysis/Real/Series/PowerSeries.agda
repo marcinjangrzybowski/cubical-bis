@@ -57,6 +57,10 @@ open import Cubical.Analysis.Real.Series.PowerSeries.Difference.Derivative publi
 open import Cubical.Analysis.Real.Series.PowerSeries.Interior public
 open import Cubical.Analysis.Real.Series.PowerSeries.Entire public
 open import Cubical.Analysis.Real.Series.PowerSeries.Entire.HigherDerivative public
+open import Cubical.Analysis.Real.Series.PowerSeries.Exponential.Archimedean public
+open import Cubical.Analysis.Real.Series.PowerSeries.Exponential.Calculus public
+open import Cubical.Analysis.Real.Series.PowerSeries.Exponential.Entire public
+open import Cubical.Analysis.Real.Series.PowerSeries.Trigonometric public
 open import Cubical.Analysis.Real.Series.PowerSeries.Product public
 open import Cubical.Analysis.Real.Series.PowerSeries.Product.Convergence public
 open import Cubical.Analysis.Real.Series.PowerSeries.Product.Native public

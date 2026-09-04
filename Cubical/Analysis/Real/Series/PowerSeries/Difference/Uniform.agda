@@ -97,6 +97,25 @@ PowerSeriesDifferenceFactorUniformlyCauchyOnRadius
       coefficients radius)
 
 
+powerSeriesDifferenceFactorUniformlyCauchyOnSmallerRadius :
+  ∀ coefficients radius larger →
+  radius ≤ℝ larger →
+  PowerSeriesDifferenceFactorUniformlyCauchyOnRadius
+    coefficients larger →
+  PowerSeriesDifferenceFactorUniformlyCauchyOnRadius
+    coefficients radius
+powerSeriesDifferenceFactorUniformlyCauchyOnSmallerRadius
+    coefficients radius larger radius≤larger uniform =
+  uniformlyCauchySeriesPrecompose
+    (powerSeriesDifferenceFactorOnClosedRadius coefficients larger)
+    (λ point →
+      fst (closedAbsRadiusMonotoneNE radius larger radius≤larger)
+        (fst point)
+      , fst (closedAbsRadiusMonotoneNE radius larger radius≤larger)
+          (snd point))
+    uniform
+
+
 powerSeriesDifferenceFactorTermOnClosedRadiusIsContinuous :
   ∀ coefficients radius n →
   isContinuous

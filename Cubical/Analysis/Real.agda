@@ -17,5 +17,7 @@ open import Cubical.Analysis.Real.FiniteSum.Algebra public
 open import Cubical.Analysis.Real.FiniteSum.Bounds public
 open import Cubical.Analysis.Real.FiniteSum.Reindexing public
 open import Cubical.Analysis.Real.Series public
+open import Cubical.Analysis.Real.Trigonometry public
 open import Cubical.Analysis.Real.Domain public
 open import Cubical.Analysis.Real.Calculus public
+open import Cubical.Analysis.Real.Integration public hiding (width)

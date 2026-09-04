@@ -11,6 +11,7 @@ import Cubical.Data.Rationals.Base as ℚ
 import Cubical.Data.Rationals.Properties as ℚ
 
 open import Cubical.Analysis.Real.Base
+open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.Multiplication
@@ -65,6 +66,16 @@ formalDerivative-scale c coefficients =
       ∙ sym
           (mulAssoc
             c (realNatural (suc n)) (coefficients (suc n))))
+
+
+formalDerivative-neg : ∀ coefficients →
+  formalDerivative (λ n → - coefficients n)
+    ≡ (λ n → - formalDerivative coefficients n)
+formalDerivative-neg coefficients =
+  funExt
+    (λ n →
+      ℝRing.-DistR·
+        (realNatural (suc n)) (coefficients (suc n)))
 
 
 formalDerivative-rationalScale : ∀ c coefficients →

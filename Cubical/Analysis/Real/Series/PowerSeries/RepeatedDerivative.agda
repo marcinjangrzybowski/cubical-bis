@@ -8,6 +8,7 @@ import Cubical.Data.Nat as Nat
 import Cubical.Data.Nat.Properties as NatProperties
 
 open import Cubical.Analysis.Real.Base
+open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditionLaws using (0ℝ)
 open import Cubical.Analysis.Real.Algebra.Multiplication
@@ -60,6 +61,17 @@ repeatedFormalDerivative-scale (suc order) scalar coefficients =
   cong formalDerivative
     (repeatedFormalDerivative-scale order scalar coefficients)
   ∙ formalDerivative-scale scalar
+      (repeatedFormalDerivative order coefficients)
+
+
+repeatedFormalDerivative-neg : ∀ order coefficients →
+  repeatedFormalDerivative order (λ n → - coefficients n) ≡
+  (λ n → - repeatedFormalDerivative order coefficients n)
+repeatedFormalDerivative-neg zero coefficients = refl
+repeatedFormalDerivative-neg (suc order) coefficients =
+  cong formalDerivative
+    (repeatedFormalDerivative-neg order coefficients)
+  ∙ formalDerivative-neg
       (repeatedFormalDerivative order coefficients)
 
 

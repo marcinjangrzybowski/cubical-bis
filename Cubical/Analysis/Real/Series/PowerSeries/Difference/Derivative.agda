@@ -37,6 +37,19 @@ PowerSeriesUniformlyCauchyOnRadius coefficients radius =
     (powerSeriesTermsOnClosedRadius coefficients radius)
 
 
+powerSeriesUniformlyCauchyOnSmallerRadius :
+  ∀ coefficients radius larger →
+  radius ≤ℝ larger →
+  PowerSeriesUniformlyCauchyOnRadius coefficients larger →
+  PowerSeriesUniformlyCauchyOnRadius coefficients radius
+powerSeriesUniformlyCauchyOnSmallerRadius
+    coefficients radius larger radius≤larger uniform =
+  uniformlyCauchySeriesPrecompose
+    (powerSeriesTermsOnClosedRadius coefficients larger)
+    (fst (closedAbsRadiusMonotoneNE radius larger radius≤larger))
+    uniform
+
+
 powerSeriesUniformValueOnClosedRadius :
   ∀ coefficients radius →
   PowerSeriesUniformlyCauchyOnRadius coefficients radius →

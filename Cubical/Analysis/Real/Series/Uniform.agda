@@ -58,6 +58,23 @@ isPropUniformlyCauchySeries : ∀ {ℓ} (A : Type ℓ) terms →
 isPropUniformlyCauchySeries A terms = squash₁
 
 
+-- Uniform convergence restricts along an arbitrary map of parameter spaces.
+-- The selected modulus is unchanged; only the point supplied to its estimate
+-- is reindexed.  This is useful when an Archimedean argument embeds a closed
+-- domain into a larger rationally bounded one.
+uniformlyCauchySeriesPrecompose :
+  ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+    (terms : A → RealSequence) (mapping : B → A) →
+  UniformlyCauchySeries A terms →
+  UniformlyCauchySeries B (terms ∘ mapping)
+uniformlyCauchySeriesPrecompose terms mapping =
+  PT.map λ where
+    (modulus , close) →
+      modulus
+      , λ point ε m n modulus≤m modulus≤n →
+          close (mapping point) ε m n modulus≤m modulus≤n
+
+
 UniformHasSum : ∀ {ℓ} {A : Type ℓ} →
   (A → RealSequence) → (A → ℝ) → Type ℓ
 UniformHasSum terms value =

@@ -303,8 +303,108 @@ from the constructors of a particular real-number HIT.
   on every closed positive rational radius below two.  The parameterized bound
   `1/n! ≤ B^B·(1/B)^n` is now checked as well, yielding the same convergence
   APIs on every explicit rational radius below a supplied positive natural
-  `B`.  Only the Archimedean packaging from arbitrary real radii into that
-  explicit interface remains for a global entire exponential value.
+  `B`.  Archimedean restriction now turns this into uniform convergence on
+  every real closed radius.  The divided-difference factors and all repeated
+  formal derivatives inherit the same entire package, giving a global
+  exponential value whose every finite derivative is again that value,
+  paired with the canonical local derivative evidence.
+- Sine and cosine now have exact rational factorial coefficient sequences.
+  Their absolute coefficients are majorized by the exponential sequence, so
+  both series, their formal derivatives, and their divided-difference factors
+  converge uniformly on every real closed radius.  Formal differentiation
+  gives `D sin = cos`, `D cos = -sin`, and four-step coefficient cycles.  The
+  global values `sinℝ` and `cosℝ` have the expected values at zero, global
+  derivatives, continuity, odd/even identities, and second-order equations
+  `sinℝ'' = -sinℝ` and `cosℝ'' = -cosℝ`.  Every finite formal derivative
+  also has entire uniform and divided-difference convergence evidence.  Their
+  absolute values are bounded by the global exponential at `|x|`.  Exact
+  coefficient Cauchy products and native Mertens convergence prove the
+  Pythagorean identity `sinℝ x · sinℝ x + cosℝ x · cosℝ x = 1`.  Solver-free
+  sign algebra, divided-power/binomial identities, finite anti-diagonal
+  reindexing, and native Mertens products also give the total sine and cosine
+  addition formulas and their sine/cosine double-angle corollaries.  Located
+  order and strict multiplication reflect the
+  component square bounds to the sharp global estimates `|sinℝ x| ≤ 1` and
+  `|cosℝ x| ≤ 1`.  Tangent and secant are now defined on the constructive
+  subspace carrying evidence that cosine is apart from zero.  Their values are
+  proof-irrelevant, respect negation with the expected odd/even laws, have the
+  expected values at zero, and satisfy `tanℝ = sinℝ · secℝ`,
+  `1 + tanℝ² = secℝ²`, and `secℝ² - tanℝ² = 1`.
+  A pair whose sum also has cosine apart from zero now has a derived gap
+  for `1 - tanℝ x · tanℝ y`; on this exact domain the cleared and
+  quotient tangent and secant addition laws are available.  Conversely, an
+  apart tangent denominator constructs the sum-domain point, yielding the
+  tangent double-angle specialization under the sharp local denominator
+  condition.
+- `Real.Series.PowerSeries.Trigonometric.Pi` now states the constructive
+  characterization of half-pi as the first positive cosine zero, proves that
+  it implies the least nonnegative cosine-zero property, and proves
+  uniqueness; the sigma type of characterized values is itself a proposition.
+  The Bishop iteration from the HIT Cauchy-real development and the preferred
+  damped half-step variant are identified with partial sums of their
+  increments.  Their Cauchy witnesses remain explicit existence targets, and
+  every resulting limit is proved to be a cosine zero.  Four-term power-series
+  blocks establish `1 - x²/2 ≤ cos x`, hence `1/2 ≤ cos x` and strict
+  cosine positivity on `[0,1]`.  Cosine zero implies sine-square one, while
+  sine positivity selects the positive sign.  The resulting generic
+  quarter-turn layer proves phase shifts, the values and shifts at a
+  half-turn, and full-turn periodicity; these specialize conditionally to the
+  characterized pi value.  Sine is now packaged as a continuous map from the
+  closed symmetric quarter interval to `[-1,1]`; both intervals are complete
+  and the endpoint values are checked.  The midpoint/half-difference identity
+  `sin y - sin x = 2 cos((x+y)/2) sin((y-x)/2)`, symmetric cosine positivity,
+  and positivity of the half-difference sine now prove strict increase on the
+  whole quarter interval.  Consequently the restricted map is injective and
+  an embedding without taking monotonicity as an extra hypothesis.
+  Quantitative factor bounds now give an ordered sine-separation modulus and
+  a converse metric modulus: sufficiently close sine values force the source
+  points to be close.  A propositionally truncated intermediate-value
+  statement is equivalent to surjectivity.  It is also equivalent to a new
+  completion-compatible approximate formulation consisting of interval
+  points with one native Cauchy witness whose sine values converge to the
+  target.  Completeness, preservation of interval bounds, continuity of sine,
+  and uniqueness of limits turn such an approximation into an exact
+  preimage; this approximate statement now feeds the requested equivalence
+  directly.  A second, Bishop-style route now reduces the same result to a
+  rational-target construction.  `RationalSineInverseConstruction` asks for
+  a map from rationals to quarter-interval points satisfying the exact
+  clamped sine equation.  A chosen closeness-reflection modulus proves this
+  rational graph Cauchy-continuous; sequential completion then extends it to
+  all real targets, preserves its interval range, and proves
+  `sin (G y) = clamp y`.  The bundled and merely bundled modulus variants feed
+  the restricted-sine equivalence directly.  Positive-rational choice is now
+  exposed explicitly and has two checked uses: it assembles the pointwise
+  truncated inverse moduli and turns radiuswise convergent tails into the
+  native `SeqWitness` expected by sequential completion.  Consequently an
+  image-only approximation needs no source-side Cauchy proof.  The boundary
+  has been reduced further to `SineQuarterApproximateImageDensity`: for every
+  target and positive rational tolerance, independently produce a merely
+  existing interval point whose sine is within that tolerance.  Choice samples
+  these witnesses at dyadic tolerances, closeness reflection reconstructs the
+  source Cauchy witness, and the checked completion chain proves the restricted
+  sine equivalence.  Rational approximation-family variants, including a
+  direct adapter for the strict rational sequences used by
+  `HITs/CauchyReals` bisection, feed the same chain.  Thus the remaining
+  choice-conditional interval work is the finite located-search/approximate-
+  density lemma.  Its first reusable pieces are checked: the slack bracket
+  predicate, strict slack-band inequalities, endpoint bracket inequalities,
+  midpoint containment, and the truncated overlapping midpoint comparison.
+  No coherent bisection sequence or bundled inverse modulus is left to
+  construct.  No unconditional `piℝ` is exported before convergence and
+  positivity-before-the-limit are constructed.
+- `Real.Integration` now exposes finite and tagged partitions, endpoint and
+  monotonicity data, widths and telescoping total width, left/right sampling,
+  mesh predicates, and quantitative resampling bounds.  Equal and dyadic
+  partitions have exact widths and checked vanishing mesh.  Riemann sums have
+  congruence, constant, additive, negative, subtractive, and arbitrary-real
+  scaling laws.  Binary recursive dyadic sums expose midpoint-width and
+  algebraic laws plus an oscillation-controlled refinement estimate.  A
+  Riemann integral is defined by convergence over every sufficiently fine
+  tagged partition; its value is unique, integrability is proposition-valued,
+  and constants, addition, negation, subtraction, and scaling preserve
+  integrability with exact value laws.  The remaining existence step is to
+  turn the recursive refinement estimate into a Cauchy theorem for
+  radiuswise uniformly continuous integrands and connect it to tagged sums.
 
 ## Work log
 
@@ -364,9 +464,47 @@ from the constructors of a particular real-number HIT.
   higher derivatives, selected absolute-Cauchy product closure, unconditional
   iterated-geometric reciprocal powers, and factorial-majorized exponential
   convergence on arbitrary explicitly natural-bounded rational radii.
-- [ ] Generalize geometric and power-series convergence, extend domain-local
-  continuity and calculus algebra,
-  integration, and elementary functions in the phases recorded in
+- [x] Add the integration foundation: finite/tagged and equal/dyadic
+  partitions, vanishing mesh, Riemann-sum algebra and resampling bounds, the
+  unique mesh-limit integral, its constant/additive/negative/subtractive/
+  scaling laws, and recursive dyadic refinement bounds.
+- [x] Add the first trigonometric tranche: exact sine/cosine coefficients,
+  entire convergence, formal derivative cycles, global values and
+  derivatives, continuity, odd/even laws, exponential absolute bounds, and
+  entire higher-derivative convergence with second-derivative equations, plus
+  the Pythagorean/addition/double-angle identities and sharp global bounds by
+  one, plus partial tangent/secant values and their basic parity,
+  cancellation, zero, and Pythagorean laws, constructive tangent/secant
+  addition formulas, and the tangent double-angle specialization.
+- [x] Add the constructive pi foundation: first-positive-cosine-zero and least
+  nonnegative-zero characterizations with uniqueness, Bishop's recursive
+  approximation and partial-sum equation, the explicit Cauchy/limit boundary,
+  and the conditional theorem that every limit candidate is a cosine zero.
+- [x] Add the damped Bishop recurrence and conditional cosine-zero limit
+  theorem, prove the quadratic and half-unit cosine lower bounds on `[0,1]`,
+  and derive conditional quarter-turn, half-turn, and periodicity laws from a
+  characterized half-pi.
+- [x] Package sine on the closed symmetric quarter interval, prove its
+  continuity, endpoint values, and interval completeness, reduce injectivity
+  to strict increase and surjectivity exactly to a truncated intermediate-
+  value statement, and check the symmetric-cosine and midpoint geometry used
+  by the constructive strict-monotonicity proof.
+- [x] Prove the product-to-sum difference identity, positivity of both factors,
+  strict monotonicity of sine on the closed quarter interval, and hence
+  injectivity and embedding of the restricted map.
+- [ ] Prove `SineQuarterApproximateImageDensity`, for example by finite located
+  bisection with slack comparisons.  Under the now-explicit
+  `PositiveRationalChoice₀`, independent approximate preimages at each
+  tolerance are enough: the checked dyadic sampling, reflection, completion,
+  and rational-lift bridges feed the characterized `[-pi/2,pi/2]` sine
+  equivalence directly.
+- [ ] Prove the signed endpoint/Lipschitz estimates needed for the damped
+  Bishop contraction; then construct the Cauchy witness, positivity before the
+  limit, and unconditional `halfPiℝ`/`piℝ`.
+- [ ] Prove dyadic-refinement convergence and integrability for radiuswise
+  uniformly continuous functions; then generalize geometric and power-series
+  convergence, extend domain-local continuity and calculus algebra, and add
+  uniform-limit integration and elementary functions in the phases recorded in
   `SCOPE_ROADMAP.md`.
 
 ## Computational behavior
@@ -417,6 +555,11 @@ from the constructors of a particular real-number HIT.
   endpoints are an important performance boundary.
 - No ring/order solver is used anywhere under `Cubical.Analysis`; rational and
   real laws are proved from named algebraic lemmas and dense extensionality.
+- Proof-bearing records for partitions caused the checker to expand the real
+  order implementation.  Nested dependent pairs retain the same data while
+  keeping focused partition checks near the usual few-second range.  In the
+  equal-partition proofs, explicitly typed endpoints and named rational-ring
+  identities similarly avoid large unconstrained comparison metas.
 - Moving the max-based absolute triangle proof into `Real.Order.AbsoluteValue`
   removed duplicate proof terms from both polynomial-bound modules and gives
   finite sums and series one shared ordered-ring estimate.
@@ -462,7 +605,9 @@ from the constructors of a particular real-number HIT.
   `isLimitSequence` has radiuswise truncated tails.  A convergent sequence does
   not automatically regain a native witness without an additional choice
   step.  The series API therefore treats `Summable` as primary and exposes
-  only the sound native-Cauchy-to-summable direction.
+  only the sound native-Cauchy-to-summable direction.  Trigonometric inverse
+  construction now provides the converse locally under the explicit
+  `PositiveRationalChoice₀` hypothesis; no global choice axiom is installed.
 - Multiplication's completion-centred construction knows enough to preserve
   suitable Cauchy graphs, but its cheapest reusable binary witness interface
   is not yet exposed.  This should be solved generically before polynomial or

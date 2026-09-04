@@ -1,6 +1,6 @@
 # Scope roadmap for `Cubical.Analysis`
 
-Date: 2026-08-30
+Date: 2026-09-01
 
 Status: living implementation plan.  This document compares the sequential
 Analysis development with `Cubical.HITs.CauchyReals`,
@@ -41,11 +41,11 @@ real-analysis interfaces have stabilized.
 | Ordinary sequences | Limits, eventual equality/order, two asymptotic witness levels, and squeeze theorems | Both | Monotone convergence once supremum infrastructure exists |
 | Finite sums | Witness/limit preservation, algebra, exchange, telescoping, monotonicity, absolute bounds, and convolution-oriented diagonal/triangular reindexing | `CauchyRealsP` | Partition reindexing as demanded by integration |
 | Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, rational/real contraction results, uniform family convergence, constructive native-Cauchy bounds, selected absolute-product closure, and bound-free Mertens products | Both | Radiuswise/weaker uniform witness variants and modulus-driven tests |
-| Power series | Terms, finite-polynomial/rescaling/geometric laws, zero/finite-modification laws, coefficient growth, exact products, repeated formal derivatives, radiuswise entire values, uniform closed-radius convergence/continuity, and closed-radius/strict-interior termwise differentiation | `CauchyRealsP` | Elementary-series convergence and locally uniform higher derivatives |
+| Power series | Terms, finite-polynomial/rescaling/geometric laws, zero/finite-modification laws, coefficient growth, exact products, repeated formal derivatives, radiuswise entire values, uniform closed-radius convergence/continuity, closed-radius/strict-interior termwise differentiation, the entire exponential family, and entire sine/cosine coefficient families with exact Pythagorean and addition product identities | `CauchyRealsP` | Algebraic laws for the global exponential value |
 | Continuity on domains | Complete closed interval/radius retracts plus open half-lines, intervals, and absolute-radius balls | Mostly `CauchyReals` and newer completion reals | Domain maps, products, and pasting |
 | Derivatives | Division-free kernel, uniqueness, algebra, ordinary and indexed chain rules, power/Horner/finite-sum rules, controlled reciprocal and arbitrary-denominator quotient rules, continuity, and open-subspace adapters | Both | Full apart-domain reciprocal and rational-function packaging |
-| Integration | Missing | Newer completion reals and parts of `CauchyReals` | Uniform-limit and partition infrastructure first |
-| Elementary functions | Missing | Mostly `CauchyReals` | Exponential/logarithm before trigonometry |
+| Integration | Finite/tagged partitions, mesh and resampling bounds, equal/dyadic vanishing meshes, recursive dyadic sums with refinement bounds, a unique mesh-limit integral, and constant/additive/negative/subtractive/scaling laws | Newer completion reals and parts of `CauchyReals` | Common-refinement/Cauchy criterion for uniformly continuous integrands, then uniform limits |
+| Elementary functions | Global exponential, sine, and cosine power-series values; sine/cosine values at zero, odd/even, Pythagorean, addition, and double-angle laws, sharp absolute bounds by one, exponential majorant bounds, derivatives, continuity, all finite higher-derivative convergence, second-derivative equations, four-step formal-derivative cycles, partial tangent/secant values with parity, Pythagorean, addition, and tangent double-angle identities on their exact cosine-apart domains, plus first-positive-cosine-zero characterization, historical and damped conditional Bishop limits, the `[0,1]` cosine lower bound, conditional quarter/half/full-turn laws, and strict monotonicity/embedding of sine on the complete closed quarter interval | Mostly `CauchyReals` | Closed IVT for restricted-sine surjectivity; damped Bishop convergence and positivity; then unconditional π |
 | Complex analysis | Out of current core scope | `CauchyReals` | Revisit after real elementary analysis |
 
 ## Techniques already transferred successfully
@@ -263,13 +263,30 @@ pointwise apartness inside the difference quotient.
 
 ### Phase 6: integration
 
-First build finite partitions, mesh, and Riemann sums over intervals.  Then
-prove preservation under constant, addition, negation, and scaling, followed
-by a Cauchy criterion and uniform-limit theorem.  The dyadic integration
-architecture in the newer completion reals is a useful specification, but its
-sealed implementation modules should not be copied wholesale.
+Finite and tagged partitions, widths, mesh predicates, sampling and
+resampling estimates, and Riemann-sum algebra are now checked.  Equal and
+dyadic partitions provide explicit vanishing-mesh families.  The semantic
+integral is the unique value approached by every sufficiently fine tagged
+partition; constants, addition, negation, subtraction, and arbitrary real
+scaling preserve it.  A binary recursive dyadic sum has exact midpoint-width,
+constant, additive, negative, and scaling laws together with a refinement
+estimate controlled by the oscillation on each dyadic half.
+
+The next layer is the actual existence theorem: turn the recursive refinement
+estimate into a Cauchy bound for a radiuswise uniformly continuous integrand,
+relate the recursive sums to tagged partitions, and remove dependence on the
+canonical tags using the checked resampling estimate.  After that, add
+uniform-limit preservation.  The dyadic integration architecture in the
+newer completion reals remains a useful specification, but its sealed
+implementation modules should not be copied wholesale.
 
 ### Phase 7: power series and elementary functions
+
+`CauchyRealsP` contains generic power-series, majorant, uniform-convergence,
+and differentiation infrastructure but no sine, cosine, tangent, or π
+definitions.  The trigonometric result scope below is therefore compared with
+`CauchyReals` and the newer completion-real power-series development, while
+reusing the `CauchyRealsP` proof architecture where it transfers.
 
 - Power-series terms, additive/scalar algebra, geometric majorants, and
   bounded-coefficient absolute and uniform convergence on every closed
@@ -341,21 +358,108 @@ sealed implementation modules should not be copied wholesale.
   bound `1/n! ≤ 2·(1/2)^n` supplies absolute and uniform convergence on every
   closed positive rational radius below two.  The parameterized estimate
   `1/n! ≤ B^B·(1/B)^n` now supplies the same APIs on every explicit rational
-  radius below a supplied positive natural `B`.  A global entire function only
-  needs an Archimedean bridge from arbitrary real radii to this interface.
+  radius below a supplied positive natural `B`.  The Archimedean bridge now
+  restricts those estimates to arbitrary real radii, packages all repeated
+  derivatives and divided differences, and exposes the global exponential
+  value with its fixed-point derivative evidence.
+- Sine and cosine now use exact rational sign masks times the exponential
+  factorial coefficients.  Exponential majorization supplies uniform Cauchy
+  convergence on every real closed radius for their terms, formal
+  derivatives, and divided-difference factors.  Their formal derivatives
+  cycle as `D sin = cos`, `D cos = -sin`, and `D^4 = id`.  The resulting
+  global values `sinℝ` and `cosℝ` satisfy their values at zero, have the
+  expected global derivatives, are continuous, and satisfy the second-order
+  equations `sinℝ'' = -sinℝ` and `cosℝ'' = -cosℝ`.  Rescaling coefficients by
+  `-1` proves the odd/even identities first for term sequences and then for
+  the canonical values.  Coefficient majorization also bounds both absolute
+  values by the global exponential evaluated at `|x|`, and supplies entire
+  uniform term and divided-difference convergence at every finite derivative
+  order.  The formal Leibniz law reduces the sum of the sine-square and
+  cosine-square coefficient products to the unit series; native Mertens
+  convergence then gives `sinℝ² + cosℝ² = 1` for the global values.  Located
+  order reflects the resulting component square bounds to the sharp global
+  laws `|sinℝ x| ≤ 1` and `|cosℝ x| ≤ 1`.  The same product API, combined
+  with exact factorial/binomial summands and finite anti-diagonal identities,
+  proves the total addition formulas for both functions.  Their diagonal
+  specializations and Pythagorean rewrites give the standard sine/cosine
+  double-angle laws.  On the constructive subspace where cosine is apart from
+  zero, tangent and secant are defined without arbitrary pole values.  Their
+  cancellation laws give proof irrelevance, zero and parity formulas,
+  `tanℝ = sinℝ · secℝ`, `1 + tanℝ² = secℝ²`, and the equivalent subtractive
+  Pythagorean identity.  If the sum also lies in that subspace, cosine
+  factorization constructively derives the gap for
+  `1 - tanℝ x · tanℝ y` and gives both cleared and quotient addition
+  laws for tangent and secant.  The converse denominator-gap constructor
+  supplies the tangent double-angle law on its exact local domain.
+  Differentiating these partial functions awaits the
+  performant full-apart quotient adapter already identified in Phase 4.
 
-For the final step, the transferable architecture is the divided-difference
-one used by both reference developments: construct a finite geometric
-`powerDifferenceFactor x y n`, sum the resulting coefficient family uniformly
-on a closed radius, prove that its diagonal is the formal derivative series,
-and feed the continuous factorization directly to the division-free
-derivative kernel.  This is preferable to transporting a classical
-difference quotient through completion-level division.
-- Exponential from a power series, then its algebraic and derivative laws.
-- Logarithm on positive reals using inverse/integration or a controlled local
-  series.
-- Trigonometric functions after the power-series and differentiation APIs are
-  stable.
+The construction of π now has an explicit constructive boundary.
+`IsFirstPositiveCosineZero` records the intended characterization, implies the
+least nonnegative cosine-zero property, and is unique; the type of
+characterized values is a proposition.  Bishop's historical iteration
+`a(n+1) = a(n) + cos(a(n))` is defined and identified with the partial sums of
+its increments.  Its Cauchy witness is an explicit existence target; any
+limit candidate is already proved unique and a cosine zero.  An unconditional
+`piℝ` is intentionally deferred until convergence and positivity before the
+limit are checked.
+
+For convergence, the preferred damped Bishop iteration
+`a(n+1) = a(n) + (1/2) cos(a(n))` is now defined, has its own explicit Cauchy
+boundary, and has the same conditional cosine-zero theorem.  Four-term
+alternating power-series blocks prove `1 - x²/2 ≤ cos x`, `1/2 ≤ cos x`, and
+strict cosine positivity on `[0,1]`.  Signed endpoint inequalities from the
+uniform-derivative partition core, together with exact one-Lipschitz bounds for
+sine and cosine, should give the rational contraction `7/8` and direct
+domination by the existing geometric-series API.  The historical HIT proof
+remains the specification, but its integration/FToC/strict-comparison stack is
+too large for a direct port.  Leibniz/Machin, IVT/bisection, and integral
+definitions remain secondary candidates because their required
+inverse-trigonometric, IVT, or integration characterizations are not yet
+available.
+
+Algebraically, a cosine-zero candidate has sine-square one, and sine
+positivity selects the value one.  A generic positive-quarter-turn API now
+derives phase shifts, half-turn signs, and full-turn periodicity; it specializes
+to a characterized half-pi conditional on that sine-orientation fact.
+The corresponding restricted sine is now a continuous map from the complete
+closed symmetric quarter interval to the complete unit interval, with checked
+endpoint values.  The product-to-sum difference identity and positivity of its
+midpoint-cosine and half-difference-sine factors prove strict increase, hence
+injectivity and embedding.  Surjectivity is equivalent to the explicit
+truncated `SineQuarterIntermediateValue` statement; for a positive
+first-cosine-zero quarter, that statement is now the sole interval-level input
+to an equivalence, including the characterized-half-pi specialization.
+Quantitative sine separation and closeness reflection are available on the
+quarter interval.  The exact IVT is now equivalent to a
+completion-compatible approximate IVT: a sequence of interval points with a
+single native Cauchy witness whose sine images converge to the target.
+Completeness and continuity turn this data into an exact preimage, and the
+approximate formulation feeds the equivalence theorem directly.  There is now
+also a rational-target completion route aligned with Bishop-style inverse
+constructions.  A `RationalSineInverseConstruction` consists only of a
+rational-to-real candidate, its clamped sine equation, and quarter-interval
+bounds.  Given a chosen (or merely bundled chosen) closeness-reflection
+  modulus, its graph is Cauchy-continuous, extends through sequential completion,
+  remains in the quarter interval, and satisfies `sin (G y) = clamp y`; this
+  already implies the desired equivalence.  The remaining reusable analytic
+  step is therefore the approximate image-density lemma (or a stronger
+  rational construction implying it).  `PositiveRationalChoice₀` now isolates
+  both choice uses explicitly: it assembles pointwise truncated inverse moduli
+  and turns radiuswise convergent tails into the native `SeqWitness` stored by
+  sequential completion.  Under that hypothesis,
+  `SineQuarterApproximateImageDensity` asks independently at each tolerance for
+  just one interval point whose sine approximates the target.  Dyadic sampling
+  and closeness reflection then supply the coherent source approximation and
+  the requested equivalence.  Thus finite located bisection with slack
+  comparisons is sufficient; it need not construct an infinite coherent
+  bisection or select an inverse modulus.  Adapters accept the strict rational
+  Cauchy witnesses of the existing HIT bisection, but its inverse theorem is
+  not directly reusable: it requires rational endpoints and values plus a
+  uniform positive lower slope, whereas sine has real characterized endpoints
+  and zero endpoint derivative.
+Logarithm on positive reals remains an independent target via
+inverse/integration or a controlled local series.
 
 ### Phase 8: optional extended scope
 
@@ -442,15 +546,19 @@ data while keeping focused checks near six seconds.
 
 ## Near-term work queue
 
-1. Package the natural-bounded exponential convergence theorem through an
-   Archimedean real-radius bridge, then lift the coefficient fixed-point law to
-   the checked entire/higher-derivative interface.
-2. Design a performant full-apart reciprocal derivative adapter and package
+1. Prove the signed endpoint and one-Lipschitz estimates needed for the damped
+   Bishop contraction, then construct its Cauchy and positivity witnesses.
+2. Prove `SineQuarterApproximateImageDensity` by finite located bisection with
+   slack comparisons, or construct the stronger rational-target inverse
+   required by `RationalSineInverseConstruction`; the checked choice-explicit
+   bridges give the characterized restricted-sine equivalence.
+3. Prove the algebraic laws of the global exponential value from its checked
+   entire-series and Cauchy-product interfaces.
+4. Design a performant full-apart reciprocal derivative adapter and package
    bounded-domain rational functions.
-3. Add the generic domain-map and pasting combinators demanded by calculus.
-4. Generalize uniform convergence to radiuswise/weaker witness interfaces.
-5. Begin partition and Riemann-sum infrastructure only after
-   convolution and uniform-tail bounds are separately checked.
+5. Add the generic domain-map and pasting combinators demanded by calculus.
+6. Turn recursive dyadic refinement into integrability for radiuswise
+   uniformly continuous functions, then prove uniform-limit preservation.
 
 This queue deliberately alternates user-facing theorems with generic support
 work so that no large specialized branch grows on a weak foundation.
