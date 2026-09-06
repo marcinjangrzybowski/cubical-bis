@@ -40,6 +40,8 @@ open import Cubical.Analysis.Real.Algebra.AdditiveGroup public
     ; subZero
     ; zeroSub
     )
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties public
+  using (subAddCancel; negSub; differenceOfSums; differenceOfNegatives)
 open import Cubical.Analysis.Real.Algebra.Multiplication public
   using
     ( _·_
@@ -107,6 +109,7 @@ open import Cubical.Analysis.Real.Algebra.Positive public
     )
 open import Cubical.Analysis.Real.Algebra.Lattice public
 open import Cubical.Analysis.Real.Algebra.Inverse public
+open import Cubical.Analysis.Real.Algebra.MultiplicativeGroup public
 open import Cubical.Analysis.Real.Algebra.Natural public
 open import Cubical.Analysis.Real.Algebra.Scalar public
 open import Cubical.Analysis.Real.Algebra.Polynomial public

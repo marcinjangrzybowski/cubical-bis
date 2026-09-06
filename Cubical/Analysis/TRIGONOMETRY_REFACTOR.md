@@ -1,5 +1,9 @@
 # Trigonometry and pi refactoring
 
+Current policy: [AGENTS.md](AGENTS.md). The
+[choice-free cleanup](CHOICE_FREE_2026-09-06.md) removed all countable-choice
+adapters; generic inverse laws and finite density results are retained.
+
 ## Starting point
 
 2026-09-04. The preceding Analysis refactor is committed as `fe2ee0d0e`.
@@ -88,6 +92,11 @@ characterized half-pi and restricted-sine intermediate value/surjectivity.
 
 ## Remaining mathematical boundaries
 
+Finite bisection density is now checked, as recorded in the
+[implementation log](IMPROVEMENTS_2026-09-05.md). It does not establish exact
+surjectivity. The former choice-based inverse route was intentionally removed;
+exact IVT and unconditional pi must be developed constructively.
+
 1. An inhabitant of `CharacterizedHalfPi` is still not constructed. The
    iteration limits remain conditional on Cauchy witnesses, and the first-
    zero positivity condition must still be proved. Pi remains defined as
@@ -97,13 +106,16 @@ characterized half-pi and restricted-sine intermediate value/surjectivity.
    not pretend to establish surjectivity. No independent cosine-IVT proof is
    needed after sine is handled.
 3. The radiuswise inverse-continuity theorem does not claim a chosen global
-   uniform-continuity modulus. The existing positive-rational choice boundary
-   stays explicit wherever such a global choice is used.
+   uniform-continuity modulus. Such quantitative data must be supplied or
+   constructed, not recovered by assuming a countable-choice schema.
 
 The former sine-orientation obligation is **no longer on this list**: it is
 proved from the existing first-positive-cosine-zero characterization.
 
 ## Verification
+
+These figures describe the original refactoring pass, before the later
+choice-free cleanup; current validation is recorded in its linked removal note.
 
 - The import-graph audit finds 363 Analysis modules, all reachable from
   `Cubical.Analysis.Everything`, including every new module.

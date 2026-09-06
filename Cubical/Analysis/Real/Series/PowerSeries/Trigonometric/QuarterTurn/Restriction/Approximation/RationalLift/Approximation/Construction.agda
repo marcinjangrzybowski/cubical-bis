@@ -7,10 +7,6 @@ open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Analysis.Real.Base
 open import
-  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Injectivity.Separation.Reflection.Base
-open import
-  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Injectivity.Separation.Reflection.Choice
-open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Restriction.Approximation.RationalLift.Base
 open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Restriction.Approximation.RationalLift.Approximation.Base
@@ -20,8 +16,6 @@ open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Restriction.Approximation.RationalLift.Approximation.Range
 open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Restriction.Approximation.RationalLift.Approximation.RationalPoints
-open import
-  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Restriction.Approximation.RationalLift.Approximation.ImagePoints
 
 
 rationalSineInverseApproximationFamily→construction :
@@ -55,16 +49,3 @@ rationalPointSineInverseApproximationFamily→construction
   rationalSineInverseApproximationFamily→construction quarter
     (rationalPointSineInverseApproximationFamily→approximationFamily
       quarter approximations)
-
-
-rationalPointSineInverseImageApproximationFamily→construction :
-  ∀ quarter →
-  PositiveRationalChoice₀ →
-  MereChosenQuarterTurnSineClosenessReflectionModulus quarter →
-  RationalPointSineInverseImageApproximationFamily quarter →
-  RationalSineInverseConstruction quarter
-rationalPointSineInverseImageApproximationFamily→construction
-    quarter choice modulus approximations =
-  rationalSineInverseApproximationFamily→construction quarter
-    (rationalPointSineInverseImageApproximationFamily→approximationFamily
-      quarter choice modulus approximations)

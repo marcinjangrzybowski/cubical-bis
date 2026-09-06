@@ -10,6 +10,8 @@ open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties
+  using (subAddCancel)
 open import Cubical.Analysis.Real.Algebra.Multiplication
 open import Cubical.Analysis.Real.Algebra.Multiplication.Laws
 open import Cubical.Analysis.Real.Algebra.CommRing
@@ -22,12 +24,6 @@ open import
 private
   module ℝRing =
     RingProperties.RingTheory (CommRing→Ring ℝCommRing)
-
-  subAddCancel : ∀ x y → (x - y) + y ≡ x
-  subAddCancel x y =
-    sym (addAssoc x (- y) y)
-    ∙ cong (x +_) (addInvL y)
-    ∙ addIdR x
 
   -- Prove the algebra with real variables before substituting series values.
   -- This keeps type checking from expanding the trigonometric definitions.

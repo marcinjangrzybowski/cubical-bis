@@ -11,6 +11,8 @@ open import Cubical.Algebra.OrderedCommRing
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 
 open import Cubical.Analysis.Real.Base
+open import Cubical.Analysis.Real.Mappings
+  using (identityRealMapIsContinuous; constantRealMapIsContinuous)
 open import Cubical.Analysis.Real.Algebra.Multiplication
 open import Cubical.Analysis.Real.Algebra.Multiplication.Laws
 
@@ -34,17 +36,12 @@ pow-rat q (suc n) =
 private
   identity-isContinuous : isContinuous
     (ℝPremetricSpace .snd) (λ x → x) (ℝPremetricSpace .snd)
-  identity-isContinuous = isNonExpanding→isContinuous
-    (ℝPremetricSpace .snd) (λ x → x) (ℝPremetricSpace .snd)
-    λ where
-      .IsNonExpanding.pres≈ _ _ _ x∼y → x∼y
+  identity-isContinuous = identityRealMapIsContinuous
 
   constantOne-isContinuous : isContinuous
     (ℝPremetricSpace .snd) (λ _ → 1ℝ) (ℝPremetricSpace .snd)
-  constantOne-isContinuous = isNonExpanding→isContinuous
-    (ℝPremetricSpace .snd) (λ _ → 1ℝ) (ℝPremetricSpace .snd)
-    λ where
-      .IsNonExpanding.pres≈ _ _ ε _ → refl∼ 1ℝ ε
+  constantOne-isContinuous =
+    constantRealMapIsContinuous (ℝPremetricSpace .snd) 1ℝ
 
 
 pow-isContinuous : ∀ n → isContinuous

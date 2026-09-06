@@ -33,9 +33,6 @@ open import
 open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Injectivity.Separation.Reflection.Sequence
   public
-open import
-  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Injectivity.Separation.Reflection.Choice
-  public
 
 
 open PositiveRationals using (ℚ₊)
@@ -55,17 +52,3 @@ opaque
       (quarterRadiusDouble<radius input)
       (characterizedQuarterTurn-orderedSineSeparationModulus
         quarter positive-quarter characterization (input /4₊))
-
-
-  characterizedQuarterTurn-mereChosenSineClosenessReflectionModulus :
-    ∀ quarter →
-    PositiveRationalChoice₀ →
-    IsPositiveQuarterTurn quarter →
-    IsFirstPositiveCosineZero quarter →
-    MereChosenQuarterTurnSineClosenessReflectionModulus quarter
-  characterizedQuarterTurn-mereChosenSineClosenessReflectionModulus
-      quarter choice positive-quarter characterization =
-    positiveRationalChoice→mereChosenSineClosenessReflectionModulus
-      quarter choice
-      (characterizedQuarterTurn-sineClosenessReflectionModulus
-        quarter positive-quarter characterization)

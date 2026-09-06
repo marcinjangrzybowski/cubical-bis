@@ -13,6 +13,8 @@ open import Cubical.Algebra.OrderedCommRing
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 
 open import Cubical.Analysis.Real.Base
+open import Cubical.Analysis.Real.Mappings
+  using (constantRealMapIsContinuous)
 open import Cubical.Analysis.Real.Extensionality
 open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
@@ -33,10 +35,8 @@ open OrderedCommRingTheory ℚOrderedCommRing
 private
   constantZero-isContinuous : isContinuous
     (ℝPremetricSpace .snd) (λ (_ : ℝ) → 0ℝ) (ℝPremetricSpace .snd)
-  constantZero-isContinuous = isNonExpanding→isContinuous
-    (ℝPremetricSpace .snd) (λ (_ : ℝ) → 0ℝ) (ℝPremetricSpace .snd)
-    λ where
-      .IsNonExpanding.pres≈ _ _ ε _ → refl∼ 0ℝ ε
+  constantZero-isContinuous =
+    constantRealMapIsContinuous (ℝPremetricSpace .snd) 0ℝ
 
 
 absAsMax : ∀ x → absℝ x ≡ maxℝ x (- x)

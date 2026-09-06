@@ -15,6 +15,8 @@ open import Cubical.Relation.Premetric.Base
 open import Cubical.Relation.Premetric.Mappings
 
 open import Cubical.Analysis.Real.Base
+open import Cubical.Analysis.Real.Mappings
+  using (constantRealMapIsContinuous)
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.Multiplication
@@ -59,11 +61,7 @@ private
     (source : PremetricStr ℓ' A) (a : ℝ) →
     isContinuous source (λ (_ : A) → a)
       (ℝPremetricSpace .snd)
-  constant-isContinuous source a =
-    isNonExpanding→isContinuous
-      source (λ _ → a) (ℝPremetricSpace .snd)
-      λ where
-        .IsNonExpanding.pres≈ _ _ ε _ → refl∼ a ε
+  constant-isContinuous = constantRealMapIsContinuous
 
 
 evaluatePolynomialOfContinuousIsContinuous :

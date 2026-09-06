@@ -9,6 +9,8 @@ open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditionLaws using (addComm)
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties
+  using (negSub)
 open import Cubical.Analysis.Real.Algebra.AbsoluteValue
 open import Cubical.Analysis.Real.Order.Base
 open import Cubical.Analysis.Real.Order.AbsoluteValue
@@ -24,14 +26,6 @@ open import
 
 
 open PositiveRationals using (ℚ₊)
-
-
-private
-  negSub : ∀ (x y : ℝ) → - (x - y) ≡ y - x
-  negSub x y =
-    negAdd x (- y)
-    ∙ cong ((- x) +_) (negInvol y)
-    ∙ addComm (- x) y
 
 
 opaque

@@ -9,6 +9,8 @@ import Cubical.Data.Rationals.Properties as ℚ
 open import Cubical.Data.Rationals.Order as ℚ
 
 open import Cubical.Analysis.Real.Base
+open import Cubical.Analysis.Real.Mappings
+  using (identityRealMapIsContinuous; constantRealMapIsContinuous)
 open import Cubical.Analysis.Real.Extensionality
 open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
@@ -30,16 +32,11 @@ private
 
   identity-isContinuous : isContinuous
     (ℝPremetricSpace .snd) (idfun ℝ) (ℝPremetricSpace .snd)
-  identity-isContinuous = isNonExpanding→isContinuous
-    (ℝPremetricSpace .snd) (idfun ℝ) (ℝPremetricSpace .snd)
-    (snd (idⁿ {M = ℝPremetricSpace}))
+  identity-isContinuous = identityRealMapIsContinuous
 
   constant-isContinuous : ∀ c → isContinuous
     (ℝPremetricSpace .snd) (λ (_ : ℝ) → c) (ℝPremetricSpace .snd)
-  constant-isContinuous c = isNonExpanding→isContinuous
-    (ℝPremetricSpace .snd) (λ (_ : ℝ) → c) (ℝPremetricSpace .snd)
-    λ where
-      .IsNonExpanding.pres≈ _ _ ε _ → refl∼ c ε
+  constant-isContinuous = constantRealMapIsContinuous (ℝPremetricSpace .snd)
 
 
 maxComm : ∀ x y → maxℝ x y ≡ maxℝ y x

@@ -19,6 +19,7 @@ open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties using (negSub)
 open import Cubical.Analysis.Real.Algebra.AbsoluteValue
 open import Cubical.Analysis.Real.Order.Base
 open import Cubical.Analysis.Real.Order.Addition
@@ -87,18 +88,12 @@ pointsInIntervalDistanceBound
       (addPres≤R x upper (- y) x≤upper)
       (addPres≤L (- y) (- lower) upper
         (negPres≤ lower y lower≤y)))
-    (subst (_≤ℝ upper - lower) (sym negSub)
+    (subst (_≤ℝ upper - lower) (sym (negSub x y))
       (≤ℝ-trans
         (y - x) (upper - x) (upper - lower)
         (addPres≤R y upper (- x) y≤upper)
         (addPres≤L (- x) (- lower) upper
           (negPres≤ lower x lower≤x))))
-  where
-  negSub : - (x - y) ≡ y - x
-  negSub =
-    negAdd x (- y)
-    ∙ cong ((- x) +_) (negInvol y)
-    ∙ addComm (- x) y
 
 
 resampledTagsClose : ∀ {a b}

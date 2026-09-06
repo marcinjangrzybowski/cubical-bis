@@ -26,6 +26,8 @@ open import Cubical.Analysis.Real.Algebra.AdditionLaws
   using (0ℝ; addComm; addIdR; addIdL; addAssoc)
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
   using (_-_; addInvR; addInvL)
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties
+  using (subAddCancel)
 open import Cubical.Analysis.Real.Algebra.AbsoluteValue using (absℝ)
 open import Cubical.Analysis.Real.Algebra.Lattice using (maxℝ)
 open import Cubical.Analysis.Real.Order.Base
@@ -59,12 +61,6 @@ private
   ... | ℚOrder.lt a<b = inl (ℚOrder.<Weaken≤ a b a<b)
   ... | ℚOrder.eq a≡b = inl (ℚOrder.≡Weaken≤ a b a≡b)
   ... | ℚOrder.gt b<a = inr b<a
-
-  subAddCancel : ∀ x y → (x - y) + y ≡ x
-  subAddCancel x y =
-    sym (addAssoc x (- y) y)
-    ∙ cong (x +_) (addInvL y)
-    ∙ addIdR x
 
 
 maxStrictUpper : ∀ x y z →

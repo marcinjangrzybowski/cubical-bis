@@ -15,6 +15,8 @@ open import
 open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Inverse public
 open import
+  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.InverseProperties public
+open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Bishop public
 open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Damped public

@@ -25,6 +25,8 @@ open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.Negation using (-_)
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
   using (_-_; addInvR; addInvL; subSelf)
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties
+  using (subAddCancel)
 open import Cubical.Analysis.Real.Algebra.Lattice.Base
   using (maxℝ; max-rat; max-pres∼₁)
 open import Cubical.Analysis.Real.Order.Base
@@ -47,12 +49,6 @@ private
   rationalSubZero q =
     cong (q ℚ.+_) (ℚ.·AnnihilR (ℚ.- 1))
     ∙ ℚ.+IdR q
-
-  subAddCancel : ∀ x y → (x - y) + y ≡ x
-  subAddCancel x y =
-    sym (addAssoc x (- y) y)
-    ∙ cong (x +_) (addInvL y)
-    ∙ addIdR x
 
   addCancelR : ∀ x y → (x + y) + (- y) ≡ x
   addCancelR x y =

@@ -15,6 +15,8 @@ open import Cubical.Algebra.OrderedCommRing
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 
 open import Cubical.Analysis.Real.Base
+open import Cubical.Analysis.Real.Mappings
+  using (constantRealMapIsContinuous)
 open import Cubical.Analysis.Real.Extensionality
 open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
@@ -56,16 +58,10 @@ private
     (ℝPremetricSpace .snd)
     ∣ two , inverseSum-isLipschitzWithTwo ∣₁
 
-  constantZero-isNonExpanding : IsNonExpanding
-    (ℝPremetricSpace .snd) (λ _ → 0ℝ) (ℝPremetricSpace .snd)
-  constantZero-isNonExpanding .IsNonExpanding.pres≈ _ _ ε _ =
-    refl∼ 0ℝ ε
-
   constantZero-isContinuous : isContinuous
     (ℝPremetricSpace .snd) (λ _ → 0ℝ) (ℝPremetricSpace .snd)
-  constantZero-isContinuous = isNonExpanding→isContinuous
-    (ℝPremetricSpace .snd) (λ _ → 0ℝ) (ℝPremetricSpace .snd)
-    constantZero-isNonExpanding
+  constantZero-isContinuous =
+    constantRealMapIsContinuous (ℝPremetricSpace .snd) 0ℝ
 
 
 addInvR : ∀ x → x + (- x) ≡ 0ℝ

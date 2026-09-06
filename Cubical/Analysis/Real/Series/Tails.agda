@@ -12,6 +12,8 @@ open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties
+  using (subAddCancel)
 open import Cubical.Analysis.Real.Sequence
 open import Cubical.Analysis.Real.Series.Base
 
@@ -40,12 +42,6 @@ private
     SeqWitness (λ n → a n - b n)
   subSeqWitness a-cauchy b-cauchy =
     addSeqWitness a-cauchy (negSeqWitness b-cauchy)
-
-  subAddCancel : ∀ x y → (x - y) + y ≡ x
-  subAddCancel x y =
-    sym (addAssoc x (- y) y)
-    ∙ cong (x +_) (addInvL y)
-    ∙ addIdR x
 
 
 -- Dropping `start` terms reindexes the remaining tail from zero.

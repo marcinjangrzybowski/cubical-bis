@@ -13,6 +13,8 @@ open import Cubical.Analysis.Real.Algebra.AdditionLaws
   using (0ℝ; addComm; addIdR; addIdL; addAssoc)
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
   using (_-_; addInvR; addInvL; subSelf; negInvol)
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties
+  using (subAddCancel)
 open import Cubical.Analysis.Real.Order.Base using (_≤ℝ_)
 open import Cubical.Analysis.Real.Order.Addition
   using (addPres≤R; addPres≤L)
@@ -33,12 +35,6 @@ private
   addCancelRPath x z =
     sym (addAssoc x z (- z))
     ∙ cong (x +_) (addInvR z)
-    ∙ addIdR x
-
-  subAddCancel : ∀ x y → (x - y) + y ≡ x
-  subAddCancel x y =
-    sym (addAssoc x (- y) y)
-    ∙ cong (x +_) (addInvL y)
     ∙ addIdR x
 
 

@@ -15,6 +15,8 @@ open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties
+  using (subAddCancel)
 open import Cubical.Analysis.Real.Algebra.AbsoluteValue
 open import Cubical.Analysis.Real.Algebra.Multiplication.Laws using (1ℝ)
 open import Cubical.Analysis.Real.Order.Base
@@ -41,12 +43,6 @@ UniformRationalAbsBound sequence =
 
 
 private
-  subAddCancel : ∀ x y → (x - y) + y ≡ x
-  subAddCancel x y =
-    sym (addAssoc x (- y) y)
-    ∙ cong (x +_) (addInvL y)
-    ∙ addIdR x
-
   oneNonnegative : 0ℝ ≤ℝ 1ℝ
   oneNonnegative =
     subst (0ℝ ≤ℝ_) absOne (absNonnegative 1ℝ)

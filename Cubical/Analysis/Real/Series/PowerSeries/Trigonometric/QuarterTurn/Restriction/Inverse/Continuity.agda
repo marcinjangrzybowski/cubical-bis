@@ -20,7 +20,7 @@ open import Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.I
 
 
 -- Radiuswise reflection suffices for continuity.  In particular, this does
--- not select a global modulus or require PositiveRationalChoice₀.
+-- not select a global modulus or require any countable-choice principle.
 opaque
   restrictedArcSinIsContinuous : ∀ quarter equivalent →
     QuarterTurnSineClosenessReflectionModulus quarter →

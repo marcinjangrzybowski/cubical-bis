@@ -14,6 +14,8 @@ open import Cubical.Algebra.OrderedCommRing
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 
 open import Cubical.Analysis.Real.Base
+open import Cubical.Analysis.Real.Mappings
+  using (constantRealMapIsContinuous)
 open import Cubical.Analysis.Real.Extensionality
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.Multiplication
@@ -41,10 +43,7 @@ private
 
   constant-isContinuous : ∀ c → isContinuous
     (ℝPremetricSpace .snd) (λ (_ : ℝ) → c) (ℝPremetricSpace .snd)
-  constant-isContinuous c = isNonExpanding→isContinuous
-    (ℝPremetricSpace .snd) (λ (_ : ℝ) → c) (ℝPremetricSpace .snd)
-    λ where
-      .IsNonExpanding.pres≈ _ _ ε _ → refl∼ c ε
+  constant-isContinuous = constantRealMapIsContinuous (ℝPremetricSpace .snd)
 
 
 mulMaxAbs : ∀ x y z →

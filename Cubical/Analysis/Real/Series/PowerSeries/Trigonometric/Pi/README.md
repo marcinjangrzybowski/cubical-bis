@@ -1,5 +1,9 @@
 # Constructive pi plan
 
+Analysis is choice-free by project policy. Countable-choice exact-inverse
+adapters were intentionally removed; only constructive proofs and generic
+results using independently supplied mathematical witnesses remain.
+
 The public target is not an arbitrary real named `pi`, but the uniquely
 characterized first positive zero of cosine.  The checked specification is
 `IsFirstPositiveCosineZero`; it includes positivity on every nonnegative point
@@ -55,7 +59,7 @@ full-period identities therefore apply to every characterized half-pi.
 Older APIs accepting `CharacterizedHalfPiSineOne` remain compatible; the
 witness can always be supplied by `characterizedHalfPi-sineOne`.
 
-## Restricted sine equivalence target
+## Restricted sine equivalence
 
 For a candidate `quarter`, `SineQuarterInterval quarter` is the closed
 interval `[-quarter,quarter]`, while `SineUnitInterval` is `[-1,1]`.
@@ -69,9 +73,9 @@ Surjectivity has been isolated without adding an existence axiom:
 `y` in `[-1,1]` has a preimage in the quarter interval.  It is equivalent to
 surjectivity of `restrictedSine`.  For a positive first cosine zero the
 embedding is now derived internally, so this intermediate-value statement is
-the only remaining interval-level input to the requested equivalence.  This
-makes a truncated closed-interval intermediate-value theorem the exact
-remaining analytic boundary, rather than hiding it inside an inverse function.
+the only interval-level input to the equivalence API. Finite bisection gives
+approximate image density, not this exact intermediate-value witness.
+Constructing exact intermediate values remains a separate analytic boundary.
 
 The interval embedding now also has a quantitative converse modulus.  A
 positive rational separation between inputs produces a positive rational
@@ -85,23 +89,23 @@ bisection target: interval points with one native `SeqWitness`, together with
 convergence of their sine values to the requested target.  It is proved
 equivalent to `SineQuarterIntermediateValue`.  The forward proof takes the
 source limit, preserves both interval bounds, and uses continuity of sine and
-uniqueness of limits to obtain an exact preimage.  Thus only construction of
-this approximate sequence remains, not any further completion or endpoint
-argument.
+uniqueness of limits to obtain an exact preimage. Constructing this sequence
+without a choice assumption remains distinct from producing each finite
+approximation separately.
 
-There is also a choice-explicit, weaker input.  `PositiveRationalChoice₀`
-assembles radiuswise truncated tails into a native `SeqWitness` and selects the
-pointwise truncated sine-closeness reflection modulus.
-`SineQuarterApproximateImageDensity` then asks only that, for each target and
+`SineQuarterApproximateImageDensity` asks only that, for each target and
 each positive rational tolerance independently, there merely exists an
-interval point whose sine is within that tolerance.  Dyadic sampling produces
-a convergent image sequence; reflection reconstructs source Cauchyness, and
-the preceding completion theorem supplies the exact preimage.  Thus a finite
-located search with slack comparisons is sufficient under this explicit
-choice hypothesis—no coherent infinite bisection sequence is required.  The
-slack-band and endpoint inequalities, midpoint containment, and truncated
-overlapping midpoint branch comparison are already checked as the first
-finite-bisection layer.
+interval point whose sine is within that tolerance. A supplied family of
+approximate points can be sampled dyadically to obtain image convergence,
+but radiuswise truncated existence alone does not supply such a family or a
+native source Cauchy witness. The former choice-based adapters were removed.
+`Bisection/Density.agda` now proves
+`sineQuarterApproximateImageDensityByBisection`: finite overlapping midpoint
+comparisons preserve the slack inequalities and halve the bracket width
+exactly. Dyadic convergence and the exponential-majorant oscillation bound
+give any requested image tolerance. This finite density theorem itself uses
+no choice, first-zero characterization, or strict-monotonicity hypothesis;
+the quarter-turn endpoint laws and a nonnegative quarter suffice.
 
 There is now a second checked reduction that follows the rational-first shape
 of the Bishop/HIT constructions.  `RationalSineInverseConstruction quarter`
@@ -116,9 +120,11 @@ Consequently this rational data, with either a chosen or merely bundled chosen
 reflection modulus, implies the intermediate-value theorem and the restricted
 sine equivalence.  Approximation-family adapters obtain this exact rational
 construction from limiting interval points; specialized adapters accept the
-strict rational Cauchy witnesses used by `Cubical.Data.Rationals.Bisection`, or
-only rational points with convergent sine images when positive-rational choice
-is supplied.
+strict rational Cauchy witnesses used by `Cubical.Data.Rationals.Bisection`.
+The weaker image-convergence data types remain, but there is no adapter
+silently upgrading them to a native source Cauchy witness. A bundled inverse
+modulus must likewise be supplied or constructed, not assumed to follow
+from the radiuswise truncated theorem.
 
 The injective side is complete.  The first-zero characterization gives strict
 positivity of cosine on the whole open symmetric quarter interval.  Midpoint
@@ -147,7 +153,11 @@ both cosine inverse laws, without a separate cosine-surjectivity assumption.
 Both inverses are continuous using the existing radiuswise sine-closeness
 reflection modulus, without selecting a global modulus. Their checked
 endpoint values are `arcsin(-1)=-quarter`, `arcsin(1)=quarter`,
-`arccos(-1)=2*quarter`, and `arccos(1)=0`.
+`arccos(-1)=2*quarter`, and `arccos(1)=0`. The inverse property modules also
+prove `arcsin(0)=0`, `arccos(0)=quarter`, oddness of arcsine,
+`arccos(-x)=2*quarter-arccos(x)`, and increasing/decreasing order laws,
+including strict versions. Strict order reflection uses continuity and
+locatedness constructively.
 
 For the pi-specialized interface, supply:
 
@@ -161,8 +171,10 @@ orientation, injectivity, cosine-IVT, or choice inputs. Their ranges are
 `[-characterizedHalfPi,characterizedHalfPi]` and `[0,characterizedPi]`:
 `characterizedPi-asHalfTurn` identifies the latter endpoint.
 
-These are conditional inverse constructions, not a proof of the remaining
-restricted-sine intermediate-value obligation.
+`characterizedHalfPi-sineApproximateImageDensity` in `Pi/RestrictedSine.agda`
+specializes finite bisection to the characterized half-pi. It gives only
+approximate density. There is no countable-choice shortcut from this theorem
+to exact surjectivity or a named inverse.
 
 The historical `Cubical/HITs/CauchyReals/ArcSin` development remains a useful
 specification, but its inverse theorem is for open intervals and depends on a
@@ -172,9 +184,8 @@ Analysis reals.  The existing HIT inverse-bisection implementation is not a
 drop-in IVT: its reusable theorem assumes rational endpoints, rational function
 values, and a uniform positive lower slope.  Restricted sine has a
 characterized real endpoint, non-rational values at rational arguments, and
-zero derivative at the endpoints.  A direct located, approximate-comparison
-bisection theorem for the current closed-interval and completeness APIs is
-therefore the reusable next step.
+zero derivative at the endpoints. The new finite slack-bisection construction
+works with these closed-interval APIs directly, without those restrictions.
 
 No unconditional `halfPiℝ` or `piℝ` is exported: doing so before constructing
 convergence and the complete first-zero characterization would hide the
@@ -198,35 +209,32 @@ central analytic obligations.
 - An IVT/bisection definition now has complete closed intervals, the
   continuous strictly increasing restricted sine embedding, sharp endpoint
   values, quantitative inverse control, and an approximate-sequence target
-  equivalent to exact intermediate value.  With explicit positive-rational
-  choice, the remaining theorem is only approximate image density: a finite
-  located/approximate-comparison search may produce each tolerance witness
-  independently, without a bundled Cauchy sequence, rational-valued
-  evaluation, or a positive endpoint slope.
+  equivalent to exact intermediate value. Finite approximate image density
+  is now proved. Exact restricted-sine surjectivity still requires a coherent
+  constructive approximation or a different choice-free completion argument.
 - A rational-first Bishop route can instead construct exact inverse values only
   for rational targets.  The new rational-lift layer handles arbitrary real
   targets and proves the exact clamped sine law.  What remains on this route is
   the computational rational bisection (or an equivalent imported HIT
-  construction).  A bundled global inverse modulus is no longer an implicit
-  obligation: the pointwise truncated modulus is assembled exactly when the
-  caller supplies `PositiveRationalChoice₀`.
+  construction). A bundled global inverse modulus remains an explicit
+  mathematical obligation; a pointwise truncated modulus does not discharge it.
 - Defining pi through an integral currently lacks general integrability,
   fundamental-theorem, and comparison results.
 
 ## Next proof obligations
 
-1. Extend the partition core in `Calculus/MeanValue/Uniform.agda` to exact
-   signed endpoint inequalities without introducing slow transparent proof
-   composition.
-2. Supply radiuswise uniform derivative witnesses for sine and cosine and
+The exact absolute endpoint inequality is now checked in
+`Calculus/MeanValue/Uniform.agda`, globally and with assumptions only on the
+chosen interval. It requires radiuswise-uniform differentiability, not merely
+pointwise derivatives. The remaining obligations are:
+
+1. Supply radiuswise uniform derivative witnesses for sine and cosine and
    derive exact global one-Lipschitz estimates.
-3. Use the damped contraction and geometric-series domination to construct a
+2. Use the damped contraction and geometric-series domination to construct a
    Cauchy witness.
-4. Prove positivity before the limit and package `IsFirstPositiveCosineZero`;
+3. Prove positivity before the limit and package `IsFirstPositiveCosineZero`;
    sine orientation now follows from `Orientation.agda`. Only then expose
    unconditional `halfPiℝ`, `piℝ`, and their periodicity laws.
-5. Finish restricted-sine surjectivity by proving
-   `SineQuarterApproximateImageDensity` with finite located bisection, or by
-   constructing the stronger `RationalSineInverseConstruction`.  Under the
-   explicit positive-rational choice hypothesis, the checked sampling,
-   reflection, completion, and rational-lift bridges finish the equivalence.
+4. Construct coherent native Cauchy inverse data for exact surjectivity.
+   Finite image density is complete; countable-choice assumptions are not an
+   acceptable route to exact inverses in Analysis.

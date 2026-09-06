@@ -118,20 +118,6 @@ IsNonExpanding.pres≈
   clampIntervalPres∼ (- radius) radius
 
 
-private
-  absBound→symmetricBounds : ∀ radius x →
-    absℝ x ≤ℝ radius →
-    ((- radius) ≤ℝ x) × (x ≤ℝ radius)
-  absBound→symmetricBounds radius x absx≤radius .fst =
-    subst ((- radius) ≤ℝ_) (negInvol x)
-      (negPres≤ (- x) radius
-        (≤ℝ-trans (- x) (absℝ x) radius
-          (negLeAbs x) absx≤radius))
-  absBound→symmetricBounds radius x absx≤radius .snd =
-    ≤ℝ-trans x (absℝ x) radius
-      (leAbs x) absx≤radius
-
-
 closedAbsRadiusRetractionSection : ∀ radius →
   (0≤radius : 0ℝ ≤ℝ radius) →
   ∀ point →
@@ -145,7 +131,7 @@ closedAbsRadiusRetractionSection radius 0≤radius point =
       (fst bounds) (snd bounds))
   where
   bounds : ((- radius) ≤ℝ fst point) × (fst point ≤ℝ radius)
-  bounds = absBound→symmetricBounds radius (fst point) (snd point)
+  bounds = snd (symmetricIntervalFromAbsBound radius (fst point) (snd point))
 
 
 closedAbsRadiusIsComplete : ∀ radius →

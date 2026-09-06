@@ -1,12 +1,22 @@
 # Scope roadmap for `Cubical.Analysis`
 
-Date: 2026-09-01
+Updated: 2026-09-06
 
 Status: living implementation plan.  This document compares the sequential
 Analysis development with `Cubical.HITs.CauchyReals`,
 `Cubical.HITs.CauchyRealsP`, and the newer
 `Cubical.Relation.Premetric.Completion.CauchySequence.Reals` development.  It
 does not propose making any of those real carriers a dependency of Analysis.
+
+The latest [logarithm development](LOGARITHM_2026-09-06.md) adds exponential
+algebra, order, continuity and self-differentiation, a choice-free local
+logarithm series, finite-partition approximate IVT, and a global exponential
+equivalence and logarithm constructed by geometrically convergent arithmetic
+iteration. Local-series compatibility remains open; inverse existence does not.
+The positive-real multiplicative abelian group and its exp/log isomorphism
+with the additive real group are now bundled in the standard algebra APIs.
+The [choice-free policy](AGENTS.md) prohibits countable-choice assumptions,
+even as explicit parameters; the former conditional adapters were removed.
 
 ## Goal and interpretation of coverage
 
@@ -32,7 +42,7 @@ real-analysis interfaces have stabilized.
 | --- | --- | --- | --- |
 | Completion and density | Strong | Both | Keep generic; add helpers only when demanded by clients |
 | Quantitative maps | Non-expanding, fixed-Lipschitz, affine, local polynomial estimates, and non-expanding closed-domain clamps | Both | General bounded-domain/local-Lipschitz combinators |
-| Additive/ring/lattice algebra | Complete baseline plus rational module | Both | Integer embedding and derivative-facing linear API |
+| Additive/ring/lattice algebra | Complete baseline plus rational module and positive-real multiplicative abelian group, isomorphic to the additive group via exp/log | Both | Integer embedding and derivative-facing linear API |
 | Non-strict and strict order | Complete baseline plus closed interval/radius subspaces | Both | Open domains and domain-restricted mapping API |
 | Apartness | Additive and multiplicative laws | Both | Decide whether a standard field/apartness bundle fits without API churn |
 | Reciprocal and division | Implemented away from zero; arbitrary numerator/denominator quotient derivatives are checked on explicit uniform positive and negative rationally bounded domains | Both | Performant full-apart derivative adapter and rational-function packaging |
@@ -41,11 +51,11 @@ real-analysis interfaces have stabilized.
 | Ordinary sequences | Limits, eventual equality/order, two asymptotic witness levels, and squeeze theorems | Both | Monotone convergence once supremum infrastructure exists |
 | Finite sums | Witness/limit preservation, algebra, exchange, telescoping, monotonicity, absolute bounds, and convolution-oriented diagonal/triangular reindexing | `CauchyRealsP` | Partition reindexing as demanded by integration |
 | Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, rational/real contraction results, uniform family convergence, constructive native-Cauchy bounds, selected absolute-product closure, and bound-free Mertens products | Both | Radiuswise/weaker uniform witness variants and modulus-driven tests |
-| Power series | Terms, finite-polynomial/rescaling/geometric laws, zero/finite-modification laws, coefficient growth, exact products, repeated formal derivatives, radiuswise entire values, uniform closed-radius convergence/continuity, closed-radius/strict-interior termwise differentiation, the entire exponential family, and entire sine/cosine coefficient families with exact Pythagorean and addition product identities | `CauchyRealsP` | Algebraic laws for the global exponential value |
+| Power series | Terms, finite-polynomial/rescaling/geometric laws, zero/finite-modification laws, coefficient growth, exact products, repeated formal derivatives, radiuswise entire values, uniform closed-radius convergence/continuity, closed-radius/strict-interior termwise differentiation, the entire exponential family with global algebra/order laws, entire sine/cosine coefficient families with exact Pythagorean and addition product identities, and the choice-free local logarithm series with reciprocal derivative | `CauchyRealsP` | Local exponential/logarithm compatibility and composition |
 | Continuity on domains | Complete closed interval/radius retracts plus open half-lines, intervals, and absolute-radius balls | Mostly `CauchyReals` and newer completion reals | Domain maps, products, and pasting |
-| Derivatives | Division-free kernel, uniqueness, algebra, ordinary and indexed chain rules, power/Horner/finite-sum rules, controlled reciprocal and arbitrary-denominator quotient rules, continuity, and open-subspace adapters | Both | Full apart-domain reciprocal and rational-function packaging |
-| Integration | Finite/tagged partitions, mesh and resampling bounds, equal/dyadic vanishing meshes, recursive dyadic sums with refinement bounds, a unique mesh-limit integral, and constant/additive/negative/subtractive/scaling laws | Newer completion reals and parts of `CauchyReals` | Common-refinement/Cauchy criterion for uniformly continuous integrands, then uniform limits |
-| Elementary functions | Global exponential, sine, and cosine power-series values; sine/cosine values at zero, odd/even, Pythagorean, addition, and double-angle laws, sharp absolute bounds by one, exponential majorant bounds, derivatives, continuity, all finite higher-derivative convergence, second-derivative equations, four-step formal-derivative cycles, partial tangent/secant values with parity, Pythagorean, addition, and tangent double-angle identities on their exact cosine-apart domains, plus first-positive-cosine-zero characterization, historical and damped conditional Bishop limits, the `[0,1]` cosine lower bound, conditional quarter/half/full-turn laws, and strict monotonicity/embedding of sine on the complete closed quarter interval | Mostly `CauchyReals` | Closed IVT for restricted-sine surjectivity; damped Bishop convergence and positivity; then unconditional π |
+| Derivatives | Division-free kernel, uniqueness, algebra, ordinary and indexed chain rules, power/Horner/finite-sum rules, controlled reciprocal and arbitrary-denominator quotient rules, continuity, open-subspace adapters, and exact global/interval-local mean-value inequalities under radiuswise-uniform differentiability | Both | Full apart-domain reciprocal and rational-function packaging |
+| Integration | Finite/tagged partitions, mesh and resampling bounds, equal/dyadic vanishing meshes, recursive dyadic sums with refinement bounds, a unique mesh-limit integral on ordered endpoints, an ordered-domain wrapper with reversed-interval regressions, and constant/additive/negative/subtractive/scaling laws | Newer completion reals and parts of `CauchyReals` | Common-refinement/Cauchy criterion for uniformly continuous integrands, then uniform limits |
+| Elementary functions | Global exponential, sine, and cosine power-series values; sine/cosine values at zero, odd/even, Pythagorean, addition, and double-angle laws, sharp absolute bounds by one, exponential majorant bounds, derivatives, continuity, all finite higher-derivative convergence, second-derivative equations, four-step formal-derivative cycles, partial tangent/secant values with parity, Pythagorean, addition, and tangent double-angle identities on their exact cosine-apart domains, plus first-positive-cosine-zero characterization, historical and damped conditional Bishop limits, the `[0,1]` cosine lower bound, conditional quarter/half/full-turn laws, and strict monotonicity/embedding of sine on the complete closed quarter interval, finite approximate image density, and generic restricted sine/cosine inverse laws for supplied equivalences or intermediate-value witnesses | Mostly `CauchyReals` | Choice-free exact IVT; damped Bishop convergence and positivity; then unconditional π |
 | Complex analysis | Out of current core scope | `CauchyReals` | Revisit after real elementary analysis |
 
 ## Techniques already transferred successfully
@@ -421,7 +431,8 @@ available.
 Algebraically, a cosine-zero candidate has sine-square one, and sine
 positivity selects the value one.  A generic positive-quarter-turn API now
 derives phase shifts, half-turn signs, and full-turn periodicity; it specializes
-to a characterized half-pi conditional on that sine-orientation fact.
+to a characterized half-pi. The sine-orientation fact is now proved from the
+first-positive-cosine-zero characterization; it is no longer an extra input.
 The corresponding restricted sine is now a continuous map from the complete
 closed symmetric quarter interval to the complete unit interval, with checked
 endpoint values.  The product-to-sum difference identity and positivity of its
@@ -440,26 +451,22 @@ also a rational-target completion route aligned with Bishop-style inverse
 constructions.  A `RationalSineInverseConstruction` consists only of a
 rational-to-real candidate, its clamped sine equation, and quarter-interval
 bounds.  Given a chosen (or merely bundled chosen) closeness-reflection
-  modulus, its graph is Cauchy-continuous, extends through sequential completion,
-  remains in the quarter interval, and satisfies `sin (G y) = clamp y`; this
-  already implies the desired equivalence.  The remaining reusable analytic
-  step is therefore the approximate image-density lemma (or a stronger
-  rational construction implying it).  `PositiveRationalChoice₀` now isolates
-  both choice uses explicitly: it assembles pointwise truncated inverse moduli
-  and turns radiuswise convergent tails into the native `SeqWitness` stored by
-  sequential completion.  Under that hypothesis,
-  `SineQuarterApproximateImageDensity` asks independently at each tolerance for
-  just one interval point whose sine approximates the target.  Dyadic sampling
-  and closeness reflection then supply the coherent source approximation and
-  the requested equivalence.  Thus finite located bisection with slack
-  comparisons is sufficient; it need not construct an infinite coherent
-  bisection or select an inverse modulus.  Adapters accept the strict rational
-  Cauchy witnesses of the existing HIT bisection, but its inverse theorem is
-  not directly reusable: it requires rational endpoints and values plus a
-  uniform positive lower slope, whereas sine has real characterized endpoints
-  and zero endpoint derivative.
-Logarithm on positive reals remains an independent target via
-inverse/integration or a controlled local series.
+modulus, its graph is Cauchy-continuous, extends through sequential completion,
+remains in the quarter interval, and satisfies `sin (G y) = clamp y`; this
+already implies the desired equivalence when the specified data are supplied.
+Finite slack-bisection proves approximate image density directly, but does not
+select an infinite coherent sequence or inverse modulus. Exact IVT remains
+open, and the former countable-choice bridge was removed. Generic restricted
+inverse endpoint, zero, parity, continuity, and order laws remain available
+for supplied equivalences or intermediate-value witnesses.
+Adapters also accept explicit rational Cauchy witnesses, but the existing HIT
+bisection inverse theorem is not directly reusable: it requires rational
+endpoints and values plus a uniform positive lower slope, whereas sine has
+real characterized endpoints and zero endpoint derivative.
+The local logarithm series and global exponential equivalence are checked.
+The global logarithm now has inverse, algebra, order, continuity, and derivative
+laws without an equivalence hypothesis. Identifying it with the separate
+series construction remains a compatibility target.
 
 ### Phase 8: optional extended scope
 
@@ -546,14 +553,16 @@ data while keeping focused checks near six seconds.
 
 ## Near-term work queue
 
-1. Prove the signed endpoint and one-Lipschitz estimates needed for the damped
-   Bishop contraction, then construct its Cauchy and positivity witnesses.
-2. Prove `SineQuarterApproximateImageDensity` by finite located bisection with
-   slack comparisons, or construct the stronger rational-target inverse
-   required by `RationalSineInverseConstruction`; the checked choice-explicit
-   bridges give the characterized restricted-sine equivalence.
-3. Prove the algebraic laws of the global exponential value from its checked
-   entire-series and Cauchy-product interfaces.
+1. Instantiate the checked exact mean-value inequality with interval-uniform
+   sine/cosine remainder estimates and derive the one-Lipschitz bounds needed
+   for damped Bishop contraction, then construct its Cauchy and positivity
+   witnesses. The inequality itself is now complete.
+2. Construct coherent native-Cauchy inverse data for exact IVT. Finite
+   approximate image density is complete, but choice-based exact inverse
+   adapters are forbidden and have been removed.
+3. Prove local exponential/logarithm compatibility and identify the total
+   series candidate with the global logarithm. The choice-free global inverse
+   and uniform local logarithm derivative estimates are now constructed.
 4. Design a performant full-apart reciprocal derivative adapter and package
    bounded-domain rational functions.
 5. Add the generic domain-map and pasting combinators demanded by calculus.

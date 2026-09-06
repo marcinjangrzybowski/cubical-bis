@@ -12,6 +12,8 @@ open import Cubical.Relation.Premetric.Base
 open import Cubical.Relation.Premetric.Mappings
 
 open import Cubical.Analysis.Real.Base
+open import Cubical.Analysis.Real.Mappings
+  using (constantRealMapIsContinuous)
 open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
@@ -91,12 +93,7 @@ private
     (source : PremetricStr ℓ' A) (value : ℝ) →
     isContinuous source (λ (_ : A) → value)
       (ℝPremetricSpace .snd)
-  constant-isContinuous source value =
-    isNonExpanding→isContinuous
-      source (λ _ → value) (ℝPremetricSpace .snd)
-      λ where
-        .IsNonExpanding.pres≈ _ _ ε _ →
-          refl∼ value ε
+  constant-isContinuous = constantRealMapIsContinuous
 
   powerOfContinuousIsContinuous :
     ∀ {ℓ ℓ'} {A : Type ℓ}

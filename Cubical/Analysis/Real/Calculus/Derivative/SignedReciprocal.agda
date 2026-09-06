@@ -23,6 +23,8 @@ open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties
+  using (negSub)
 open import Cubical.Analysis.Real.Algebra.Multiplication
 open import Cubical.Analysis.Real.Algebra.Multiplication.Laws
 open import Cubical.Analysis.Real.Algebra.CommRing
@@ -39,12 +41,6 @@ open import Cubical.Analysis.Real.Calculus.Derivative.Reciprocal
 
 private
   module ℝRing = RingTheory (CommRing→Ring ℝCommRing)
-
-  negSub : ∀ x y → - (x - y) ≡ y - x
-  negSub x y =
-    negAdd x (- y)
-    ∙ cong ((- x) +_) (negInvol y)
-    ∙ addComm (- x) y
 
   reciprocalDifferenceFactorizationFromLaw :
     ∀ {ℓ} {A : Type ℓ}

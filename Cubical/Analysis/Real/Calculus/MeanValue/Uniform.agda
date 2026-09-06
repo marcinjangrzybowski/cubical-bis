@@ -4,16 +4,17 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Nat as ℕ using (ℕ)
+open import Cubical.Data.Nat as ℕ using (ℕ; zero; suc)
 open import Cubical.Data.FinData using (FinVec)
 import Cubical.Data.FinData as FD
 open import Cubical.Data.Sigma
+open import Cubical.Data.Rationals.Inverse using (_⁻¹₊)
 open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
-open PositiveRationals using (ℚ₊)
+open PositiveRationals using (ℚ₊; 1₊; _·₊_)
 
 open import Cubical.Relation.Premetric.Base
 
@@ -21,6 +22,8 @@ open import Cubical.Analysis.Real.Base
 open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties
+  using (subAddCancel)
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.Multiplication
 open import Cubical.Analysis.Real.Algebra.Multiplication.Laws
@@ -33,11 +36,20 @@ open import Cubical.Analysis.Real.Order.Multiplication
 open import Cubical.Analysis.Real.Order.Strict.Base using (_<ℝ_)
 open import Cubical.Analysis.Real.Order.Strict.Properties using (<ℝ-weaken)
 open import Cubical.Analysis.Real.Order.Metric.AbsoluteDifference
+open import Cubical.Analysis.Real.Order.Sequence
+open import Cubical.Analysis.Real.Sequence
+open import Cubical.Analysis.Real.Series.Geometric.Rational
+  using (two₊; halfℚ)
 open import Cubical.Analysis.Real.FiniteSum.Algebra
 open import Cubical.Analysis.Real.FiniteSum.Bounds
 open import Cubical.Analysis.Real.Integration.Partition
 open import Cubical.Analysis.Real.Integration.Partition.Properties
+open import Cubical.Analysis.Real.Integration.Partition.Order
 open import Cubical.Analysis.Real.Integration.Partition.Mesh
+open import Cubical.Analysis.Real.Integration.Partition.Equal.Dyadic
+  using (dyadicReal; dyadicRealIsLimitZero)
+open import Cubical.Analysis.Real.Integration.RiemannIntegral.Base
+  using (fineTaggedPartition)
 open import Cubical.Analysis.Real.Calculus.Derivative.Base
 
 
@@ -82,6 +94,51 @@ radiuswiseUniformDerivative→derivative
     (uniformly-differentiable ε)
 
 
+-- The interval-local version asks about neither derivative values nor
+-- remainders outside the domain of the endpoint estimate.
+IsRadiuswiseUniformDerivativeOn :
+  (function derivative : ℝ → ℝ) → ℝ → ℝ → Type₀
+IsRadiuswiseUniformDerivativeOn function derivative a b =
+  ∀ (ε : ℚ₊) →
+    ∃[ δ ∈ ℚ₊ ]
+      (∀ x y →
+        a ≤ℝ x → x ≤ℝ b → a ≤ℝ y → y ≤ℝ b →
+        x ∼[ δ ] y →
+        absℝ ((function y - function x) - derivative x · (y - x))
+          ≤ℝ rat (fst ε) · absℝ (y - x))
+
+isPropIsRadiuswiseUniformDerivativeOn : ∀ function derivative a b →
+  isProp (IsRadiuswiseUniformDerivativeOn function derivative a b)
+isPropIsRadiuswiseUniformDerivativeOn function derivative a b =
+  isPropΠ λ _ → squash₁
+
+radiuswiseUniformDerivative→onInterval : ∀ function derivative a b →
+  IsRadiuswiseUniformDerivative function derivative →
+  IsRadiuswiseUniformDerivativeOn function derivative a b
+radiuswiseUniformDerivative→onInterval
+    function derivative a b uniformly-differentiable ε =
+  PT.map (λ { (δ , bound) →
+    δ , λ x y _ _ _ _ → bound x y })
+    (uniformly-differentiable ε)
+
+radiuswiseUniformDerivativeOn→subinterval :
+  ∀ function derivative a b left right →
+  a ≤ℝ left → right ≤ℝ b →
+  IsRadiuswiseUniformDerivativeOn function derivative a b →
+  IsRadiuswiseUniformDerivativeOn function derivative left right
+radiuswiseUniformDerivativeOn→subinterval
+    function derivative a b left right a≤left right≤b
+    uniformly-differentiable ε =
+  PT.map (λ { (δ , bound) →
+    δ , λ x y left≤x x≤right left≤y y≤right →
+      bound x y
+        (≤ℝ-trans a left x a≤left left≤x)
+        (≤ℝ-trans x right b x≤right right≤b)
+        (≤ℝ-trans a left y a≤left left≤y)
+        (≤ℝ-trans y right b y≤right right≤b) })
+    (uniformly-differentiable ε)
+
+
 private
   -- Bound a difference by its linear part and its remainder before
   -- substituting the partition-dependent expressions.
@@ -92,10 +149,7 @@ private
   differenceBoundFromRemainder difference linear errorBound linearBound
       error≤bound linear≤bound =
     subst (_≤ℝ errorBound + linearBound)
-      (cong absℝ
-        (sym (addAssoc difference (- linear) linear)
-        ∙ cong (difference +_) (addInvL linear)
-        ∙ addIdR difference))
+      (cong absℝ (subAddCancel difference linear))
       (≤ℝ-trans
         (absℝ ((difference - linear) + linear))
         (absℝ (difference - linear) + absℝ linear)
@@ -110,25 +164,28 @@ private
 -- endpoint bound.  This is the telescoping core of the mean-value
 -- inequality and is independent of any integration existence theorem.
 
-uniformDerivativePartitionBound :
+uniformDerivativePartitionBoundAtPoints :
   ∀ (function derivative : ℝ → ℝ) (ε δ : ℚ₊) →
-  (∀ x y →
-    x ∼[ δ ] y →
+  ∀ {a b} (partition : Partition[ a , b ]) →
+  (∀ i →
+    let x = Partition.points partition (FD.weakenFin i)
+        y = Partition.points partition (FD.suc i)
+    in x ∼[ δ ] y →
     absℝ
         ((function y - function x) -
           derivative x · (y - x))
       ≤ℝ
     rat (fst ε) · absℝ (y - x)) →
-  ∀ {a b} (partition : Partition[ a , b ]) →
   HasMeshBelow partition δ →
   ∀ bound →
-  0ℝ ≤ℝ bound →
-  (∀ x → absℝ (derivative x) ≤ℝ bound) →
+  (∀ i →
+    absℝ (derivative (Partition.points partition (FD.weakenFin i)))
+      ≤ℝ bound) →
   absℝ (function b - function a) ≤ℝ
     (rat (fst ε) + bound) · (b - a)
-uniformDerivativePartitionBound
-  function derivative ε δ remainder-bound
-  {a} {b} partition mesh bound 0≤bound derivative-bound =
+uniformDerivativePartitionBoundAtPoints
+  function derivative ε δ {a} {b} partition remainder-bound
+  mesh bound derivative-bound =
   subst2 _≤ℝ_
     (cong absℝ endpoint-difference-path)
     total-bound-path
@@ -176,7 +233,7 @@ uniformDerivativePartitionBound
         (absℝ (derivative (points (FD.weakenFin i))))
         bound (width partition i)
         (width-nonnegative partition i)
-        (derivative-bound (points (FD.weakenFin i))))
+        (derivative-bound i))
 
   term-bound : ∀ i → absℝ (differences i) ≤ℝ bounds i
   term-bound i =
@@ -196,10 +253,7 @@ uniformDerivativePartitionBound
           (cong (rat (fst ε) ·_)
             (absOfNonnegative
               (width partition i) (width-nonnegative partition i)))
-          (remainder-bound
-            (points (FD.weakenFin i))
-            (points (FD.suc i))
-            (point-close i)))
+          (remainder-bound i (point-close i)))
         (linear-bound i))
 
   endpoint-difference-path : ∑ differences ≡ function b - function a
@@ -216,3 +270,144 @@ uniformDerivativePartitionBound
       (rat (fst ε) + bound) (width partition))
     ∙ cong ((rat (fst ε) + bound) ·_)
         (totalWidth partition)
+
+
+-- Compatibility interface: the partition proof only needs hypotheses at
+-- its nodes, so global bounds are more than sufficient.
+uniformDerivativePartitionBound :
+  ∀ (function derivative : ℝ → ℝ) (ε δ : ℚ₊) →
+  (∀ x y →
+    x ∼[ δ ] y →
+    absℝ ((function y - function x) - derivative x · (y - x))
+      ≤ℝ rat (fst ε) · absℝ (y - x)) →
+  ∀ {a b} (partition : Partition[ a , b ]) →
+  HasMeshBelow partition δ →
+  ∀ bound → 0ℝ ≤ℝ bound →
+  (∀ x → absℝ (derivative x) ≤ℝ bound) →
+  absℝ (function b - function a) ≤ℝ
+    (rat (fst ε) + bound) · (b - a)
+uniformDerivativePartitionBound
+    function derivative ε δ remainder-bound partition mesh
+    bound 0≤bound derivative-bound =
+  uniformDerivativePartitionBoundAtPoints
+    function derivative ε δ partition
+    (λ i → remainder-bound
+      (Partition.points partition (FD.weakenFin i))
+      (Partition.points partition (FD.suc i)))
+    mesh bound
+    (λ i → derivative-bound
+      (Partition.points partition (FD.weakenFin i)))
+
+
+uniformDerivativePartitionBoundOn :
+  ∀ (function derivative : ℝ → ℝ) (ε δ : ℚ₊) a b →
+  (∀ x y →
+    a ≤ℝ x → x ≤ℝ b → a ≤ℝ y → y ≤ℝ b →
+    x ∼[ δ ] y →
+    absℝ ((function y - function x) - derivative x · (y - x))
+      ≤ℝ rat (fst ε) · absℝ (y - x)) →
+  (partition : Partition[ a , b ]) →
+  HasMeshBelow partition δ →
+  ∀ bound →
+  (∀ x → a ≤ℝ x → x ≤ℝ b → absℝ (derivative x) ≤ℝ bound) →
+  absℝ (function b - function a) ≤ℝ
+    (rat (fst ε) + bound) · (b - a)
+uniformDerivativePartitionBoundOn
+    function derivative ε δ a b remainder-bound partition
+    mesh bound derivative-bound =
+  uniformDerivativePartitionBoundAtPoints
+    function derivative ε δ partition
+    (λ i → remainder-bound
+      (Partition.points partition (FD.weakenFin i))
+      (Partition.points partition (FD.suc i))
+      (partitionPointLowerBound partition (FD.weakenFin i))
+      (partitionPointUpperBound partition (FD.weakenFin i))
+      (partitionPointLowerBound partition (FD.suc i))
+      (partitionPointUpperBound partition (FD.suc i)))
+    mesh bound
+    (λ i → derivative-bound
+      (Partition.points partition (FD.weakenFin i))
+      (partitionPointLowerBound partition (FD.weakenFin i))
+      (partitionPointUpperBound partition (FD.weakenFin i)))
+
+
+private
+  dyadicRadius : ℕ → ℚ₊
+  dyadicRadius zero = 1₊
+  dyadicRadius (suc n) = (two₊ ⁻¹₊) ·₊ dyadicRadius n
+
+  dyadicRadiusPath : ∀ n → rat (fst (dyadicRadius n)) ≡ dyadicReal n
+  dyadicRadiusPath zero = refl
+  dyadicRadiusPath (suc n) =
+    sym (mul-rat halfℚ (fst (dyadicRadius n)))
+    ∙ cong (rat halfℚ ·_) (dyadicRadiusPath n)
+
+  dyadicRadiusTendsToZero :
+    isLimitSequence (λ n → rat (fst (dyadicRadius n))) 0ℝ
+  dyadicRadiusTendsToZero =
+    subst (λ sequence → isLimitSequence sequence 0ℝ)
+      (sym (funExt dyadicRadiusPath)) dyadicRealIsLimitZero
+
+  -- Ordered limits remove the slack without selecting a sequence of
+  -- partitions or a global differentiability modulus.
+  removeMultiplicativeSlack : ∀ value bound length →
+    (∀ (ε : ℚ₊) → value ≤ℝ (rat (fst ε) + bound) · length) →
+    value ≤ℝ bound · length
+  removeMultiplicativeSlack value bound length slack-bound =
+    limitsPres≤
+      (λ _ → value)
+      (λ n → (rat (fst (dyadicRadius n)) + bound) · length)
+      value (bound · length)
+      (constantIsLimitSequence value)
+      (subst
+        (isLimitSequence
+          (λ n → (rat (fst (dyadicRadius n)) + bound) · length))
+        (cong (_· length) (addIdL bound))
+        (mulPresIsLimitSequence
+          (addPresIsLimitSequence dyadicRadiusTendsToZero
+            (constantIsLimitSequence bound))
+          (constantIsLimitSequence length)))
+      (λ n → slack-bound (dyadicRadius n))
+
+
+opaque
+  radiuswiseUniformDerivativeBoundOn : ∀ function derivative →
+    ∀ a b → a ≤ℝ b →
+    IsRadiuswiseUniformDerivativeOn function derivative a b →
+    ∀ bound →
+    (∀ x → a ≤ℝ x → x ≤ℝ b → absℝ (derivative x) ≤ℝ bound) →
+    absℝ (function b - function a) ≤ℝ bound · (b - a)
+  radiuswiseUniformDerivativeBoundOn
+      function derivative a b a≤b uniformly-differentiable
+      bound derivative-bound =
+    removeMultiplicativeSlack
+      (absℝ (function b - function a)) bound (b - a)
+      (λ ε →
+        PT.rec
+          (isProp≤ℝ (absℝ (function b - function a))
+            ((rat (fst ε) + bound) · (b - a)))
+          (λ { (δ , remainder-bound) →
+            PT.rec
+              (isProp≤ℝ (absℝ (function b - function a))
+                ((rat (fst ε) + bound) · (b - a)))
+              (λ { (tagged , mesh) →
+                uniformDerivativePartitionBoundOn
+                  function derivative ε δ a b remainder-bound
+                  (TaggedPartition.partition tagged) mesh
+                  bound derivative-bound })
+              (fineTaggedPartition a b a≤b δ) })
+          (uniformly-differentiable ε))
+
+  radiuswiseUniformDerivativeBound : ∀ function derivative →
+    IsRadiuswiseUniformDerivative function derivative →
+    ∀ a b → a ≤ℝ b →
+    ∀ bound →
+    (∀ x → absℝ (derivative x) ≤ℝ bound) →
+    absℝ (function b - function a) ≤ℝ bound · (b - a)
+  radiuswiseUniformDerivativeBound
+      function derivative uniformly-differentiable a b a≤b
+      bound derivative-bound =
+    radiuswiseUniformDerivativeBoundOn function derivative a b a≤b
+      (radiuswiseUniformDerivative→onInterval
+        function derivative a b uniformly-differentiable)
+      bound (λ x _ _ → derivative-bound x)

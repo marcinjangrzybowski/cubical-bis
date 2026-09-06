@@ -11,6 +11,8 @@ open import Cubical.Algebra.OrderedCommRing
 open import Cubical.Algebra.OrderedCommRing.Instances.Rationals
 
 open import Cubical.Analysis.Real.Base
+open import Cubical.Analysis.Real.Mappings
+  using (identityRealMapIsContinuous; constantRealMapIsContinuous)
 open import Cubical.Analysis.Real.Extensionality
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.Scalar.Base
@@ -31,16 +33,11 @@ private
 
   identity-isContinuous : isContinuous
     (ℝPremetricSpace .snd) (idfun ℝ) (ℝPremetricSpace .snd)
-  identity-isContinuous = isNonExpanding→isContinuous
-    (ℝPremetricSpace .snd) (idfun ℝ) (ℝPremetricSpace .snd)
-    (snd (idⁿ {M = ℝPremetricSpace}))
+  identity-isContinuous = identityRealMapIsContinuous
 
   constant-isContinuous : ∀ c → isContinuous
     (ℝPremetricSpace .snd) (λ (_ : ℝ) → c) (ℝPremetricSpace .snd)
-  constant-isContinuous c = isNonExpanding→isContinuous
-    (ℝPremetricSpace .snd) (λ (_ : ℝ) → c) (ℝPremetricSpace .snd)
-    λ where
-      .IsNonExpanding.pres≈ _ _ ε _ → refl∼ c ε
+  constant-isContinuous = constantRealMapIsContinuous (ℝPremetricSpace .snd)
 
 
 scalar-assoc : ∀ c d x →

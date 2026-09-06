@@ -7,4 +7,6 @@ open import Cubical.Analysis.Real.Order.Strict.Addition public
 open import Cubical.Analysis.Real.Order.Strict.Multiplication public
 open import Cubical.Analysis.Real.Order.Strict.Density public
 open import Cubical.Analysis.Real.Order.Strict.Located public
+open import Cubical.Analysis.Real.Order.Strict.Slack public
+open import Cubical.Analysis.Real.Order.Strict.Continuity public
 open import Cubical.Analysis.Real.Order.Strict.Structure public

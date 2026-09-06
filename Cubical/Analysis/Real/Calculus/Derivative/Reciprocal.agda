@@ -25,6 +25,8 @@ open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties
+  using (negSub)
 open import Cubical.Analysis.Real.Algebra.Multiplication
 open import Cubical.Analysis.Real.Algebra.Multiplication.Laws
 open import Cubical.Analysis.Real.Algebra.CommRing
@@ -138,12 +140,6 @@ lowerBoundedPositiveReciprocalDifferenceFactor η (x , y) =
 
 
 private
-  negSub : ∀ x y → - (x - y) ≡ y - x
-  negSub x y =
-    negAdd x (- y)
-    ∙ cong ((- x) +_) (negInvol y)
-    ∙ addComm (- x) y
-
   reciprocalDifferenceFactorization :
     ∀ η (x y : LowerBoundedPositive η) →
     lowerBoundedPositiveReciprocal η y -

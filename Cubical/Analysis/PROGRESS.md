@@ -9,6 +9,27 @@ from the constructors of a particular real-number HIT.
 
 ## Design decisions
 
+Analysis is choice-free by project policy: see [AGENTS.md](AGENTS.md) and the
+[2026-09-06 removal record](CHOICE_FREE_2026-09-06.md). Countable-choice
+assumptions and adapters are not allowed here, even as explicit parameters.
+
+Latest implementation results are recorded in
+[Logarithm and exponential — 2026-09-06](LOGARITHM_2026-09-06.md): exponential
+algebra/order/continuity, a choice-free local logarithm series, a reusable
+approximate IVT, and now an unconditional exponential equivalence and global
+logarithm from deterministic geometric iteration. The choice-dependent
+global inverse construction remains removed. Uniform local power-series
+derivative estimates and a separate total series candidate are also checked. The
+positive reals now have a multiplicative abelian group built directly from
+real arithmetic, with exp/log group isomorphisms to the additive reals and
+unit, inverse, subtraction, and quotient correspondence laws. The preceding
+pass is recorded in
+[Analysis improvements — 2026-09-05](IMPROVEMENTS_2026-09-05.md): shared additive
+and continuity proofs, an ordered integration API, inverse-trigonometric
+properties, an exact interval-local mean-value inequality, and finite
+slack-bisection density. Exact restricted trigonometric inverse existence
+remains a constructive goal; exponential inverse existence is complete.
+
 - The real carrier is the sequential completion of the ordinary rational
   premetric.  It is denoted `ℝ` and rationals enter through `rat`.
 - Generic theorems remain generic.  In particular, extensionality for maps out
@@ -372,25 +393,16 @@ from the constructors of a particular real-number HIT.
   rational graph Cauchy-continuous; sequential completion then extends it to
   all real targets, preserves its interval range, and proves
   `sin (G y) = clamp y`.  The bundled and merely bundled modulus variants feed
-  the restricted-sine equivalence directly.  Positive-rational choice is now
-  exposed explicitly and has two checked uses: it assembles the pointwise
-  truncated inverse moduli and turns radiuswise convergent tails into the
-  native `SeqWitness` expected by sequential completion.  Consequently an
-  image-only approximation needs no source-side Cauchy proof.  The boundary
-  has been reduced further to `SineQuarterApproximateImageDensity`: for every
-  target and positive rational tolerance, independently produce a merely
-  existing interval point whose sine is within that tolerance.  Choice samples
-  these witnesses at dyadic tolerances, closeness reflection reconstructs the
-  source Cauchy witness, and the checked completion chain proves the restricted
-  sine equivalence.  Rational approximation-family variants, including a
-  direct adapter for the strict rational sequences used by
-  `HITs/CauchyReals` bisection, feed the same chain.  Thus the remaining
-  choice-conditional interval work is the finite located-search/approximate-
-  density lemma.  Its first reusable pieces are checked: the slack bracket
-  predicate, strict slack-band inequalities, endpoint bracket inequalities,
-  midpoint containment, and the truncated overlapping midpoint comparison.
-  No coherent bisection sequence or bundled inverse modulus is left to
-  construct.  No unconditional `piℝ` is exported before convergence and
+  the restricted-sine equivalence directly when that modulus is supplied.
+  `SineQuarterApproximateImageDensity` asks only for a merely existing
+  approximate preimage at each target and tolerance. Finite slack-bisection
+  now proves this density, but it does not choose a coherent sequence or a
+  bundled inverse modulus. The former countable-choice adapters were removed.
+  Exact inverse existence must instead supply native Cauchy data or another
+  constructive completion argument. Rational approximation-family adapters
+  remain available when their actual Cauchy data are supplied; image-only
+  convergence is not silently promoted to such data.
+  No unconditional `piℝ` is exported before convergence and
   positivity-before-the-limit are constructed.
 - `Real.Integration` now exposes finite and tagged partitions, endpoint and
   monotonicity data, widths and telescoping total width, left/right sampling,
@@ -492,12 +504,10 @@ from the constructors of a particular real-number HIT.
 - [x] Prove the product-to-sum difference identity, positivity of both factors,
   strict monotonicity of sine on the closed quarter interval, and hence
   injectivity and embedding of the restricted map.
-- [ ] Prove `SineQuarterApproximateImageDensity`, for example by finite located
-  bisection with slack comparisons.  Under the now-explicit
-  `PositiveRationalChoice₀`, independent approximate preimages at each
-  tolerance are enough: the checked dyadic sampling, reflection, completion,
-  and rational-lift bridges feed the characterized `[-pi/2,pi/2]` sine
-  equivalence directly.
+- [x] Prove `SineQuarterApproximateImageDensity` by finite located bisection
+  with slack comparisons, without a choice assumption.
+- [ ] Construct coherent inverse approximations with native Cauchy data;
+  finite approximate image density alone does not establish exact sine IVT.
 - [ ] Prove the signed endpoint/Lipschitz estimates needed for the damped
   Bishop contraction; then construct the Cauchy witness, positivity before the
   limit, and unconditional `halfPiℝ`/`piℝ`.
@@ -629,11 +639,11 @@ from the constructors of a particular real-number HIT.
   several times in one generic module.
 - `SeqWitness` is a truncation of a globally chosen modulus, whereas
   `isLimitSequence` has radiuswise truncated tails.  A convergent sequence does
-  not automatically regain a native witness without an additional choice
-  step.  The series API therefore treats `Summable` as primary and exposes
-  only the sound native-Cauchy-to-summable direction.  Trigonometric inverse
-  construction now provides the converse locally under the explicit
-  `PositiveRationalChoice₀` hypothesis; no global choice axiom is installed.
+  not automatically regain a native witness. The series API therefore treats
+  `Summable` as primary and exposes only the sound native-Cauchy-to-summable
+  direction. The former choice-based converse adapters were removed. Future
+  inverse constructions must prove a suitable native witness constructively;
+  adding a choice assumption is not an acceptable shortcut.
 - Multiplication's completion-centred construction knows enough to preserve
   suitable Cauchy graphs, but its cheapest reusable binary witness interface
   is not yet exposed.  This should be solved generically before polynomial or

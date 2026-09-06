@@ -5,6 +5,10 @@ open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 open import Cubical.Functions.Embedding
+open import Cubical.Analysis.Real.Algebra.AdditionLaws using (0ℝ)
+open import Cubical.Analysis.Real.Order.Strict.Properties using (<ℝ-weaken)
+open import Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Characterization
+  using (firstPositiveCosineZero-positive)
 
 open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Definition
@@ -75,6 +79,17 @@ CharacterizedHalfPiSineApproximateImageDensity :
   CharacterizedHalfPi → Type₀
 CharacterizedHalfPiSineApproximateImageDensity construction =
   SineQuarterApproximateImageDensity (fst construction)
+
+
+-- Finite bisection gives approximate density, not an exact inverse.
+characterizedHalfPi-sineApproximateImageDensity :
+  (construction : CharacterizedHalfPi) →
+  CharacterizedHalfPiSineApproximateImageDensity construction
+characterizedHalfPi-sineApproximateImageDensity construction =
+  sineQuarterApproximateImageDensityByBisection
+    (fst construction) (characterizedHalfPi-quarterTurn construction)
+    (<ℝ-weaken 0ℝ (fst construction)
+      (firstPositiveCosineZero-positive (snd construction)))
 
 
 CharacterizedHalfPiRationalSineInverseData :
@@ -200,62 +215,6 @@ characterizedRestrictedSineEquivFromApproximateIntermediateValue
     construction sine-one approximate
 
 
-characterizedRestrictedSine-isEquivFromImageApproximateIntermediateValue :
-  PositiveRationalChoice₀ →
-  (construction : CharacterizedHalfPi) →
-  CharacterizedHalfPiSineOne construction →
-  CharacterizedHalfPiSineImageApproximateIntermediateValue construction →
-  isEquiv (restrictedSine (fst construction))
-characterizedRestrictedSine-isEquivFromImageApproximateIntermediateValue
-    choice construction sine-one image-approximation =
-  restrictedSine-isEquivFromImageApproximateIntermediateValue
-    (fst construction)
-    choice
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    image-approximation
-
-
-characterizedRestrictedSineEquivFromImageApproximateIntermediateValue :
-  PositiveRationalChoice₀ →
-  (construction : CharacterizedHalfPi) →
-  CharacterizedHalfPiSineOne construction →
-  CharacterizedHalfPiSineImageApproximateIntermediateValue construction →
-  SineQuarterInterval (fst construction) ≃ SineUnitInterval
-characterizedRestrictedSineEquivFromImageApproximateIntermediateValue
-    choice construction sine-one image-approximation =
-  restrictedSine (fst construction)
-  , characterizedRestrictedSine-isEquivFromImageApproximateIntermediateValue
-    choice construction sine-one image-approximation
-
-
-characterizedRestrictedSine-isEquivFromApproximateImageDensity :
-  PositiveRationalChoice₀ →
-  (construction : CharacterizedHalfPi) →
-  CharacterizedHalfPiSineOne construction →
-  CharacterizedHalfPiSineApproximateImageDensity construction →
-  isEquiv (restrictedSine (fst construction))
-characterizedRestrictedSine-isEquivFromApproximateImageDensity
-    choice construction sine-one density =
-  restrictedSine-isEquivFromApproximateImageDensity
-    (fst construction)
-    choice
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    density
-
-
-characterizedRestrictedSineEquivFromApproximateImageDensity :
-  PositiveRationalChoice₀ →
-  (construction : CharacterizedHalfPi) →
-  CharacterizedHalfPiSineOne construction →
-  CharacterizedHalfPiSineApproximateImageDensity construction →
-  SineQuarterInterval (fst construction) ≃ SineUnitInterval
-characterizedRestrictedSineEquivFromApproximateImageDensity
-    choice construction sine-one density =
-  restrictedSine (fst construction)
-  , characterizedRestrictedSine-isEquivFromApproximateImageDensity
-    choice construction sine-one density
 
 
 characterizedRestrictedSine-isEquivFromRationalInverse :
@@ -312,110 +271,3 @@ characterizedRestrictedSineEquivFromRationalConstruction
   restrictedSine (fst construction)
   , characterizedRestrictedSine-isEquivFromRationalConstruction
     construction sine-one modulus inverse-construction
-
-
-characterizedRestrictedSine-isEquivFromRationalConstructionWithPositiveRationalChoice :
-  PositiveRationalChoice₀ →
-  (construction : CharacterizedHalfPi) →
-  CharacterizedHalfPiSineOne construction →
-  CharacterizedHalfPiRationalSineInverseConstruction construction →
-  isEquiv (restrictedSine (fst construction))
-characterizedRestrictedSine-isEquivFromRationalConstructionWithPositiveRationalChoice
-    choice construction sine-one inverse-construction =
-  restrictedSine-isEquivFromRationalConstructionWithPositiveRationalChoice
-    (fst construction)
-    choice
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    inverse-construction
-
-
-characterizedRestrictedSineEquivFromRationalConstructionWithPositiveRationalChoice :
-  PositiveRationalChoice₀ →
-  (construction : CharacterizedHalfPi) →
-  CharacterizedHalfPiSineOne construction →
-  CharacterizedHalfPiRationalSineInverseConstruction construction →
-  SineQuarterInterval (fst construction) ≃ SineUnitInterval
-characterizedRestrictedSineEquivFromRationalConstructionWithPositiveRationalChoice
-    choice construction sine-one inverse-construction =
-  restrictedSine (fst construction)
-  , characterizedRestrictedSine-isEquivFromRationalConstructionWithPositiveRationalChoice
-    choice construction sine-one inverse-construction
-
-
-characterizedRestrictedSine-isEquivFromRationalApproximationFamily :
-  PositiveRationalChoice₀ →
-  (construction : CharacterizedHalfPi) →
-  CharacterizedHalfPiSineOne construction →
-  CharacterizedHalfPiRationalSineInverseApproximationFamily construction →
-  isEquiv (restrictedSine (fst construction))
-characterizedRestrictedSine-isEquivFromRationalApproximationFamily
-    choice construction sine-one approximations =
-  restrictedSine-isEquivFromRationalApproximationFamily
-    (fst construction)
-    choice
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    approximations
-
-
-characterizedRestrictedSine-isEquivFromMereRationalApproximationFamily :
-  PositiveRationalChoice₀ →
-  (construction : CharacterizedHalfPi) →
-  CharacterizedHalfPiSineOne construction →
-  CharacterizedHalfPiMereRationalSineInverseApproximationFamily construction →
-  isEquiv (restrictedSine (fst construction))
-characterizedRestrictedSine-isEquivFromMereRationalApproximationFamily
-    choice construction sine-one approximations =
-  restrictedSine-isEquivFromMereRationalApproximationFamily
-    (fst construction)
-    choice
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    approximations
-
-
-characterizedRestrictedSineEquivFromRationalApproximationFamily :
-  PositiveRationalChoice₀ →
-  (construction : CharacterizedHalfPi) →
-  CharacterizedHalfPiSineOne construction →
-  CharacterizedHalfPiRationalSineInverseApproximationFamily construction →
-  SineQuarterInterval (fst construction) ≃ SineUnitInterval
-characterizedRestrictedSineEquivFromRationalApproximationFamily
-    choice construction sine-one approximations =
-  restrictedSine (fst construction)
-  , characterizedRestrictedSine-isEquivFromRationalApproximationFamily
-    choice construction sine-one approximations
-
-
-characterizedRestrictedSine-isEquivFromRationalPointApproximationFamily :
-  PositiveRationalChoice₀ →
-  (construction : CharacterizedHalfPi) →
-  CharacterizedHalfPiSineOne construction →
-  CharacterizedHalfPiRationalPointSineInverseApproximationFamily construction →
-  isEquiv (restrictedSine (fst construction))
-characterizedRestrictedSine-isEquivFromRationalPointApproximationFamily
-    choice construction sine-one approximations =
-  restrictedSine-isEquivFromRationalPointApproximationFamily
-    (fst construction)
-    choice
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    approximations
-
-
-characterizedRestrictedSine-isEquivFromRationalPointImageApproximationFamily :
-  PositiveRationalChoice₀ →
-  (construction : CharacterizedHalfPi) →
-  CharacterizedHalfPiSineOne construction →
-  CharacterizedHalfPiRationalPointSineInverseImageApproximationFamily
-    construction →
-  isEquiv (restrictedSine (fst construction))
-characterizedRestrictedSine-isEquivFromRationalPointImageApproximationFamily
-    choice construction sine-one approximations =
-  restrictedSine-isEquivFromRationalPointImageApproximationFamily
-    (fst construction)
-    choice
-    (characterizedHalfPi-positiveQuarterTurn construction sine-one)
-    (snd construction)
-    approximations

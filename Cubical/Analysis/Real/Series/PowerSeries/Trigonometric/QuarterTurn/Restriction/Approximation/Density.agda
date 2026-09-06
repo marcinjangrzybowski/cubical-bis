@@ -25,10 +25,7 @@ open import
 open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Restriction.Base
 open import
-  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Injectivity.Separation.Reflection.Choice
-  using (PositiveRationalChoice₀)
-open import
-  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Restriction.Approximation.Choice
+  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.QuarterTurn.Restriction.Approximation.Image
 
 
 open PositiveRationals using (ℚ₊; [_/_]₊)
@@ -100,17 +97,3 @@ chosenApproximatePreimages→imageApproximation
               target (dyadic n) input (small n N≤n)
               (snd (approximate (dyadic n))))
          ∣₁
-
-
-approximateImageDensity→imageApproximateIntermediateValue :
-  ∀ quarter →
-  PositiveRationalChoice₀ →
-  SineQuarterApproximateImageDensity quarter →
-  SineQuarterImageApproximateIntermediateValue quarter
-approximateImageDensity→imageApproximateIntermediateValue
-    quarter choice density target lower upper =
-  PT.map
-    (chosenApproximatePreimages→imageApproximation quarter target)
-    (choice
-      (SineQuarterApproximatePreimage quarter target)
-      (density target lower upper))

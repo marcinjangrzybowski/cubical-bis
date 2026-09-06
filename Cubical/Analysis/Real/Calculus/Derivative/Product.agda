@@ -21,6 +21,8 @@ open import Cubical.Analysis.Real.Algebra.Negation
 open import Cubical.Analysis.Real.Algebra.Addition
 open import Cubical.Analysis.Real.Algebra.AdditionLaws
 open import Cubical.Analysis.Real.Algebra.AdditiveGroup
+open import Cubical.Analysis.Real.Algebra.AdditiveGroup.Properties
+  using (differenceOfSums)
 open import Cubical.Analysis.Real.Algebra.Multiplication
 open import Cubical.Analysis.Real.Algebra.Multiplication.Laws
 open import Cubical.Analysis.Real.Algebra.AbsoluteValue
@@ -45,18 +47,6 @@ open 1/2∈ℚ
 
 private
   module ℝRing = RingTheory (CommRing→Ring ℝCommRing)
-
-  differenceOfSums : ∀ (a b c d : ℝ) →
-    (a + b) - (c + d) ≡ (a - c) + (b - d)
-  differenceOfSums a b c d =
-    cong ((a + b) +_) (negAdd c d)
-    ∙ sym (addAssoc a b ((- c) + (- d)))
-    ∙ cong (a +_) (addAssoc b (- c) (- d))
-    ∙ cong (λ value → a + (value + (- d)))
-        (addComm b (- c))
-    ∙ cong (a +_)
-        (sym (addAssoc (- c) b (- d)))
-    ∙ addAssoc a (- c) (b + (- d))
 
   swapNestedProduct : ∀ a b c →
     (a · b) · c ≡ (a · c) · b
