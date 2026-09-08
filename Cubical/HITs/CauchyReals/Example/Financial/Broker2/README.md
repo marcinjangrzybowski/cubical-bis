@@ -9,7 +9,28 @@ contract explicitly.
 Read the modules in order. Use [PRESENTATION.md](PRESENTATION.md) for a 28-minute
 speaker guide, [REFERENCES.md](REFERENCES.md) for the financial and systems
 motivation, and [PROGRESS.md](PROGRESS.md) for reviews and validation. The
-[entry point](../Broker2.agda) checks all seven versions together.
+[entry point](../Broker2.agda) checks all seven versions and the relational
+implementation together.
+
+The final version also serves as the abstract model for
+[Pipeline/](Pipeline/README.md). It materializes typed trade and collateral
+relations, values and groups them by client netting set, computes margin
+reserves, and processes identified receipt deliveries. Its
+[`pipeline-correct`](Pipeline/Properties/Refinement.agda) theorem connects the returned
+state, dependent report, and call table to V07 and carries the same financial
+guarantee to independent sums over the source catalogs. This adds a concrete
+implementation to the presentation without introducing a numerical scenario.
+The executable modules return ordinary data. Separate property modules certify
+those outputs; field access and aggregation use shared relation primitives.
+
+For a compact demonstration, start with
+[`Implementation/Calculation.agda`](Pipeline/Implementation/Calculation.agda).
+Its `calculate` function reads trades, custody lots and recorded receipts,
+chains relational enrichment and aggregation, and returns a margin-call table.
+[`Properties/Calculation.agda`](Pipeline/Properties/Calculation.agda) certifies
+that table against the model. `Implementation/` and `Properties/` keep the
+calculation and its certification in separate folders; demonstrating this query
+does not require walking through the complete engine workflow.
 
 ## The evolution
 

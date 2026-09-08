@@ -1,7 +1,26 @@
 {-# OPTIONS --safe --cubical #-}
 
--- One evolving engine, version 1: quote a call; record actual cash;
--- prove that enough received cash covers a signed replacement claim.
+-- Version 1: determine the additional cash needed to cover one account.
+-- State contains a signed replacement claim and nonnegative available cash,
+-- measured in the same unit. A positive claim is an amount owed to the broker;
+-- Safe means that this claim is no larger than the account's cash.
+--
+-- quoteCall computes max(claim - cash, 0). This is an incremental amount:
+-- existing cash is already included. receive adds a supplied nonnegative
+-- receipt to the balance; computing or issuing a quote never changes cash.
+--
+-- The main contract is receive-correct: for every account and every
+-- nonnegative real receipt, meeting the quote makes the resulting state Safe.
+-- quote-least proves the converse, and quote-sufficient covers paying exactly
+-- the quote. Together they characterize the least additional cash requirement.
+-- remaining-quote describes partial payment, while receive-compose identifies
+-- two successive receipts with receiving their combined amount.
+--
+-- This is the baseline for the later client, stress and receipt versions.
+-- account-path includes the balance's nonnegativity evidence in state equality.
+-- adequate≃safe and policy-path express the contract as an equivalence and a
+-- Cubical path. They do not decide arbitrary Cauchy-real comparisons; actual
+-- cash availability is the financial interpretation of the supplied state.
 module Cubical.HITs.CauchyReals.Example.Financial.Broker2.V01Account where
 
 open import Cubical.HITs.CauchyReals.Example.Financial.Core.Finite public

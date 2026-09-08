@@ -6,6 +6,28 @@ For presenting the development to quantitative developers, use
 quote/receive contract visible and prove compatibility as clients, stress,
 rational execution, tolerances, receipt identities and revaluation are added.
 
+For the relational example, start with the read-only
+[`calculate`](Broker2/Pipeline/Implementation/Calculation.agda) query and its
+[separate certification](Broker2/Pipeline/Properties/Calculation.agda).
+The query reads trade, collateral and receipt tables and produces a margin-call
+table through chained enrichment, selection, grouped sums and scenario maxima.
+`calculate-refines-model` identifies the whole output with the model's plan;
+`calculate-certified` gives properties of each actual returned row.
+`fulfilling-calculation` connects cash covering those returned requests to the
+model's client and broker loss bounds. This demonstration needs no engine
+execution or concrete market scenario.
+
+The [relational implementation](Broker2/Pipeline/Implementation/Margin.agda) makes the
+final model concrete through typed trade, collateral, and receipt relations.
+Its separate [`pipeline-correct`](Broker2/Pipeline/Properties/Refinement.agda) theorem
+identifies the returned state, remaining report amounts, and call rows with the
+model, and certifies the program's actual status tag. Fulfilled calls imply the
+same bounds for independent indexed source sums: every client's residual is at
+most its MTA, and aggregate residual and every modeled severity-weighted loss
+are at most total MTA. Zero MTA gives zero modeled loss. These results quantify
+over arbitrary finite books and supplied stresses, under the documented source
+contracts; see the [pipeline guide](Broker2/Pipeline/README.md).
+
 The separate [generic broker progression](Broker/README.md) now develops these
 ideas through eight stages without concrete scenarios. Its
 [controller theorem](Broker/Stage08Controller.agda) composes inventory-backed

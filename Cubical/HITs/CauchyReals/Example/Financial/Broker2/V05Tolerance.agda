@@ -1,8 +1,26 @@
 {-# OPTIONS --safe --cubical #-}
 
--- Version 5: evolve the rational engine with a minimum transfer amount.
--- Quote and receipt operations remain separate. The specification now allows
--- a bounded residual; setting every MTA to zero recovers version 4 exactly.
+-- Version 5: allow small transfers to remain outstanding within an explicit
+-- minimum transfer amount (MTA). The state and its incremental rational report
+-- are inherited from V04; each client receives a separate rational threshold.
+--
+-- quoteCall requests zero when the reported amount is at most the MTA,
+-- including equality. Otherwise it requests the entire reported amount.
+-- receive and advanceReport retain V04's behavior: only actual new receipts
+-- increase cash or reduce the remaining report. Suppression credits no cash.
+--
+-- For nonnegative MTAs and receipts, receive-correct proves that meeting each
+-- request leaves every client shortfall at most its MTA in every supplied
+-- scenario. Guarantee adds bounds on aggregate positive exposure and every
+-- severity-weighted closeout loss by the sum of the client MTAs.
+-- assess returns this guarantee on success or identifies an unmet request.
+-- An unmet request need not imply that the tolerated exposure bound fails.
+--
+-- receive-refines-V04 preserves the earlier state transition exactly.
+-- zero-mta-refines-V04 recovers the V04 quote when all MTAs are zero, and
+-- zero-mta-safe recovers full coverage. Positive MTAs permit nonzero residuals.
+-- The full-amount-or-zero rule and its equality boundary are explicit policy
+-- choices; no regulatory threshold or probabilistic loss estimate is supplied.
 module Cubical.HITs.CauchyReals.Example.Financial.Broker2.V05Tolerance where
 
 open import Cubical.HITs.CauchyReals.Example.Financial.Core.Finite public

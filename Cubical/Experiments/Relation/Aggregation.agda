@@ -10,8 +10,10 @@ open import Cubical.Data.FinData.Properties using (discreteFin)
 open import Cubical.Data.List.Base using ([]; _∷_; _++_)
 open import Cubical.Data.Bool.Base using (Bool; true; false; if_then_else_; Dec→Bool)
 open import Cubical.Relation.Nullary using (yes; no)
+open import Agda.Builtin.String using (String)
 open import Cubical.Experiments.Relation.Base using
-  (Fields'; Row'; Relation'; []; _∶_,_; _,,_)
+  (Fields'; Row'; Relation'; []; _∶_,_; _,,_;
+   NonMember; insertField; insert; insertᵣ)
 open import Cubical.Experiments.Relation.Operations
 
 -- Definitions and the first laws need no algebraic assumptions. In
@@ -44,6 +46,25 @@ module Sum (A : Type₀) (zeroA : A) (_+A_ : A → A → A) where
   sum-project project weight [] = refl
   sum-project project weight (row ∷ rows) =
     cong (weight (project row) +A_) (sum-project project weight rows)
+
+  -- These laws follow the column-building stages of a relation pipeline.
+  -- No commutativity or identity law for the aggregate is needed.
+  sum-derive : (name : String) {Ty : Type₀} {source : Fields'} →
+    ⦃ fresh : NonMember name source ⦄ → (compute : Row' source → Ty) →
+    (weight : Row' (insertField name {Ty = Ty} {source = source}) → A) →
+    (rows : Relation' source) →
+    sumBy weight (deriveᵣ name compute rows)
+      ≡ sumBy (λ row → weight (insert name (compute row) row)) rows
+  sum-derive name compute weight rows =
+    sum-project (λ row → insert name (compute row) row) weight rows
+
+  sum-insert : (name : String) {Ty : Type₀} {source : Fields'} →
+    ⦃ fresh : NonMember name source ⦄ → (value : Ty) →
+    (weight : Row' (insertField name {Ty = Ty} {source = source}) → A) →
+    (rows : Relation' source) →
+    sumBy weight (insertᵣ name value rows)
+      ≡ sumBy (λ row → weight (insert name value row)) rows
+  sum-insert name value weight rows = sum-project (insert name value) weight rows
 
   sum-select : (left-zero : ∀ x → zeroA +A x ≡ x) →
     ∀ {schema} (predicate : Row' schema → Bool) weight rows →

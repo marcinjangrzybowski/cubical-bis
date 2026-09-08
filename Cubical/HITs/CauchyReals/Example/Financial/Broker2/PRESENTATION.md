@@ -362,3 +362,65 @@ agda-codex Cubical/HITs/CauchyReals/Example/Financial/Broker2/V07Revaluation.agd
 These are suggested commands, not a record of checks or mutation tests
 performed by this document. Record an actual compiler result when demonstrating
 it.
+
+<a id="pipeline-extension"></a>
+## Optional extension — one calculation and its certificate
+
+Allow five minutes. For a 30-minute talk, replace two minutes of the opening and
+one minute of V01 detail with this segment. The standalone calculation can also
+be presented on its own; its source is readable without navigating the broader
+engine. The [pipeline guide](Pipeline/README.md) contains the assumptions and
+literal code excerpts.
+
+**1. Open the complete function.** In
+[Implementation/Calculation](Pipeline/Implementation/Calculation.agda), show
+`calculate valuation seen mta`. It takes a current valuation, the seen-receipt
+ledger, and MTAs; it returns a margin-call relation. Source catalogs are module
+parameters. It updates no ledger and receives no payment.
+
+**2. Read the relation chain.** Walk through the four local quantities:
+trade rows derive replacement values and group by client; collateral rows derive
+eligible values and group; canonical receipts are selected by `seen` and grouped;
+scenario rows derive positive shortfalls and fold with `Maximum.sumBy`.
+Explain that this fold uses rational `max`. Finally, client rows derive
+`incrementalUpper`, derive `requestedCash`, and project the six output columns.
+Named `get` expressions make each field dependency visible.
+
+**3. Read a certificate for the actual rows.** Open
+[Properties/Calculation](Pipeline/Properties/Calculation.agda).
+`calculate-refines-model` identifies `Code.calculate` with `modelRows`, using
+its current exact initial report and V06 policy. `calculate-certified` returns
+`EveryRow (RowCertified ...)` for the actual output list. Show `upper-exact`,
+which relates a returned amount to the independent `referenceBook`, and
+`request-exact`, which identifies the current V06 request. The certificate also
+checks the retained references, snapshot, MTA, and nonnegative amounts.
+
+**4. Connect requests to a financial consequence.** `MeetsRequests paid rows`
+checks each row's requested cash against payment for the client key in that row.
+`fulfilling-calculation` assumes nonnegative MTAs and additional actual payments
+meeting this predicate on `Code.calculate`. Its result is
+`Tolerance.Guarantee` after crediting those payments to the independent
+reference book: per-client residual at most MTA, aggregate and every-severity
+loss at most the sum of MTAs. Existing seen cash is already deducted.
+The payment theorem itself performs no deduplication; delivery callers should
+use the separate receipt `deltaBalances` and accounting proofs for new amounts.
+
+**5. State the boundary and optional context.** Catalogs must describe distinct
+live trades, authorized netting sets, and available collateral. Rational
+valuation is supplied; recorded and new cash is available at par in the common
+currency. Labels remain metadata. The calculation recomputes the exact current
+requirement, so its request need not equal a historical conservative revaluation
+quote. The separate [Margin engine](Pipeline/Implementation/Margin.agda) and its
+properties remain available for the fuller receipt/update lifecycle.
+
+The [pipeline references](REFERENCES.md#relational-pipeline) connect data
+representation to Codd, event identity to FINOS and Saltzer, and the financial
+assumptions to the existing margin literature. Those sources motivate the design;
+the separate properties module proves this implementation's results.
+
+For rehearsal:
+
+```sh
+agda-codex Cubical/HITs/CauchyReals/Example/Financial/Broker2/Pipeline/Implementation/Calculation.agda
+agda-codex Cubical/HITs/CauchyReals/Example/Financial/Broker2/Pipeline/Properties/Calculation.agda
+```

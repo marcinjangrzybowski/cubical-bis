@@ -53,6 +53,19 @@ and assessment. It reuses the existing finite-margin, receipt-journal and drift
 lemmas. The earlier broker progression remains independent. `Theory.Broker2`
 exports qualified version namespaces; no concrete example is imported.
 
+[Broker2/Pipeline/](Broker2/Pipeline/README.md) uses
+`Cubical.Experiments.Relation`. `Implementation/` contains `Sources`, `Valuation`,
+`Receipts`, `Margin`, and the standalone `Calculation`. `Properties/` contains
+the accounting, numeric, safety, refinement, and replay proofs, including a
+matching `Calculation` module certifying the result table. Each folder has its
+own Agda entry point; the pipeline umbrella exposes these two namespaces.
+The presentation starts with the read-only `calculate` query: three source
+tables, derived columns, selection, grouped sums, a maximum over scenarios,
+and a projected output. The complete margin engine remains available separately.
+The implementation imports no abstract broker engine or financial safety module.
+Named field access, finite-key membership, projection, selection, and aggregation
+are shared relation primitives, rather than per-schema getter wrappers.
+
 ## Generic broker progression
 
 [Broker/README.md](Broker/README.md) gives the stage-by-stage contracts and

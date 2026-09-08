@@ -23,3 +23,6 @@ module V06Receipts where
 
 module V07Revaluation where
   open import Cubical.HITs.CauchyReals.Example.Financial.Broker2.V07Revaluation public
+
+module Pipeline where
+  open import Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline public

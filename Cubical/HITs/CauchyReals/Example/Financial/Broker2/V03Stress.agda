@@ -1,8 +1,26 @@
 {-# OPTIONS --safe --cubical #-}
 
--- Version 3: the same client engine must survive every supplied stress.
--- Scenarios are nonempty and finite; their numerical values remain arbitrary
--- Cauchy reals. Eligible collateral excludes the separately recorded cash.
+-- Version 3: require each client's cash to cover a whole family of stresses.
+-- Market contains signed claims and nonnegative eligible collateral for
+-- Fin (suc stresses) scenarios. State adds a cash balance common to those
+-- scenarios. Eligible collateral excludes that separately recorded cash.
+-- Scenario values are arbitrary Cauchy reals; only their indexing is finite.
+--
+-- quoteCall takes the largest positive shortfall across scenarios for each
+-- client. The quote is incremental: collateral and existing cash enter once.
+-- receive adds new nonnegative cash and preserves the supplied market data.
+--
+-- receive-correct proves coverage of every client in every supplied scenario
+-- when all receipts meet the uniform quotes. quote-least proves that these
+-- are the least nonnegative uniform receipts. safe-loss-zero then covers
+-- every supplied scenario and every admissible severity vector.
+-- remaining-quote gives the exact shortfall update after a partial receipt.
+--
+-- view exposes the V02 book at a scenario; receive-refines-V02 shows that
+-- receipt and projection commute. snapshot-quote≤uniform bounds each local
+-- quote, and singleton-quote-refines-V02 recovers V02 with one scenario.
+-- These claims range over the supplied family, not every future market state.
+-- No scenario maximizer or decision procedure for arbitrary real order is used.
 module Cubical.HITs.CauchyReals.Example.Financial.Broker2.V03Stress where
 
 open import Cubical.HITs.CauchyReals.Example.Financial.Core.Finite public

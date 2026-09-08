@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Reflection.Sugar</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">{-
+This module provides essential definitions and the necessary machinery to enable syntactic sugar for monads and applicatives with instances. The content is split into two main submodules:
+
+1. **Base**: Contains fundamental definitions that only depend on `Agda.Primitive`, ensuring no dependencies on the Cubical library. This makes it universally usable across the library.
+2. **Instances**: Provides instances of the defined classes for various entities from the Cubical library.
+
+The organization of this module emphasizes their utility as helper definitions for writing code and macros, rather than for formal reasoning about their categorical nature.
+-}</a>
+
+<a id="664" class="Symbol">{-#</a> <a id="668" class="Keyword">OPTIONS</a> <a id="676" class="Pragma">--safe</a> <a id="683" class="Symbol">#-}</a>
+<a id="687" class="Keyword">module</a> <a id="694" href="Cubical.Reflection.Sugar.html" class="Module">Cubical.Reflection.Sugar</a> <a id="719" class="Keyword">where</a>
+
+<a id="726" class="Keyword">open</a> <a id="731" class="Keyword">import</a> <a id="738" href="Cubical.Reflection.Sugar.Base.html" class="Module">Cubical.Reflection.Sugar.Base</a> <a id="768" class="Keyword">public</a>
+<a id="775" class="Keyword">open</a> <a id="780" class="Keyword">import</a> <a id="787" href="Cubical.Reflection.Sugar.Instances.html" class="Module">Cubical.Reflection.Sugar.Instances</a> <a id="822" class="Keyword">public</a>
+</pre></body></html>

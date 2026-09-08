@@ -1,7 +1,26 @@
 {-# OPTIONS --safe --cubical #-}
 
--- Version 2: the SAME quote/receive engine, lifted to client netting sets.
--- The new theorem quantifies over every client and every loss severity.
+-- Version 2: apply the account contract to a finite book of client netting sets.
+-- State stores one signed claim and one nonnegative cash balance per client.
+-- The client count is arbitrary, including zero. Each supplied label denotes
+-- a separate netting set; the types do not establish its legal enforceability.
+--
+-- quoteCall computes each client's incremental shortfall, and receive credits
+-- each receipt to that client's balance. All amount comparisons are performed
+-- per client. A surplus belonging to another client cannot satisfy a call.
+-- Quoting leaves every balance unchanged until cash is actually received.
+--
+-- receive-correct guarantees simultaneous coverage of all clients whenever
+-- every nonnegative receipt meets its own quote. quote-least preserves the
+-- leastness property component by component. safe-residual-zero then proves
+-- that the sum of positive unsecured claims is zero. safe-loss-zero proves
+-- zero modeled closeout loss for every severity vector with entries in [0,1].
+-- This is a conditional loss model, with no probability of default inferred.
+--
+-- The connection to V01 is explicit: view exposes an individual account,
+-- and quote-refines-V01 and receive-refines-V01 show that projection commutes
+-- with both operations. state-path extends equality from the economic fields
+-- to the complete book, including its nonnegativity proofs.
 module Cubical.HITs.CauchyReals.Example.Financial.Broker2.V02Clients where
 
 open import Cubical.HITs.CauchyReals.Example.Financial.Core.Finite public

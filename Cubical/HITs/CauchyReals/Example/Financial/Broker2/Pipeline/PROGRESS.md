@@ -1,0 +1,136 @@
+# Relational broker pipeline progress
+
+The entries below are chronological; the latest section records the folder split, standalone calculation, and presentation headers.
+
+## 8 September 2026 — implementation and refinement
+
+Implemented the final Broker2 model through the typed relation machinery in
+`Cubical/Experiments/Relation`. The development has ten pipeline modules and a
+qualified [entry point](../Pipeline.agda), imported by the Broker2, Theory, and
+full financial umbrellas. The abstract V01–V07 sources remain unchanged.
+
+The source boundary supplies finite keyed trade, collateral and receipt catalogs,
+client references, and rational valuation snapshots. Operations preserve trade
+and client IDs and return a dense client result and call table. Financial inputs
+remain symbolic; no numerical scenario or external service is required.
+
+Reusable relation machinery now includes `get`, finite key masks, tabulation,
+projection, selection, weighted sums and grouping. The getter derives its result
+type and membership requirement from the schema. Proofs cover projection and
+selection folds, finite indexed sums, append, and receipt-key replay/reordering.
+`Relation/Base.agda` was preserved byte for byte.
+
+### Implementation separated from properties
+
+Following the requested separation, the runnable data code is in
+[ValuationImplementation](Implementation/Valuation.agda),
+[ReceiptImplementation](Implementation/Receipts.agda), and
+[Implementation](Implementation/Margin.agda). These modules import no abstract broker
+engine or financial correctness module. They use `get` directly in relational
+expressions; the custom owner/amount getters and redundant mask alias were
+removed. `process` accepts ordinary rational report data and returns ordinary
+state, remaining amounts, call rows, and a status tag.
+
+[Valuation](Properties/Valuation.agda) and [Receipts](Properties/Receipts.agda) prove accounting
+refinement. [FiniteRisk](Properties/FiniteRisk.agda) supplies the rational-to-real sum and
+maximum bridges and a computed conservative revaluation reserve.
+[Correctness](Properties/Correctness.agda) certifies the actual data implementation; it
+does not contain another `process` implementation. A valid initial report is
+computed exactly, and a report remains valid after partial receipts.
+
+The final [Refinement](Properties/Refinement.agda) theorem `pipeline-correct` proves:
+
+- the returned state and its computed, state-indexed report match V07's process;
+- returned remaining amounts and call rows match the model;
+- the actual status tag carries the stated evidence: fulfilled calls and the
+  risk bound, or an identified client whose quote is unmet;
+- sufficient newly credited cash bounds every client residual by its MTA and
+  broker residual/every admissible severity-weighted loss by total MTA, for
+  independent indexed source sums in every supplied stress.
+
+Zero MTA gives full modeled coverage and zero modeled loss.
+[Stability](Properties/Stability.agda) lifts replay and two-batch reordering to the concrete
+state and its dependent risk certificate at a fixed valuation. Unchanged
+valuation computes zero reserve and recovers V06's quote. The report equality
+in Refinement compares the particular computed reports, not arbitrary upper
+bounds.
+
+### Review and scope
+
+Independent agents implemented generic relation/finite-risk operations and the
+receipt-accounting proof, separated valuation, and reviewed the full chain.
+The final review found no accounting or refinement defect. It specifically
+checked that current cash is included once, new cash is subtracted once,
+replayed IDs add nothing, the maximum fold's trailing zero is justified,
+and certificates refer to the actual program output.
+
+The [guide](README.md) records the assumptions: authorized netting sets,
+complete and correctly keyed catalogs, disjoint eligible collateral inventory,
+immutable/authentic available receipts at par in the common account currency,
+and suitable supplied valuations. External strings and snapshot numbers are
+metadata, not authenticated or checked identifiers. A conservative unfulfilled
+quote does not prove economic deficiency. Fixed catalogs and supplied stresses
+do not model all lifecycle events or future markets.
+
+No postulate, hole, unsafe pragma, weakened option or missing analysis axiom was
+introduced. There is no claim about pricing calibration, external database
+execution, floating-point arithmetic, persistence or throughput. References and
+a five-minute extension to the seven-version presentation are linked in the
+[guide](README.md).
+
+## Final verification
+
+All sixteen checks below used `agda-codex --codex-format=json` after the final
+Agda edits. Each returned **exit 0**, with zero holes, unsolved metas,
+constraints and warnings. Times are UTC on 8 September 2026.
+
+| File | Checked at UTC | Exit |
+| --- | --- | --- |
+| `Cubical/Experiments/Relation/Operations.agda` | 07:10:13 | 0 |
+| `Cubical/Experiments/Relation/Aggregation.agda` | 07:10:14 | 0 |
+| `Broker2/Pipeline/Sources.agda` | 07:10:15 | 0 |
+| `Broker2/Pipeline/ValuationImplementation.agda` | 07:10:16 | 0 |
+| `Broker2/Pipeline/ReceiptImplementation.agda` | 07:10:18 | 0 |
+| `Broker2/Pipeline/Implementation.agda` | 07:10:20 | 0 |
+| `Broker2/Pipeline/FiniteRisk.agda` | 07:10:22 | 0 |
+| `Broker2/Pipeline/Valuation.agda` | 07:10:24 | 0 |
+| `Broker2/Pipeline/Receipts.agda` | 07:10:26 | 0 |
+| `Broker2/Pipeline/Correctness.agda` | 07:10:30 | 0 |
+| `Broker2/Pipeline/Refinement.agda` | 07:10:37 | 0 |
+| `Broker2/Pipeline/Stability.agda` | 07:10:39 | 0 |
+| `Broker2/Pipeline.agda` | 07:10:42 | 0 |
+| `Broker2.agda` | 07:10:44 | 0 |
+| `Theory.agda` | 07:10:46 | 0 |
+| `Cubical/HITs/CauchyReals/Example/Financial.agda` | 07:10:48 | 0 |
+
+The full financial import closure contains **112 Agda files and 11,375 source
+lines**, including the outer `Financial.agda` umbrella. Every financial module
+is reachable from that umbrella. The three data implementation modules have no
+financial model/proof imports; all pipeline sources use `--safe --cubical`.
+The generic relation operations remain independent of financial theory.
+Documentation links, obsolete accessor names, proof discipline and whitespace
+were checked.
+
+### Checked source hashes
+
+| File | SHA-256 |
+| --- | --- |
+| `Cubical/Experiments/Relation/Operations.agda` | `fb83fca3211f3022ed07131de3fd3a9daff222df90089b12e0ddfb19f6c99bf7` |
+| `Cubical/Experiments/Relation/Aggregation.agda` | `1b40cd88b73274944e420353097913b1a2785a39ee2183a283af9db0bbd0aaeb` |
+| `Broker2/Pipeline/Sources.agda` | `4a8d2661bf635a68cb459ec287677c66366ae27358391455aaa46a2ed554f188` |
+| `Broker2/Pipeline/ValuationImplementation.agda` | `3725610d595b7247631194701eb72e874f82fe14797016f3f7c1d5afff1e2f45` |
+| `Broker2/Pipeline/ReceiptImplementation.agda` | `77918a43b07a48f084593805d7d02301f03d5ddc19eca54ac3de5be3e8d955a2` |
+| `Broker2/Pipeline/Implementation.agda` | `20d3d179914e27f2859efde3822ac0966da4c3b0a8854d39ba5c6a75504f33b1` |
+| `Broker2/Pipeline/FiniteRisk.agda` | `2e69748fe5ce2fd8ac090f2c9bd7c6d3117bbb25f6b82aae40c8c05ee1200e36` |
+| `Broker2/Pipeline/Valuation.agda` | `e637ac89b684de46e4899169f2f56a231741885f0363075ee0a854206e36cc5f` |
+| `Broker2/Pipeline/Receipts.agda` | `e47aa1cc09afbec5fb6a90757acf9d0d2f9b0373df1d32f41d2e16aa174a5567` |
+| `Broker2/Pipeline/Correctness.agda` | `9c217058b65e582efadb652a9714442c051a973991f1db1ada9d1e8fa2de3326` |
+| `Broker2/Pipeline/Refinement.agda` | `d5f07acca2fc0b9014097357de35664c4cd859743e25819a6786039f6945fcd4` |
+| `Broker2/Pipeline/Stability.agda` | `46408c9c4002168d603002ef1b5145ef7812f51545c7e1fc5d0b674014eb2cba` |
+| `Broker2/Pipeline.agda` | `12fe2513af2afb41f17ec43b45debcf34f0dd3425cc13c2f6fea2d2943965812` |
+| `Broker2.agda` | `17afc1407c0316316da700f5820e69815dc26a9d5ca643353052ed866c0ec0ad` |
+| `Theory.agda` | `a5a9284a13fb305ff8113a64d5fc9bd232d69f07024ea7e686ed589a057fa392` |
+| `Cubical/HITs/CauchyReals/Example/Financial.agda` | `412afca06dcb966bf9d9e6e12e6c29f187a62a57550c079686594e5532655490` |
+
+Preserved `Cubical/Experiments/Relation/Base.agda` SHA-256:
+`ca9588ff5ec493e83d7af7ee201270046c6867e70c640be9949aa0b61b9c3360`.

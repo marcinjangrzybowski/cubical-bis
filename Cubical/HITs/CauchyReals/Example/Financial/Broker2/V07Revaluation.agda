@@ -1,8 +1,29 @@
 {-# OPTIONS --safe --cubical #-}
 
--- Version 7: the same receipt engine survives a certified market update.
--- Cash is preserved; an incremental report is refreshed by an adverse-move
--- reserve, then the existing quote/receive/process workflow is used again.
+-- Version 7: what remains true when prices move after we calculate a call?
+-- So far, our broker has learned to request cash and account for receipts.
+-- But a payment that was sufficient yesterday may leave a shortfall today:
+-- replacement claims can rise while the value of posted collateral falls.
+-- This is where the example moves from a fixed calculation to changing risk.
+--
+-- We keep the receipt history and ask how much extra protection the market
+-- change requires. Bounds on adverse moves give a reserve to add to the old
+-- call. The interesting step is refreshReport: it constructs a justification
+-- for the new amount from the justification we already had. Agda makes us
+-- explain why the old coverage argument survives the change of market.
+--
+-- The main result, receive-correct, follows that argument through to the
+-- resulting book. If new receipts meet the refreshed calls, each client's
+-- residual exposure is at most its nonnegative minimum-transfer tolerance.
+-- Total exposure and severity-weighted loss are bounded by the sum of those
+-- tolerances, in every supplied stress scenario. At zero tolerance, the
+-- modeled loss is zero. The promise concerns received cash, not a quoted call.
+--
+-- For the presentation, this is the payoff of evolving one small example:
+-- we can change the market inputs and reuse the earlier financial reasoning,
+-- while checking the link between the new calculation and its guarantee.
+-- An unchanged market with zero reserve recovers the previous version;
+-- the more elaborate development still explains the simpler one.
 module Cubical.HITs.CauchyReals.Example.Financial.Broker2.V07Revaluation where
 
 open import Cubical.HITs.CauchyReals.Example.Financial.Core.Finite public

@@ -18,6 +18,14 @@ to the preceding version. The [28-minute speaker guide](Broker2/PRESENTATION.md)
 follows the program from one cash account to replay-safe receipt processing and
 certified revaluation, without introducing concrete market scenarios.
 
+Its final model is implemented by the [relational pipeline](Broker2/Pipeline/README.md).
+Typed trade and receipt tables feed projection, selection and grouped sums.
+The implementation returns ordinary data; separate proofs connect those outputs
+to the abstract engine and its broker-wide financial guarantee.
+Start with the single [margin-report calculation](Broker2/Pipeline/Implementation/Calculation.agda):
+its source reads and relational stages appear together in `calculate`.
+Computation and certification are organized in `Implementation/` and `Properties/`.
+
 For the generic broker machinery, start with the new
 [Broker correctness progression](Broker/README.md): eight stages from a single
 cash account through scenario reports, separate netting sets, inventory-backed
@@ -59,7 +67,7 @@ remain compatibility imports. New implementations and imports use this layout:
 | `Risk/` | Scalar and finite shortfall, worst-case loss, CVaR, variance, ambiguity, certified risk checks |
 | `Portfolio/` | Holdings, transaction costs, policies, execution equivalence |
 | `Instruments/` | Deliverable FX swaps and valuation bounds |
-| `Broker2/` | Seven evolving versions of one margin engine, with compatibility proofs and a presentation guide |
+| `Broker2/` | Seven evolving versions of one margin engine; a separate relational implementation and refinement proofs |
 | `Broker/` | Eight-stage generic margin machinery and system correctness proofs |
 | `Margin/` | Scenario coverage, cash requirements, payment control, client exposure and counterparty loss |
 | `Dynamic/` | Two-stage risk and rectangular ambiguity |

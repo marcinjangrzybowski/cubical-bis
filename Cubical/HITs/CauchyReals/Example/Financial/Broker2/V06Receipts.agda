@@ -1,9 +1,27 @@
 {-# OPTIONS --safe --cubical #-}
 
--- Version 6: evolve the SAME tolerance engine from amount updates to
--- identified receipt events. A proved state projection connects both APIs.
--- Catalog entries denote distinct actual available cash receipts, separate
--- from base collateral. Their identity/authentication is an external input.
+-- Version 6: drive the tolerance engine with identified cash receipts.
+-- State contains a market and a ledger of seen IDs. An immutable finite
+-- catalog fixes each ID's client and nonnegative rational amount. Distinct IDs
+-- must denote distinct actual available receipts, additional to base collateral.
+--
+-- view derives client balances from the ledger; quoteCall uses V05's policy
+-- on that book. receive records a batch of IDs. newCash counts only amounts
+-- not already credited, so repeated messages cannot create extra cash.
+-- advanceReport reduces the incremental report by exactly that new cash.
+--
+-- receive-correct proves V05's per-client, aggregate and every-severity bounds
+-- in every supplied scenario when newly credited receipts meet each request
+-- and MTAs are nonnegative. process returns the resulting state, its next
+-- report and an assessment. Partial cash remains credited after an unmet quote.
+--
+-- receive-refines-V05 identifies the projected transition with a V05 receipt
+-- of newCash. It covers the catalog's rational balances, rather than claiming
+-- a representation equivalence with every arbitrary real-cash V05 state.
+-- receive-replay and receive-commutes identify whole states; with a fixed
+-- catalog and market, certified-state-replay also includes the risk guarantee.
+-- It does not identify arbitrary conservative reports. Receipt authentication,
+-- continuing availability and durable storage remain external assumptions.
 module Cubical.HITs.CauchyReals.Example.Financial.Broker2.V06Receipts where
 
 open import Cubical.HITs.CauchyReals.Example.Financial.Core.Finite public

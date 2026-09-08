@@ -119,3 +119,23 @@ result is asserted by this validation.
 | Broker2.agda | `86344c186e5df3cd79004de51bad238623f7b2c1c06d7a94431f6c3f668de054` |
 | Theory.agda | `a5a9284a13fb305ff8113a64d5fc9bd232d69f07024ea7e686ed589a057fa392` |
 | Financial.agda | `412afca06dcb966bf9d9e6e12e6c29f187a62a57550c079686594e5532655490` |
+
+
+## 8 September 2026 — relational implementation of the final model
+
+Added [Pipeline](Pipeline/README.md), using typed rows, named field access,
+selection, key membership, and grouped rational sums from the relation library.
+The final V07 engine remains the abstract specification. The data implementation
+is separate from its accounting, safety and refinement proofs.
+
+`pipeline-correct` identifies the returned state, computed report and call rows
+with the model and certifies the actual status tag. Fulfilled calls transfer the
+same financial bounds to independently specified sums over source keys. Receipt
+replay/reordering preserve the concrete certified state at a fixed valuation.
+
+All new and changed Agda files, the pipeline/Broker2 umbrellas, Theory and the
+full financial umbrella checked with exit 0 and no holes, metas, constraints or
+warnings after the final edits. The [pipeline progress record](Pipeline/PROGRESS.md)
+contains the sixteen check results, exact source hashes, independent review and
+source assumptions. The current full development has 112 Agda files and 11,375
+lines including its outer umbrella; all financial modules are reachable.

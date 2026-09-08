@@ -682,3 +682,25 @@ The seven new version modules have 857 lines; the whole development now has
 101 Agda files and 10,213 lines. All modules are reachable, all new successors
 import their predecessor, and Theory imports no worked examples. No postulates,
 unsafe options, missing analysis assumptions or foundational edits were added.
+
+
+## 8 September 2026 — relational refinement of Broker2
+
+[Broker2/Pipeline](Broker2/Pipeline/README.md) implements the final abstract
+margin engine with typed trade/client/receipt rows, functional valuation lookup,
+selection and grouped sums. Generic `get`, `keyMask`, aggregation and their laws
+were added under `Experiments/Relation`; its existing Base was preserved.
+
+The implementation returns ordinary state, remaining amounts, call rows and a
+status. Separate proofs certify those actual outputs and refine them to V07,
+including the broker-wide bounds over all supplied stresses and severities.
+Initial reports and conservative revaluation reserves are computed; partial
+receipts preserve valid reports, and replay/order preserve certified states at
+a fixed valuation. No concrete numerical scenario or postulate was introduced.
+
+Sixteen final `agda-codex` checks passed with exit 0 and no holes, metas,
+constraints or warnings, including Theory and the full financial umbrella.
+The full import closure contains 112 Agda sources and 11,375 lines. All are
+reachable. See [Pipeline/PROGRESS.md](Broker2/Pipeline/PROGRESS.md) for exact
+checks, hashes, independent review and scope, and the updated Broker2
+presentation/reference guides for motivation.

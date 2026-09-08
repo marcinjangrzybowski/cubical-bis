@@ -1,8 +1,29 @@
 {-# OPTIONS --safe --cubical #-}
 
--- Version 4: the stressed client engine receives an executable rational
--- report. A report bounds the INCREMENTAL call; existing cash has already
--- been deducted by V03 and must not be subtracted a second time.
+-- Version 4: put a decidable rational amount gate around real-valued margin.
+-- The market and existing balances remain V03 states. Report b supplies
+-- nonnegative rational amounts with a proof that they dominate b's current
+-- incremental real quotes. The report's state index connects data and evidence.
+--
+-- quoteCall returns those amounts. receive embeds new nonnegative rational
+-- receipts into the real cash balances. Existing cash is already accounted
+-- for in the report; it must not be deducted again. advanceReport subtracts
+-- only the new receipt and floors at zero, even after partial payment.
+--
+-- receive-correct proves all-client, all-scenario coverage after receipts
+-- meeting a report. assess decides this rational amount check and returns
+-- either coverage evidence or an unmet client quote. A conservative report's
+-- failure does not establish that the resulting book is undercollateralized.
+--
+-- With an Exact witness, adequate≃safe and assessExact recover equivalence
+-- and a decision for economic coverage. advanceReport-exact preserves that
+-- stronger property. RationalInputs.initialReport computes an exact initial
+-- report for arbitrary rational market inputs and rational existing cash.
+-- General real inputs still require a supplied certified upper bound.
+--
+-- receive-refines-V03 identifies the rational receipt transition with V03's
+-- real transition. No general comparison procedure for Cauchy reals is assumed,
+-- and producing a report or assessing a payment never itself receives cash.
 module Cubical.HITs.CauchyReals.Example.Financial.Broker2.V04Rational where
 
 open import Cubical.HITs.CauchyReals.Example.Financial.Core.Finite public
