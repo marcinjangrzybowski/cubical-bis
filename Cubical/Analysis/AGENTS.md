@@ -23,8 +23,11 @@ explicit project requirement, not merely a preference about exported APIs.
   restore them to make a proof or an import check pass. The exponential
   equivalence is now constructed by deterministic geometric iteration in
   `Real/Functions/Exponential/Inverse.agda`; preserve that choice-free route.
-  General exact IVT and unconditional restricted trigonometric inverses
-  remain future work.
+  Restricted sine/cosine inverses are now constructed by deterministic
+  iteration and an explicit rational inverse modulus in
+  `Real/Series/PowerSeries/Trigonometric/QuarterTurn/Restriction/Existence.agda`;
+  preserve that choice-free route as well. General exact IVT remains future
+  work.
 - Preserve the choice-free local logarithm series, exponential laws, finite
   approximate IVT, sine-bisection density, and generic inverse laws.
 

@@ -45,3 +45,22 @@ opaque
           (fst (successorPositiveRational n ℚInv.⁻¹₊))
         ∙ cong rat (ℚInv.x·invℚ₊[x] (successorPositiveRational n)))
     ∙ mulIdL (coefficients n)
+
+-- Conversely, the constant term and derivative recover every coefficient.
+-- Only the inverse of an explicitly positive rational successor is used.
+opaque
+  formalPrimitive-formalDerivative : ∀ coefficients →
+    formalPrimitive (coefficients zero) (formalDerivative coefficients) ≡ coefficients
+  formalPrimitive-formalDerivative coefficients = funExt recover
+    where
+    recover : ∀ n → formalPrimitive (coefficients zero) (formalDerivative coefficients) n ≡ coefficients n
+    recover zero = refl
+    recover (suc n) =
+      scalar-as-mul (fst (successorPositiveRational n ℚInv.⁻¹₊))
+        (realNatural (suc n) · coefficients (suc n))
+      ∙ mulAssoc (rat (fst (successorPositiveRational n ℚInv.⁻¹₊)))
+          (realNatural (suc n)) (coefficients (suc n))
+      ∙ cong (_· coefficients (suc n))
+          (mul-rat (fst (successorPositiveRational n ℚInv.⁻¹₊)) (fromNat (suc n))
+          ∙ cong rat (ℚInv.invℚ₊[x]·x (successorPositiveRational n)))
+      ∙ mulIdL (coefficients (suc n))

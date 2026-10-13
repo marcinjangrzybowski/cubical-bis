@@ -41,6 +41,7 @@ open import Cubical.Analysis.Real.Order.Strict.Rational
   using (<ℚ→<ℝ)
 open import Cubical.Analysis.Real.Calculus.Derivative.Base
 open import Cubical.Analysis.Real.Calculus.Derivative.Continuity
+open import Cubical.Analysis.Real.Calculus.Derivative.Uniform
 
 
 private
@@ -342,3 +343,25 @@ chainHasDerivativeAlongIndexed
                   (min₊≤L δinner δouter))
                 x∼y))
       )
+
+
+-- Uniform input and derivative bounds make the same remainder estimate
+-- uniform on the whole source domain.
+opaque
+  chainHasUniformDerivativeAlongIndexedBounded :
+    ∀ {ℓ ℓ'} {A : Type ℓ} (source : PremetricStr ℓ' A)
+      (coordinate inner inner' outer outer' : A → ℝ) (B C : ℚ₊) →
+    (∀ x y → absℝ (inner y - inner x) ≤ℝ rat (fst B) · absℝ (coordinate y - coordinate x)) →
+    (∀ x → absℝ (outer' x) ≤ℝ rat (fst C)) →
+    IsRadiuswiseUniformDerivativeAlong source coordinate inner inner' →
+    IsRadiuswiseUniformDerivativeAlong source inner outer outer' →
+    IsRadiuswiseUniformDerivativeAlong source coordinate outer (λ x → outer' x · inner' x)
+  chainHasUniformDerivativeAlongIndexedBounded source coordinate inner inner' outer outer' B C
+    inputBound derivativeBound innerDerivative outerDerivative ε = do
+    (δi , first) ← innerDerivative ((ε /2₊) ₊／₊ C)
+    (δo , second) ← outerDerivative ((ε /2₊) ₊／₊ B)
+    return (min₊ δi δo , λ x y close →
+      indexedChainTotalErrorBound coordinate inner inner' outer outer' x y B C ε
+        (derivativeBound x) (inputBound x y)
+        (second x y (PremetricStr.isMonotone≈≤ source x y (min₊ δi δo) δo (min₊≤R δi δo) close))
+        (first x y (PremetricStr.isMonotone≈≤ source x y (min₊ δi δo) δi (min₊≤L δi δo) close)))

@@ -1,5 +1,11 @@
 # Repair attempts and alternative comparisons
 
+**2026-09-09 update:** the restart selected analytic regularization.
+[ANALYTIC_REGULARIZATION.md](ANALYTIC_REGULARIZATION.md) records the
+new comparison of routes, eleven checked modules, actual `realπGr`
+consequences, and a James finite-stage alternative. The carrier results
+below remain valid, but no varying-label successor has been certified.
+
 2026-09-07. Three read-only agents investigated repairs, sphere-specific
 alternatives, and algebraic cubical models after the face-composition test
 in [DIRECTION_TESTS.md](DIRECTION_TESTS.md). The main thread checked the
@@ -213,14 +219,15 @@ comparison, whose constructive proof is still missing.
 
 ## Current judgment
 
-The analytic interpolation and loop-iteration route is productive and
-checked. The algebraic cubical loop construction has a closed invariant
-for its own set-valued theory. Neither currently proves the full goal.
+The analytic route now reaches actual real group classes: nearby
+representatives are homotopic, and metric density suffices for
+representative existence. Joint cube evaluation supplies an independent
+density predicate, while finite pasting and coverage have closed
+inductive proofs. Proving `JointDensity` is the current concrete target.
 
-The cubical-boundary carrier direction now has checked carrier shapes,
-maps, coherent weakening at a common corner, and pairwise anchor
-independence. It remains the most concrete narrower research target.
-The next meaningful test is a normalization operation on complete
-comparison frames when selections vary. Separate triangle comparisons
-do not establish this invariant. Even a successful grid interpreter
-would leave the relative synthetic finite approximation theorem explicit.
+Carrier normalization has connected the two local APIs but has not
+closed variable-carrier grid interpretation. The alternative of finite
+programs with shared interfaces still needs synthetic completeness.
+James connectivity can reduce to finite stages with prescribed homotopy
+lifts, but those stages retain arbitrary higher data. Neither route is
+an established synthetic finite-representability theorem.

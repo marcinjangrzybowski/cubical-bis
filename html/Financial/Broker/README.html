@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Broker margin machinery and
+correctness · Financial</title><link rel="stylesheet" href="../_assets/style.css">
+<style>html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
+</head><body><main>
+<nav class="site-nav"><a href="../index.html">Financial documentation</a><a href="../README.html">Overview</a><a href="../../../Cubical/HITs/CauchyReals/Example/Financial/Broker/README.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#broker-margin-machinery-and-correctness"
+id="toc-broker-margin-machinery-and-correctness">Broker margin machinery
+and correctness</a>
+<ul>
+<li><a href="#reading-the-progression"
+id="toc-reading-the-progression">Reading the progression</a></li>
+<li><a href="#what-the-controller-actually-composes"
+id="toc-what-the-controller-actually-composes">What the controller
+actually composes</a></li>
+<li><a href="#the-main-theorem-interface"
+id="toc-the-main-theorem-interface">The main theorem interface</a></li>
+<li><a href="#constructive-and-cubical-techniques"
+id="toc-constructive-and-cubical-techniques">Constructive and Cubical
+techniques</a></li>
+<li><a href="#input-obligations-and-scope"
+id="toc-input-obligations-and-scope">Input obligations and
+scope</a></li>
+<li><a href="#validation" id="toc-validation">Validation</a></li>
+</ul></li>
+</ul></details>
+<h1 id="broker-margin-machinery-and-correctness">Broker margin machinery
+and correctness</h1>
+<p>This is a progression of <strong>eight generic, checked margin
+systems</strong>. Each stage adds a financial or operational feature and
+proves the guarantee that survives it. There are no market scenarios,
+sample portfolios, calibrated haircuts, or numerical regulatory limits
+in this folder. The inputs are arbitrary client netting sets,
+Cauchy-real claim and collateral profiles, and explicit model
+certificates.</p>
+<p>The final <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage08Controller.html">controller</a>
+connects valuation, collateral allocation, calls, and receipt
+processing. If newly credited receipts meet each client's computed
+request, then at every admissible state:</p>
+<pre class="text"><code>positive unsecured claim of client i ≤ minimum transfer tolerance i
+sum of client unsecured claims       ≤ sum of those tolerances
+modeled closeout loss                ≤ sum of those tolerances</code></pre>
+<p>The loss inequality holds for <strong>every</strong> supplied
+default/recovery severity in <code>[0,1]</code>, independently for every
+client and state. With zero transfer tolerances, all client claims are
+covered and both broker residual exposure and modeled closeout loss are
+zero. Replaying receipt IDs preserves the entire certified state. These
+statements scale to arbitrary finite numbers of clients, collateral
+assets, catalogued receipt IDs, and message batches, over an arbitrary
+admissible state domain; that domain need not be finite.</p>
+<h2 id="reading-the-progression">Reading the progression</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>New machinery</th>
+<th>Main correctness statements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage01Cash.html">01
+Cash</a></td>
+<td>One signed replacement claim and available cash; separate call
+calculation and receipt update.</td>
+<td>The call is the least nonnegative payment giving coverage. Receiving
+payments composes; remaining calls obey the positive-part update law.
+Budget and coverage propositions are equivalent and joined by a
+univalence path.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage02Scenarios.html">02
+Scenarios</a></td>
+<td>Arbitrary admissible states; sufficient real requirements and
+rational lower/upper reports.</td>
+<td>Upper reports guarantee coverage; lower reports are necessary for
+every nonnegative real budget. A rational assessment returns certified,
+deficient, or undetermined. Coincident bounds give a complete coverage
+decision.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage03NettingSets.html">03
+Netting sets</a></td>
+<td>Any finite collection of separately authorized client netting
+sets.</td>
+<td>Whole-book coverage implies zero aggregate residual and zero loss
+for every severity. Assessment finds a provably deficient client before
+returning inconclusive. Exact reports give a complete whole-book
+coverage decision; lower requirements bound total necessary cash.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage04Collateral.html">04
+Collateral</a></td>
+<td>Asset inventory, allocations, conversion prices, and
+eligibility/haircut retention factors.</td>
+<td>Assignments cannot exceed supplied inventory. Eligible value is
+nonnegative, at most market value, and in aggregate at most inventory
+value. A substitution preserving each client's eligible value preserves
+coverage, even with a different asset count.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage05Journal.html">05
+Journal</a></td>
+<td>Immutable identified receipts; a ledger and arbitrary batches of
+event IDs.</td>
+<td>Duplicate processing is idempotent; order and batching preserve
+balances. New cash is counted once per ID and credited only to its
+owner. Final cash equals prior cash plus newly credited cash.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage06Revaluation.html">06
+Revaluation</a></td>
+<td>Changed claim/collateral profiles, bounded claim increases and
+collateral decreases.</td>
+<td>Old sufficient cash plus the two drift reserves covers the new
+profile. Without additional cash, a previously covered book has
+residual/loss bounded by the reserve. Consecutive drift bounds compose
+without an independence assumption.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage07Calls.html">07
+Calls</a></td>
+<td>A minimum transfer amount (MTA) for each client and sufficient
+rational requirements.</td>
+<td>After requests are received, residual is bounded by MTA per client
+and in aggregate. Zero MTA restores full coverage. Requirements may be
+conservative; no exact real minimum is required.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage08Controller.html">08
+Controller</a></td>
+<td>Composition of reports, inventory, revaluation, MTA policy, and
+actual journal updates.</td>
+<td>A decidable per-client receipt gate returns a proof-bearing system
+certificate or a client whose plan remains unfulfilled. The certificate
+covers actual resulting balances, all admissible states and all
+severities. Inventory and extra cash back aggregate eligible value;
+replay preserves ledger plus proof.</td>
+</tr>
+</tbody>
+</table>
+<p><a href="REFERENCES.html">REFERENCES.md</a> maps these stages to
+primary literature and explains the difference between a source's
+financial motivation and the exact mathematical specification proved
+here. <a href="PROGRESS.html">PROGRESS.md</a> records implementation,
+reviews, and compiler validation.</p>
+<h2 id="what-the-controller-actually-composes">What the controller
+actually composes</h2>
+<p>For a client <code>i</code>, let <code>X₀(s,i)</code> and
+<code>X₁(s,i)</code> be old and new replacement claims, and
+<code>C₀(s,i)</code> and <code>C₁(s,i)</code> the eligible collateral
+values. Positive claims are owed to the broker. A label is one legally
+authorized netting set; two sets of the same client must retain separate
+labels if their claims cannot be netted. All values use one common unit
+of account.</p>
+<p>An old report supplies a nonnegative rational upper requirement
+<code>u(i)</code> with</p>
+<pre class="text"><code>X₀(s,i) ≤ C₀(s,i) + u(i)             for every admissible s</code></pre>
+<p>This is a statement about a sufficient requirement, not a claim that
+it was already paid. Revaluation supplies nonnegative real bounds
+<code>a(i)</code> and <code>d(i)</code>:</p>
+<pre class="text"><code>X₁(s,i) ≤ X₀(s,i) + a(i)
+C₀(s,i) ≤ C₁(s,i) + d(i)
+a(i) + d(i) ≤ r(i)                  certified rational reserve</code></pre>
+<p>The new sufficient requirement is <code>q(i) = u(i) + r(i)</code>.
+The controller proves <code>X₁(s,i) ≤ C₁(s,i) + q(i)</code>. Correlated
+changes in claims, conversion prices, and retention factors are
+permitted; the bounds must hold jointly at each admissible state.
+Neither the report nor the reserve is claimed minimal.</p>
+<p>If <code>p(i)</code> is already credited journal cash and
+<code>t(i) ≥ 0</code> the MTA, the call is</p>
+<pre class="text"><code>gap(i)     = max(q(i) - p(i), 0)
+request(i) = 0       when gap(i) ≤ t(i)
+             gap(i) otherwise</code></pre>
+<p>The equality convention is explicit: a gap equal to MTA is left
+outstanding. Above MTA the full gap is requested. This is a
+minimum-transfer tolerance; it is not an additional unsecured credit
+threshold. No automatic return of excess collateral, withdrawal, receipt
+reversal, or release policy is included.</p>
+<p>For a batch of received event IDs, <code>newlyPaid</code> ignores
+duplicates within the batch and IDs already in the ledger. The gate
+requires</p>
+<pre class="text"><code>request(i) ≤ newlyPaid(oldLedger, batch, i)     for every client i</code></pre>
+<p>The journal accounting theorem gives
+<code>p′(i) = p(i) + newlyPaid(...,i)</code>. The controller then proves
+coverage to tolerance using
+<strong><code>C₁(s,i) + p′(i)</code></strong>. Generating requests by
+itself changes no balance. A failed gate proves that a plan remains
+unfulfilled; with conservative requirements it need not imply an unsafe
+account. Stage 02/03's exact-report coverage decisions are stronger, and
+are available when the required exactness certificates can be
+supplied.</p>
+<img class="diagram" src="../_assets/diagram-832aa477668225a86832.svg" alt="Financial workflow diagram">
+<h2 id="the-main-theorem-interface">The main theorem interface</h2>
+<p>Import the final stage directly:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode agda"><code class="sourceCode agda"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> Cubical<span class="ot">.</span>HITs<span class="ot">.</span>CauchyReals<span class="ot">.</span>Example<span class="ot">.</span>Financial<span class="ot">.</span>Broker<span class="ot">.</span>Stage08Controller as Broker</span></code></pre></div>
+<p>Instantiate <code>Broker.Controller</code> with the state domain, an
+inventory-backed allocation, old/new valuation and claim functions, and
+an immutable receipt catalog. Its nested <code>Policy</code> takes the
+old reports and certified revaluation reserve. The principal exported
+statements are:</p>
+<table>
+<thead>
+<tr>
+<th>Name inside <code>Controller.Policy</code></th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>requirements-cover</code></td>
+<td>The composed rational requirements suffice at the new
+valuation.</td>
+</tr>
+<tr>
+<td><code>plan</code>, <code>plan-nonnegative</code></td>
+<td>Executable requests computed from currently recorded balances.</td>
+</tr>
+<tr>
+<td><code>PlanSettled</code></td>
+<td>Each client's newly credited receipts meet that client's
+request.</td>
+</tr>
+<tr>
+<td><code>actual-cash-dominates</code></td>
+<td>Actual final cash is at least the hypothetical cash after paying the
+request.</td>
+</tr>
+<tr>
+<td><code>controller-correct</code></td>
+<td><code>PlanSettled</code> constructs <code>Controlled</code> for the
+ingested ledger.</td>
+</tr>
+<tr>
+<td><code>settle</code></td>
+<td>Decides plan completion, returning its proof and
+<code>Controlled</code>, or a client with insufficient new
+receipts.</td>
+</tr>
+<tr>
+<td><code>zero-mta-book-guarantee</code></td>
+<td>Completed zero-MTA plans give full per-client coverage, zero
+residual, and zero loss for all severities.</td>
+</tr>
+<tr>
+<td><code>effective-collateral-backed</code></td>
+<td>Sum of eligible collateral plus recorded cash is at most inventory
+market value plus that cash.</td>
+</tr>
+<tr>
+<td><code>positive-claims-backed</code></td>
+<td>For a controlled ledger, sum of positive claims is at most those
+resources plus total MTA. Negative claims cannot offset another client's
+positive claim.</td>
+</tr>
+<tr>
+<td><code>controlled-replay</code>,
+<code>controlled-same-events</code></td>
+<td>Transport all safety evidence across replay or batches with the same
+event-ID set.</td>
+</tr>
+<tr>
+<td><code>controlled-isProp</code>,
+<code>certified-state-replay</code></td>
+<td>Control evidence is propositional; the ledger together with its
+certificate is equal after replay, even if its proof is independently
+reconstructed.</td>
+</tr>
+</tbody>
+</table>
+<p><code>resources</code> includes unallocated inventory and is a
+valuation upper bound. It is not a liquidity or solvency certificate,
+and its aggregate inequality cannot replace the per-client coverage
+conditions.</p>
+<p>The separate <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.html">Broker.agda</a>
+entry point exports all eight stages under qualified stage names. <a
+href="../../../Cubical/HITs/CauchyReals/Example/Financial/Theory.agda">Theory.agda</a>
+includes it in the <code>Broker</code> namespace. No stage imports a
+concrete financial example.</p>
+<h2 id="constructive-and-cubical-techniques">Constructive and Cubical
+techniques</h2>
+<p>The financial profiles use the library's higher-inductive Cauchy
+reals, with constructive order, lattice operations and finite sums.
+Universal coverage consumes explicit bounds; it does not enumerate an
+infinite state domain or choose a maximizing state. A finite scenario
+fold supplies sufficient margins without requiring an attaining
+index.</p>
+<p>Decisions compare rational reports and payments only. An arbitrary
+real minimum is not assumed rational or decidable. A lower/upper gap is
+represented honestly as uncertainty. No missing analysis result,
+postulate, excluded middle, or unsafe option is added.</p>
+<p>Stage 01 uses univalence to identify equivalent policy propositions
+and propositional proof fields to construct paths of accounts. Stage 04
+turns equal eligible-value policies into an equivalence and a path of
+coverage types. Stage 05 uses function extensionality to prove equality
+of whole ledgers, not just equality of a selected balance. Stage 08
+transports dependent certificates along these paths and proves equality
+of ledger/certificate pairs. These results allow certified state
+representations to change while retaining proofs.</p>
+<h2 id="input-obligations-and-scope">Input obligations and scope</h2>
+<p>The formal guarantees are conditional on the supplied model data and
+proofs:</p>
+<ul>
+<li>Claim functions, admissible states, upper reports, and drift bounds
+describe the intended valuation and stress policy. An empty admissible
+domain makes universal statements vacuous; the library does not certify
+stress adequacy.</li>
+<li>Asset labels denote distinct inventory pools. Allocation proofs
+prevent over-assignment of each modeled pool; they do not authenticate
+custody or establish enforceable rights. Prices include conversion to
+the common unit; retention lies in <code>[0,1]</code> and may depend on
+client and state.</li>
+<li>A credited event represents an actual nonnegative additional cash
+receipt belonging to the catalogued netting set. Its cash remains
+available at par and is excluded from the base collateral inventory.
+Distinct IDs represent distinct receipts. Reusing an ID cannot credit
+twice, but two IDs for one physical payment cannot be detected from this
+model.</li>
+<li>The catalog is finite and immutable during a run. Arbitrarily long
+batches may mention its IDs; dynamic catalog extension, banking
+authentication, persistence and crash recovery are separate integration
+problems.</li>
+<li>The loss is severity-weighted positive unsecured replacement
+exposure. Settlement principal risk, funding liquidity, liquidation
+execution, dispute resolution and FX payment-versus-payment are not
+subsumed by it. The existing <code>Instruments/</code> and
+<code>Settlement/</code> theories remain separate.</li>
+</ul>
+<p>A swap portfolio may supply the claim functions, as in the earlier
+broker example, but this progression requires no particular instrument
+representation. It formalizes margin mechanics rather than regulatory
+compliance or a calibrated initial-margin methodology.</p>
+<h2 id="validation">Validation</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Broker.agda</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Theory.agda</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial.agda</span></code></pre></div>
+<p>The first command checks the staged progression. The other entry
+points check integration with the reusable theory and the pre-existing
+examples. See the <a href="PROGRESS.html">progress record</a> for the
+final results.</p>
+</main></body></html>

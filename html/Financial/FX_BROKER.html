@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FX swaps and broker
+margin · Financial</title><link rel="stylesheet" href="_assets/style.css">
+<style>html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
+</head><body><main>
+<nav class="site-nav"><a href="index.html">Financial documentation</a><a href="README.html">Overview</a><a href="../../Cubical/HITs/CauchyReals/Example/Financial/FX_BROKER.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#fx-swaps-and-broker-margin"
+id="toc-fx-swaps-and-broker-margin">FX swaps and broker margin</a>
+<ul>
+<li><a href="#instrument-cashflows-and-valuation"
+id="toc-instrument-cashflows-and-valuation">Instrument cashflows and
+valuation</a></li>
+<li><a href="#the-margin-policy-being-proved"
+id="toc-the-margin-policy-being-proved">The margin policy being
+proved</a></li>
+<li><a href="#two-clients-with-matched-fx-swap-portfolios"
+id="toc-two-clients-with-matched-fx-swap-portfolios">Two clients with
+matched FX swap portfolios</a></li>
+<li><a href="#joint-market-moves-and-an-entire-real-uncertainty-box"
+id="toc-joint-market-moves-and-an-entire-real-uncertainty-box">Joint
+market moves and an entire real uncertainty box</a></li>
+<li><a href="#executable-calls-and-received-payments"
+id="toc-executable-calls-and-received-payments">Executable calls and
+received payments</a></li>
+<li><a href="#client-identity-netting-and-realized-losses"
+id="toc-client-identity-netting-and-realized-losses">Client identity,
+netting, and realized losses</a></li>
+<li><a href="#funding-and-settlement-remain-separate-controls"
+id="toc-funding-and-settlement-remain-separate-controls">Funding and
+settlement remain separate controls</a></li>
+<li><a href="#scope-of-the-certificates"
+id="toc-scope-of-the-certificates">Scope of the certificates</a></li>
+<li><a href="#entry-points-and-validation"
+id="toc-entry-points-and-validation">Entry points and
+validation</a></li>
+</ul></li>
+</ul></details>
+<h1 id="fx-swaps-and-broker-margin">FX swaps and broker margin</h1>
+<p>This extension formalizes deliverable FX swaps and a broker managing
+client portfolios of those swaps. It distinguishes market valuation,
+replacement claims, collateral conversion, realized closeout loss,
+native-currency funding, and settlement principal risk. The theory and
+examples use the library's Cauchy reals throughout.</p>
+<p>The flagship result is <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerGuarantees.agda">BrokerGuarantees</a>,
+presented in <a href="SYSTEM_GUARANTEES.html">SYSTEM_GUARANTEES.md</a>.
+Its executable <code>checkBroker</code> is sound and complete for
+whole-box client coverage together with gross native-currency funding.
+<code>history-end-to-end</code> connects arbitrary actual receipt
+sequences to coverage of the trade-by-trade swap portfolios, zero
+modeled closeout loss under every admissible severity, and the funding
+certificate. The worked program proves that the further 10 and 8 are
+sufficient and that every real-valued covering further-payment vector
+costs at least 18. Equal totals credited to the wrong client or held in
+the wrong currency are computationally rejected.</p>
+<p>The instrument convention follows the <a
+href="https://data.bis.org/help/glossary?item=FX+swaps">BIS definition
+of FX swaps</a>: a near exchange of currency principals and a reverse
+exchange at a later agreed date. This is not a rolling spot/CFD contract
+with an overnight charge called a swap.</p>
+<p>The <a href="REFERENCES.html">reference guide</a> gives the BIS
+cashflow and funding context, robust-optimization motivation for
+universal quote bounds, and BCBS FX settlement guidance. It also
+distinguishes collateral haircut methodology from regulatory
+applicability to physically settled FX swaps. All numerical quotes,
+discount bounds, and collateral haircuts here are illustrative
+inputs.</p>
+<h2 id="instrument-cashflows-and-valuation">Instrument cashflows and
+valuation</h2>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Instruments/FXSwap.agda">FXSwap.agda</a>
+records signed foreign notional, positive near and far exchange rates,
+and natural-number dates with a proof that the near date precedes the
+far date. Quotes are domestic currency per foreign unit. Positive
+cashflow means receipt <strong>by the broker</strong>.</p>
+<p>For signed foreign notional <code>q</code>, near rate
+<code>S₀</code>, and far rate <code>K</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th style="text-align: right;">Broker domestic cashflow</th>
+<th style="text-align: right;">Broker foreign cashflow</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Near</td>
+<td style="text-align: right;"><code>q S₀</code></td>
+<td style="text-align: right;"><code>-q</code></td>
+</tr>
+<tr>
+<td>Far</td>
+<td style="text-align: right;"><code>-q K</code></td>
+<td style="text-align: right;"><code>q</code></td>
+</tr>
+</tbody>
+</table>
+<p>Positive <code>q</code> means the client receives foreign currency at
+the near date and returns it at the far date. Negative <code>q</code>
+reverses the direction. Reversal, scaling, return of foreign principal,
+and the domestic swap-points cashflow <code>q(S₀-K)</code> are proved.
+Currency and date coordinates remain distinct: summing cashflows
+algebraically does not establish payment-netting rights or permit a
+future receipt to fund an earlier payment.</p>
+<p>After the near leg settles, the modeled broker mark is</p>
+<pre class="text"><code>V = q (S D_f - K D_d)</code></pre>
+<p>Here <code>S</code> is current spot and <code>D_d,D_f</code> are
+positive effective discount inputs for the remaining settlement date at
+the valuation time. Their calculation, funding/basis convention,
+calibration, and consistency across maturities are external model
+choices. Positivity alone does not prove no arbitrage or an initial fair
+price. The theorem <code>par-far-value</code> is explicitly conditional
+on <code>S D_f = K D_d</code>.</p>
+<p>Positive <code>V</code> is a replacement claim <strong>owed to the
+broker</strong>, not a broker market loss. A broker market loss over a
+move is old mark minus new mark. The finite-change identity retains the
+interaction of spot and foreign funding factors:</p>
+<pre class="text"><code>ΔV = q (D_f ΔS + S ΔD_f + ΔS ΔD_f - K ΔD_d)</code></pre>
+<p>Here the undifferenced <code>S,D_f</code> are the reference
+(old-state) values. There is no differentiation or discarded
+second-order term. A portfolio uses the existing finite dot-product
+aggregation; states can differ across trades to reflect their different
+remaining maturities. <code>Phase</code> controls which legs remain
+outstanding, but it is supplied rather than inferred from calendar
+dates. A mark change crossing settlement requires accounting for the
+settled cashflow separately.</p>
+<h2 id="the-margin-policy-being-proved">The margin policy being
+proved</h2>
+<p>For one supplied client netting set, let <code>Xᵢ</code> be the
+signed broker replacement claim and <code>Cᵢ</code> eligible collateral
+in scenario <code>i</code>, in domestic units. <a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Margin.Base.html">Margin.agda</a>
+defines</p>
+<pre class="text"><code>residualᵢ       = max(Xᵢ - Cᵢ, 0)
+requiredMargin  = maxᵢ residualᵢ</code></pre>
+<p>This is the <strong>least nonnegative uniform domestic cash
+top-up</strong> covering every modeled scenario. Its defining guarantee
+is</p>
+<pre class="text"><code>requiredMargin ≤ b  ⇔  every Xᵢ ≤ Cᵢ + b        (provided b ≥ 0)</code></pre>
+<p>The implementation proves both directions, an equivalence of the
+certificate types, and their path obtained by univalence. It also proves
+monotonicity in claims, antitonicity in collateral, within-set
+netting/convexity bounds, and transport under a uniform claim error.</p>
+<p>The guarantee is conditional on collateral actually being received,
+available, and realizable as modeled. <code>postCash</code> represents
+that changed state. A calculated or issued call does not itself change
+collateral. <code>paid-required-margin-zero</code> proves zero residual
+call after sufficient cash is posted. The general real-payment law
+<code>margin-postCash</code> identifies the remaining requirement as
+<code>stopLoss(requiredMargin, paid)</code> for any nonnegative real
+payment; the rational controller specializes this theorem. This is a
+specified stress-margin policy, not a claim about a particular
+jurisdiction's mandatory initial/variation-margin methodology.</p>
+<p>Foreign collateral is valued in each scenario:</p>
+<pre class="text"><code>eligible collateral = domestic cash + retention × spot × foreign units</code></pre>
+<p><code>retention</code> is the fraction remaining after a haircut.
+Valid input conditions include <code>0 ≤ retention ≤ 1</code> and
+nonnegative collateral amounts. The general spot-monotonicity theorem
+holds with claims fixed; FX swap claims that also move with spot must be
+revalued jointly, as in the example.</p>
+<p>The arbitrary-scenario layer <a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Margin.Scenario.html">Margin/Scenario.agda</a>
+expresses coverage for any supplied admissible state predicate. Its
+least nonnegative cash certificate covers both finite scenario lists and
+continuous uncertainty sets. An explicit binding state gives the
+stronger leastness statement for every real budget. The joint FX box
+example supplies those states instead of assuming a procedure that
+selects a maximizing real quote.</p>
+<h2 id="two-clients-with-matched-fx-swap-portfolios">Two clients with
+matched FX swap portfolios</h2>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerMargin.agda">BrokerMargin.agda</a>
+supplies two swap notionals, 60 and 40. Both have near/far rates 1 and
+dates 0/30. Client A holds one of each; client B holds their reversals.
+The example uses zero swap points to keep the arithmetic visible. The
+generic instrument permits different positive near and far rates. All
+amounts and shocks are illustrative model inputs.</p>
+<p>The near leg has settled, and reference spot and both discount
+factors are 1, so initial marks are zero. Four valuation scenarios
+give:</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th style="text-align: right;">Spot</th>
+<th style="text-align: right;">Domestic factor</th>
+<th style="text-align: right;">Foreign factor</th>
+<th style="text-align: right;">Broker claim on A</th>
+<th style="text-align: right;">Broker claim on B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Foreign appreciation</td>
+<td style="text-align: right;">6/5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">-20</td>
+</tr>
+<tr>
+<td>Foreign depreciation</td>
+<td style="text-align: right;">4/5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-20</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr>
+<td>Domestic factor falls</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9/10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">-10</td>
+</tr>
+<tr>
+<td>Foreign factor falls</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9/10</td>
+<td style="text-align: right;">-10</td>
+<td style="text-align: right;">10</td>
+</tr>
+</tbody>
+</table>
+<p>The signed market marks sum to zero in every scenario. A and B are
+separate client netting sets, so the broker retains their separate
+positive claims. Client A has 5 domestic cash collateral. Client B has
+10 foreign units with retention <code>4/5</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th style="text-align: right;">A collateral</th>
+<th style="text-align: right;">B eligible collateral</th>
+<th style="text-align: right;">A residual</th>
+<th style="text-align: right;">B residual</th>
+<th style="text-align: right;">Broker total residual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Foreign appreciation</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">48/5</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr>
+<td>Foreign depreciation</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">32/5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">68/5</td>
+<td style="text-align: right;">68/5</td>
+</tr>
+<tr>
+<td>Domestic factor falls</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td>Foreign factor falls</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<p>The exact cash calls are <strong>15 for A and 68/5 (13.6) for
+B</strong>. Each is minimal for its own client and the four specified
+scenarios. After those amounts are received in domestic cash, their
+residual margin is zero. The separate calls total <code>143/5</code>
+(28.6), as proved by <code>total-client-calls</code>. Their binding
+scenarios differ. The broker's aggregate exposure maximum 15 and
+exposure CVaR 14.3 are different diagnostics and do not replace
+separately received collateral for each client under this margin
+policy.</p>
+<p>If B's foreign collateral is frozen at its reference eligible value
+8, the model asks for only 12. In the depreciation scenario, the claim
+has risen to 20 while eligible collateral has fallen to
+<code>32/5</code>. Paying 12 then leaves <code>8/5</code> (1.6)
+uncovered. These values and the insufficiency proof are checked. This is
+adverse co-movement of claim and collateral values; no statistical
+default-correlation model is inferred from it.</p>
+<p>For an additional distributional diagnostic, the four scenarios are
+assigned equal weights. Broker residual exposure has mean
+<code>89/10</code>, maximum 15, and CVaR <code>143/10</code> at 50%
+confidence. An explicit threshold 5 and dual distribution
+<code>(1/2,1/2,0,0)</code> certify the CVaR value. These probabilities
+are illustrative market-scenario weights, not estimated probabilities of
+client default.</p>
+<h2 id="joint-market-moves-and-an-entire-real-uncertainty-box">Joint
+market moves and an entire real uncertainty box</h2>
+<p>Single-factor tests do not by themselves bound simultaneous changes.
+<a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Instruments/FXBounds.agda">FXBounds.agda</a>
+proves interval bounds for every Cauchy-real state satisfying supplied
+box-membership evidence. For nonnegative notional:</p>
+<pre class="text"><code>q(S_low D_f_low - K D_d_high) ≤ V ≤ q(S_high D_f_high - K D_d_low)</code></pre>
+<p>Reversed swaps inherit the negated bounds. There is no case split on
+real order, grid search, or assumption that a general maximum
+exists.</p>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/JointFXMargin.agda">JointFXMargin.agda</a>
+applies this theory to the same client portfolios with spot in
+<code>[4/5,6/5]</code> and both discount factors in
+<code>[9/10,1]</code>. Every original scenario is in this box, but the
+box also admits joint moves.</p>
+<table>
+<thead>
+<tr>
+<th>Attaining joint state</th>
+<th style="text-align: right;">Spot</th>
+<th style="text-align: right;">Domestic factor</th>
+<th style="text-align: right;">Foreign factor</th>
+<th style="text-align: right;">Relevant claim</th>
+<th style="text-align: right;">Eligible collateral</th>
+<th style="text-align: right;">Required cash</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A's maximum</td>
+<td style="text-align: right;">6/5</td>
+<td style="text-align: right;">9/10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr>
+<td>B's maximum</td>
+<td style="text-align: right;">4/5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9/10</td>
+<td style="text-align: right;">28</td>
+<td style="text-align: right;">32/5</td>
+<td style="text-align: right;">108/5</td>
+</tr>
+</tbody>
+</table>
+<p>The code proves both universal sufficiency and minimality:</p>
+<pre class="text"><code>25 ≤ cash_A       ⇔ A is covered at every real quote in the box
+108/5 ≤ cash_B    ⇔ B is covered at every real quote in the box</code></pre>
+<p>B's claim maximum and collateral minimum occur at the same explicit
+state, so the combined bound is sharp. The reported requirements cover
+an entire real-valued uncertainty family, not only the two displayed
+witnesses. Box membership is an assumption on permitted valuation
+inputs, not a claim that the box contains every possible market state or
+imposes curve consistency.</p>
+<table>
+<thead>
+<tr>
+<th>Client</th>
+<th style="text-align: right;">Cash for four single-factor
+scenarios</th>
+<th style="text-align: right;">Cash for all quotes in the box</th>
+<th style="text-align: right;">Further cash after the old payment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr>
+<td>B</td>
+<td style="text-align: right;">68/5</td>
+<td style="text-align: right;">108/5</td>
+<td style="text-align: right;">8</td>
+</tr>
+</tbody>
+</table>
+<p>The old payments are proved insufficient under the enlarged model.
+Exact rational reports on the two attaining states drive executable
+payment checks; their coverage of the whole box follows from the
+separate universal equivalence theorems. A generic
+<code>ExactMargin</code> report alone certifies only its specified
+finite scenario vectors.</p>
+<h2 id="executable-calls-and-received-payments">Executable calls and
+received payments</h2>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Margin/MarginControl.agda">MarginControl.agda</a>
+uses an <code>ExactMargin</code> record containing a rational amount and
+proof that it equals the real scenario requirement. It does not assume
+every real requirement is rational. Given received nonnegative domestic
+cash, the further request is</p>
+<pre class="text"><code>outstanding = max(exact amount - cash already received, 0)</code></pre>
+<p>The request is proved minimal. It equals the residual margin
+recomputed after the actual payment. <code>recordPayment</code> returns
+a report for that changed collateral state; paying the further request
+clears the residual. <code>checkPayment</code> compares rationals and
+returns either coverage evidence or a proof that more cash is due.</p>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerOperations.agda">BrokerOperations.agda</a>
+checks these reductions for the four-scenario reports:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Checked result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A pays 14</td>
+<td>More due</td>
+</tr>
+<tr>
+<td>A pays 15</td>
+<td>Covered</td>
+</tr>
+<tr>
+<td>B pays 12</td>
+<td>More due; exact further request 8/5</td>
+</tr>
+<tr>
+<td>B then pays 8/5 against its updated report</td>
+<td>Covered</td>
+</tr>
+<tr>
+<td>B pays 68/5 at once</td>
+<td>Covered</td>
+</tr>
+</tbody>
+</table>
+<p>After both clients pay the required cash, the broker residual and
+every admissible realized-closeout-loss severity are zero <strong>for
+these scenarios</strong>. The joint-box reports similarly reject the
+earlier payments 15 and <code>68/5</code>. Changing the risk model
+requires a new certificate; a prior payment verdict does not
+automatically cover a larger uncertainty set.</p>
+<h2 id="client-identity-netting-and-realized-losses">Client identity,
+netting, and realized losses</h2>
+<p><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Margin.ClientNetting.html">ClientNetting.agda</a>
+proves</p>
+<pre class="text"><code>max(Σ claims - Σ collateral, 0)
+  ≤ Σ_clients max(claim_client - collateral_client, 0)</code></pre>
+<p>The left side is a pooled comparison quantity. It is not the
+separate-client exposure policy. The simple claims <code>(10,-10)</code>
+have total mark zero and positive exposure 10. In the broker example,
+pooling would incorrectly report zero residual despite the nonzero
+values above.</p>
+<p>The HIT economic quotient therefore retains <strong>client and
+scenario labels</strong>. For fixed collateral, exposure descends
+through equality of all those claim profiles. A checked impossibility
+theorem shows that no separate-exposure function on aggregate-mark
+classes can preserve its value on every original position. If collateral
+also varies between positions, it must be included in the equivalence
+criterion. The supplied netting-set tags do not establish legal
+enforceability or prevent physical collateral from being double-counted
+by an external bookkeeping system.</p>
+<p><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Margin.CounterpartyRisk.html">CounterpartyRisk.agda</a>
+distinguishes exposure from realized closeout loss. An input severity
+<code>θⱼ ∈ [0,1]</code> represents occurrence of default combined with
+the unrecovered fraction for client <code>j</code>:</p>
+<pre class="text"><code>realized closeout loss = Σⱼ θⱼ max(claimⱼ - collateralⱼ, 0)</code></pre>
+<p>The loss is nonnegative and bounded by broker residual exposure. The
+latter is the exact bound over every permitted severity, since all-one
+severity attains it. Severities may depend on both client and market
+scenario; no independence assumption is made. Worst-case, expectation,
+and CVaR acceptance certificates transfer from exposure to every such
+realized-loss profile. With every client claim covered, all these
+modeled closeout losses vanish. This does not remove a separate
+settlement-principal or liquidity obligation.</p>
+<h2 id="funding-and-settlement-remain-separate-controls">Funding and
+settlement remain separate controls</h2>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Settlement/Base.agda">Settlement.agda</a>
+keeps signed native-currency cashflows by trade and date. Outgoing
+principal is the positive part of the negative cashflow. It proves that
+algebraically netted outgoing amounts do not exceed gross outgoing
+amounts, but the inequality does not authorize payment netting. Funding
+certificates compare balances with outgoing amounts in <strong>each
+currency and at each date</strong>.</p>
+<p>A single cashflow <code>(-100 domestic, +100 foreign)</code> has mark
+zero at spot 1, yet requires 100 domestic units. Holding only foreign
+currency does not satisfy that domestic funding certificate. A trade and
+its reversal have zero aggregate cashflow but gross outgoing payments of
+100 in each currency. The generic converted principal-at-risk bounds
+retain these obligations.</p>
+<p>The broker operations example constructs the actual four far-leg
+instructions from the 60/40 swaps and their reversals. It proves that
+every far date is 30, net cashflow is zero in both currencies, and gross
+outgoing amounts are <code>(100 domestic,100 foreign)</code>. Those
+native-currency buffers satisfy its gross-funding certificate. At
+conversion factors <code>(1,1)</code>, the gross amounts are worth 200
+domestic units. Zero funding is proved insufficient even after the
+separate closeout margin calls have been paid; client collateral is not
+declared reusable for settlement funding.</p>
+<p>A small delivery-state model distinguishes unreleased payments from
+irrevocably released principal, and pending/final/failed receipts. Under
+its explicit zero-recovery failure assumption, paid-away principal can
+be lost. An ideal atomic exchange condition proves this principal
+exposure and loss zero; it does not prove away replacement-cost,
+funding, or operational risk. The distinction between replacement costs,
+principal risk, and per-currency liquidity is motivated by the <a
+href="https://www.bis.org/publ/bcbs241.pdf">BIS FX settlement
+guidance</a>. The formalization is a finite mathematical model, not an
+implementation or compliance assessment of an actual settlement
+system.</p>
+<p>Each certificate applies to its specified stage and obligation.
+Combining closeout exposure, settlement principal, and liquidity into
+one capital number would require additional joint accounting.</p>
+<h2 id="scope-of-the-certificates">Scope of the certificates</h2>
+<p>The proofs use constructive real order and lattice operations,
+cubical function extensionality, proposition-valued evidence,
+univalence, and HIT set quotients. No real-order decision procedure,
+missing-analysis postulate, or choice of a quotient representative is
+assumed.</p>
+<p>Inputs still need a defensible valuation model, market shocks,
+collateral eligibility and realization assumptions, client grouping, and
+funding resources. The code does not estimate default probabilities,
+compute CVA, infer a legal netting right, perform a liquidation, or
+submit a margin call to a client. Calendar processing, minimum transfer
+amounts, rounding, settlement calendars, credit limits, custody and cash
+ledgers, and market-data integration are further application work.</p>
+<h2 id="entry-points-and-validation">Entry points and validation</h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Instruments/FXSwap.agda">FXSwap</a></td>
+<td>Two-leg contracts, dated currency cashflows, lifecycle marks, exact
+factor changes</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Instruments/FXBounds.agda">FXBounds</a></td>
+<td>Universal mark bounds for real spot/discount boxes</td>
+</tr>
+<tr>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Margin.Base.html">Margin</a></td>
+<td>Least cash top-up, coverage equivalences, stressed collateral</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Margin/MarginControl.agda">MarginControl</a></td>
+<td>Exact rational requests, partial payments, certified decisions</td>
+</tr>
+<tr>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Margin.ClientNetting.html">ClientNetting</a></td>
+<td>Per-netting-set residuals and labelled economic quotients</td>
+</tr>
+<tr>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Margin.CounterpartyRisk.html">CounterpartyRisk</a></td>
+<td>Default/recovery severities and risk-budget transfer</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Settlement/Base.agda">Settlement</a></td>
+<td>Currency/date liquidity, gross principal, conditional atomic
+settlement</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerMargin.agda">BrokerMargin</a></td>
+<td>Client portfolios, four scenarios, collateral FX shortfall, exposure
+CVaR</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerOperations.agda">BrokerOperations</a></td>
+<td>Executable payment workflow and actual gross settlement
+instructions</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/JointFXMargin.agda">JointFXMargin</a></td>
+<td>Sharp whole-box calls and rejection of single-factor capital</td>
+</tr>
+</tbody>
+</table>
+<p>The umbrella includes all modules. Check it from the repository
+root:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial.agda</span></code></pre></div>
+<p>The final validation record and proof-discipline checks are in <a
+href="PROGRESS.html">PROGRESS.md</a>.</p>
+</main></body></html>

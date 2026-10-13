@@ -9,3 +9,4 @@ open import Cubical.Analysis.Real.Algebra.Inverse.Laws public
 open import Cubical.Analysis.Real.Algebra.Inverse.Positive public
 open import Cubical.Analysis.Real.Algebra.Inverse.Order public
 open import Cubical.Analysis.Real.Algebra.Inverse.Signed public
+open import Cubical.Analysis.Real.Algebra.Inverse.Continuity public

@@ -1,5 +1,18 @@
 # Exact missing statements and the conditional final theorem
 
+The 2026-09-11 [finite approximation constructor](FINITE_APPROXIMATION.md)
+now produces a `JointDensity` witness from suitable finite samples,
+endpoint equations, and local window bounds. The existence of that
+finite sample data remains to be proved; the full comparison record
+below is still uninhabited by this construction.
+
+The 2026-09-09 [analytic restart](ANALYTIC_REGULARIZATION.md) proves
+nearby real-homotopy class equality and reduces jointly UC real cube
+representatives to the independently defined `JointDensity` statement in
+[DenseRepresentatives.agda](../../Spheres/DenseRepresentatives.agda).
+This reduces the analytic side; it does not inhabit the final
+real/synthetic representative-comparison record below.
+
 2026-09-07. The attaching-map obstruction is one missing ingredient.
 It is not presently the only unproved implication between our checked
 work and the final group comparison. This file distinguishes the local

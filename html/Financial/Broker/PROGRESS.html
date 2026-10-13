@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Broker progression: implementation and
+validation · Financial</title><link rel="stylesheet" href="../_assets/style.css">
+<style>html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
+</head><body><main>
+<nav class="site-nav"><a href="../index.html">Financial documentation</a><a href="../README.html">Overview</a><a href="../../../Cubical/HITs/CauchyReals/Example/Financial/Broker/PROGRESS.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#broker-progression-implementation-and-validation"
+id="toc-broker-progression-implementation-and-validation">Broker
+progression: implementation and validation</a>
+<ul>
+<li><a href="#8-september-2026--generic-machinery-eight-stages"
+id="toc-8-september-2026--generic-machinery-eight-stages">8 September
+2026 — generic machinery, eight stages</a>
+<ul>
+<li><a href="#work-completed" id="toc-work-completed">Work
+completed</a></li>
+<li><a href="#independent-reviews"
+id="toc-independent-reviews">Independent reviews</a></li>
+<li><a href="#final-compiler-validation"
+id="toc-final-compiler-validation">Final compiler validation</a></li>
+</ul></li>
+</ul></li>
+</ul></details>
+<h1 id="broker-progression-implementation-and-validation">Broker
+progression: implementation and validation</h1>
+<h2 id="8-september-2026--generic-machinery-eight-stages">8 September
+2026 — generic machinery, eight stages</h2>
+<p>The requested separate folder now contains eight modules and 1,482
+Agda source lines. The progression extracts the important lessons of the
+earlier FX broker example into generic machinery: client identity,
+sufficient versus exact margin, actual receipt versus requested cash,
+collateral valuation, and composition of whole-book guarantees. It
+introduces no concrete scenarios or calibrated data.</p>
+<p>The <a href="README.html">reading guide</a> describes each stage's
+inputs and results; <a href="REFERENCES.html">REFERENCES.md</a> connects
+the methods to six primary source groups. The public <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.html">Broker.agda</a>
+entry point exports all stages, and the reusable <a
+href="../../../Cubical/HITs/CauchyReals/Example/Financial/Theory.agda">Theory.agda</a>
+exposes them under <code>Broker</code>.</p>
+<h3 id="work-completed">Work completed</h3>
+<ol type="1">
+<li><strong>Cash accounts:</strong> least nonnegative calls, receipt
+composition, exact remaining calls, and a univalence path between
+payment adequacy and coverage.</li>
+<li><strong>Scenario reports:</strong> arbitrary admissible domains;
+sufficient requirements and rational lower/upper enclosures. Assessments
+distinguish proven coverage, proven deficiency, and uncertainty. Exact
+enclosures give complete decisions.</li>
+<li><strong>Client netting:</strong> arbitrary finite books, per-client
+checks, total necessary cash lower bounds, and full-coverage/zero-loss
+certificates for all severities.</li>
+<li><strong>Collateral:</strong> inventory-backed allocations,
+scenario-dependent prices and haircut retention, total eligible-value
+bounds, and coverage-preserving substitutions, including changed asset
+counts.</li>
+<li><strong>Receipt journal:</strong> finite immutable receipt catalog,
+owner attribution, duplicate suppression, batching/reordering paths, and
+exact incremental cash accounting. Batches may have arbitrary length and
+repeated IDs.</li>
+<li><strong>Revaluation:</strong> conservative
+claim-rise/collateral-fall reserves, exposure and loss bounds before
+reserve payment, coverage after receipt, and composition of consecutive
+drift bounds.</li>
+<li><strong>Minimum transfers:</strong> an executable full-gap-or-zero
+call policy; actual requested payments give residual bounded by MTA.
+Zero MTA gives full coverage.</li>
+<li><strong>Controller:</strong> old upper requirements plus certified
+rational drift reserves drive calls on current journal cash. A rational
+gate checks new receipts per client and returns a system certificate for
+the actual updated ledger. All client residuals and aggregate
+severity-weighted loss are bounded; zero MTA yields a whole-book
+zero-loss guarantee. Inventory plus extra cash bounds eligible value and
+controlled positive claims. Cubical paths identify replayed ledgers
+together with independently reconstructed certificates.</li>
+</ol>
+<h3 id="independent-reviews">Independent reviews</h3>
+<p>Three agents developed collateral, identified receipts, revaluation,
+and transfer policy alongside the root's account, report, netting, and
+controller work. Reviews cross-checked the interfaces and the final
+composition. No mathematical defect remained after the normal compiler
+edit/check loops.</p>
+<p>The reviews singled out conditions now stated in both code and the
+guide:</p>
+<ul>
+<li>A sufficient requirement describes a hypothetical protective
+balance; it does not prove that balance has already been received.</li>
+<li>The final gate compares requests with <strong>newly
+credited</strong> per-client receipts. Replaying previously credited IDs
+cannot satisfy another positive request.</li>
+<li>Journal cash is additional to base collateral inventory; asset pools
+and receipt IDs must represent distinct resources in the supplied
+model.</li>
+<li>A failed conservative plan is not necessarily an unsafe account.
+Only the exact-report assessment has a complete economic coverage
+decision.</li>
+<li>MTA gives a nonzero residual allowance; zero modeled loss needs zero
+MTA or separately proved complete coverage.</li>
+<li><code>resources</code> includes unallocated inventory and gives a
+valuation bound, not a liquidity, solvency, custody, or
+legal-enforceability certificate.</li>
+<li>The complete certified-state replay path keeps catalog, valuation,
+claims, admissibility, policy, and MTA fixed. Withdrawals and reversals
+need new theory.</li>
+</ul>
+<h3 id="final-compiler-validation">Final compiler validation</h3>
+<p>All eight stage files were checked after their final Agda edits with
+<code>agda-codex</code>. Final entry-point checks reached every stage
+and all existing financial modules. Each reported <strong>exit code 0,
+checked, with zero holes, unsolved metas, constraints, and
+warnings</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Final check</th>
+<th>UTC time on 7 September 2026</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Broker/Stage08Controller.agda</code></td>
+<td>22:11:36</td>
+<td>exit 0</td>
+</tr>
+<tr>
+<td><code>Broker.agda</code></td>
+<td>22:14:03</td>
+<td>exit 0</td>
+</tr>
+<tr>
+<td><code>Theory.agda</code></td>
+<td>22:14:25</td>
+<td>exit 0</td>
+</tr>
+<tr>
+<td><code>../Financial.agda</code></td>
+<td>22:14:52</td>
+<td>exit 0</td>
+</tr>
+</tbody>
+</table>
+<p>These times are shortly after midnight on 8 September in
+Europe/Warsaw. The final commands were:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Broker/Stage08Controller.agda</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Broker.agda</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Theory.agda</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial.agda</span></code></pre></div>
+<p>Source SHA-256 values:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stage01Cash</td>
+<td><code>af1f865bb38273ef950c7756b7e2be603c9c35e2c2049054b4c8680bfd0b5b0b</code></td>
+</tr>
+<tr>
+<td>Stage02Scenarios</td>
+<td><code>1df2f8e8cc9e895d7c4a4d3e1aedd2c98b77d25e8302c6dcb30c918c6e39f201</code></td>
+</tr>
+<tr>
+<td>Stage03NettingSets</td>
+<td><code>6682cb2eb9e9b209b28c7653ff049b171cf32077763478c6369d1a927c90e430</code></td>
+</tr>
+<tr>
+<td>Stage04Collateral</td>
+<td><code>b3d32858780c042726097eaf1c1625aa45605e3832002922a857c1e39aba7f3e</code></td>
+</tr>
+<tr>
+<td>Stage05Journal</td>
+<td><code>d52bc892eb1b118e33a03ce2c7e90b5e1f825606da88a065c5b5804a330b2b0d</code></td>
+</tr>
+<tr>
+<td>Stage06Revaluation</td>
+<td><code>18f6d2950934e227410ad02ae39d1afe4939634fce49ca21e82d56caf28e2a22</code></td>
+</tr>
+<tr>
+<td>Stage07Calls</td>
+<td><code>53043d1ddd8c72a8008ba82b0982a7fadddb5d1c4399cef200adee73ec41ee06</code></td>
+</tr>
+<tr>
+<td>Stage08Controller</td>
+<td><code>a21964131a7646162f195cdecb12efb5e3ea5d33955475bed6d4e5344ff7dcab</code></td>
+</tr>
+<tr>
+<td>Broker.agda</td>
+<td><code>207468c5f5a4f185db242b1309696cc539911411be8ee2bda48116419d0cae03</code></td>
+</tr>
+<tr>
+<td>Theory.agda</td>
+<td><code>490d822da6152c37958ba3cdda8866efe7d0757f53f14d70ac6ec526edf44993</code></td>
+</tr>
+<tr>
+<td>../Financial.agda</td>
+<td><code>412afca06dcb966bf9d9e6e12e6c29f187a62a57550c079686594e5532655490</code></td>
+</tr>
+</tbody>
+</table>
+<p>The entire financial development now has <strong>93 Agda files and
+9,327 source lines</strong>. An import-graph audit found every file
+reachable from the full umbrella and no example or legacy-shim
+dependencies from the new broker progression. Theory still imports no
+worked examples. All new modules use <code>--safe --cubical</code>; no
+postulate, missing analysis assumption, weakened option, or new
+foundational axiom was added. Local documentation links and
+source-reference anchors were checked. Existing numerical examples and
+unrelated RealHomotopy/Spheres work were not edited.</p>
+<p>The deliverable is generic mathematical machinery and its conditional
+correctness proofs. Receipt authenticity, stress-model adequacy, legal
+rights, liquidation, settlement principal, currency funding, and
+operational persistence remain explicit external obligations, not
+additional claims of these theorems.</p>
+</main></body></html>

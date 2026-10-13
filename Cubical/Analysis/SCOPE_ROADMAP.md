@@ -1,6 +1,6 @@
 # Scope roadmap for `Cubical.Analysis`
 
-Updated: 2026-09-06
+Updated: 2026-10-10
 
 Status: living implementation plan.  This document compares the sequential
 Analysis development with `Cubical.HITs.CauchyReals`,
@@ -18,7 +18,23 @@ with the additive real group are now bundled in the standard algebra APIs.
 The [choice-free policy](AGENTS.md) prohibits countable-choice assumptions,
 even as explicit parameters; the former conditional adapters were removed.
 
+The latest [integration and limit results](LIMITS_2026-09-15.md) add
+boundedness from radiuswise uniform continuity, substitution with bounds
+obtained automatically, uniform convergence of indefinite integrals, uniform
+derivative stability under limits, construction from convergence at one
+endpoint, and differentiation of series. The preservation theorems use
+radiuswise convergence; constructions of new integrals use supplied native
+moduli. General pointwise differentiability remains weaker than the uniform
+derivative hypotheses used here.
+
 ## Goal and interpretation of coverage
+
+The [circle development](Circle/README.md) now constructs the quotient
+`ℝ/ℤ` directly from the sequential reals. Its turn premetric supports a
+choice-free winding integer, subdivision and lift formulas, and the standard
+integer-traversal computations. The construction does not depend on π or an
+inverse trigonometric function. A bridge to the Cartesian circle and the
+larger homotopy-classification results remain open.
 
 The long-term goal is a coherent real-analysis stack over
 `Alternative.Sequential`, with the stable, reusable mathematical coverage of
@@ -32,9 +48,10 @@ common progression
 5. power series and elementary functions;
 
 rather than a file-for-file port.  The very large experimental tails of
-`CauchyReals` (specialized transcendental approximations, complex analysis,
-and function-specific proof pipelines) should follow only after the generic
-real-analysis interfaces have stabilized.
+`CauchyReals` (specialized transcendental approximations and function-specific
+proof pipelines) should follow only after the generic real-analysis interfaces
+have stabilized. The user expanded the scope to native complex analysis on
+2026-10-08; its constructive FTA milestone is tracked below.
 
 ## Capability matrix
 
@@ -42,21 +59,22 @@ real-analysis interfaces have stabilized.
 | --- | --- | --- | --- |
 | Completion and density | Strong | Both | Keep generic; add helpers only when demanded by clients |
 | Quantitative maps | Non-expanding, fixed-Lipschitz, affine, local polynomial estimates, and non-expanding closed-domain clamps | Both | General bounded-domain/local-Lipschitz combinators |
-| Additive/ring/lattice algebra | Complete baseline plus rational module and positive-real multiplicative abelian group, isomorphic to the additive group via exp/log | Both | Integer embedding and derivative-facing linear API |
+| Additive/ring/lattice algebra | Complete baseline plus rational module, injective integer embedding with additive laws and metric separation, and positive-real multiplicative abelian group, isomorphic to the additive group via exp/log | Both | Integer multiplicative compatibility and derivative-facing linear API |
 | Non-strict and strict order | Complete baseline plus closed interval/radius subspaces | Both | Open domains and domain-restricted mapping API |
 | Apartness | Additive and multiplicative laws | Both | Decide whether a standard field/apartness bundle fits without API churn |
 | Reciprocal and division | Implemented away from zero; arbitrary numerator/denominator quotient derivatives are checked on explicit uniform positive and negative rationally bounded domains | Both | Performant full-apart derivative adapter and rational-function packaging |
-| Naturals and powers | Naturals and rational scalars implemented | Both | Integer embedding and scalar/power compatibility |
+| Naturals and powers | Naturals, integers, and rational scalars implemented | Both | Integer scalar/power compatibility |
 | Polynomials | Horner evaluation, majorants, absolute bounds, local Lipschitz estimates, and structural derivative/composition rules | Both | Reusable closed-ball packaging and rational-function closure |
 | Ordinary sequences | Limits, eventual equality/order, two asymptotic witness levels, and squeeze theorems | Both | Monotone convergence once supremum infrastructure exists |
 | Finite sums | Witness/limit preservation, algebra, exchange, telescoping, monotonicity, absolute bounds, and convolution-oriented diagonal/triangular reindexing | `CauchyRealsP` | Partition reindexing as demanded by integration |
 | Series | Linear operations, comparisons, tails, finite modifications, absolute-Cauchy comparison, rational/real contraction results, uniform family convergence, constructive native-Cauchy bounds, selected absolute-product closure, and bound-free Mertens products | Both | Radiuswise/weaker uniform witness variants and modulus-driven tests |
 | Power series | Terms, finite-polynomial/rescaling/geometric laws, zero/finite-modification laws, coefficient growth, exact products, repeated formal derivatives, radiuswise entire values, uniform closed-radius convergence/continuity, closed-radius/strict-interior termwise differentiation, the entire exponential family with global algebra/order laws, entire sine/cosine coefficient families with exact Pythagorean and addition product identities, and the choice-free local logarithm series with reciprocal derivative | `CauchyRealsP` | Local exponential/logarithm compatibility and composition |
-| Continuity on domains | Complete closed interval/radius retracts plus open half-lines, intervals, and absolute-radius balls | Mostly `CauchyReals` and newer completion reals | Domain maps, products, and pasting |
+| Continuity on domains | Closed interval/radius retracts, open half-lines/intervals/balls, and boundedness from radiuswise uniform continuity on a closed interval | Mostly `CauchyReals` and newer completion reals | Domain maps, products, and pasting |
 | Derivatives | Division-free kernel, uniqueness, algebra, ordinary and indexed chain rules, power/Horner/finite-sum rules, controlled reciprocal and arbitrary-denominator quotient rules, continuity, open-subspace adapters, and exact global/interval-local mean-value inequalities under radiuswise-uniform differentiability | Both | Full apart-domain reciprocal and rational-function packaging |
-| Integration | Finite/tagged partitions, mesh and resampling bounds, equal/dyadic vanishing meshes, recursive dyadic sums with refinement bounds, a unique mesh-limit integral on ordered endpoints, an ordered-domain wrapper with reversed-interval regressions, and constant/additive/negative/subtractive/scaling laws | Newer completion reals and parts of `CauchyReals` | Common-refinement/Cauchy criterion for uniformly continuous integrands, then uniform limits |
-| Elementary functions | Global exponential, sine, and cosine power-series values; sine/cosine values at zero, odd/even, Pythagorean, addition, and double-angle laws, sharp absolute bounds by one, exponential majorant bounds, derivatives, continuity, all finite higher-derivative convergence, second-derivative equations, four-step formal-derivative cycles, partial tangent/secant values with parity, Pythagorean, addition, and tangent double-angle identities on their exact cosine-apart domains, plus first-positive-cosine-zero characterization, historical and damped conditional Bishop limits, the `[0,1]` cosine lower bound, conditional quarter/half/full-turn laws, and strict monotonicity/embedding of sine on the complete closed quarter interval, finite approximate image density, and generic restricted sine/cosine inverse laws for supplied equivalences or intermediate-value witnesses | Mostly `CauchyReals` | Choice-free exact IVT; damped Bishop convergence and positivity; then unconditional π |
-| Complex analysis | Out of current core scope | `CauchyReals` | Revisit after real elementary analysis |
+| Integration | Tagged sums and comparison bounds, integrability from standard uniform continuity, order and algebra laws, uniform limits with supplied moduli, termwise series integration, oriented interval integrals, both uniform FTC directions, integration by parts, substitution with automatically obtained bounds, uniform derivative limits, and series differentiation | Newer completion reals and parts of `CauchyReals` | Integral existence from weaker radiuswise hypotheses; further closure laws and weaker FTC hypotheses |
+| Elementary functions | Global exponential, sine, and cosine power-series values; sine/cosine values at zero, odd/even, Pythagorean, addition, and double-angle laws, sharp absolute bounds by one, exponential majorant bounds, derivatives, continuity, all finite higher-derivative convergence, second-derivative equations, four-step formal-derivative cycles, partial tangent/secant values with parity, Pythagorean, addition, and tangent double-angle identities on their exact cosine-apart domains, plus first-positive-cosine-zero characterization, historical conditional Bishop limits, convergent damped Bishop iteration, the `[0,1]` cosine lower bound, unconditional π with first-zero characterizations and quarter/half/full-turn laws, and strict monotonicity/embedding of sine on the complete closed quarter interval, finite approximate image density, and exact closed-interval sine/cosine equivalences and inverses with explicit uniform moduli | Mostly `CauchyReals` | Inverse calculus and further elementary functions |
+| Complex analysis | Native ring, product premetric, l1 estimates and multiplicative Euclidean modulus, continuity and sequential completeness; complex exponential/sine/cosine with algebraic laws, periods, continuity and derivatives, and a continuous right-half-plane logarithm with reciprocal derivative; general complex derivatives with uniqueness, continuity, algebra/product/chain rules and polynomial holomorphicity; native series, Cauchy products, elementary-function series identities, repeated power-series differentiation and Taylor representation for convergent series; bounded uniform line-integral FTC with polynomial and constructed power-series primitives, including finite contours; contraction roots; polar form and nth roots; polynomial translation, division, coefficient estimates, approximate FTA in every degree, exact FTA under positive Bézout separability, quantitative root matching, the completed-multiset coefficient equivalence, finite near-zero nets, and spectral/block estimates | `CauchyReals` for baseline algebra/analysis | Separated clusters and further FTA formulations; primitive compatibility under Taylor reexpansion, holomorphic Taylor representation and Cauchy integral theory |
+| Circle winding | Native quotient circle with abelian group and turn premetric; winding for uniformly continuous loops and self-maps, subdivision independence, supplied-lift formula, constants/identity/integer traversals | `CauchyReals.Circle.Winding` | Cartesian-circle equivalence and homotopy classification |
 
 ## Techniques already transferred successfully
 
@@ -282,13 +300,58 @@ scaling preserve it.  A binary recursive dyadic sum has exact midpoint-width,
 constant, additive, negative, and scaling laws together with a refinement
 estimate controlled by the oscillation on each dyadic half.
 
-The next layer is the actual existence theorem: turn the recursive refinement
-estimate into a Cauchy bound for a radiuswise uniformly continuous integrand,
-relate the recursive sums to tagged partitions, and remove dependence on the
-canonical tags using the checked resampling estimate.  After that, add
-uniform-limit preservation.  The dyadic integration architecture in the
-newer completion reals remains a useful specification, but its sealed
-implementation modules should not be copied wholesale.
+The [FTC development](FTC_2026-09-15.md) now proves that a radiuswise uniform
+derivative on `[a,b]` is Riemann integrable with value `F b - F a`.
+The proof expands at each tag toward both cell endpoints and telescopes the
+increments; it does not assume integrability or continuity of the derivative.
+Interval-local bounds prove the converse for integral increments, using
+pointwise or radiuswise uniform continuity on the interval. Concatenated
+dyadic partitions establish interval additivity for three existing integrals.
+The actual accumulation function has derivative `f` when its ordered
+subinterval integrals exist. Those integrals are now constructed from the
+standard uniform continuity predicate on the closed interval, so
+`UniformlyContinuousAccumulation` needs no separate integrability hypothesis.
+These results use the Analysis reals directly and introduce no choice assumptions.
+
+The existence proof uses cell overlap lengths to compare arbitrary tagged
+partitions. Row and column sums of these weights are the original cell widths.
+Continuity bounds the weighted differences wherever the cells overlap;
+disjoint cells contribute zero. A supplied continuity modulus and an explicit
+dyadic mesh index construct a native Cauchy witness, whose limit is the semantic
+integral. Standard uniform continuity merely asserts the existence of such a
+modulus; truncation is eliminated into the proposition of having a unique integral.
+
+Radiuswise uniform continuity already gives the Riemann Cauchy condition,
+but its separately truncated radii are not assembled into a global modulus.
+Integrability under that weaker hypothesis remains future work.
+
+The [integration expansion](INTEGRATION_2026-09-15.md) adds order and error
+bounds, local extensionality, zero-length integrals, and oriented endpoint
+differences within a fixed interval. Bounded integrands have Lipschitz
+accumulation functions; continuous integrands have the expected signed
+endpoint derivatives. Radiuswise uniform limits preserve convergence of
+existing integrals, and a supplied convergence modulus constructs the limit
+integral. Uniformly Cauchy series can be integrated term by term.
+
+FTC now yields monotonicity, increment bounds, constancy for a zero uniform
+derivative, and uniqueness of antiderivatives with an initial value. Bounded
+uniform product and chain rules support integration by parts and substitution.
+For substitution, standard uniform continuity of the target integrand can
+construct the needed primitive. The new `ContinuousSubstitution` derives
+the two bounds when the inner derivative is radiuswise uniformly continuous.
+No monotonicity of the substitution is required for the oriented endpoint
+formula. Radiuswise uniform continuity now also gives boundedness on every
+ordered closed interval and therefore Lipschitz integral functions.
+
+The [limit expansion](LIMITS_2026-09-15.md) proves uniform convergence of
+indefinite integrals, stability of uniform derivatives under pointwise
+function limits and uniform derivative limits, and construction of a uniform
+function limit from convergence at one endpoint. Series can be differentiated
+termwise from supplied pointwise sums and uniform derivative sums; a native
+uniform Cauchy witness for the derivative series also constructs the original
+sum from convergence at one endpoint. The limiting derivative need not have
+a separate continuity proof. These are results for uniform derivatives;
+weakening that hypothesis to ordinary pointwise derivatives remains open.
 
 ### Phase 7: power series and elementary functions
 
@@ -404,75 +467,253 @@ reusing the `CauchyRealsP` proof architecture where it transfers.
   Differentiating these partial functions awaits the
   performant full-apart quotient adapter already identified in Phase 4.
 
-The construction of π now has an explicit constructive boundary.
-`IsFirstPositiveCosineZero` records the intended characterization, implies the
-least nonnegative cosine-zero property, and is unique; the type of
-characterized values is a proposition.  Bishop's historical iteration
-`a(n+1) = a(n) + cos(a(n))` is defined and identified with the partial sums of
-its increments.  Its Cauchy witness is an explicit existence target; any
-limit candidate is already proved unique and a cosine zero.  An unconditional
-`piℝ` is intentionally deferred until convergence and positivity before the
-limit are checked.
+The native construction of π is now complete. `IsFirstPositiveCosineZero`
+records positivity, cosine zero, and positive cosine at every preceding
+nonnegative point. It implies the least nonnegative cosine-zero property;
+the type of characterized values is a proposition.
 
-For convergence, the preferred damped Bishop iteration
-`a(n+1) = a(n) + (1/2) cos(a(n))` is now defined, has its own explicit Cauchy
-boundary, and has the same conditional cosine-zero theorem.  Four-term
-alternating power-series blocks prove `1 - x²/2 ≤ cos x`, `1/2 ≤ cos x`, and
-strict cosine positivity on `[0,1]`.  Signed endpoint inequalities from the
-uniform-derivative partition core, together with exact one-Lipschitz bounds for
-sine and cosine, should give the rational contraction `7/8` and direct
-domination by the existing geometric-series API.  The historical HIT proof
-remains the specification, but its integration/FToC/strict-comparison stack is
-too large for a direct port.  Leibniz/Machin, IVT/bisection, and integral
-definitions remain secondary candidates because their required
-inverse-trigonometric, IVT, or integration characterizations are not yet
-available.
+The damped Bishop recurrence `d(n+1) = d(n) + (1/2) cos(d(n))`, starting at
+zero, supplies an inhabitant. Addition formulas and sharp trigonometric
+bounds translate the derivatives at zero into global radiuswise-uniform
+derivative estimates. Analysis's signed uniform-FTC bounds preserve positive
+cosine on `[0,d(n)]`. Since `d(1)=1/2` and `sin(1/2)>=1/4`, cosine residuals
+contract by `7/8` after the first step. All increments are bounded by
+`(7/8)^n`, yielding a native sequential Cauchy witness without choice. The
+limit's first-zero characterization follows from positivity on the prefixes
+and convergence at the single radius supplied by a strict gap.
+
+`Pi.Value` exports `halfPiℝ`, `piℝ`, and `twoPiℝ`, their unique first-cosine-
+zero / first-sine-zero characterizations, least-zero properties, special
+values, phase shifts, and `2π` periodicity. The historical undamped Bishop
+iteration remains available as a separate conditional API. It is not a
+prerequisite for π. No HIT-real comparison or exact IVT is used.
+
+The identity comparison with HIT `Trigonometry/{Base,Pi,Identities}` is
+documented in `Real/Series/PowerSeries/Trigonometric/README.md`. The native
+API now includes all four product-to-sum formulas, the remaining sum and
+difference factorizations, complementary squares, coefficient/power
+double-angle forms, power reduction, squared half-angle formulas, negative
+phase shifts, reflections, and every integer period. The turn-coordinate
+periodicities match those used in HIT `Circle.Core`. Existing identities are
+reused, including the unrestricted sine-difference factorization. Sharp
+derivative bounds yield global non-expanding sine and cosine and
+`|sin x| ≤ |x|`; native FTC constructs the definite sine/cosine integrals.
+These results are public through `Trigonometric` and introduce no carrier
+comparison, exact inverse, or choice hypothesis.
 
 Algebraically, a cosine-zero candidate has sine-square one, and sine
 positivity selects the value one.  A generic positive-quarter-turn API now
 derives phase shifts, half-turn signs, and full-turn periodicity; it specializes
 to a characterized half-pi. The sine-orientation fact is now proved from the
 first-positive-cosine-zero characterization; it is no longer an extra input.
-The corresponding restricted sine is now a continuous map from the complete
-closed symmetric quarter interval to the complete unit interval, with checked
-endpoint values.  The product-to-sum difference identity and positivity of its
-midpoint-cosine and half-difference-sine factors prove strict increase, hence
-injectivity and embedding.  Surjectivity is equivalent to the explicit
-truncated `SineQuarterIntermediateValue` statement; for a positive
-first-cosine-zero quarter, that statement is now the sole interval-level input
-to an equivalence, including the characterized-half-pi specialization.
-Quantitative sine separation and closeness reflection are available on the
-quarter interval.  The exact IVT is now equivalent to a
-completion-compatible approximate IVT: a sequence of interval points with a
-single native Cauchy witness whose sine images converge to the target.
-Completeness and continuity turn this data into an exact preimage, and the
-approximate formulation feeds the equivalence theorem directly.  There is now
-also a rational-target completion route aligned with Bishop-style inverse
-constructions.  A `RationalSineInverseConstruction` consists only of a
-rational-to-real candidate, its clamped sine equation, and quarter-interval
-bounds.  Given a chosen (or merely bundled chosen) closeness-reflection
-modulus, its graph is Cauchy-continuous, extends through sequential completion,
-remains in the quarter interval, and satisfies `sin (G y) = clamp y`; this
-already implies the desired equivalence when the specified data are supplied.
-Finite slack-bisection proves approximate image density directly, but does not
-select an infinite coherent sequence or inverse modulus. Exact IVT remains
-open, and the former countable-choice bridge was removed. Generic restricted
-inverse endpoint, zero, parity, continuity, and order laws remain available
-for supplied equivalences or intermediate-value witnesses.
-Adapters also accept explicit rational Cauchy witnesses, but the existing HIT
-bisection inverse theorem is not directly reusable: it requires rational
-endpoints and values plus a uniform positive lower slope, whereas sine has
-real characterized endpoints and zero endpoint derivative.
+The restricted sine is a continuous embedding from the complete closed
+symmetric quarter interval to `[-1,1]`, with checked endpoint values and
+strict increase. Exact surjectivity is now constructed by deterministic
+arithmetic iteration `x(n+1)=x(n)+y-sin(x(n))`, starting at the left endpoint.
+Sine's non-expanding estimate preserves the bracket and bounds the residual
+by the interval width divided by the step number. The small-angle bound
+`sin t >= t/2` produces an explicit rational closeness-reflection modulus.
+Together these give native Cauchy data and an exact preimage by completeness.
+`Pi/InverseValue.agda` exports `sinℝ-restrictedEquiv`,
+`cosℝ-restrictedEquiv`, `arcSinℝ`, and `arcCosℝ` without supplied existence
+data. Their inverse, endpoint, zero, parity, continuity, and weak/strict order
+laws specialize the existing generic proofs. `inverseTrigRadius` is an
+explicit uniform modulus, valid at the endpoints as well.
+
+Finite slack-bisection remains an independent approximate density result;
+it does not choose an infinite sequence. The rational-target completion and
+conditional inverse APIs remain compatible, and
+`characterizedHalfPi-sineIntermediateValue` supplies their formerly missing
+interval witness. The HIT rational inverse-bisection theorem requires rational
+endpoints and values and a positive lower slope; the native iteration avoids
+these restrictions and uses no comparison between real carriers. General
+exact IVT remains open, and the former countable-choice adapters remain
+removed. See `Trigonometric/QuarterTurn/Restriction/README.md` for the proof.
+
 The local logarithm series and global exponential equivalence are checked.
 The global logarithm now has inverse, algebra, order, continuity, and derivative
 laws without an equivalence hypothesis. Identifying it with the separate
 series construction remains a compatibility target.
 
-### Phase 8: optional extended scope
+### Phase 8: native complex analysis and constructive FTA
 
-Complex numbers, complex series, and specialized inverse trigonometric
-functions are valuable but should remain outside the core milestone.  They
-depend on a mature real modulus, series, and calculus stack.
+The user explicitly added this scope on 2026-10-08. See
+[Complex/README.md](Complex/README.md) for the precise statement, implementation,
+and next proof obligations.
+
+The [missing-layer plan](Complex/DEVELOPMENT_GAPS_2026-10-09.md) now adds a
+native elementary-function layer: complex exponential, sine and cosine with
+addition/Euler/parity/periodicity laws, real-axis agreement, positive exponential
+modulus and continuity. Generic continuity also preserves supplied complex
+sequence limits. Logarithms exist merely at each positively nonzero point,
+and are constructed from supplied polar witnesses. The
+[differential-calculus layer](Complex/Calculus/README.md) now proves general
+complex derivative uniqueness, continuity, algebra/product/chain rules and
+analytic correctness of the existing polynomial derivatives, with
+holomorphic/entire interfaces. The exponential, sine and cosine now have
+their expected complex derivatives and are proved entire, using the native
+real derivative estimates and complex chain rules. The
+[series layer](Complex/Series/README.md) now proves general sum laws, absolute
+and uniform comparison, continuous power-series values from supplied radius
+majorants, and the geometric-series theorem on the Euclidean unit disk.
+Cauchy products now have finite algebra, native Mertens with one absolute
+factor, absolute native Cauchy closure and a bound on the sum of norms.
+Coefficient convolution multiplies power-series values and preserves a
+supplied nonnegative radius majorant. Complex power-series differentiation
+now follows from a supplied native derivative-majorant witness, with
+continuous derivative values, uniform derivative estimates and endpoint
+line integrals. Strict-interior convergence and holomorphicity now follow
+from an original outer-radius norm-majorant witness, with constructed
+derivative-series sums. Open norm-radius domains and a generic open-subspace
+adapter give ambient derivative statements; interior paths have endpoint
+integrals from the original witness alone. The existing exponential, sine
+and cosine now agree with their standard complex series, with absolute native
+convergence everywhere and uniform convergence on bounded families. The sine
+and cosine endpoint integral formulas follow from the interior series FTC
+for every certified uniform path. One original outer-radius witness now
+constructs all finite derivatives, their uniform series sums and their
+coherent derivative tower on smaller bounded families. Taylor coefficients
+recover the original sequence; intrinsic open-ball Taylor representation is
+uniform and has a majorant-tail remainder estimate. The elementary functions
+have explicit derivative towers and Taylor series at every complex center.
+Intrinsic open-subspace tower uniqueness proves local coefficient uniqueness.
+One canonical derivative tower is now defined on the whole open convergence
+ball; its Taylor coefficients at each interior center are independent of the
+outer radius and agree with any supplied convergent reexpansion.
+[General reexpansion](Complex/Series/PowerSeries/Translation.agda) now
+constructs native convergence for `norm(center) + r < R`, represents the
+original sum, and supplies uniform convergence and tail-remainder bounds.
+The proof uses finite binomial translation and a common geometric majorant
+before interchanging limits. Reexpansion preserves every derivative by
+intrinsic tower uniqueness. The
+[centered FTC](Complex/Integration/LineIntegral/PowerSeries/Centered.agda), its
+[canonical Taylor application](Complex/Integration/LineIntegral/PowerSeries/Reexpansion.agda),
+and [piecewise local-series FTC](Complex/Integration/Piecewise/PowerSeries.agda)
+now give endpoint integrals and closed-path zero. Different pieces may use
+different centers but must represent a common primitive.
+[Constructed primitives](Complex/Series/PowerSeries/Primitive.agda) now
+reuse the real formal-primitive coefficients and converge at the original
+nonnegative majorant radius. Intrinsic uniform differentiation gives their
+[path FTC](Complex/Integration/LineIntegral/PowerSeries/Primitive.agda) and
+[finite-contour endpoint theorem](Complex/Integration/Piecewise/PowerSeries/Primitive.agda)
+without a supplied ambient primitive. Next prove compatibility under Taylor
+reexpansion and apply it to coherent differently centered local descriptions;
+holomorphic Taylor representation without a supplied series remains separate. The [complex integration layer](Complex/Integration/README.md) now
+proves an endpoint theorem for line integrals along bounded uniformly
+differentiable paths, using a uniform primitive estimate along the curve.
+It constructs the integral, proves path independence and closed-path
+vanishing, and supplies polynomial-derivative applications from existing
+Newton estimates. Finite piecewise contours now have concatenation,
+reversal, and the telescoping endpoint theorem; actual smooth parameter
+changes satisfy substitution under supplied standard uniform continuity.
+Exponential primitives apply to every certified path. A supplied continuous
+logarithmic lift yields its reciprocal integral as the lift's endpoint change,
+and the explicit positive unit circle has value `2πi`. The
+[right-half-plane logarithm](Complex/Transcendental/Logarithm/README.md) is
+now constructed as an intrinsic continuous function with derivative `1/z`
+and positive-real normalization. A positive rational lower bound on a
+certified path's real part suffices for its reciprocal endpoint formula and
+closed-path zero. Pointwise inverse differentiation and supporting modulus,
+reciprocal and logarithm continuity reuse the native library. A general
+compact C¹ upgrade, additional branch domains and Cauchy integral theory
+remain future work.
+
+The selected FTA target approximates any monic polynomial, at each requested
+positive rational tolerance, by a finite product of linear factors. The
+witness remains truncated separately at each tolerance. The target is proved
+for every degree by `approximateFundamentalTheorem` in
+[Complex/FundamentalTheorem/Approximate.agda](Complex/FundamentalTheorem/Approximate.agda).
+The same module proves `approximatePolynomialRoots` for every positive degree.
+There are no coefficient-apartness or root-separation hypotheses.
+
+The native complex plane uses pairs of sequential reals and the product
+premetric. The l1 norm supplies submultiplicative bounds and geometric
+contraction proofs. Exact local roots and a unique small quadratic branch are
+constructed with native sequence witnesses. Positive real higher roots use
+the global exp/log equivalence. Nonnegative square roots use an explicit
+geometrically Cauchy sequence and define the multiplicative Euclidean
+modulus. Restricted arcsine and a finite rotated cover provide local polar
+forms and truncated arguments away from zero; De Moivre's formula and
+positive real roots then give higher complex roots. Approximate nth roots
+exist at each requested tolerance for every input. Unit roots give optimal
+two-term cancellation for positive-modulus coefficients. Monic vectors
+retain degree without coefficient zero tests, translation recenters them,
+and synthetic division keeps the remainder explicit.
+
+Finite quantitative Kneser descent now has a checked coefficient-selection
+construction: balanced weighted-power roots, a bounded finite near-maximum
+chain, three adjacent equal indices, and a degree-dependent lower bound on
+the selected term. With `q = 4^(-N)`, the bound `N*q ≤ 1/4` controls the
+finite remainder by one quarter of the selected term plus an explicit
+rational-slack allowance. Polynomial monomial expansion and selected-term
+modulus bounds provide the algebraic interface.
+
+The one-step theorem now combines that scale with angular cancellation and
+one sufficiently small rational error. It gives the contraction factor
+`1-L/8`, strictly between zero and one and depending only on degree.
+Located order handles the small-constant case without a zero test.
+`uniformPolynomialDescent`, finite translated iteration, geometric decay,
+and the synthetic-deflation reduction complete the arbitrary-degree
+approximate theorem. No infinite root or coefficient-index sequence is
+selected. See the Complex README for the proof and exact choice boundary.
+
+The finite-accuracy milestone and the completed-multiset extension below
+are complete. General native exact FTA, the remaining power-series calculus
+and Cauchy integral theory remain further layers. Winding remains an alternative proof route after a
+Cartesian-circle bridge and homotopy-invariance proof. No Cartesian-circle
+equivalence or argument principle is inferred from quotient-circle winding.
+
+The [constructive FTA survey](Complex/FTA_SURVEY_2026-10-08.md) records
+the preferred proof order: polynomial differential algebra and quantitative
+local Newton roots; exact factorization for strongly separable polynomials
+with positive Bézout certificates; quantitative matching; completed root
+multisets. Presentation-sensitive exact FTA and projective formulations are
+separate later targets. None of these extensions is claimed from the
+radiuswise truncated approximate theorem alone.
+
+The statement-first pass requested afterward is complete; the
+[catalogue](Complex/FundamentalTheorem/Formulations/README.md) gives checked
+types for the surveyed formulations and distinguishes proposed native
+adaptations. Proofs have resumed: formal Bézout certificates now give
+evaluation identities and derivative inverses at supplied roots, and
+`localNewtonRoot` constructs an actual unique native root in a ball from the
+specified Newton bounds. These bounds are now derived uniformly, using
+Horner coercivity, two-point divided-difference estimates, and the Bézout
+identity. Finite rational tolerance selection supplies one approximate center;
+deterministic iteration constructs an exact native root.
+
+`stronglySeparableRootExistence` and
+`stronglySeparableFundamentalTheorem` now inhabit the catalogue's original
+types. Formal coefficient certificates propagate through exact deflation by
+`separableDeflation`; finite induction gives exact factorization into pairwise
+apart roots. The polynomial-ring interpretation reflects equality back to
+zero-extended coefficients, preserving the formal certificate.
+
+Stage 4 is now also proved: `quantitativeRootMatching` and
+`quantitativeFactorContinuity` give explicit rational moduli for the two
+finite stability directions. Matching retains multiplicities and makes no
+separability assumption. The native proof uses finite located search,
+coefficient-level permutation identities, and uniform synthetic-division
+estimates. The direct reverse reduction also completes
+`approximateFormulationsInterderivable`. No infinite family of roots is
+selected. Stage 5 now also supplies `completedMultisetFundamentalTheorem`:
+the Gaussian-rational matching completion is constructed, and its factor map
+is equivalent to all native monic coefficient vectors with whole local
+moduli in both directions. Rational-coefficient existence uses explicit
+enumeration and decidable least-witness search. Native coefficient induction
+and reflection of entire Cauchy witnesses establish general existence;
+radiuswise density is not turned into a chosen sequence. See the
+[completion notes](Complex/FundamentalTheorem/Completion/README.md).
+Stages 1–5 are complete. Stage 6 now proves `nearZeroNet` with the catalogue's
+original finite Gaussian net and universal small-residual coverage fields.
+The [cluster layer](Complex/FundamentalTheorem/Clusters/README.md) supplies
+robust spectral certificates, openness and nonvacuity, separation of actual
+roots, finite block matching, and a whole coefficient modulus for separated
+blocks. The empty, single-cluster, and strongly separable exact cases are
+proved. General separated factorization still needs persistent finite
+partitions and exact factor construction in the native completion.
+Weak FTA, presentation-sensitive exact roots, and projective roots remain
+later clients. Unrestricted native exact FTA remains open.
 
 ## Performance gates
 
@@ -553,21 +794,18 @@ data while keeping focused checks near six seconds.
 
 ## Near-term work queue
 
-1. Instantiate the checked exact mean-value inequality with interval-uniform
-   sine/cosine remainder estimates and derive the one-Lipschitz bounds needed
-   for damped Bishop contraction, then construct its Cauchy and positivity
-   witnesses. The inequality itself is now complete.
-2. Construct coherent native-Cauchy inverse data for exact IVT. Finite
-   approximate image density is complete, but choice-based exact inverse
-   adapters are forbidden and have been removed.
-3. Prove local exponential/logarithm compatibility and identify the total
+1. Extend the new restricted sine/cosine inverses with inverse calculus and
+   the Cartesian-circle bridge. General exact IVT remains separate;
+   choice-based exact-inverse adapters are forbidden and remain removed.
+2. Prove local exponential/logarithm compatibility and identify the total
    series candidate with the global logarithm. The choice-free global inverse
    and uniform local logarithm derivative estimates are now constructed.
-4. Design a performant full-apart reciprocal derivative adapter and package
+3. Design a performant full-apart reciprocal derivative adapter and package
    bounded-domain rational functions.
-5. Add the generic domain-map and pasting combinators demanded by calculus.
-6. Turn recursive dyadic refinement into integrability for radiuswise
-   uniformly continuous functions, then prove uniform-limit preservation.
+4. Add the generic domain-map and pasting combinators demanded by calculus.
+5. Extend integral existence to weaker radiuswise continuity/convergence
+   hypotheses without choice; develop further closure laws and weaker FTC
+   hypotheses beyond the checked bounded uniform calculus.
 
 This queue deliberately alternates user-facing theorems with generic support
 work so that no large specialized branch grows on a weak foundation.

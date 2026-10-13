@@ -2,6 +2,9 @@ module Cubical.Analysis.Real.Calculus.Derivative where
 
 open import Cubical.Analysis.Real.Calculus.Derivative.Base public
 open import Cubical.Analysis.Real.Calculus.Derivative.Uniform public
+open import Cubical.Analysis.Real.Calculus.Derivative.Uniform.Interval public
+open import Cubical.Analysis.Real.Calculus.Derivative.Uniform.Estimates public
+open import Cubical.Analysis.Real.Calculus.Derivative.Uniform.Composition public
 open import Cubical.Analysis.Real.Calculus.Derivative.Basic public
 open import Cubical.Analysis.Real.Calculus.Derivative.Algebra public
 open import Cubical.Analysis.Real.Calculus.Derivative.Uniqueness public
@@ -19,3 +22,4 @@ open import Cubical.Analysis.Real.Calculus.Derivative.SignedReciprocal public
 open import Cubical.Analysis.Real.Calculus.Derivative.Quotient public
 open import Cubical.Analysis.Real.Calculus.Derivative.Quotient.PositiveLowerBound public
 open import Cubical.Analysis.Real.Calculus.Derivative.Quotient.NegativeUpperBound public
+open import Cubical.Analysis.Real.Calculus.Derivative.Uniform.Affine public

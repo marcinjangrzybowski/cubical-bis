@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Constructive portfolio risk over Cauchy
+reals · Financial</title><link rel="stylesheet" href="_assets/style.css">
+<style>html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
+</head><body><main>
+<nav class="site-nav"><a href="index.html">Financial documentation</a><a href="README.html">Overview</a><a href="../../Cubical/HITs/CauchyReals/Example/Financial/README.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#constructive-portfolio-risk-over-cauchy-reals"
+id="toc-constructive-portfolio-risk-over-cauchy-reals">Constructive
+portfolio risk over Cauchy reals</a>
+<ul>
+<li><a href="#organization-and-references"
+id="toc-organization-and-references">Organization and
+references</a></li>
+<li><a href="#fx-instruments-and-broker-margin"
+id="toc-fx-instruments-and-broker-margin">FX instruments and broker
+margin</a></li>
+<li><a href="#model-and-conventions"
+id="toc-model-and-conventions">Model and conventions</a></li>
+<li><a href="#further-theory-and-applications"
+id="toc-further-theory-and-applications">Further theory and
+applications</a></li>
+<li><a href="#worked-diversification-and-optimization"
+id="toc-worked-diversification-and-optimization">Worked diversification
+and optimization</a></li>
+<li><a href="#expected-shortfall-certificates"
+id="toc-expected-shortfall-certificates">Expected-shortfall
+certificates</a></li>
+<li><a href="#executable-budget-control"
+id="toc-executable-budget-control">Executable budget control</a></li>
+<li><a href="#rebalancing-reserves-and-economic-identity"
+id="toc-rebalancing-reserves-and-economic-identity">Rebalancing,
+reserves, and economic identity</a></li>
+<li><a href="#hott-and-cubical-agda-content"
+id="toc-hott-and-cubical-agda-content">HoTT and Cubical Agda
+content</a></li>
+<li><a href="#scope-and-extension-points"
+id="toc-scope-and-extension-points">Scope and extension points</a></li>
+<li><a href="#validation" id="toc-validation">Validation</a></li>
+</ul></li>
+</ul></details>
+<h1 id="constructive-portfolio-risk-over-cauchy-reals">Constructive
+portfolio risk over Cauchy reals</h1>
+<p>This development implements a finite-scenario portfolio risk system
+in safe Cubical Agda. Its inputs may be arbitrary higher-inductive
+Cauchy reals, not just embedded rational numbers. The application
+supplies exact rational data and proves a portfolio optimum, executes a
+certified budget check, and carries policy evidence through rebalancing
+and economic netting. Extensions add transaction costs, executable
+optimal trade selection, probability ambiguity, and sequential capital
+control. The instrument extension adds deliverable FX swaps and broker
+margin, including foreign collateral, client netting sets,
+default/recovery severities, and currency-specific settlement
+funding.</p>
+<p>For a presentation to quantitative developers, start with <a
+href="Broker2/README.html">Broker2: one engine, seven versions</a>. Each
+version evolves <code>quoteCall</code>, <code>receive</code>, and its
+correctness contract, with a proved connection to the preceding version.
+The <a href="Broker2/PRESENTATION.html">28-minute speaker guide</a>
+follows the program from one cash account to replay-safe receipt
+processing and certified revaluation, without introducing concrete
+market scenarios.</p>
+<p>Its final model is implemented by the <a
+href="Broker2/Pipeline/README.html">relational pipeline</a>. Typed trade
+and receipt tables feed projection, selection and grouped sums. The
+implementation returns ordinary data; separate proofs connect those
+outputs to the abstract engine and its broker-wide financial guarantee.
+Start with the single <a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline.Implementation.Calculation.html">margin-report
+calculation</a>: its source reads and relational stages appear together
+in <code>calculate</code>. Computation and certification are organized
+in <code>Implementation/</code> and <code>Properties/</code>.</p>
+<p>For the generic broker machinery, start with the new <a
+href="Broker/README.html">Broker correctness progression</a>: eight
+stages from a single cash account through scenario reports, separate
+netting sets, inventory-backed collateral, identified receipts,
+revaluation and minimum transfers to a composed controller. Its final
+theorem bounds every client and aggregate modeled loss after actual
+receipts, with zero loss at zero transfer tolerance. The progression
+contains no concrete scenarios; <a href="Broker/REFERENCES.html">its
+references</a> explain the literature basis and <a
+href="Broker/PROGRESS.html">its progress log</a> records checks.</p>
+<p>Start with <a href="SYSTEM_GUARANTEES.html">System correctness:
+motivating examples</a>. The flagship <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerGuarantees.agda">broker
+guarantee</a> proves that an executable payment/funding check succeeds
+exactly when every client is covered at every real quote in the
+specified box and the actual settlement book has enough native-currency
+funding. Success yields zero modeled closeout loss for every admissible
+default/recovery realization. The same statement holds for arbitrary
+finite histories of actual client receipts.</p>
+<p>The <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/TradingGuarantees.agda">trading
+guarantee</a> turns the fee-aware optimizer into a complete feasibility
+solver: success returns a certified allocation, while failure proves
+that <strong>no</strong> signed real fully invested competitor meets the
+stated tail budget in this market.</p>
+<p><a href="FX_BROKER.html">FX_BROKER.md</a> and <a
+href="EXTENSIONS.html">EXTENSIONS.md</a> explain the component models.
+<a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/Application.agda">Application.agda</a>
+and <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/Diversification.agda">Diversification.agda</a>
+provide the original portfolio workflow and optimizer. <a
+href="PROGRESS.html">PROGRESS.md</a> records implementation milestones,
+independent reviews, and validation.</p>
+<h2 id="organization-and-references">Organization and references</h2>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Theory.agda">Theory.agda</a>
+is the reusable entry point and imports no worked examples. <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples.agda">Examples.agda</a>
+collects the applications under qualified names. The original
+<code>Financial.agda</code> umbrella and flat module paths remain
+compatibility imports. New implementations and imports use this
+layout:</p>
+<table>
+<thead>
+<tr>
+<th>Folder</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Core/</code></td>
+<td>Finite real arithmetic, polymorphic vector constructors, nonnegative
+interval bounds, probability, economic equivalence</td>
+</tr>
+<tr>
+<td><code>Risk/</code></td>
+<td>Scalar and finite shortfall, worst-case loss, CVaR, variance,
+ambiguity, certified risk checks</td>
+</tr>
+<tr>
+<td><code>Portfolio/</code></td>
+<td>Holdings, transaction costs, policies, execution equivalence</td>
+</tr>
+<tr>
+<td><code>Instruments/</code></td>
+<td>Deliverable FX swaps and valuation bounds</td>
+</tr>
+<tr>
+<td><code>Broker2/</code></td>
+<td>Seven evolving versions of one margin engine; a separate relational
+implementation and refinement proofs</td>
+</tr>
+<tr>
+<td><code>Broker/</code></td>
+<td>Eight-stage generic margin machinery and system correctness
+proofs</td>
+</tr>
+<tr>
+<td><code>Margin/</code></td>
+<td>Scenario coverage, cash requirements, payment control, client
+exposure and counterparty loss</td>
+</tr>
+<tr>
+<td><code>Dynamic/</code></td>
+<td>Two-stage risk and rectangular ambiguity</td>
+</tr>
+<tr>
+<td><code>Settlement/</code></td>
+<td>Currency/date cashflows, liquidity and principal exposure</td>
+</tr>
+<tr>
+<td><code>Examples/</code></td>
+<td>Shared illustrative data and portfolio, FX, dynamic, netting and
+settlement applications</td>
+</tr>
+</tbody>
+</table>
+<p><a href="STRUCTURE.html">STRUCTURE.md</a> explains shared interfaces,
+terminology, dependencies, and migration from every old import path. <a
+href="REFERENCES.html">REFERENCES.md</a> connects the examples to
+primary sources and states which aspects they support. Each example also
+names its methodological references in source comments. The numerical
+scenarios and parameters are synthetic; the references motivate the
+methods rather than calibrate the data.</p>
+<h2 id="fx-instruments-and-broker-margin">FX instruments and broker
+margin</h2>
+<p>The <a href="FX_BROKER.html">FX broker guide</a> develops two-leg
+deliverable FX swaps, exact spot/discount-factor valuation changes, and
+the least domestic cash top-up covering a client's stressed replacement
+claims. Currency collateral is revalued with the claims; a calculated
+call becomes protective collateral only after it is paid and available
+as modeled.</p>
+<p>Two clients hold opposite portfolios of swaps with notionals 60 and
+40. Their market marks cancel, but client identity and principal
+obligations remain relevant:</p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Checked result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Four single-factor scenarios</td>
+<td>Client cash calls 15 and <code>68/5</code>; frozen foreign
+collateral leaves a proved <code>8/5</code> shortfall.</td>
+</tr>
+<tr>
+<td>All real quotes in a joint spot/discount box</td>
+<td>Sharp cash calls 25 and <code>108/5</code>; earlier payments require
+a further 10 and 8.</td>
+</tr>
+<tr>
+<td>Received payments</td>
+<td>Arbitrary receipt histories preserve exact outstanding calls and
+whole-box coverage; equal per-client totals preserve the combined broker
+decision.</td>
+</tr>
+<tr>
+<td>Counterparty loss</td>
+<td>Exposure bounds every supplied default/recovery severity; paid
+sufficient collateral eliminates modeled residual closeout loss.</td>
+</tr>
+<tr>
+<td>Settlement funding</td>
+<td>Actual far legs net to zero but require gross native-currency
+payments of 100 domestic and 100 foreign; the combined checker rejects
+200 domestic and zero foreign.</td>
+</tr>
+<tr>
+<td>End-to-end broker policy</td>
+<td>Pass iff all-client whole-box coverage and gross funding hold;
+staged receipts yield a certificate for the actual swap book.</td>
+</tr>
+</tbody>
+</table>
+<p>Client-labelled HIT quotients preserve exposure; an aggregate-mark
+quotient is proved to lose information needed for that calculation. The
+box results cover an infinite family of Cauchy-real states using
+constructive bounds and explicit attaining witnesses. The guide
+distinguishes these mathematical guarantees from valuation calibration,
+legal enforceability, and operational receipt of collateral.</p>
+<h2 id="model-and-conventions">Model and conventions</h2>
+<p>A loss vector is <code>Fin n → ℝ</code>. Positive values are losses;
+negative values are gains. A distribution contains nonnegative real
+scenario weights and a proof that their finite sum is one.
+Zero-probability scenarios are permitted.</p>
+<p>A market maps each asset to a scenario-loss vector. Portfolio losses
+are the finite dot product of holdings and unit asset losses. General
+holdings can be negative; the <code>Allocation</code> subtype restricts
+them to nonnegative weights with total capital one. Amounts in the
+diversification example are abstract loss units over a single horizon,
+not prices or percentages inferred from market data.</p>
+<p>The model separates three controls:</p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Expected loss</td>
+<td>Probability-weighted mean loss</td>
+</tr>
+<tr>
+<td>Worst-case stress loss</td>
+<td>Maximum over a <strong>nonempty</strong> scenario set, including
+zero-probability stress scenarios</td>
+</tr>
+<tr>
+<td>Expected shortfall / CVaR</td>
+<td>Attained minimum of the threshold objective described below</td>
+</tr>
+</tbody>
+</table>
+<p>Variance and covariance provide additional dispersion diagnostics;
+variance is distinct from a loss-based capital requirement. The
+extensions also study the worst expected loss across a finite family of
+probability models and its entire convex hull, and compose risk rules on
+a two-stage scenario tree.</p>
+<h2 id="further-theory-and-applications">Further theory and
+applications</h2>
+<p>The <a href="EXTENSIONS.html">extension guide</a> gives definitions,
+proof ideas, precise input assumptions, and the following checked
+results:</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>When should a concentrated portfolio trade, including proportional
+fees?</td>
+<td>For fee parameter <code>0 ≤ s ≤ 4</code>, weights
+<code>(3/4,1/4)</code> attain CVaR <code>2+s/4</code>; for
+<code>s ≥ 4</code>, no trade attains the minimum 3. Rational inputs give
+executable certified trade and budget decisions.</td>
+</tr>
+<tr>
+<td>What if the trade must also obey a scenario stress cap?</td>
+<td>For <code>2 ≤ c ≤ 4</code>, A weight <code>(c+2)/8</code> minimizes
+CVaR including any nonnegative proportional fee subject to raw stress at
+most <code>c</code>. Fee 1 and cap 3 give CVaR <code>19/8</code>; budget
+<code>9/4</code> is impossible for every feasible portfolio.</td>
+</tr>
+<tr>
+<td>What if scenario probabilities are uncertain?</td>
+<td>A different allocation <code>(9/20,11/20)</code> uniquely minimizes
+worst expected loss across two models and all their mixtures, with
+capital <code>7/5</code>. Its scenario stress loss increases from 2 to
+<code>12/5</code>.</td>
+</tr>
+<tr>
+<td>Can managers check capital locally at intermediate branches?</td>
+<td>Two-stage coherent risk composes with proved time consistency,
+node-budget propagation, and a finite expectation tower formula.</td>
+</tr>
+<tr>
+<td>Does independently changing models at each branch matter?</td>
+<td>Coupled uncertainty has capital 2 in a checked example; independent
+branch uncertainty gives nested capital 4.</td>
+</tr>
+<tr>
+<td>Can equal raw portfolios still have different execution risk?</td>
+<td>A direct basket and a wrapped basket have identical raw losses but
+fees 1 and 3, producing CVaR 3 and 5. Quotient descent is characterized
+by fee invariance.</td>
+</tr>
+</tbody>
+</table>
+<p>The trading and ambiguity examples optimize different criteria. The
+stress-constrained trade explicitly couples a raw scenario limit with
+CVaR including fees; the other optima do not assert automatic compliance
+with the original combined policy limits.</p>
+<h2 id="worked-diversification-and-optimization">Worked diversification
+and optimization</h2>
+<p>Each scenario has probability <code>1/4</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th style="text-align: right;">Asset A</th>
+<th style="text-align: right;">Asset B</th>
+<th style="text-align: right;">Equal-weight portfolio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A stress</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>B stress</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>Neutral 1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Neutral 2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>The tail multiplier is <code>κ = 2</code>, corresponding to the worst
+50% of probability mass. This small confidence level makes every step of
+the example visible.</p>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th style="text-align: right;">Asset A</th>
+<th style="text-align: right;">Asset B</th>
+<th style="text-align: right;">Equal-weight portfolio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Expected loss</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Worst-case stress loss</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>CVaR at 50% confidence</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>Variance</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<p>For every <strong>real</strong> weight <code>w</code>, including
+shorted allocations, let <code>L(w) = w A + (1-w) B</code>. The
+distribution <code>(1/2, 1/2, 0, 0)</code> is an admissible dual witness
+with expected loss exactly 2 for every <code>w</code>. Weak duality
+proves <code>2 ≤ F(L(w), t)</code> for <strong>every real
+threshold</strong> <code>t</code>. The equal-weight allocation attains 2
+at threshold 0, so it is a global optimizer over both variables. This
+result does not depend on a grid search or an unproved optimizer.</p>
+<p>CVaR minimizers need not be unique. Worst-case stress risk provides a
+stronger selection criterion in this example: the two stress losses are
+<code>8w-2</code> and <code>6-8w</code>, and requiring both to be at
+most 2 forces <code>w = 1/2</code>. The quarter allocation is a checked
+second CVaR optimizer: it has losses <code>(0,4,0,0)</code>, CVaR 2,
+stress loss 4, and variance 3.</p>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/VarianceExample.agda">VarianceExample.agda</a>
+proves covariance <code>-7</code> between the assets and the
+identity</p>
+<pre class="text"><code>variance(L(w)) = 1 + 32 (w - 1/2)²</code></pre>
+<p>for every real weight. Nonnegativity of real squares proves global
+variance minimization at equal weights without assuming independent
+asset returns.</p>
+<h2 id="expected-shortfall-certificates">Expected-shortfall
+certificates</h2>
+<p>For a distribution <code>P</code> and a real multiplier
+<code>κ ≥ 1</code>, define</p>
+<pre class="text"><code>positivePart(x) = max(x, 0)
+stopLoss(x, t)  = positivePart(x - t)
+F(L, t)        = t + κ E_P[stopLoss(L, t)]</code></pre>
+<p>The usual confidence parameter is related by
+<code>κ = 1/(1-confidence)</code>. The formal input is <code>κ</code>
+and its lower-bound proof, avoiding a partial inverse. This threshold
+formulation follows Rockafellar and Uryasev's treatment of general loss
+distributions, including atoms. It does not identify CVaR with naive
+conditioning on a strict exceedance of a quantile; that would mishandle
+discrete mass at a threshold. See their <a
+href="https://sites.math.washington.edu/~rtr/papers/rtr187-CVaR2.pdf">2002
+paper</a>.</p>
+<p>An admissible dual distribution <code>Q</code> satisfies
+<code>Q_i ≤ κ P_i</code> for every scenario. The implementation
+proves</p>
+<pre class="text"><code>E_Q[L] ≤ F(L, t)</code></pre>
+<p>directly, for every threshold. A concrete
+<code>OptimalityCertificate</code> supplies a threshold, an admissible
+dual distribution, and equality of these two bounds. The resulting value
+is a global minimum and independent of the certificate. The nominal
+distribution is itself proved admissible, so the dual family is
+inhabited and every threshold objective is bounded below by the mean
+loss. A pointwise scenario bound supplies an upper certificate.</p>
+<p><code>IsCVaR L r</code> expresses the global minimum value and
+propositionally truncated attainment. There is at most one such real
+value. General existence of an optimizer for every real-valued finite
+dataset is <strong>not</strong> asserted here; the worked examples
+construct their optimizers in full. No missing analysis result is
+postulated or silently used.</p>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Risk/RiskLaws.agda">RiskLaws.agda</a>
+proves monotonicity, cash translation, subadditivity, weighted convex
+bounds, and uniform perturbation bounds for values supplied with
+<code>IsCVaR</code> evidence. It also proves that acceptance is
+equivalent to <code>r ≤ budget</code>, and gives the corresponding
+univalence path.</p>
+<h2 id="executable-budget-control">Executable budget control</h2>
+<p><code>RiskControl.Report</code> contains a trial threshold, an
+admissible dual measure, and verified rational bounds enclosing their
+objective values. <code>check</code> uses decidable rational
+comparisons:</p>
+<ul>
+<li>If the upper bound is within the budget, return acceptance with a
+proof.</li>
+<li>If the budget is strictly below the lower bound, return rejection
+with a proof that no threshold can certify the budget.</li>
+<li>Otherwise return <code>inconclusive</code>.</li>
+</ul>
+<p>Inconclusiveness can reflect coarse numerical bounds or a gap between
+the chosen primal and dual witnesses. It is not an assertion that the
+portfolio violates its budget. The four reduction checks in
+<code>Application.agda</code> establish:</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th style="text-align: right;">Budget</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Equal-weight portfolio, exact report <code>[2,2]</code></td>
+<td style="text-align: right;">2</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Equal-weight portfolio, exact report <code>[2,2]</code></td>
+<td style="text-align: right;">1</td>
+<td>fail</td>
+</tr>
+<tr>
+<td>Concentrated asset A, exact report <code>[3,3]</code></td>
+<td style="text-align: right;">2</td>
+<td>fail</td>
+</tr>
+<tr>
+<td>Equal-weight portfolio, coarse report <code>[1,3]</code></td>
+<td style="text-align: right;">2</td>
+<td>unknown</td>
+</tr>
+</tbody>
+</table>
+<p>These labels carry logical evidence via <code>check-sound</code>. The
+checker never branches on equality, sign, or order of arbitrary Cauchy
+reals.</p>
+<h2 id="rebalancing-reserves-and-economic-identity">Rebalancing,
+reserves, and economic identity</h2>
+<p><code>Policy</code> combines a mean-loss limit, a stress limit, and a
+tail-risk limit. It proves that a convex blend of two compliant
+portfolios satisfies the same limits. <code>rebalance-certified</code>
+returns both the new fully invested allocation and its policy evidence
+for every real weight in <code>[0,1]</code>.</p>
+<p>For nonnegative holdings, asset-specific one-sided model error bounds
+combine into the dot product of holdings and errors. Adding that reserve
+transports a tail certificate to the actual model. Moving the threshold
+with a uniform loss error gives coefficient <strong>one</strong> on the
+reserve, rather than <code>κ</code>.</p>
+<p>The application adds a third instrument which wraps the equal-weight
+basket. The allocations <code>(1/2,1/2,0)</code> and
+<code>(0,0,1)</code> have different holdings but identical losses. Their
+proof-bearing policy records become equal in the economic quotient. This
+netting result concerns scenario losses; operational details such as
+transaction fees must be included in those losses to be covered.</p>
+<h2 id="hott-and-cubical-agda-content">HoTT and Cubical Agda
+content</h2>
+<ul>
+<li>The real numbers are the library's higher-inductive Cauchy reals.
+Constructive lattice maxima and stop losses work without decidable real
+order.</li>
+<li>Positive parts and fixed-threshold stop losses preserve the native
+Cauchy closeness relation through the existing HIT lifting of
+maximum.</li>
+<li>Cubical function extensionality turns pointwise loss equality into
+paths.</li>
+<li>A HIT <strong>set quotient</strong> identifies economically
+equivalent positions. Its equality is proved equivalent to pointwise
+loss equality, and its loss map is an embedding.</li>
+<li>The quotient is equivalent to the <strong>image with propositionally
+truncated fibers</strong> of the loss map. No representative selection
+or choice axiom is needed. Univalence gives a path between the two type
+presentations, with risk-preservation theorems for the equivalence.</li>
+<li>Order proofs and policy evidence are propositions. Two proofs do not
+create two different certified economic positions.</li>
+<li>Truncation hides threshold witnesses in acceptance and attainment
+while retaining all proposition-valued consequences.</li>
+</ul>
+<p>The real rebalancing segment is not a cubical equality path between
+unequal real numbers. Cauchy reals and the relevant portfolio types are
+sets; the quotient and proof-transport techniques provide the pertinent
+HoTT structure.</p>
+<h2 id="scope-and-extension-points">Scope and extension points</h2>
+<p>This is a checked finite mathematical system, with executable example
+checks. It does not include market-data ingestion, floating-point
+numerical solvers, a general CVaR minimizer, continuous-time trading, or
+probability calibration. The supplied probabilities and error
+certificates are model inputs; proofs establish consequences of those
+inputs, not their empirical accuracy.</p>
+<p>Useful extensions are a verified numerical routine that produces
+<code>Report</code> bounds, certificates generated by a rational
+linear-programming solver, an explicit funding account, and
+scenario-label invariance. Any optimizer used externally can remain
+outside the trust boundary: Agda can check its threshold and dual
+witness with the existing certificate interface.</p>
+<p>Transaction costs are now formalized as additional losses with
+prescribed target holdings. Self-financing execution and probability
+calibration remain outside the model. The dynamic layer is a finite
+two-stage evaluation and certificate system, without a general dynamic
+trading optimizer.</p>
+<p>The entire development stays under this example directory and its
+umbrella module. It uses the project's <code>--safe --cubical</code>
+settings, with no new postulates, unsafe pragmas, holes, or changes to
+foundational APIs.</p>
+<h2 id="validation">Validation</h2>
+<p>From the repository root, check reusable theory or the complete
+compatibility umbrella, which also imports every canonical example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Theory.agda</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial.agda</span></code></pre></div>
+<p>The current validation record, including compiler status and scope of
+the refactor, is in <a href="PROGRESS.html">PROGRESS.md</a>. All
+foundational results come from the existing library; no additional
+analysis assumptions were introduced.</p>
+</main></body></html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sources for the generic broker margin
+progression · Financial</title><link rel="stylesheet" href="../_assets/style.css">
+
+</head><body><main>
+<nav class="site-nav"><a href="../index.html">Financial documentation</a><a href="../README.html">Overview</a><a href="../../../Cubical/HITs/CauchyReals/Example/Financial/Broker/REFERENCES.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#sources-for-the-generic-broker-margin-progression"
+id="toc-sources-for-the-generic-broker-margin-progression">Sources for
+the generic broker margin progression</a>
+<ul>
+<li><a href="#bcbs-fx-settlement-risk-2013"
+id="toc-bcbs-fx-settlement-risk-2013">BCBS: FX settlement risk,
+2013</a></li>
+<li><a href="#bcbsiosco-margin-requirements-2020"
+id="toc-bcbsiosco-margin-requirements-2020">BCBS–IOSCO: margin
+requirements, 2020</a></li>
+<li><a href="#ben-tal-and-nemirovski-robust-optimization-1998"
+id="toc-ben-tal-and-nemirovski-robust-optimization-1998">Ben-Tal and
+Nemirovski: robust optimization, 1998</a></li>
+<li><a href="#brigo-and-pallavicini-margining-and-gap-risk-2014"
+id="toc-brigo-and-pallavicini-margining-and-gap-risk-2014">Brigo and
+Pallavicini: margining and gap risk, 2014</a></li>
+<li><a href="#finos-common-domain-model-event-model"
+id="toc-finos-common-domain-model-event-model">FINOS: Common Domain
+Model event model</a></li>
+<li><a href="#saltzer-reed-and-clark-duplicate-suppression-1984"
+id="toc-saltzer-reed-and-clark-duplicate-suppression-1984">Saltzer,
+Reed, and Clark: duplicate suppression, 1984</a></li>
+<li><a href="#scope-of-the-composed-result"
+id="toc-scope-of-the-composed-result">Scope of the composed
+result</a></li>
+</ul></li>
+</ul></details>
+<h1 id="sources-for-the-generic-broker-margin-progression">Sources for
+the generic broker margin progression</h1>
+<p>These sources motivate the financial concepts and system boundaries
+of the eight stages. The Agda modules supply their own constructive
+proofs. None of these sources supplies a postulate, a calibrated
+parameter, or a correctness theorem for this implementation. The
+progression has no concrete market scenario or instrument
+dependency.</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Method implemented here</th>
+<th>Relevant sources</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage01Cash.html">01
+Cash</a></td>
+<td>Signed replacement claim, available cash, and the distinction
+between requesting and receiving cash.</td>
+<td><a href="#bcbs-fx-2013">BCBS FX</a>, especially collateral
+arrangements and transfer timing.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage02Scenarios.html">02
+Scenarios</a></td>
+<td>Coverage for every allowed state; supplied rational bounds support
+decisions without deciding arbitrary real order.</td>
+<td><a href="#robust-optimization">Robust optimization</a> for universal
+uncertainty constraints; <a href="#bcbs-fx-2013">BCBS FX</a> for
+stressed exposure management.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage03NettingSets.html">03
+Netting sets</a></td>
+<td>Separate authorized sets, individual coverage, and aggregate
+unsecured exposure.</td>
+<td><a href="#bcbs-fx-2013">BCBS FX</a> for enforceable netting and
+collateral agreements.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage04Collateral.html">04
+Collateral</a></td>
+<td>Inventory allocation, scenario-dependent eligible value, retention
+factors, and coverage-preserving substitution.</td>
+<td><a href="#bcbs-fx-2013">BCBS FX</a> and <a
+href="#bcbs-iosco-2020">BCBS–IOSCO</a> for collateral eligibility,
+valuation, and haircuts.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage05Journal.html">05
+Journal</a></td>
+<td>Identified actual receipts, per-client balances, replay idempotency,
+and order-independent accounting.</td>
+<td><a href="#cdm-event-model">FINOS CDM</a> for business event
+identity; <a href="#saltzer-1984">Saltzer, Reed, and Clark</a> for
+application-level duplicate suppression.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage06Revaluation.html">06
+Revaluation</a></td>
+<td>Certified adverse claim and collateral changes; an additive reserve
+sufficient after actual receipt.</td>
+<td><a href="#brigo-pallavicini-2014">Brigo–Pallavicini</a> for
+margining and gap risk; <a href="#robust-optimization">robust
+optimization</a> for bounds over supplied states.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage07Calls.html">07
+Calls</a></td>
+<td>A minimum-transfer policy with a proved bound on the remaining
+unsecured amount.</td>
+<td><a href="#bcbs-iosco-2020">BCBS–IOSCO</a> for the minimum-transfer
+concept; the precise policy is our definition.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage08Controller.html">08
+Controller</a></td>
+<td>Composition of inventory, revaluation, transfer policy, and receipt
+accounting into conditional all-client guarantees.</td>
+<td>The preceding sources motivate the components; the composition and
+dependent certificate transport are proved here.</td>
+</tr>
+</tbody>
+</table>
+<p><a id="bcbs-fx-2013"></a></p>
+<h2 id="bcbs-fx-settlement-risk-2013">BCBS: FX settlement risk,
+2013</h2>
+<p>Basel Committee on Banking Supervision, <em>Supervisory guidance for
+managing risks associated with the settlement of foreign exchange
+transactions</em>, February 2013, BCBS 241. <a
+href="https://www.bis.org/publ/bcbs241.htm">Official publication</a>, <a
+href="https://www.bis.org/publications/201302-guidelines-supervisory-guidance-managing-risks-associated-settlement-foreign-exchange-transactions.pdf">official
+PDF</a>.</p>
+<p>Sections 3.3.5–3.3.8 address enforceable netting agreements,
+collateral agreement terms, variation margin for the specified FX
+counterparties, and stressed collateral valuation with conservative
+haircuts. These motivate separate netting sets and explicitly supplied
+collateral values. Sections 3.2, 3.4, and 3.6 treat principal,
+liquidity, and legal risks separately: replacement-cost coverage alone
+does not certify payment settlement, currency funding, or
+enforceability. <a
+href="https://www.bis.org/publications/201302-guidelines-supervisory-guidance-managing-risks-associated-settlement-foreign-exchange-transactions.pdf#page=22">Sections
+3.3.5–3.3.8, printed page 16</a>.</p>
+<p>The model receives the legally authorized grouping and available
+collateral as inputs. It does not determine applicable law, validate a
+collateral agreement, or implement the guidance's operational
+requirements.</p>
+<p><a id="bcbs-iosco-2020"></a></p>
+<h2 id="bcbsiosco-margin-requirements-2020">BCBS–IOSCO: margin
+requirements, 2020</h2>
+<p>Basel Committee on Banking Supervision and International Organization
+of Securities Commissions, <em>Margin requirements for non-centrally
+cleared derivatives</em>, April 2020 revision. <a
+href="https://www.bis.org/publications/202004-standards-margin-requirements-non-centrally-cleared-derivatives.pdf">Official
+dated standard</a>.</p>
+<p>Requirement 2.3 discusses minimum transfer amounts; Element 4
+addresses eligible collateral and haircuts. These support the general
+concepts used in Stages 04 and 07. No regulatory haircut schedule,
+monetary threshold, entity test, or model approval rule is encoded. The
+code's rule is explicit: request zero when the gap is at most the
+supplied minimum transfer amount, otherwise request the whole gap. Its
+equality boundary and residual-bound theorem are our formal choices. <a
+href="https://www.bis.org/publications/202004-standards-margin-requirements-non-centrally-cleared-derivatives.pdf">Requirements
+2.1–2.3 and Element 4</a>.</p>
+<p>Requirement 1.1 excludes physically settled FX forwards and swaps
+from this document's margin requirements and directs their
+variation-margin treatment to supervisory guidance or national
+regulation, referring to BCBS 241. Thus this source provides general
+margin concepts, not an assertion that this generic controller is a
+regulatory implementation for FX swaps. <a
+href="https://www.bis.org/publications/202004-standards-margin-requirements-non-centrally-cleared-derivatives.pdf#page=11">Requirement
+1.1</a>.</p>
+<p><a id="robust-optimization"></a></p>
+<h2 id="ben-tal-and-nemirovski-robust-optimization-1998">Ben-Tal and
+Nemirovski: robust optimization, 1998</h2>
+<p>Aharon Ben-Tal and Arkadi Nemirovski, <em>Robust Convex
+Optimization</em>, <em>Mathematics of Operations Research</em>
+<strong>23</strong>(4), 769–805, 1998. <a
+href="https://doi.org/10.1287/moor.23.4.769">DOI:
+10.1287/moor.23.4.769</a>, <a
+href="https://www2.isye.gatech.edu/~nemirovs/robmp.pdf">author-hosted
+paper</a>.</p>
+<p>The paper's robust feasibility condition requires constraints to hold
+for every parameter in a specified uncertainty set. This supports the
+interpretation of <code>Allowed</code> and universal coverage
+certificates. Our state types need not be finite or convex; we prove
+implications from supplied bounds rather than implement the paper's
+optimization algorithms. <a
+href="https://www2.isye.gatech.edu/~nemirovs/robmp.pdf">Definition in
+Section 1</a>.</p>
+<p>The development does not infer an uncertainty set from data, prove
+that future markets stay inside it, or construct optimal real-valued
+bounds automatically. Conservative rational requirements can certify
+coverage without being least.</p>
+<p><a id="brigo-pallavicini-2014"></a></p>
+<h2 id="brigo-and-pallavicini-margining-and-gap-risk-2014">Brigo and
+Pallavicini: margining and gap risk, 2014</h2>
+<p>Damiano Brigo and Andrea Pallavicini, <em>Nonlinear consistent
+valuation of CCP cleared or CSA bilateral trades with initial margins
+under credit, funding and wrong-way risks</em>, <em>Journal of Financial
+Engineering</em> <strong>1</strong>(1), 1450001, 1–60, 2014. <a
+href="https://doi.org/10.1142/S2345768614500019">Publisher and DOI:
+10.1142/S2345768614500019</a>.</p>
+<p>The paper studies valuation with initial and variation margins,
+collateral, gap credit risk, funding, and wrong-way risk. It motivates
+treating adverse changes during the interval before collateral becomes
+available as an explicit part of the model. Stage 06 uses deterministic,
+universally quantified change bounds; its additive sufficient reserve is
+not the paper's stochastic valuation model or a calibrated
+initial-margin methodology. <a
+href="https://doi.org/10.1142/S2345768614500019">Publisher
+abstract</a>.</p>
+<p>The accessible <a href="https://arxiv.org/abs/1312.0128">2013 FAQ,
+arXiv:1312.0128</a> by the same authors is a separate work, not an
+alternative bibliographic identity for the 2014 paper. The 2014 paper is
+also listed in <a
+href="https://www.ma.imperial.ac.uk/~dbrigo/2017ScienceArtValuation.pdf">Brigo's
+author-hosted 2017 presentation</a>.</p>
+<p>No default probability, dependence calibration, discounting equation,
+BSDE, or funding valuation adjustment is implemented in this
+progression. Conditional zero unsecured closeout loss does not eliminate
+these other risks.</p>
+<p><a id="cdm-event-model"></a></p>
+<h2 id="finos-common-domain-model-event-model">FINOS: Common Domain
+Model event model</h2>
+<p>FINOS Common Domain Model, <em>Event Model</em>, official living
+documentation, accessed 8 September 2026. <a
+href="https://cdm.finos.org/docs/event-model/">Official event model</a>,
+<a href="https://cdm.finos.org/docs/event-model/#event-identifier">Event
+Identifier</a>.</p>
+<p>The documentation distinguishes business events, workflow state,
+message information, and event identifiers. An event identifier supports
+references from other workflow steps; it is not merely the delivery
+message identifier. This motivates identifying the underlying receipt
+independently of a repeated delivery. <a
+href="https://cdm.finos.org/docs/event-model/#event-identifier">Event
+and message identifiers</a>.</p>
+<p>Stage 05 is a small independent ledger model, not a CDM
+implementation. Its finite catalog fixes each event's owner and
+nonnegative amount before ingestion. A reused ID cannot carry a changed
+payload through this API. Distinct IDs must represent distinct actual
+receipts; corrections, reversals, identity assignment, and
+authentication require an additional model. The CDM citation does not
+establish those premises or prove the ledger's replay theorem.</p>
+<p><a id="saltzer-1984"></a></p>
+<h2 id="saltzer-reed-and-clark-duplicate-suppression-1984">Saltzer,
+Reed, and Clark: duplicate suppression, 1984</h2>
+<p>Jerome H. Saltzer, David P. Reed, and David D. Clark, <em>End-to-End
+Arguments in System Design</em>, <em>ACM Transactions on Computer
+Systems</em> <strong>2</strong>(4), 277–288, November 1984. <a
+href="https://doi.org/10.1145/357401.357402">DOI:
+10.1145/357401.357402</a>, <a
+href="https://web.mit.edu/6.033/2002/wwwdocs/papers/endtoend.pdf">MIT-hosted
+author text</a>.</p>
+<p>The discussion of duplicate message suppression explains why
+application retries can create duplicates that a communication layer
+cannot recognize. Application knowledge is needed to identify the
+duplicated action. This motivates proving receipt identity and balance
+preservation at the journal layer. <a
+href="https://web.mit.edu/6.033/2002/wwwdocs/papers/endtoend.pdf#page=6">Duplicate
+message suppression, PDF page 6</a>.</p>
+<p>Our proofs concern pure ledger transitions: replay, permutation, and
+batches containing the same event IDs produce equal ledger states. They
+do not establish network exactly-once delivery, crash recovery, durable
+commits, concurrent-store linearizability, or the authenticity of a
+payment acknowledgement.</p>
+<h2 id="scope-of-the-composed-result">Scope of the composed result</h2>
+<p>Stage 08 combines proved bounds for supplied claims, collateral
+valuations, allowed states, and immutable actual-receipt data.
+Additional recorded cash must be distinct from cash already counted in
+the collateral allocation. Settlement of a computed plan is checked per
+client using newly credited receipts; a failed check means that the plan
+is unfulfilled, since a conservative plan need not be economically
+minimal.</p>
+<p>After the required actual receipts, the controller bounds each
+client's residual by its supplied transfer tolerance, and the broker's
+aggregate residual and severity-weighted closeout loss by the sum of
+tolerances. Zero tolerance gives complete modeled coverage. Cubical
+paths additionally transport the full certificate across
+replay-equivalent ledger states. These are implementation theorems with
+explicit premises, not claims attributed to the cited literature.</p>
+<p>This progression makes no claim of regulatory compliance, empirical
+adequacy, legal enforceability, settlement-principal protection, or
+native-currency liquidity sufficiency.</p>
+</main></body></html>

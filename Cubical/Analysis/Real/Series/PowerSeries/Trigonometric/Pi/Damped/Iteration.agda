@@ -29,26 +29,29 @@ dampedBishopCoefficient : ℚ
 dampedBishopCoefficient = ℚ.fromNat 1 /2
 
 
-dampedBishopPiHalfApproximation : ℕ → ℝ
-dampedBishopPiHalfApproximation zero = 0ℝ
-dampedBishopPiHalfApproximation (suc n) =
-  dampedBishopPiHalfApproximation n +
-    dampedBishopCoefficient ⋆
-      cosℝ (dampedBishopPiHalfApproximation n)
+-- Keep later estimates from unfolding nested completed power-series values.
+-- The zero and step equations are the public computation interface.
+opaque
+  dampedBishopPiHalfApproximation : ℕ → ℝ
+  dampedBishopPiHalfApproximation zero = 0ℝ
+  dampedBishopPiHalfApproximation (suc n) =
+    dampedBishopPiHalfApproximation n +
+      dampedBishopCoefficient ⋆
+        cosℝ (dampedBishopPiHalfApproximation n)
 
 
-dampedBishopPiHalfApproximation-zero :
-  dampedBishopPiHalfApproximation zero ≡ 0ℝ
-dampedBishopPiHalfApproximation-zero = refl
+  dampedBishopPiHalfApproximation-zero :
+    dampedBishopPiHalfApproximation zero ≡ 0ℝ
+  dampedBishopPiHalfApproximation-zero = refl
 
 
-dampedBishopPiHalfApproximation-step : ∀ n →
-  dampedBishopPiHalfApproximation (suc n)
-    ≡
-  dampedBishopPiHalfApproximation n +
-    dampedBishopCoefficient ⋆
-      cosℝ (dampedBishopPiHalfApproximation n)
-dampedBishopPiHalfApproximation-step n = refl
+  dampedBishopPiHalfApproximation-step : ∀ n →
+    dampedBishopPiHalfApproximation (suc n)
+      ≡
+    dampedBishopPiHalfApproximation n +
+      dampedBishopCoefficient ⋆
+        cosℝ (dampedBishopPiHalfApproximation n)
+  dampedBishopPiHalfApproximation-step n = refl
 
 
 dampedBishopPiHalfTerms : ℕ → ℝ
@@ -64,7 +67,9 @@ opaque
       ≡
     dampedBishopPiHalfTerms n
   dampedBishopPiHalfApproximation-difference n =
-      sym
+      cong (_+ (- dampedBishopPiHalfApproximation n))
+        (dampedBishopPiHalfApproximation-step n)
+    ∙ sym
         (addAssoc
           (dampedBishopPiHalfApproximation n)
           (dampedBishopPiHalfTerms n)
@@ -87,8 +92,9 @@ opaque
     dampedBishopPiHalfApproximation n
       ≡
     partialSum dampedBishopPiHalfTerms n
-  dampedBishopPiHalfApproximation-asPartialSum zero = refl
+  dampedBishopPiHalfApproximation-asPartialSum zero =
+    dampedBishopPiHalfApproximation-zero
   dampedBishopPiHalfApproximation-asPartialSum (suc n) =
-    cong
+    dampedBishopPiHalfApproximation-step n ∙ cong
       (_+ dampedBishopPiHalfTerms n)
       (dampedBishopPiHalfApproximation-asPartialSum n)

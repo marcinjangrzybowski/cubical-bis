@@ -1,17 +1,17 @@
-# Constructive pi plan
+# Constructive π in Analysis
 
 Analysis is choice-free by project policy. Countable-choice exact-inverse
 adapters were intentionally removed; only constructive proofs and generic
 results using independently supplied mathematical witnesses remain.
 
-The public target is not an arbitrary real named `pi`, but the uniquely
-characterized first positive zero of cosine.  The checked specification is
+π is twice the uniquely characterized first positive zero of cosine.
+The checked specification for that zero is
 `IsFirstPositiveCosineZero`; it includes positivity on every nonnegative point
 strictly before the zero, implies the least-nonnegative-zero property, and is
 unique.  `CharacterizedHalfPi` packages such a real with its characterization
 and is itself a proposition; `characterizedPi` is twice its underlying value.
 
-## Checked Bishop boundary
+## Checked Bishop construction
 
 `Bishop/Iteration.agda` follows the construction in
 `Cubical/HITs/CauchyReals/Trigonometry/Pi.agda`:
@@ -41,11 +41,35 @@ d 0       = 0
 d (n + 1) = d n + (1/2) cos (d n)
 ```
 
-is checked through the same explicit analytic boundary.  It is identified
-with the partial sums of its scaled-cosine increments; every limit candidate
-has cosine zero, because successive differences tend to zero and the nonzero
-rational half-scalar can be cancelled.  Its remaining existence obligation is
-`DampedBishopPiHalfCauchy`.
+now has an unconditional native Cauchy witness, `dampedBishopPiHalfCauchy`.
+The construction uses the following modules:
+
+- `Damped/Bounds.agda` proves preservation of positive cosine on each prefix;
+  `Damped/Invariants.agda` applies it to every interval `[0,d n]`.
+  It uses the existing lower bound on `[0,1]` and the signed endpoint
+  inequalities from Analysis's uniform FTC. Since `d 1 = 1/2`, sine is at
+  least `1/4` on each later step. Consequently
+  `cos(d(n+2)) <= (7/8) cos(d(n+1))`.
+- `Damped/Estimates.agda` bounds every increment by `(7/8)^n` and applies
+  the native geometric-series Cauchy theorem. The contraction starts after
+  the first step; the initial increment is handled separately.
+  `Damped/Convergence.agda` applies these estimates to the recurrence and
+  constructs its native sequential limit.
+- `Damped/Characterization.agda` proves that the resulting limit is positive,
+  has cosine zero, and has positive cosine at every nonnegative point
+  strictly before it. A single radius from the gap to the limit suffices to
+  find an iterate beyond such a point.
+
+`Estimates/UniformDerivative.agda` supplies the global radiuswise-uniform
+sine and cosine derivative estimates. The addition formulas translate the
+remainders at zero, and the sharp absolute bounds by one control the
+coefficients. Only finitely many truncated witnesses are combined. Neither
+this argument nor the geometric Cauchy construction assumes countable choice.
+
+`dampedBishopHalfPi` inhabits `CharacterizedHalfPi`. `Value.agda` exports
+`halfPiℝ`, `piℝ`, and `twoPiℝ`, with no existence hypotheses. The original
+undamped Bishop API remains available as an independent conditional route;
+it is not used to construct these constants.
 
 The cosine-zero characterization implies `sin half * sin half = 1`.
 `Orientation.agda` now proves the positive sign from the characterization:
@@ -59,182 +83,101 @@ full-period identities therefore apply to every characterized half-pi.
 Older APIs accepting `CharacterizedHalfPiSineOne` remain compatible; the
 witness can always be supplied by `characterizedHalfPi-sineOne`.
 
-## Restricted sine equivalence
+## Exact restricted inverses
 
-For a candidate `quarter`, `SineQuarterInterval quarter` is the closed
-interval `[-quarter,quarter]`, while `SineUnitInterval` is `[-1,1]`.
-`restrictedSine` is a checked map between them, using the global sharp bound
-`|sin x| <= 1`.  The endpoint values are `sin (-quarter) = -1` and
-`sin quarter = 1` for a positive quarter turn.  The restricted map is
-continuous, and both closed intervals are complete.
+`Pi/InverseValue.agda` constructs the native equivalences
 
-Surjectivity has been isolated without adding an existence axiom:
-`SineQuarterIntermediateValue quarter` says, propositionally, that every
-`y` in `[-1,1]` has a preimage in the quarter interval.  It is equivalent to
-surjectivity of `restrictedSine`.  For a positive first cosine zero the
-embedding is now derived internally, so this intermediate-value statement is
-the only interval-level input to the equivalence API. Finite bisection gives
-approximate image density, not this exact intermediate-value witness.
-Constructing exact intermediate values remains a separate analytic boundary.
+- `sinℝ-restrictedEquiv : [-halfPiℝ,halfPiℝ] ≃ [-1,1]`;
+- `cosℝ-restrictedEquiv : [0,piℝ] ≃ [-1,1]`.
 
-The interval embedding now also has a quantitative converse modulus.  A
-positive rational separation between inputs produces a positive rational
-separation between their sine values; equivalently, sufficiently close sine
-values force interval points to be close.  The modulus is pointwise truncated,
-which is adequate for propositions but does not by itself choose the whole
-Cauchy modulus required by the sequential completion.
+The subtype-valued `arcSinℝ` and `arcCosℝ` need no supplied IVT,
+equivalence, approximation sequence, or modulus. They satisfy both inverse
+laws, uniqueness, and continuity. `InverseValue/Properties.agda` specializes
+the existing inverse properties: values at `-1`, `0`, and `1`, arcsine
+oddness, `arccos(-x) = piℝ - arccos(x)`, and weak and strict monotonicity.
+`inverseTrigRadius` is an explicit rational uniform-continuity modulus for
+both functions, including the endpoints.
 
-`SineQuarterApproximateIntermediateValue` records the correctly bundled
-bisection target: interval points with one native `SeqWitness`, together with
-convergence of their sine values to the requested target.  It is proved
-equivalent to `SineQuarterIntermediateValue`.  The forward proof takes the
-source limit, preserves both interval bounds, and uses continuity of sine and
-uniqueness of limits to obtain an exact preimage. Constructing this sequence
-without a choice assumption remains distinct from producing each finite
-approximation separately.
+### Construction in Analysis
 
-`SineQuarterApproximateImageDensity` asks only that, for each target and
-each positive rational tolerance independently, there merely exists an
-interval point whose sine is within that tolerance. A supplied family of
-approximate points can be sampled dyadically to obtain image convergence,
-but radiuswise truncated existence alone does not supply such a family or a
-native source Cauchy witness. The former choice-based adapters were removed.
-`Bisection/Density.agda` now proves
-`sineQuarterApproximateImageDensityByBisection`: finite overlapping midpoint
-comparisons preserve the slack inequalities and halve the bracket width
-exactly. Dyadic convergence and the exponential-majorant oscillation bound
-give any requested image tolerance. This finite density theorem itself uses
-no choice, first-zero characterization, or strict-monotonicity hypothesis;
-the quarter-turn endpoint laws and a nonnegative quarter suffice.
+The first-zero characterization already gives strict increase and embedding
+of sine on the complete closed quarter interval. For each target `y` in
+`[-1,1]`, `QuarterTurn/Restriction/Iteration.agda` constructs
 
-There is now a second checked reduction that follows the rational-first shape
-of the Bishop/HIT constructions.  `RationalSineInverseConstruction quarter`
-contains a function `g : ℚ → ℝ`, the equation
-`sin (g q) = clamp[-1,1] (rat q)`, and proofs that every `g q` lies in the
-quarter interval.  A chosen sine-closeness reflection modulus makes the graph
-of `g` Cauchy-continuous.  The sequential universal property then constructs
-`G : ℝ → ℝ`; joint rational approximation, continuity of sine, and the
-non-expanding clamp prove the exact equation `sin (G y) = clamp[-1,1] y`.
-A parallel clamp argument proves `G y` remains in the quarter interval.
-Consequently this rational data, with either a chosen or merely bundled chosen
-reflection modulus, implies the intermediate-value theorem and the restricted
-sine equivalence.  Approximation-family adapters obtain this exact rational
-construction from limiting interval points; specialized adapters accept the
-strict rational Cauchy witnesses used by `Cubical.Data.Rationals.Bisection`.
-The weaker image-convergence data types remain, but there is no adapter
-silently upgrading them to a native source Cauchy witness. A bundled inverse
-modulus must likewise be supplied or constructed, not assumed to follow
-from the radiuswise truncated theorem.
+```text
+x 0       = -quarter
+x (n + 1) = x n + (y - sin (x n))
+```
 
-The injective side is complete.  The first-zero characterization gives strict
-positivity of cosine on the whole open symmetric quarter interval.  Midpoint
-and half-difference lemmas place the two factors of
-`sin y - sin x = 2 cos((x+y)/2) sin((y-x)/2)` in their positive regions; the
-checked identity then proves `SineQuarterStrictlyIncreasing`, injectivity, and
-embedding.  `restrictedSine-isEquivFromIntermediateValue` packages the result
-so callers no longer provide strict monotonicity separately.
+Sine's sharp non-expanding bound keeps every iterate in the interval with
+`sin(x n) <= y`. The nonnegative residual decreases, and induction proves
+`n * (y - sin(x n)) <= x n + quarter <= 2*quarter`. A rational bound on the
+width gives an explicit residual convergence rate. It is eliminated once
+into the proposition bundling the image Cauchy witness and its limit;
+there is no selection of a family of truncated witnesses.
 
-`Pi/RestrictedSine.agda` specializes the obligations and the resulting
-equivalence theorems, including the approximate-IVT and rational-lift routes, to
-`CharacterizedHalfPi`, so the intended
-`[-pi/2,pi/2]` statement is explicit even before the unconditional half-pi
-construction is available.
+The earlier midpoint factor estimates now have an explicit converse modulus.
+The uniform FTC and `cos t >= 1/2` on `[0,1]` give `sin t >= t/2`.
+`QuarterTurn/Injectivity/Separation/Quantitative.agda` uses
+`probe = min(1,input)/2` and `output = (probe/2)^2`. Applying this with
+`input = epsilon/4` reflects image closeness back to the source interval.
+Thus the image Cauchy witness yields native source Cauchy data, and the
+existing completeness and continuity proof produces an exact preimage.
+Cosine uses the interval reflection `x ↦ quarter - x`.
 
-## Checked closed-domain inverses
+See [the restriction construction](../QuarterTurn/Restriction/README.md)
+for the generic iteration modules and exact theorem names.
 
-`QuarterTurn/Restriction/Inverse.agda` names the inverse of any restricted-sine
-equivalence as `restrictedArcSin`. It proves both inverse laws, uniqueness,
-and independence from the equivalence proof. Its cosine counterpart uses the
-interval reflection `x ↦ quarter - x` between `[0,2*quarter]` and
-`[-quarter,quarter]`, so `restrictedArcCos y = quarter - restrictedArcSin y`.
-For a positive quarter turn this gives the restricted-cosine equivalence and
-both cosine inverse laws, without a separate cosine-surjectivity assumption.
+### Existing interfaces and comparison
 
-Both inverses are continuous using the existing radiuswise sine-closeness
-reflection modulus, without selecting a global modulus. Their checked
-endpoint values are `arcsin(-1)=-quarter`, `arcsin(1)=quarter`,
-`arccos(-1)=2*quarter`, and `arccos(1)=0`. The inverse property modules also
-prove `arcsin(0)=0`, `arccos(0)=quarter`, oddness of arcsine,
-`arccos(-x)=2*quarter-arccos(x)`, and increasing/decreasing order laws,
-including strict versions. Strict order reflection uses continuity and
-locatedness constructively.
+`QuarterTurn/Restriction/Existence.agda` provides `restrictedSineEquiv` and
+`restrictedCosineEquiv` for any characterized positive quarter turn.
+`Pi/InverseExistence.agda` supplies
+`characterizedHalfPi-sineIntermediateValue` to the existing conditional
+characterized-half-pi interfaces. Their signatures remain compatible.
 
-For the pi-specialized interface, supply:
+Finite slack-bisection still proves approximate image density, and the
+rational-target completion adapters still accept their explicit input data.
+The new construction supplies a deterministic sequence and a rational
+modulus directly; it does not upgrade radiuswise truncated density to a
+chosen family. General exact IVT remains separate.
 
-- `construction : CharacterizedHalfPi`;
-- `intermediate : CharacterizedHalfPiSineIntermediateValue construction`.
+The historical HIT arcsine theorem concerns open intervals and a different
+real carrier. Its reusable rational inverse-bisection theorem also requires
+rational endpoints and values and a positive lower slope. The native proof
+uses Analysis's non-expanding estimate, uniform FTC, and sequential
+completion, allowing real endpoints where the sine derivative vanishes.
+No carrier comparison or choice-dependent adapter is used.
 
-`characterizedRestrictedSineEquiv` and `characterizedRestrictedCosineEquiv`
-then give the two equivalences. `Inverse.agda` exports `characterizedArcSin`
-and `characterizedArcCos`, their inverse laws and continuity, with no extra
-orientation, injectivity, cosine-IVT, or choice inputs. Their ranges are
-`[-characterizedHalfPi,characterizedHalfPi]` and `[0,characterizedPi]`:
-`characterizedPi-asHalfTurn` identifies the latter endpoint.
+## Public trigonometric characterization
 
-`characterizedHalfPi-sineApproximateImageDensity` in `Pi/RestrictedSine.agda`
-specializes finite bisection to the characterized half-pi. It gives only
-approximate density. There is no countable-choice shortcut from this theorem
-to exact surjectivity or a named inverse.
+The public `Pi` and `Trigonometric` facades export:
 
-The historical `Cubical/HITs/CauchyReals/ArcSin` development remains a useful
-specification, but its inverse theorem is for open intervals and depends on a
-much larger roots, integration, fundamental-theorem, and arcsine stack.  There
-is also no carrier comparison transporting that result to the sequential
-Analysis reals.  The existing HIT inverse-bisection implementation is not a
-drop-in IVT: its reusable theorem assumes rational endpoints, rational function
-values, and a uniform positive lower slope.  Restricted sine has a
-characterized real endpoint, non-rational values at rational arguments, and
-zero derivative at the endpoints. The new finite slack-bisection construction
-works with these closed-interval APIs directly, without those restrictions.
+- `halfPiℝ-characterization`, `halfPiℝ-unique`, and
+  `halfPiℝ-leastNonnegativeCosineZero`;
+- `cosℝ-halfPiℝ = 0` and `sinℝ-halfPiℝ = 1`;
+- `piℝ-characterization`, `piℝ-unique`, and `piℝ-leastPositiveSineZero`,
+  including strict positivity of sine on `(0,piℝ)`;
+- `sinℝ-piℝ = 0`, `cosℝ-piℝ = -1`, the half-pi and pi shift laws,
+  and `sinℝ-periodic` / `cosℝ-periodic` with period `twoPiℝ`;
+- negative half-pi/pi/full-period shifts and reflections in
+  `Reflection.agda`, including `cos x = -sin(x-halfPiℝ)`;
+- invariance under all integer multiples of `twoPiℝ`, values at those
+  multiples, and the circle turn-coordinate equalities in
+  `IntegerPeriod.agda`.
 
-No unconditional `halfPiℝ` or `piℝ` is exported: doing so before constructing
-convergence and the complete first-zero characterization would hide the
-central analytic obligations.
+Here the equations describe theorem statements; the constants themselves
+are defined through native sequential completion. No comparison with the HIT
+Cauchy reals is assumed. The historical development supplies a mathematical
+model, while this proof uses Analysis's own uniform derivative, FTC, and
+geometric-series infrastructure.
 
-## Routes considered
+## Further work
 
-- The historical full Bishop step is the formal specification.  Its old proof
-  uses integration, the fundamental theorem of calculus, strict integral
-  comparison, and mean-value estimates to establish positivity and geometric
-  contraction.
-- The checked damped Bishop step is the preferred convergence optimization.
-  Exact global Lipschitz estimates and positivity on each step should yield
-  the rational contraction `7/8`; then the increments are directly dominated
-  by the existing geometric series `(7/8)^n`.  It retains the same first-zero
-  characterization while needing less integration infrastructure.
-- A Leibniz or Machin-series value can be made computable earlier, but the
-  current arctangent development neither reaches `atan 1` nor proves the
-  inverse-trigonometric equations needed to identify its value as a cosine
-  zero.
-- An IVT/bisection definition now has complete closed intervals, the
-  continuous strictly increasing restricted sine embedding, sharp endpoint
-  values, quantitative inverse control, and an approximate-sequence target
-  equivalent to exact intermediate value. Finite approximate image density
-  is now proved. Exact restricted-sine surjectivity still requires a coherent
-  constructive approximation or a different choice-free completion argument.
-- A rational-first Bishop route can instead construct exact inverse values only
-  for rational targets.  The new rational-lift layer handles arbitrary real
-  targets and proves the exact clamped sine law.  What remains on this route is
-  the computational rational bisection (or an equivalent imported HIT
-  construction). A bundled global inverse modulus remains an explicit
-  mathematical obligation; a pointwise truncated modulus does not discharge it.
-- Defining pi through an integral currently lacks general integrability,
-  fundamental-theorem, and comparison results.
+The restricted sine/cosine inverses are constructed. Identifying the native
+quotient circle with the Cartesian unit circle and extending the inverse
+calculus remain separate developments.
 
-## Next proof obligations
-
-The exact absolute endpoint inequality is now checked in
-`Calculus/MeanValue/Uniform.agda`, globally and with assumptions only on the
-chosen interval. It requires radiuswise-uniform differentiability, not merely
-pointwise derivatives. The remaining obligations are:
-
-1. Supply radiuswise uniform derivative witnesses for sine and cosine and
-   derive exact global one-Lipschitz estimates.
-2. Use the damped contraction and geometric-series domination to construct a
-   Cauchy witness.
-3. Prove positivity before the limit and package `IsFirstPositiveCosineZero`;
-   sine orientation now follows from `Orientation.agda`. Only then expose
-   unconditional `halfPiℝ`, `piℝ`, and their periodicity laws.
-4. Construct coherent native Cauchy inverse data for exact surjectivity.
-   Finite image density is complete; countable-choice assumptions are not an
-   acceptable route to exact inverses in Analysis.
+The inverse construction's individual-module checks, facade checks, aggregate
+checks, and dependency audit are recorded in
+[the restriction verification notes](../QuarterTurn/Restriction/README.md#verification--2026-10-08).

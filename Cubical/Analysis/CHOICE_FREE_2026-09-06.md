@@ -43,8 +43,8 @@ for future contributors and coding agents.
 Do not turn a family of merely existing witnesses into a merely existing
 family by assumption. Radiuswise convergence alone does not yield the
 globally bundled Cauchy modulus required by the sequential carrier. General
-exact IVT and unconditional restricted trigonometric inverses must still be
-built constructively.
+exact IVT and unconditional restricted trigonometric inverses still needed
+constructive proofs at the time of this cleanup.
 
 ## Subsequent choice-free inverse construction
 
@@ -82,3 +82,13 @@ cleanup. Tracked original versions also remain in Git history.
   Analysis modules or uses of their removed named inverse adapters.
 - `git diff --check` is clean. The pre-removal archive was used to identify
   this cleanup's edits separately from the preceding dirty working tree.
+
+## Restricted trigonometric inverses — 2026-10-08
+
+Exact closed-interval sine/cosine inverses are now constructed natively in
+`Real/Series/PowerSeries/Trigonometric/Pi/InverseValue.agda`. The arithmetic
+iteration has an explicit residual convergence rate, and the small-angle
+sine bound gives a rational formula for the inverse modulus. This constructs
+the required native Cauchy witness without selecting a family from truncated
+approximate preimages. General exact IVT is still separate. See
+[the construction notes](Real/Series/PowerSeries/Trigonometric/QuarterTurn/Restriction/README.md).

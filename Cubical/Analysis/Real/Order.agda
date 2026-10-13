@@ -6,6 +6,7 @@ open import Cubical.Analysis.Real.Order.Lattice public
 open import Cubical.Analysis.Real.Order.AbsoluteValue public
 open import Cubical.Analysis.Real.Order.Multiplication public
 open import Cubical.Analysis.Real.Order.Sequence public
+open import Cubical.Analysis.Real.Order.Finite public
 open import Cubical.Analysis.Real.Order.Metric public
 open import Cubical.Analysis.Real.Order.Metric.AbsoluteDifference public
 open import Cubical.Analysis.Real.Order.Strict public

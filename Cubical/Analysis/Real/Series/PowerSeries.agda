@@ -42,6 +42,7 @@ open import Cubical.Analysis.Real.Series.PowerSeries.FiniteModification public
 open import Cubical.Analysis.Real.Series.PowerSeries.Convergence public
 open import Cubical.Analysis.Real.Series.PowerSeries.Uniform public
 open import Cubical.Analysis.Real.Series.PowerSeries.Growth public
+open import Cubical.Analysis.Real.Series.PowerSeries.WeightedBound public
 open import Cubical.Analysis.Real.Series.PowerSeries.Growth.Operations public
 open import Cubical.Analysis.Real.Series.PowerSeries.GrowthUniform public
 open import Cubical.Analysis.Real.Series.PowerSeries.Derivative public
@@ -56,6 +57,8 @@ open import Cubical.Analysis.Real.Series.PowerSeries.Difference.Uniform public
 open import Cubical.Analysis.Real.Series.PowerSeries.Difference.Derivative public
 open import Cubical.Analysis.Real.Series.PowerSeries.Difference.UniformDerivative public
 open import Cubical.Analysis.Real.Series.PowerSeries.Interior public
+open import Cubical.Analysis.Real.Series.PowerSeries.Difference.InteriorBound public
+open import Cubical.Analysis.Real.Series.PowerSeries.InteriorConvergence public
 open import Cubical.Analysis.Real.Series.PowerSeries.Entire public
 open import Cubical.Analysis.Real.Series.PowerSeries.Entire.HigherDerivative public
 open import Cubical.Analysis.Real.Series.PowerSeries.Exponential.Archimedean public

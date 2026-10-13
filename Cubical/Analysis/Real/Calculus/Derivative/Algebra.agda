@@ -11,6 +11,7 @@ open import Cubical.Data.Rationals.Base using (ℚ)
 open import Cubical.Data.Rationals.Inverse
 
 open import Cubical.HITs.PropositionalTruncation.Monad
+import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Relation.Premetric.Base
 
@@ -34,6 +35,7 @@ open import Cubical.Analysis.Real.Order.Archimedean
 open import Cubical.Analysis.Real.Order.Strict.Properties
 open import Cubical.Analysis.Real.Order.Strict.Rational
 open import Cubical.Analysis.Real.Calculus.Derivative.Base
+open import Cubical.Analysis.Real.Calculus.Derivative.Uniform
 
 open PositiveRationals
 open PositiveHalvesℚ
@@ -66,6 +68,40 @@ private
         (g y - g x)
         (f' x · (coordinate y - coordinate x))
         (g' x · (coordinate y - coordinate x))
+
+
+opaque
+  addHasUniformDerivativeAlong : ∀ {ℓ ℓ'} {A : Type ℓ}
+    (source : PremetricStr ℓ' A) (coordinate f g f' g' : A → ℝ) →
+    IsRadiuswiseUniformDerivativeAlong source coordinate f f' →
+    IsRadiuswiseUniformDerivativeAlong source coordinate g g' →
+    IsRadiuswiseUniformDerivativeAlong source coordinate (λ x → f x + g x) (λ x → f' x + g' x)
+  addHasUniformDerivativeAlong {A = A} source coordinate f g f' g' first second ε =
+    PT.map2 (λ { (δf , nearF) (δg , nearG) → min₊ δf δg , λ x y close →
+      bound x y
+        (nearF x y (PremetricStr.isMonotone≈≤ source x y (min₊ δf δg) δf (min₊≤L δf δg) close))
+        (nearG x y (PremetricStr.isMonotone≈≤ source x y (min₊ δf δg) δg (min₊≤R δf δg) close)) })
+      (first (ε /2₊)) (second (ε /2₊))
+    where
+    bound : ∀ x y →
+      absℝ (derivativeErrorAlong coordinate f f' x y) ≤ℝ rat (fst (ε /2₊)) · absℝ (coordinate y - coordinate x) →
+      absℝ (derivativeErrorAlong coordinate g g' x y) ≤ℝ rat (fst (ε /2₊)) · absℝ (coordinate y - coordinate x) →
+      absℝ (derivativeErrorAlong coordinate (λ x → f x + g x) (λ x → f' x + g' x) x y) ≤ℝ
+        rat (fst ε) · absℝ (coordinate y - coordinate x)
+    bound x y firstBound secondBound =
+      subst2 _≤ℝ_ (sym (cong absℝ (addDerivativeErrorPath coordinate f g f' g' x y)))
+        (sym (mulDistL (rat (fst (ε /2₊))) (rat (fst (ε /2₊))) distance)
+          ∙ cong (_· distance) (rat+rat (fst (ε /2₊)) (fst (ε /2₊)) ∙ cong rat (/2+/2≡id (fst ε))))
+        (≤ℝ-trans (absℝ (errorF + errorG)) (absℝ errorF + absℝ errorG)
+          (rat (fst (ε /2₊)) · distance + rat (fst (ε /2₊)) · distance)
+          (absTriangle errorF errorG)
+          (addPres≤ (absℝ errorF) (rat (fst (ε /2₊)) · distance)
+            (absℝ errorG) (rat (fst (ε /2₊)) · distance) firstBound secondBound))
+      where
+      errorF errorG distance : ℝ
+      errorF = derivativeErrorAlong coordinate f f' x y
+      errorG = derivativeErrorAlong coordinate g g' x y
+      distance = absℝ (coordinate y - coordinate x)
 
 
 addHasDerivativeAlong :

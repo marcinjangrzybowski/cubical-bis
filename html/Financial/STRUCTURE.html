@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structure, shared interfaces, and
+imports · Financial</title><link rel="stylesheet" href="_assets/style.css">
+<style>html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
+</head><body><main>
+<nav class="site-nav"><a href="index.html">Financial documentation</a><a href="README.html">Overview</a><a href="../../Cubical/HITs/CauchyReals/Example/Financial/STRUCTURE.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#structure-shared-interfaces-and-imports"
+id="toc-structure-shared-interfaces-and-imports">Structure, shared
+interfaces, and imports</a>
+<ul>
+<li><a href="#entry-points-and-dependency-direction"
+id="toc-entry-points-and-dependency-direction">Entry points and
+dependency direction</a></li>
+<li><a href="#one-engine-evolved-for-a-presentation"
+id="toc-one-engine-evolved-for-a-presentation">One engine evolved for a
+presentation</a></li>
+<li><a href="#generic-broker-progression"
+id="toc-generic-broker-progression">Generic broker progression</a></li>
+<li><a href="#shared-expressions-and-reusable-statements"
+id="toc-shared-expressions-and-reusable-statements">Shared expressions
+and reusable statements</a></li>
+<li><a href="#scenario-certificates-and-constructive-boundaries"
+id="toc-scenario-certificates-and-constructive-boundaries">Scenario
+certificates and constructive boundaries</a></li>
+<li><a href="#financial-terminology-and-units"
+id="toc-financial-terminology-and-units">Financial terminology and
+units</a></li>
+<li><a href="#flat-import-migration" id="toc-flat-import-migration">Flat
+import migration</a></li>
+<li><a href="#checking" id="toc-checking">Checking</a></li>
+</ul></li>
+</ul></details>
+<h1 id="structure-shared-interfaces-and-imports">Structure, shared
+interfaces, and imports</h1>
+<p>The canonical implementation is organized by mathematical
+responsibility. Worked examples live under <code>Examples/</code>; their
+illustrative data is not part of the reusable theory. Existing flat
+imports remain forwarding modules.</p>
+<h2 id="entry-points-and-dependency-direction">Entry points and
+dependency direction</h2>
+<ul>
+<li><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Theory.agda">Theory.agda</a>
+publicly exports reusable financial theory.</li>
+<li><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Broker2.html">Broker2.agda</a>
+exports successive versions of <a href="Broker2/README.html">one margin
+engine</a>, with a <a href="Broker2/PRESENTATION.html">speaker
+guide</a>.</li>
+<li><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Broker.html">Broker.agda</a>
+exports the eight generic <a href="Broker/README.html">broker stages</a>
+with qualified names.</li>
+<li><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples.agda">Examples.agda</a>
+imports all worked applications with qualified names.</li>
+<li><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial.agda">../Financial.agda</a>
+preserves the original public API and qualified examples, and checks
+both new entry points.</li>
+</ul>
+<p>For focused use, import the canonical module directly:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode agda"><code class="sourceCode agda"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">open</span> <span class="kw">import</span> Cubical<span class="ot">.</span>HITs<span class="ot">.</span>CauchyReals<span class="ot">.</span>Example<span class="ot">.</span>Financial<span class="ot">.</span>Margin<span class="ot">.</span>Base</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> Cubical<span class="ot">.</span>HITs<span class="ot">.</span>CauchyReals<span class="ot">.</span>Example<span class="ot">.</span>Financial<span class="ot">.</span>Examples<span class="ot">.</span>FX<span class="ot">.</span>BrokerMargin as Broker</span></code></pre></div>
+<p><code>Core/</code> provides common finite arithmetic, probability,
+bounds and economic identity. <code>Risk/</code>,
+<code>Portfolio/</code>, <code>Dynamic/</code>,
+<code>Instruments/</code>, <code>Margin/</code>, and
+<code>Settlement/</code> build the reusable financial statements.
+<code>Broker/</code> composes them in a separate, increasingly rich
+progression of generic margin controllers. These implementations import
+canonical theory paths; none imports <code>Examples</code> or a legacy
+forwarding module. Examples may compose related examples.
+General-purpose example inputs belong in <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/CommonScenarioData.agda">CommonScenarioData</a>,
+so an FX application does not acquire a dependency on a particular asset
+portfolio merely to use a uniform probability distribution.</p>
+<p>The flagship composed statements are <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerGuarantees.agda">BrokerGuarantees</a>
+and <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/TradingGuarantees.agda">TradingGuarantees</a>,
+with motivation and theorem-level contracts in <a
+href="SYSTEM_GUARANTEES.html">SYSTEM_GUARANTEES.md</a>. The theory entry
+point exposes the new reusable controls as public qualified namespaces
+<code>MarginWorkflow</code>, <code>PaymentHistory</code>, and
+<code>Broker</code>, keeping their status and receipt names separate
+from the existing scalar controller and settlement API.</p>
+<h2 id="one-engine-evolved-for-a-presentation">One engine evolved for a
+presentation</h2>
+<p><a href="Broker2/README.html">Broker2/</a> contains seven successive
+engine versions, each importing its predecessor. The recurring
+operations are <code>quoteCall</code>, <code>receive</code>, and
+<code>receive-correct</code>. Relationships are proved by
+client/scenario projection, singleton specialization, rational receipt
+embedding, zero-MTA equality, identified-receipt accounting, and
+unchanged-market regression.</p>
+<p>The version sequence contains complete engine workflows, including a
+generic rational factory for exact initial reports, incremental report
+updates after partial receipts, and a final <code>process</code> result
+carrying the next state, report, and assessment. It reuses the existing
+finite-margin, receipt-journal and drift lemmas. The earlier broker
+progression remains independent. <code>Theory.Broker2</code> exports
+qualified version namespaces; no concrete example is imported.</p>
+<p><a href="Broker2/Pipeline/README.html">Broker2/Pipeline/</a> uses
+<code>Cubical.Experiments.Relation</code>. <code>Implementation/</code>
+contains <code>Sources</code>, <code>Valuation</code>,
+<code>Receipts</code>, <code>Margin</code>, and the standalone
+<code>Calculation</code>. <code>Properties/</code> contains the
+accounting, numeric, safety, refinement, and replay proofs, including a
+matching <code>Calculation</code> module certifying the result table.
+Each folder has its own Agda entry point; the pipeline umbrella exposes
+these two namespaces. The presentation starts with the read-only
+<code>calculate</code> query: three source tables, derived columns,
+selection, grouped sums, a maximum over scenarios, and a projected
+output. The complete margin engine remains available separately. The
+implementation imports no abstract broker engine or financial safety
+module. Named field access, finite-key membership, projection,
+selection, and aggregation are shared relation primitives, rather than
+per-schema getter wrappers.</p>
+<h2 id="generic-broker-progression">Generic broker progression</h2>
+<p><a href="Broker/README.html">Broker/README.md</a> gives the
+stage-by-stage contracts and <a
+href="Broker/REFERENCES.html">Broker/REFERENCES.md</a> maps them to
+primary literature. Stages add cash, arbitrary scenario coverage, client
+netting, inventory and haircuts, identified receipts, revaluation,
+minimum transfers, and the final controller. They reuse
+<code>Core</code>, <code>Risk</code> and <code>Margin</code> without
+importing worked examples or changing the earlier broker
+application.</p>
+<p>The progression distinguishes exact minimum certificates from
+sufficient upper reports, a call from a receipt, a minimum-transfer
+tolerance from full coverage, and proof of an unfulfilled plan from
+proof of economic deficiency. The journal uses immutable IDs and
+contributes only newly credited cash. The final controller proves loss
+bounds for the actual updated ledger, plus equality of the complete
+ledger/certificate state after replay. It contains no numerical
+scenarios.</p>
+<h2 id="shared-expressions-and-reusable-statements">Shared expressions
+and reusable statements</h2>
+<table>
+<thead>
+<tr>
+<th>Interface</th>
+<th>Role and current consumers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Core/Vectors.agda">Core/Vectors</a>:
+<code>two</code>, <code>three</code>, <code>four</code></td>
+<td>Constructors for <code>Fin n → A</code>, polymorphic in
+<code>A : Type ℓ</code>; shared by numeric profiles and scenario
+examples.</td>
+</tr>
+<tr>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Core.Finite.html">Core/Finite</a>:
+<code>sum-negate</code></td>
+<td>Negation commutes with a finite real sum; settlement uses it to
+compare net and gross outgoing payments.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Core/Bounds.agda">Core/Bounds</a>:
+<code>Bound</code>, <code>InInterval</code>, product bounds</td>
+<td>Closed intervals with nonnegative lower endpoints. FX valuation uses
+these arithmetic bounds; the definitions contain no FX-specific
+data.</td>
+</tr>
+<tr>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Risk.Shortfall.html">Risk/Shortfall</a>:
+<code>stopLoss-upper</code>, <code>stopLoss-evaluate</code>,
+<code>stopLoss-at-zero</code></td>
+<td>Common coverage and exact-evaluation rules used by margin, client
+exposure, portfolio and FX examples.</td>
+</tr>
+<tr>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Risk.FiniteShortfall.html">Risk/FiniteShortfall</a>:
+<code>positivePart-sum-bound</code>,
+<code>stopLoss-sum-bound</code></td>
+<td>Positive-part and shortfall bounds for arbitrary finite sums; used
+by client netting and settlement.</td>
+</tr>
+<tr>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Risk.WorstCase.html">Risk/WorstCase</a>:
+<code>worstCase-exact-at</code></td>
+<td>An upper bound and a supplied attaining index certify an exact
+finite maximum.</td>
+</tr>
+<tr>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Margin.Scenario.html">Margin/Scenario</a>:
+<code>Coverage</code>, <code>MarginCertificate</code>,
+<code>BindingScenario</code></td>
+<td>Coverage and minimal cash over an arbitrary admissible scenario
+domain; instantiated by finite margin and joint FX bounds.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Margin/Workflow.agda">Margin/Workflow</a>:
+<code>CertifiedClients</code></td>
+<td>Any finite client count and admissible scenario domain: complete
+rational coverage checks, zero-loss guarantees, and minimal further
+requests.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Margin/PaymentHistory.agda">Margin/PaymentHistory</a>:
+<code>creditHistory</code>, <code>processHistory</code></td>
+<td>Arbitrary receipt sequences, scenario-polymorphic collateral
+updates, exact outstanding calls and transported report equality under
+batching.</td>
+</tr>
+<tr>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Margin.Base.html">Margin/Base</a>:
+<code>margin-postCash</code></td>
+<td>For every nonnegative real payment, the remaining margin equals the
+positive part of the original margin less that payment. The rational
+payment controller specializes it.</td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Portfolio/TransactionCosts.agda">Portfolio/TransactionCosts</a>:
+<code>TailCosts.objective-cash-at</code></td>
+<td>Cash translation at an arbitrary threshold; the rebalancing example
+delegates its net objective identity to this shared law.</td>
+</tr>
+</tbody>
+</table>
+<p>The shared example data includes <code>half</code>,
+<code>quarter</code>, the fair two-state and uniform four-state
+distributions, <code>halfTail</code>, and three admissible dual
+measures. The names <code>stress02</code>, <code>stress12</code>, and
+<code>stress01</code> identify their nonzero coordinates. Their
+admissibility depends on the base distribution and tail multiplier;
+tightness for a particular portfolio is proved by its example. The
+original <code>Diversification.dualA</code>, <code>dualB</code>, and
+<code>dualBalanced</code> names remain public aliases.</p>
+<h2 id="scenario-certificates-and-constructive-boundaries">Scenario
+certificates and constructive boundaries</h2>
+<p>For arbitrary states <code>S</code> and a supplied admissibility
+predicate <code>A</code>:</p>
+<pre class="text"><code>Coverage A X C b = every admissible state s satisfies X(s) ≤ C(s) + b</code></pre>
+<p><code>MarginCertificate A X C m</code> contains nonnegativity of
+<code>m</code>, coverage at <code>m</code>, and leastness among
+nonnegative budgets. It proves <code>m ≤ b ≃ Coverage A X C b</code>
+when <code>0 ≤ b</code>.</p>
+<p>A <code>BindingScenario A X C m</code> supplies an admissible state
+with the <strong>raw</strong> difference <code>X(s) - C(s) = m</code>.
+Together with coverage at <code>m</code>, this proves the equivalence
+for <strong>all real budgets</strong>, preserving the stronger existing
+joint FX results. Merely knowing <code>stopLoss(X(s), C(s)) = 0</code>
+would not suffice: a negative raw difference can leave surplus
+collateral. The record and equivalence interfaces are universe
+polymorphic; their univalence paths currently specialize to small state
+and admissibility types.</p>
+<p>Finite maxima are constructive lattice folds. Neither
+<code>worstCase-exact-at</code> nor <code>margin-exact-at</code> selects
+a maximizing index for arbitrary Cauchy reals; each consumes explicit
+evidence. The general finite margin certificate does not require such an
+index. <code>IsCVaR</code> still requires supplied attainment and a
+global bound; this refactor does not assume general optimizer
+existence.</p>
+<h2 id="financial-terminology-and-units">Financial terminology and
+units</h2>
+<table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Convention</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scenario loss <code>X</code></td>
+<td>Positive is loss, negative is gain, in a common value unit and
+horizon.</td>
+</tr>
+<tr>
+<td>Broker replacement claim</td>
+<td>Positive is owed to the broker; negative is owed by it. Client
+netting labels remain explicit.</td>
+</tr>
+<tr>
+<td>Signed settlement cashflow</td>
+<td>Positive is receipt by the broker, negative is a payment owed, in
+its native currency and date.</td>
+</tr>
+<tr>
+<td><code>stopLoss x c</code></td>
+<td><code>(x - c)⁺</code>; a threshold shortfall generally, and residual
+exposure when <code>c</code> is eligible collateral.</td>
+</tr>
+<tr>
+<td><code>requiredMargin</code></td>
+<td>Least nonnegative uniform domestic cash top-up under the supplied
+stress policy. It becomes collateral through <code>postCash</code>.</td>
+</tr>
+<tr>
+<td>Broker residual exposure</td>
+<td>Sum of separately clamped client-netting-set claims after
+collateral. Default/recovery severities turn this into modeled closeout
+loss.</td>
+</tr>
+<tr>
+<td>Tail multiplier <code>κ</code></td>
+<td>Reciprocal of tail probability mass, or
+<code>1/(1-confidence)</code> as an interpretation; the formal input is
+<code>κ ≥ 1</code>.</td>
+</tr>
+<tr>
+<td>Proportional execution cost</td>
+<td>Sum of rate times absolute traded amount across all legs.
+Conventional one-way turnover may be half that total.</td>
+</tr>
+</tbody>
+</table>
+<p>These distinctions matter when composing portfolio risk, collateral
+and settlement models. <a href="REFERENCES.html">REFERENCES.md</a> gives
+their methodological sources and the numerical conventions used in the
+examples.</p>
+<h2 id="flat-import-migration">Flat import migration</h2>
+<p>All paths below are relative to <code>Financial/</code>. New source
+edits belong at the canonical destination. A legacy module contains only
+imports and compatibility aliases, so there is one implementation of
+each result.</p>
+<table>
+<thead>
+<tr>
+<th>Original path</th>
+<th>Canonical implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Ambiguity.agda">Ambiguity</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Risk/Ambiguity.agda">Risk/Ambiguity</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Application.agda">Application</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/Application.agda">Examples/Portfolio/Application</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/BrokerMargin.agda">BrokerMargin</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerMargin.agda">Examples/FX/BrokerMargin</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/BrokerOperations.agda">BrokerOperations</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerOperations.agda">Examples/FX/BrokerOperations</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/ClientNetting.agda">ClientNetting</a></td>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Margin.ClientNetting.html">Margin/ClientNetting</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/CounterpartyRisk.agda">CounterpartyRisk</a></td>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Margin.CounterpartyRisk.html">Margin/CounterpartyRisk</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Diversification.agda">Diversification</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/Diversification.agda">Examples/Portfolio/Diversification</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/DynamicAmbiguity.agda">DynamicAmbiguity</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Dynamic/Ambiguity.agda">Dynamic/Ambiguity</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/DynamicRisk.agda">DynamicRisk</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Dynamic/Base.agda">Dynamic/Base</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/EconomicEquivalence.agda">EconomicEquivalence</a></td>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Core.EconomicEquivalence.html">Core/EconomicEquivalence</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/ExecutionEquivalence.agda">ExecutionEquivalence</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Portfolio/ExecutionEquivalence.agda">Portfolio/ExecutionEquivalence</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/ExpectedShortfall.agda">ExpectedShortfall</a></td>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Risk.ExpectedShortfall.html">Risk/ExpectedShortfall</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/FXBounds.agda">FXBounds</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Instruments/FXBounds.agda">Instruments/FXBounds</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/FXSwap.agda">FXSwap</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Instruments/FXSwap.agda">Instruments/FXSwap</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Finite.agda">Finite</a></td>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Core.Finite.html">Core/Finite</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/JointFXMargin.agda">JointFXMargin</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/JointFXMargin.agda">Examples/FX/JointFXMargin</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Margin.agda">Margin</a></td>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Margin.Base.html">Margin/Base</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/MarginControl.agda">MarginControl</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Margin/MarginControl.agda">Margin/MarginControl</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Policy.agda">Policy</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Portfolio/Policy.agda">Portfolio/Policy</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Portfolio.agda">Portfolio</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Portfolio/Base.agda">Portfolio/Base</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Probability.agda">Probability</a></td>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Core.Probability.html">Core/Probability</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Rebalancing.agda">Rebalancing</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/Rebalancing.agda">Examples/Portfolio/Rebalancing</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/RiskControl.agda">RiskControl</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Risk/RiskControl.agda">Risk/RiskControl</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/RiskLaws.agda">RiskLaws</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Risk/RiskLaws.agda">Risk/RiskLaws</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/RobustAllocation.agda">RobustAllocation</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/RobustAllocation.agda">Examples/Portfolio/RobustAllocation</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Settlement.agda">Settlement</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Settlement/Base.agda">Settlement/Base</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Shortfall.agda">Shortfall</a></td>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Risk.Shortfall.html">Risk/Shortfall</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/StressConstrainedTrade.agda">StressConstrainedTrade</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/StressConstrainedTrade.agda">Examples/Portfolio/StressConstrainedTrade</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/TradeDecision.agda">TradeDecision</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/TradeDecision.agda">Examples/Portfolio/TradeDecision</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/TransactionCosts.agda">TransactionCosts</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Portfolio/TransactionCosts.agda">Portfolio/TransactionCosts</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Variance.agda">Variance</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Risk/Variance.agda">Risk/Variance</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/VarianceExample.agda">VarianceExample</a></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/VarianceExample.agda">Examples/Portfolio/VarianceExample</a></td>
+</tr>
+<tr>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/WorstCase.agda">WorstCase</a></td>
+<td><a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Risk.WorstCase.html">Risk/WorstCase</a></td>
+</tr>
+</tbody>
+</table>
+<p>The following examples formerly nested inside theory modules are now
+separate:</p>
+<table>
+<thead>
+<tr>
+<th>Preserved legacy name</th>
+<th>Canonical example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DynamicRisk.DownstreamControl</code></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Dynamic/DownstreamControl.agda">Examples/Dynamic/DownstreamControl</a></td>
+</tr>
+<tr>
+<td><code>DynamicAmbiguity.RectangularGap</code></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Dynamic/RectangularGap.agda">Examples/Dynamic/RectangularGap</a></td>
+</tr>
+<tr>
+<td><code>ClientNetting.OppositeClaims</code></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Netting/OppositeClaims.agda">Examples/Netting/OppositeClaims</a></td>
+</tr>
+<tr>
+<td><code>Settlement.TwoCurrencyExample</code></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Settlement/TwoCurrencyExample.agda">Examples/Settlement/TwoCurrencyExample</a></td>
+</tr>
+<tr>
+<td><code>FXBounds.JointMoveExample</code></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/JointMoveExample.agda">Examples/FX/JointMoveExample</a></td>
+</tr>
+<tr>
+<td>Concrete declarations of <code>ExecutionEquivalence</code></td>
+<td><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/ExecutionEquivalence.agda">Examples/Portfolio/ExecutionEquivalence</a></td>
+</tr>
+</tbody>
+</table>
+<p><code>Portfolio/ExecutionEquivalence</code> contains only the general
+<code>ExecutionModel</code>. The legacy module also reexports its
+original concrete example declarations. Inherited
+<code>DynamicAmbiguity.DownstreamControl</code> and
+<code>CounterpartyRisk.OppositeClaims</code> names also remain
+available. The old umbrella retains its nested example names; the
+theory-only umbrella omits the demonstrations. Public nested modules use
+<code>open import ... public</code>, preserving exported names without
+copying primitive declarations through module application.</p>
+<h2 id="checking">Checking</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Theory.agda</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial.agda</span></code></pre></div>
+<p>The full umbrella reaches all canonical modules and legacy wrappers,
+including the existing executable reduction proofs. <a
+href="PROGRESS.html">PROGRESS.md</a> records the final compiler outcome
+and dependency/API audit.</p>
+</main></body></html>

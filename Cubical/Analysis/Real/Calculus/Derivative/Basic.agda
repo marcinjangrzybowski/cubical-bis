@@ -18,10 +18,30 @@ open import Cubical.Analysis.Real.Algebra.AdditiveGroup
 open import Cubical.Analysis.Real.Algebra.Multiplication
 open import Cubical.Analysis.Real.Algebra.Multiplication.Laws
 open import Cubical.Analysis.Real.Algebra.CommRing
+open import Cubical.Analysis.Real.Algebra.AbsoluteValue
+open import Cubical.Analysis.Real.Order.Base
+open import Cubical.Analysis.Real.Order.AbsoluteValue
+open import Cubical.Analysis.Real.Order.Multiplication
+open import Cubical.Analysis.Real.Order.Strict.Properties
+open import Cubical.Analysis.Real.Order.Strict.Slack
 open import Cubical.Analysis.Real.Calculus.Derivative.Base
+open import Cubical.Analysis.Real.Calculus.Derivative.Uniform
 
 private
   module ℝRing = RingTheory (CommRing→Ring ℝCommRing)
+
+opaque
+  constantHasUniformDerivativeAlong : ∀ {ℓ ℓ'} {A : Type ℓ}
+    (source : PremetricStr ℓ' A) (coordinate : A → ℝ) (constant : ℝ) →
+    IsRadiuswiseUniformDerivativeAlong source coordinate (λ _ → constant) (λ _ → 0ℝ)
+  constantHasUniformDerivativeAlong source coordinate constant ε = return
+    (ε , λ x y _ →
+      subst (λ error → absℝ error ≤ℝ rat (fst ε) · absℝ (coordinate y - coordinate x))
+        (sym (cong₂ _-_ (subSelf constant) (ℝRing.0LeftAnnihilates (coordinate y - coordinate x)) ∙ subSelf 0ℝ))
+        (subst (_≤ℝ rat (fst ε) · absℝ (coordinate y - coordinate x))
+          (ℝRing.0LeftAnnihilates (absℝ (coordinate y - coordinate x)) ∙ sym absZero)
+          (mulPres≤R-0≤ 0ℝ (rat (fst ε)) (absℝ (coordinate y - coordinate x))
+            (absNonnegative (coordinate y - coordinate x)) (<ℝ-weaken 0ℝ (rat (fst ε)) (positiveSlack ε)))))
 
 
 constantHasDerivativeAlong :

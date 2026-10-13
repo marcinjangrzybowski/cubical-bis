@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Financial methods and example
+sources · Financial</title><link rel="stylesheet" href="_assets/style.css">
+
+</head><body><main>
+<nav class="site-nav"><a href="index.html">Financial documentation</a><a href="README.html">Overview</a><a href="../../Cubical/HITs/CauchyReals/Example/Financial/REFERENCES.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#financial-methods-and-example-sources"
+id="toc-financial-methods-and-example-sources">Financial methods and
+example sources</a>
+<ul>
+<li><a href="#synthetic-parameters-and-conventions"
+id="toc-synthetic-parameters-and-conventions">Synthetic parameters and
+conventions</a></li>
+<li><a href="#1-markowitz-covariance-and-diversification"
+id="toc-1-markowitz-covariance-and-diversification">1. Markowitz:
+covariance and diversification</a></li>
+<li><a href="#2-rockafellaruryasev-cvar-threshold-certificates"
+id="toc-2-rockafellaruryasev-cvar-threshold-certificates">2.
+Rockafellar–Uryasev: CVaR threshold certificates</a></li>
+<li><a href="#3-boyd-and-coauthors-trading-costs-and-turnover"
+id="toc-3-boyd-and-coauthors-trading-costs-and-turnover">3. Boyd and
+coauthors: trading costs and turnover</a></li>
+<li><a href="#4-ben-talnemirovski-robust-uncertainty-sets"
+id="toc-4-ben-talnemirovski-robust-uncertainty-sets">4.
+Ben-Tal–Nemirovski: robust uncertainty sets</a></li>
+<li><a href="#5-shapiro-coherent-risk-and-rectangular-ambiguity"
+id="toc-5-shapiro-coherent-risk-and-rectangular-ambiguity">5. Shapiro:
+coherent risk and rectangular ambiguity</a></li>
+<li><a href="#6-epsteinschneider-recursive-multiple-priors"
+id="toc-6-epsteinschneider-recursive-multiple-priors">6.
+Epstein–Schneider: recursive multiple priors</a></li>
+<li><a href="#7-bis-fx-swap-cashflows-and-cross-currency-funding"
+id="toc-7-bis-fx-swap-cashflows-and-cross-currency-funding">7. BIS: FX
+swap cashflows and cross-currency funding</a></li>
+<li><a href="#8-bcbs-fx-settlement-netting-and-liquidity"
+id="toc-8-bcbs-fx-settlement-netting-and-liquidity">8. BCBS: FX
+settlement, netting and liquidity</a></li>
+<li><a href="#9-bcbsiosco-collateral-valuation-and-margin-scope"
+id="toc-9-bcbsiosco-collateral-valuation-and-margin-scope">9.
+BCBS–IOSCO: collateral valuation and margin scope</a></li>
+</ul></li>
+</ul></details>
+<h1 id="financial-methods-and-example-sources">Financial methods and
+example sources</h1>
+<p>The new generic margin progression has its own <a
+href="Broker/REFERENCES.html">Broker references and stage mapping</a>,
+including collateral, revaluation, minimum transfers and identified
+receipt processing. It introduces no additional numerical scenarios.</p>
+<p>These nine primary sources explain the financial methods used here.
+The Agda modules prove their stated claims for supplied finite data and
+Cauchy-real parameters; the references are not axioms imported into
+those proofs. In particular, the development does not import classical
+existence theorems for optimizers, quantiles or infinite-dimensional
+risk representations.</p>
+<p>The <a href="SYSTEM_GUARANTEES.html">system guarantees</a> compose
+these methods into <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerGuarantees.agda">BrokerGuarantees</a>
+and <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/TradingGuarantees.agda">TradingGuarantees</a>.
+Their end-to-end correctness statements are proved locally from the
+component definitions and certificates; the references motivate the
+financial models used by that code.</p>
+<p><a id="synthetic-parameters"></a></p>
+<h2 id="synthetic-parameters-and-conventions">Synthetic parameters and
+conventions</h2>
+<p>All worked examples use synthetic inputs. Their scenario losses,
+probabilities, fee rates, notionals and collateral amounts are chosen to
+make exact proofs readable. They are not estimates from market data or
+recommended trading rules.</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Meaning in the examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Four equal scenario probabilities and a 50% tail</td>
+<td>An illustrative tail-risk problem, not estimated default
+probabilities or a regulatory confidence level.</td>
+</tr>
+<tr>
+<td>Spot 0.8 and 1.2 around a reference of 1</td>
+<td>Synthetic minus/plus 20% currency moves. The joint box also includes
+all intermediate real spot values.</td>
+</tr>
+<tr>
+<td>Discount factors between 0.9 and 1</td>
+<td>Supplied valuation factors. A factor of 0.9 is not an assertion of a
+10% annual interest rate.</td>
+</tr>
+<tr>
+<td>20% collateral haircut</td>
+<td>The example retains 80% of the foreign collateral's stressed
+domestic value. This is not a prescribed regulatory haircut.</td>
+</tr>
+<tr>
+<td>Fees 1 and 5, or instrument rates (1, 1, 3)</td>
+<td>Abstract loss units for exact comparisons. The resulting fee
+threshold 4 is specific to the constructed portfolio.</td>
+</tr>
+</tbody>
+</table>
+<p>The loss convention makes positive values losses and negative values
+gains. The tail objective is <code>t + κ E[(X - t)⁺]</code>, where the
+interpretation is <code>κ = 1 / tail mass = 1 / (1 - confidence)</code>.
+<code>TailLevel</code> records <code>κ ≥ 1</code> directly, avoiding a
+partial reciprocal operation. Thus <code>κ = 2</code> means a 50% tail.
+The dual certificate uses a probability vector <code>q</code> satisfying
+<code>qᵢ ≤ κ pᵢ</code>; it does not divide by possibly zero nominal
+probabilities. Shapiro's AVaR notation uses a tail-mass parameter,
+whereas confidence-level notation uses its complement.</p>
+<p>Execution cost is <code>Σᵢ rateᵢ |targetᵢ - oldᵢ|</code>, charging
+each traded leg. For normalized holdings, conventional one-way turnover
+is often <strong>half</strong> the L¹ traded amount. In
+<code>Rebalancing</code>, the two leg rates are <code>s/2</code>, giving
+cost <code>s |1 - w|</code>. Fees enter the loss objective as an
+additional deterministic loss; the model does not deduct them from
+target notionals through a funding account.</p>
+<p><a id="markowitz-1952"></a></p>
+<h2 id="1-markowitz-covariance-and-diversification">1. Markowitz:
+covariance and diversification</h2>
+<p>Harry Markowitz (1952), <strong>Portfolio Selection</strong>, <em>The
+Journal of Finance</em> 7(1), 77–91. <a
+href="https://doi.org/10.1111/j.1540-6261.1952.tb01525.x">Publisher
+DOI</a>; <a
+href="https://traders.berkeley.edu/papers/Markowitz.pdf">scan of the
+original article</a>.</p>
+<p>The mean–variance formulation makes portfolio risk depend on pairwise
+covariances as well as individual variances. This motivates <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Risk/Variance.agda">Risk/Variance.agda</a>
+and <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/VarianceExample.agda">VarianceExample</a>,
+which evaluates the covariance contribution and proves an exact variance
+minimum. The related <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/Diversification.agda">Diversification</a>
+example also uses tail and worst-scenario risk; those measures are
+covered by the sources below. The paper does not supply our loss vectors
+or imply that variance measures every relevant form of risk.</p>
+<p><a id="rockafellar-uryasev-2002"></a></p>
+<h2 id="2-rockafellaruryasev-cvar-threshold-certificates">2.
+Rockafellar–Uryasev: CVaR threshold certificates</h2>
+<p>R. Tyrrell Rockafellar and Stanislav Uryasev (2002),
+<strong>Conditional Value-at-Risk for General Loss
+Distributions</strong>, <em>Journal of Banking &amp; Finance</em> 26(7),
+1443–1471. <a
+href="https://sites.math.washington.edu/~rtr/papers/rtr187-CVaR2.pdf">Author
+PDF</a>.</p>
+<p>Theorem 10 gives the threshold minimization characterization for
+general loss distributions, including discrete ones; Theorem 14 and the
+finite scenario formulation explain its optimization use. These support
+the objective in <a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Risk.ExpectedShortfall.html">ExpectedShortfall</a>,
+the certificates used by <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/Application.agda">Application</a>,
+and the explicit global bounds in <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/Diversification.agda">Diversification</a>.
+Our finite weak-duality proof checks a supplied threshold and capped
+probability vector; it does not assume an algorithm that sorts arbitrary
+real losses or automatically chooses an optimizer. The dual
+representation has an additional reference in <a
+href="#shapiro-2016">Shapiro</a>.</p>
+<p><a id="boyd-2017"></a></p>
+<h2 id="3-boyd-and-coauthors-trading-costs-and-turnover">3. Boyd and
+coauthors: trading costs and turnover</h2>
+<p>Stephen Boyd, Enzo Busseti, Steven Diamond, Ronald N. Kahn, Kwangmoo
+Koh, Peter Nystrup and Jan Speth (2017), <strong>Multi-Period Trading
+via Convex Optimization</strong>, <em>Foundations and Trends in
+Optimization</em> 3(1), 1–76. <a
+href="https://web.stanford.edu/~boyd/papers/cvx_portfolio.html">Author
+publication page</a>; <a
+href="https://web.stanford.edu/~boyd/papers/pdf/cvx_portfolio.pdf">PDF</a>.</p>
+<p>Sections 2.3 and 4.5 discuss transaction costs and turnover
+constraints; section 4.2 includes covariance-based portfolio risk. The
+proportional-cost part motivates <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Portfolio/TransactionCosts.agda">TransactionCosts</a>,
+<a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/Rebalancing.agda">Rebalancing</a>,
+<a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/TradeDecision.agda">TradeDecision</a>,
+and <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/StressConstrainedTrade.agda">StressConstrainedTrade</a>.
+<a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/ExecutionEquivalence.agda">ExecutionEquivalence</a>
+combines that fee model with a separately proved cubical quotient
+counterexample. The paper's broader multi-period optimization system is
+not formalized here; our exact trading decisions concern the specified
+finite market. Observe the <a href="#synthetic-parameters">L¹ versus
+half-L¹ convention</a>.</p>
+<p><a id="ben-tal-nemirovski-1998"></a></p>
+<h2 id="4-ben-talnemirovski-robust-uncertainty-sets">4.
+Ben-Tal–Nemirovski: robust uncertainty sets</h2>
+<p>Aharon Ben-Tal and Arkadi Nemirovski (1998), <strong>Robust Convex
+Optimization</strong>, <em>Mathematics of Operations Research</em>
+23(4), 769–805. <a
+href="https://www2.isye.gatech.edu/~nemirovs/robmp.pdf">Author PDF</a>;
+<a
+href="https://pubsonline.informs.org/doi/abs/10.1287/moor.23.4.769">publisher
+DOI</a>.</p>
+<p>The robust formulation requires constraints to hold for every
+parameter in a specified uncertainty set. This motivates <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/RobustAllocation.agda">RobustAllocation</a>,
+<a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Instruments/FXBounds.agda">FXBounds</a>,
+<a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/JointMoveExample.agda">JointMoveExample</a>,
+and <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/JointFXMargin.agda">JointFXMargin</a>.
+The latter uses universal real-box bounds plus explicit attaining quotes
+to prove exact margin minima. The source does not calibrate our
+uncertainty sets. Checking a few isolated shocks alone would not prove
+coverage of their whole joint box.</p>
+<p><a id="shapiro-2016"></a></p>
+<h2 id="5-shapiro-coherent-risk-and-rectangular-ambiguity">5. Shapiro:
+coherent risk and rectangular ambiguity</h2>
+<p>Alexander Shapiro (2016), <strong>Rectangular Sets of Probability
+Measures</strong>, <em>Operations Research</em> 64(2), 528–541. <a
+href="https://optimization-online.org/wp-content/uploads/2014/10/4613.pdf">Author
+preprint</a>; <a
+href="https://pubsonline.informs.org/doi/abs/10.1287/opre.2015.1466">publication
+DOI</a>.</p>
+<p>Sections 2–3 connect worst expectations, dynamic decomposition and
+coherent risk. Equation (3.5) expresses AVaR using normalized, bounded
+probability densities, motivating the finite density-cap certificates in
+<a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Risk.ExpectedShortfall.html">ExpectedShortfall</a>.
+The ambiguity and nested-risk methods inform <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Risk/Ambiguity.agda">Risk/Ambiguity</a>,
+<a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Dynamic/Ambiguity.agda">Dynamic/Ambiguity</a>,
+<a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Dynamic/DownstreamControl.agda">DownstreamControl</a>,
+and <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Dynamic/RectangularGap.agda">RectangularGap</a>.</p>
+<p>The current dynamic development proves the stated two-stage
+consistency and rectangular upper-bound results. It does not identify
+nested risk with static CVaR or import a general infinite-dimensional
+representation theorem. The static mixture equivalences quantify over
+mixtures of the supplied model generators, not every possible
+probability law.</p>
+<p><a id="epstein-schneider-2003"></a></p>
+<h2 id="6-epsteinschneider-recursive-multiple-priors">6.
+Epstein–Schneider: recursive multiple priors</h2>
+<p>Larry G. Epstein and Martin Schneider (2003), <strong>Recursive
+Multiple-Priors</strong>, <em>Journal of Economic Theory</em> 113(1),
+1–31. <a
+href="https://people.bu.edu/lepstein/files-research/rectang50.pdf">Author
+draft, dated 2002</a>; <a
+href="https://www.sciencedirect.com/science/article/pii/S0022053103000978">published
+article</a>.</p>
+<p>Rectangularity relates admissible conditional beliefs to dynamic
+consistency. <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Dynamic/RectangularGap.agda">RectangularGap</a>
+illustrates how allowing branch-dependent model selection enlarges a
+coupled ambiguity set and raises its exact risk from 2 to 4 in a
+synthetic tree. This is a concrete finite illustration, not a
+formalization of the paper's complete preference axioms.</p>
+<p><a id="bis-fx-2016"></a></p>
+<h2 id="7-bis-fx-swap-cashflows-and-cross-currency-funding">7. BIS: FX
+swap cashflows and cross-currency funding</h2>
+<p>Claudio Borio, Robert McCauley, Patrick McGuire and Vladyslav Sushko
+(2016), <strong>Covered interest parity lost: understanding the
+cross-currency basis</strong>, <em>BIS Quarterly Review</em>, September,
+45–64. <a href="https://www.bis.org/publ/qtrpdf/r_qt1609e.pdf">BIS
+PDF</a>.</p>
+<p>Box A explains FX swap cashflows and covered interest parity; the
+surrounding discussion explains the relevance of funding and
+cross-currency basis. This supports the near/far exchange structure in
+<a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Instruments/FXSwap.agda">FXSwap</a>
+and its use in <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerMargin.agda">BrokerMargin</a>.
+Our valuation formula uses supplied positive spot and discount factors.
+It does not infer a calibrated curve, impose frictionless covered
+interest parity, or model every funding spread. Reference rates of 1 and
+the stated stress factors are synthetic.</p>
+<p><a id="bcbs-settlement-2013"></a></p>
+<h2 id="8-bcbs-fx-settlement-netting-and-liquidity">8. BCBS: FX
+settlement, netting and liquidity</h2>
+<p>Basel Committee on Banking Supervision (2013), <strong>Supervisory
+guidance for managing risks associated with the settlement of foreign
+exchange transactions</strong>, February. <a
+href="https://www.bis.org/publications/201302-guidelines-supervisory-guidance-managing-risks-associated-settlement-foreign-exchange-transactions.pdf">Official
+PDF</a>.</p>
+<p>Sections 3.2–3.4 distinguish principal, replacement-cost and
+liquidity risks; Annex C discusses netting. These distinctions motivate
+<a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Netting/OppositeClaims.agda">OppositeClaims</a>,
+<a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Settlement/TwoCurrencyExample.agda">TwoCurrencyExample</a>,
+and <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerOperations.agda">BrokerOperations</a>.
+They explain why a zero aggregate mark does not establish separate
+client exposure or currency funding coverage. Legal netting rights and
+available collateral are supplied modeling conditions, not consequences
+of algebraic cancellation. The ideal atomic PvP result concerns
+principal settlement loss; replacement-cost and liquidity risks can
+remain. A fully covered close-out claim likewise says nothing by itself
+about settlement funding or whether a margin demand has actually been
+paid.</p>
+<p><a id="bcbs-iosco-margin-2020"></a></p>
+<h2 id="9-bcbsiosco-collateral-valuation-and-margin-scope">9.
+BCBS–IOSCO: collateral valuation and margin scope</h2>
+<p>Basel Committee on Banking Supervision and International Organization
+of Securities Commissions (2020), <strong>Margin requirements for
+non-centrally cleared derivatives</strong>, April revision. <a
+href="https://www.bis.org/publications/202004-standards-margin-requirements-non-centrally-cleared-derivatives.pdf">Official
+PDF</a>.</p>
+<p>Element 4 discusses eligible collateral, valuation haircuts and
+currency mismatch. This is methodological context for the
+currency-sensitive collateral in <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerMargin.agda">BrokerMargin</a>
+and <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/JointFXMargin.agda">JointFXMargin</a>,
+including simultaneous adverse changes in the claim and its
+collateral.</p>
+<p><strong>Section 1.1 excludes physically settled FX forwards and swaps
+from the framework's general margin requirements.</strong> Its
+discussion points to FX settlement guidance and national implementation
+for variation-margin treatment. Consequently these examples do not
+certify regulatory compliance, and their 20% haircut and exact cash
+calls are not prescribed by this publication.</p>
+<p>The cubical equivalences, proposition truncation and quotient
+invariance arguments are part of this formal development. The financial
+references above explain the modeled methods, rather than claiming those
+type-theoretic constructions as results of the cited authors.</p>
+</main></body></html>

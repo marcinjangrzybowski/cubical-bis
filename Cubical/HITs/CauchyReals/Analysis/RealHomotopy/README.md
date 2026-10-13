@@ -1,9 +1,13 @@
 # Real homotopy and the synthetic homotopy library
 
-**Work is paused at the user's request.**
-[CHECKPOINT.md](CHECKPOINT.md) records the latest checked normalization
-proofs, the independent convergence assessment, and the exact gate for
-resuming work.
+[CHECKPOINT.md](CHECKPOINT.md) records the latest checked work and exact
+next statement. The 2026-09-11 [finite approximation](FINITE_APPROXIMATION.md)
+continuation constructs actual joint real loops from finite sample lists
+and proves their rounded error bound. Finite sample existence and window
+estimates remain. The 2026-09-09 restart selected analytic regularization;
+[ANALYTIC_REGULARIZATION.md](ANALYTIC_REGULARIZATION.md) documents the
+new nested-loop interpolation, actual real group consequences, finite
+gluing, and convergence assessment.
 
 Here **real homotopy** means homotopy through uniformly continuous maps
 defined on the Cauchy-real interval. **Synthetic homotopy** means homotopy
@@ -64,9 +68,11 @@ of at most two. [InterpolationControl.agda](../../Spheres/InterpolationControl.a
 now gives a universal interpolation operator and a whole modulus for
 closeness to both endpoints. [MappingLifts.agda](MappingLifts.agda) lifts
 parameterized operators through mapping spaces and arbitrary iterated
-based loop spaces. The admissible-pair comparison needed for binary
-interpolation on nested sphere loops, and finite regularization, remain
-pending.
+based loop spaces. [NestedInterpolation.agda](../../Spheres/NestedInterpolation.agda)
+now supplies binary interpolation on actual nested loop pairs through a
+direct packing map. Its quantitative and nearby-homotopy theorems imply
+equality of sufficiently close `realπGr` representatives. Finite
+regularization remains pending as the explicit `JointDensity` statement.
 
 [ALTERNATIVE_APPROACHES.md](ALTERNATIVE_APPROACHES.md) tracks the subsequent
 search for a repaired realization invariant and alternative comparisons.

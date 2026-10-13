@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fees, model ambiguity, and sequential
+capital · Financial</title><link rel="stylesheet" href="_assets/style.css">
+<style>html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
+</head><body><main>
+<nav class="site-nav"><a href="index.html">Financial documentation</a><a href="README.html">Overview</a><a href="../../Cubical/HITs/CauchyReals/Example/Financial/EXTENSIONS.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#fees-model-ambiguity-and-sequential-capital"
+id="toc-fees-model-ambiguity-and-sequential-capital">Fees, model
+ambiguity, and sequential capital</a>
+<ul>
+<li><a href="#an-executable-trading-rule-with-fees"
+id="toc-an-executable-trading-rule-with-fees">An executable trading rule
+with fees</a></li>
+<li><a href="#minimize-cvar-while-enforcing-a-stress-cap"
+id="toc-minimize-cvar-while-enforcing-a-stress-cap">Minimize CVaR while
+enforcing a stress cap</a></li>
+<li><a href="#allocation-under-uncertain-scenario-probabilities"
+id="toc-allocation-under-uncertain-scenario-probabilities">Allocation
+under uncertain scenario probabilities</a></li>
+<li><a href="#two-stage-risk-and-local-capital-certificates"
+id="toc-two-stage-risk-and-local-capital-certificates">Two-stage risk
+and local capital certificates</a></li>
+<li><a href="#how-independent-branch-uncertainty-changes-capital"
+id="toc-how-independent-branch-uncertainty-changes-capital">How
+independent branch uncertainty changes capital</a></li>
+<li><a href="#a-precise-limit-on-economic-netting"
+id="toc-a-precise-limit-on-economic-netting">A precise limit on economic
+netting</a></li>
+<li><a href="#foundation-and-scope"
+id="toc-foundation-and-scope">Foundation and scope</a></li>
+</ul></li>
+</ul></details>
+<h1 id="fees-model-ambiguity-and-sequential-capital">Fees, model
+ambiguity, and sequential capital</h1>
+<p>The second development phase adds execution costs, optimization under
+uncertain probabilities, and two-stage risk evaluation. All values still
+live in the library's higher-inductive Cauchy reals. No additional
+analysis assumptions were needed. The examples answer different
+management questions; their risk criteria and budgets are stated
+separately below.</p>
+<p>The <a href="README.html">README</a> describes the shared
+four-scenario market and the original CVaR, stress, variance, and
+economic-quotient foundations.</p>
+<p>The <a href="REFERENCES.html">reference guide</a> gives primary
+sources for proportional transaction costs, CVaR, robust optimization,
+and recursive multiple priors. The <a href="STRUCTURE.html">structure
+guide</a> separates their reusable interfaces from the numerical
+examples.</p>
+<p>The new <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/TradingGuarantees.agda">TradingGuarantees</a>
+supplies the large correctness statement for the fee-aware system: its
+success is equivalent to existence of an acceptable signed real fully
+invested portfolio. Its failure rules out every such competitor, while
+success returns an allocation with proved actual proportional fees,
+accepted all-in loss, and global optimality. See the <a
+href="SYSTEM_GUARANTEES.html#trading-complete-feasibility-against-real-portfolios">motivating
+examples</a> for the precise scope and comparison with the separate
+stress constraint.</p>
+<h2 id="an-executable-trading-rule-with-fees">An executable trading rule
+with fees</h2>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Portfolio/TransactionCosts.agda">TransactionCosts.agda</a>
+defines proportional costs by</p>
+<pre class="text"><code>cost(rates, old, target) = Σᵢ ratesᵢ |targetᵢ - oldᵢ|
+allInLossᵢ               = cost + portfolioLossᵢ(target)</code></pre>
+<p>The generic proofs establish nonnegativity for nonnegative rates,
+zero cost for no trade, symmetry, the triangle inequality, monotonicity
+in rates, and convexity in target holdings from a fixed starting
+position. Adding the cost shifts mean loss, maximum loss, and certified
+CVaR by exactly that cost. Threshold/dual certificates and budget
+acceptance are transported explicitly. Convex combinations of targets
+have a proved bound on CVaR budgets including costs.</p>
+<p>In <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/Rebalancing.agda">Rebalancing.agda</a>,
+the manager starts with all capital in asset A and chooses holdings
+<code>(w, 1-w)</code>. Each asset has rate <code>s/2</code>, so charging
+both trade legs gives</p>
+<pre class="text"><code>fee(s,w) = s |1-w|
+netLoss  = fee(s,w) + w A + (1-w) B</code></pre>
+<p>This equality is proved against the generic transaction-cost
+implementation. The nonnegative parameter <code>s</code> is an abstract
+fee per traded weight in the example's loss units, not a quoted
+percentage or a calibrated market rate.</p>
+<p>For every Cauchy-real fee satisfying the indicated inequalities, the
+following global optima are proved. Competitors include <strong>every
+real weight</strong> and every real trial threshold, including signed
+holdings outside <code>[0,1]</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Fee regime</th>
+<th>Selected A/B weights</th>
+<th>Minimum CVaR including fees</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0 ≤ s ≤ 4</code></td>
+<td><code>3/4, 1/4</code></td>
+<td><code>2 + s/4</code></td>
+</tr>
+<tr>
+<td><code>4 ≤ s</code></td>
+<td><code>1, 0</code> (no trade)</td>
+<td><code>3</code></td>
+</tr>
+</tbody>
+</table>
+<p>The proof combines two admissible dual lower bounds for raw CVaR with
+a supporting bound for the absolute-value fee. It does not require a
+complete piecewise evaluation of CVaR at every competing weight. At
+<code>s=4</code> both stated choices attain 3; no uniqueness claim is
+made, including at <code>s=0</code>.</p>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/TradeDecision.agda">TradeDecision.agda</a>
+turns this result into</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode agda"><code class="sourceCode agda"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>chooseTrade <span class="ot">:</span> <span class="ot">(</span>s <span class="ot">:</span> ℚ<span class="ot">)</span> <span class="ot">→</span> <span class="dv">0</span> ℚ<span class="ot">.</span>≤ s <span class="ot">→</span> CertifiedTrade <span class="ot">(</span>rat s<span class="ot">)</span></span></code></pre></div>
+<p>The returned record contains a real weight, proof that it is in
+<code>[0,1]</code>, an attained CVaR value, and a lower-bound proof for
+every competitor. The <code>chosenAllocation</code> adapter returns the
+ordinary fully invested <code>Allocation 2</code> used by the earlier
+portfolio layer. Rational comparison selects the fee regime; arbitrary
+real order is never decided.</p>
+<p>The exact rational optimum also makes <code>checkChosenBudget</code>
+a complete decision procedure for rational budgets on this selected
+portfolio: it returns either acceptance or a proof of nonacceptance. Its
+domain requires nonnegative fees. Checked computational reductions
+include:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Fee <code>s</code></th>
+<th style="text-align: right;">Selected A weight</th>
+<th style="text-align: right;">CVaR including fees</th>
+<th style="text-align: right;">Budget</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3/4</td>
+<td style="text-align: right;">9/4</td>
+<td style="text-align: right;">2</td>
+<td>fail</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3/4</td>
+<td style="text-align: right;">9/4</td>
+<td style="text-align: right;">9/4</td>
+<td>pass</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td>pass</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">3/4</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td>pass</td>
+</tr>
+</tbody>
+</table>
+<p>For fee 1, fully rebalancing to equal weights would instead have CVaR
+<code>5/2</code> and fails budget <code>9/4</code>. The unconstrained
+selected trade optimizes CVaR alone: its raw maximum loss is 4, and its
+maximum loss including fees is <code>17/4</code>. The original combined
+policy limits do not automatically hold for this trade.</p>
+<h2 id="minimize-cvar-while-enforcing-a-stress-cap">Minimize CVaR while
+enforcing a stress cap</h2>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/StressConstrainedTrade.agda">StressConstrainedTrade.agda</a>
+adds an explicit constraint on the <strong>raw</strong> market loss:
+<code>worstCase(L(w)) ≤ c</code>. For every real cap
+<code>2 ≤ c ≤ 4</code> and fee <code>s ≥ 0</code>, it constructs the
+optimal allocation</p>
+<pre class="text"><code>A weight          = (c+2)/8
+B weight          = (6-c)/8
+raw scenario loss = (c, 4-c, 0, 0)
+fee               = s(6-c)/8
+minimum net CVaR  = 2 + s(6-c)/8
+net stress        = c + s(6-c)/8</code></pre>
+<p>The raw stress constraint bounds any competitor's A weight by
+<code>(c+2)/8</code>. This forces a lower bound on its trading fee.
+Combining that bound with the universal raw-CVaR lower bound 2 proves
+the displayed constrained optimum. <code>IsConstrainedOptimum</code>
+bundles feasibility, an attained CVaR value, and the comparison against
+all feasible real weights and all real thresholds.
+<code>capAllocation</code> supplies the fully invested long-only
+holdings.</p>
+<p>At fee 1 the cap gives a visible capital tradeoff:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Raw stress cap</th>
+<th style="text-align: right;">Optimal A weight</th>
+<th style="text-align: right;">Fee</th>
+<th style="text-align: right;">Minimum net CVaR</th>
+<th style="text-align: right;">Net stress</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1/2</td>
+<td style="text-align: right;">1/2</td>
+<td style="text-align: right;">5/2</td>
+<td style="text-align: right;">5/2</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">5/8</td>
+<td style="text-align: right;">3/8</td>
+<td style="text-align: right;">19/8</td>
+<td style="text-align: right;">27/8</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">3/4</td>
+<td style="text-align: right;">1/4</td>
+<td style="text-align: right;">9/4</td>
+<td style="text-align: right;">17/4</td>
+</tr>
+</tbody>
+</table>
+<p>The middle row has dedicated checked numerical theorems. Budget
+<code>19/8</code> is accepted, while budget <code>9/4</code> is
+impossible for <strong>every</strong> portfolio meeting raw stress cap
+3. The other rows are substitutions in the proved general formulas and
+agree with the earlier balanced and partial-trade values.</p>
+<p>The initial all-A position has raw stress 6, so no trade is
+infeasible for all these caps. A large fee therefore does not remove the
+required trade when the stress cap is mandatory. Net stress is reported
+separately: it includes fees and exceeds the raw cap whenever the fee is
+positive.</p>
+<h2 id="allocation-under-uncertain-scenario-probabilities">Allocation
+under uncertain scenario probabilities</h2>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Risk/Ambiguity.agda">Ambiguity.agda</a>
+takes a nonempty finite family of real distributions and defines risk as
+the maximum of their expected losses. The expectation of any real convex
+mixture equals the corresponding mixture of model expectations.
+Consequently, bounding all listed models is <strong>equivalent</strong>
+to bounding all their mixtures. An additional formulation covers
+arbitrary finite selections of the original labels, including
+repetitions. Dirac weights prove the converse without selecting a
+maximizing real value.</p>
+<p>The resulting risk satisfies monotonicity, cash translation,
+nonnegative homogeneity, subadditivity, weighted bounds, and uniform
+error bounds. This is an ambiguous expected-loss criterion, distinct
+from CVaR at a specified confidence level.</p>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/RobustAllocation.agda">RobustAllocation.agda</a>
+keeps the original asset losses but uses two candidate probability
+laws:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">A stress</th>
+<th style="text-align: right;">B stress</th>
+<th style="text-align: right;">Neutral 1</th>
+<th style="text-align: right;">Neutral 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Up</td>
+<td style="text-align: right;">1/2</td>
+<td style="text-align: right;">1/4</td>
+<td style="text-align: right;">1/4</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Down</td>
+<td style="text-align: right;">1/8</td>
+<td style="text-align: right;">1/2</td>
+<td style="text-align: right;">3/8</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>For <code>L(w) = w A + (1-w) B</code>, their expectations are</p>
+<pre class="text"><code>E_Up[L(w)]   = 1/2 + 2w
+E_Down[L(w)] = 11/4 - 3w</code></pre>
+<p>A fixed adversarial mixture with model weights <code>(3/5,2/5)</code>
+has expectation <code>7/5</code> at <strong>every real weight</strong>.
+It supplies a universal lower bound. At <code>w=9/20</code>, both models
+attain <code>7/5</code>, proving global optimality. The two affine
+inequalities also prove uniqueness: any real weight meeting capital
+<code>7/5</code> equals <code>9/20</code>. The selected weight is within
+the long-only interval.</p>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th style="text-align: right;">Equal weights</th>
+<th style="text-align: right;">Robustly selected A weight
+<code>9/20</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Worst expected loss across models/mixtures</td>
+<td style="text-align: right;">3/2</td>
+<td style="text-align: right;">7/5</td>
+</tr>
+<tr>
+<td>Maximum scenario loss</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">12/5</td>
+</tr>
+<tr>
+<td>Mean under the old uniform law</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<p>The strict improvement in ambiguous expected loss and the strict
+deterioration in stress loss are both proved. Capital <code>7/5</code>
+rejects equal weights under the ambiguity criterion. This example has no
+transaction fees; selecting a portfolio jointly under costs, ambiguity,
+and all policy limits requires a further constrained model.</p>
+<h2 id="two-stage-risk-and-local-capital-certificates">Two-stage risk
+and local capital certificates</h2>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Dynamic/Base.agda">DynamicRisk.agda</a>
+defines <code>CoherentRisk</code> using monotonicity, cash translation,
+nonnegative homogeneity, and subadditivity. Normalization and evaluation
+of constants follow from those laws. Expectation, worst-case loss, and
+finite model ambiguity provide constructed instances.</p>
+<p>A <code>LossTree m n</code> has a first observed branch and then a
+terminal leaf. With an outer risk rule and one inner rule per branch,
+backward evaluation is</p>
+<pre class="text"><code>continuationRisk(X)ᵢ = innerᵢ(Xᵢ)
+rootRisk(X)         = outer(continuationRisk(X))</code></pre>
+<p>The composition inherits the risk laws. If every revised continuation
+risk is at most its previous value, root risk is at most its previous
+value. This is the proved two-stage time-consistency property. It allows
+changes which do not improve loss at every terminal leaf.</p>
+<p>In the checked <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Dynamic/DownstreamControl.agda">DownstreamControl</a>
+example, the outer rule is maximum and each inner rule is fair
+expectation:</p>
+<table>
+<thead>
+<tr>
+<th>Branch</th>
+<th>Original leaf losses</th>
+<th>Revised leaf losses</th>
+<th>Conditional risk before/after</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><code>(8,-2)</code></td>
+<td><code>(2,0)</code></td>
+<td><code>3 → 1</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>(0,2)</code></td>
+<td><code>(0,2)</code></td>
+<td><code>1 → 1</code></td>
+</tr>
+</tbody>
+</table>
+<p>Root capital falls from 3 to 1 even though the gain <code>-2</code>
+at one leaf becomes loss 0. This is a comparison of supplied loss trees,
+not a proof that a particular trading strategy can implement the
+revision.</p>
+<p>A <code>NodeBudgetCertificate</code> records intermediate branch
+budgets and their aggregate root bound. It implies root acceptance, and
+exact continuation risks construct a certificate from any root bound.
+Propositional truncation of such certificates is equivalent to root
+acceptance. Known branch costs can be added after evaluating future
+local risk; nonuniform error reserves propagate through the outer rule.
+Nested maxima are characterized by their leafwise bounds and commute
+when the two finite indices are exchanged. For expectation, multiplying
+initial and conditional probabilities gives total mass one and a proved
+finite tower formula, including zero atoms.</p>
+<h2 id="how-independent-branch-uncertainty-changes-capital">How
+independent branch uncertainty changes capital</h2>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Dynamic/Ambiguity.agda">DynamicAmbiguity.agda</a>
+composes finite ambiguous expectations. It proves that root capital
+bounds expected loss under every outer mixture and every independently
+chosen family of inner mixtures, with arbitrary real probability weights
+on the supplied model lists. Node-budget certificates have the same
+soundness guarantee. The generic theorem is an upper bound; a converse
+or exact supremum representation for all rectangular models is not
+claimed.</p>
+<p>The explicit <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Dynamic/RectangularGap.agda">RectangularGap</a>
+example has fair initial branches and losses <code>(4,0)</code> at each
+branch. Two coupled global models select opposite leaves:</p>
+<table>
+<thead>
+<tr>
+<th>Global model</th>
+<th style="text-align: right;">Selected leaf at branch 0</th>
+<th style="text-align: right;">Selected leaf at branch 1</th>
+<th style="text-align: right;">Expected loss</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model 0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>Model 1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<p>Every mixture of these coupled models meets budget 2. If conditional
+model choices are allowed independently after each branch, both branches
+may select leaf 0, and nested risk is exactly 4. The strict gap and the
+impossibility of a rectangular budget of 2 are checked. Enlarging the
+uncertainty set changes the capital requirement; nesting does not
+preserve the original coupled model's risk value.</p>
+<p>The mathematical background for nested risk and time consistency
+includes Ruszczyński's <a
+href="https://optimization-online.org/wp-content/uploads/2009/12/2497.pdf">Risk-Averse
+Dynamic Programming for Markov Decision Processes</a>. The distinction
+between coupled uncertainty and dynamic decomposition is discussed in
+Shapiro's <a
+href="https://optimization-online.org/wp-content/uploads/2014/10/4613.pdf">Rectangular
+sets of probability measures</a>. These are conceptual references. The
+Agda development proves its finite statements locally and does not
+import the papers' analytic or optimization existence results.</p>
+<h2 id="a-precise-limit-on-economic-netting">A precise limit on economic
+netting</h2>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Portfolio/ExecutionEquivalence.agda">ExecutionEquivalence.agda</a>
+applies the existing HIT economic quotient to total losses including
+fees. For a fixed market, rate vector, initial holding, and nonempty
+scenario set, it proves:</p>
+<pre class="text"><code>given equal raw loss profiles,
+equal execution classes ≃ equal transaction costs</code></pre>
+<p>Fees can therefore be carried from raw economic classes to execution
+classes exactly when they are invariant under raw loss equivalence.
+Sufficiency uses the set-quotient recursor; necessity uses quotient
+effectiveness and cancellation at one scenario. The relevant equalities
+and equivalences ignore alternative proofs of the same financial
+condition.</p>
+<p>The <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/ExecutionEquivalence.agda">execution
+example</a> shows that the direct equal-weight holding and the wrapped
+basket still have the same raw economic class. Starting at zero, with
+asset rates <code>(1,1,3)</code>, their fees are respectively 1 and 3.
+Their CVaRs including fees are 3 and 5: at budget 3, direct execution
+passes and basket execution fails. Their execution classes are unequal,
+and no map from the raw quotient to the execution quotient can agree
+with execution on every representative.</p>
+<p>This does not exclude arbitrary functions between the quotient types.
+Nor does a total-loss class retain enough state for future rebalancing:
+actual holdings may still be needed to calculate later fees.</p>
+<h2 id="foundation-and-scope">Foundation and scope</h2>
+<p>All probabilities, weights, fees, and risk values in the general
+statements are Cauchy reals. Real maxima and absolute values use
+constructive lattice operations. Supporting inequalities avoid
+real-order case splits; the executable trade and budget decisions
+compare rationals. Cubical function extensionality, effective HIT set
+quotients, propositional truncation, and univalence connect financial
+representations and policy evidence. No choice of a maximizing model or
+a representative of a quotient is required.</p>
+<p>Fees are deterministic additional losses with prescribed target
+holdings. Funding feasibility is outside this model: fees are not
+deducted from the target notionals, and a cash account is not
+constructed. Rates remain fixed for the triangle and convexity theorems.
+Prices, interest, slippage, liquidity, fixed ticket charges, and
+market-data calibration are absent.</p>
+<p>The dynamic layer has a fixed finite two-stage tree. It does not
+construct a filtration, recover conditional probabilities from a joint
+law, or solve a general dynamic trading problem. A generic static CVaR
+risk function is not assumed to exist or to be time consistent. Every
+numerical optimum used here has an explicit checked proof.</p>
+</main></body></html>

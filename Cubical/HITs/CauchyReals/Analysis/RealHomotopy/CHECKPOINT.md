@@ -1,8 +1,73 @@
-# Restart checkpoint — paused at the user's request
+# Restart checkpoint — analytic regularization
 
-2026-09-07. Work is paused. No compiler check or agent investigation is
-pending. Start here when resuming; the next task is the feasibility gate
-below, not another independently chosen higher coherence law.
+## Current checkpoint, 2026-09-11
+
+[FINITE_APPROXIMATION.md](FINITE_APPROXIMATION.md) records five new
+checked modules and the exact sampling induction still to implement.
+Finite lists of adjacent admissible nested sphere loops now produce
+actual based real loops with jointly UC cube evaluation. The finite
+constructor generates its overlap equations and endpoint laws.
+
+`FiniteInterpolationControl.Against.approximant` turns suitable finite
+sample bounds into the precise witness required by `JointDensity`,
+including the strict rounding witness in the actual loop premetric.
+Rational mesh selection, inverse clocks, and endpoint samples are
+checked. What remains is to construct the finite sample witnesses and
+their window bounds, then close the dimension induction. The full
+real/synthetic sphere comparison is still unproved.
+
+The generic quantitative clipped-affine estimate checks. A direct
+specialization to the inverse mesh clock was expensive to typecheck
+and was removed; the next geometric proof should consume the generic
+API through a smaller interface. No holes or postulates were introduced.
+All five new modules and the changed `JointLoops` check with exit 0
+after their final edits. No compiler or agent task is pending.
+
+## Previous analytic checkpoint, 2026-09-09
+
+Work resumed at the user's request. The current concrete direction is
+finite real regularization. Read
+[ANALYTIC_REGULARIZATION.md](ANALYTIC_REGULARIZATION.md) for the eleven
+new checked modules, alternative-route reviews, and remaining proof.
+
+The new construction interpolates actual pairs of nested sphere loops,
+uniformly in dimension. It proves jointly UC nearby homotopies and
+equality in the existing `realπGr` groups. The same sufficient sphere
+radius works at every loop depth. `DenseRepresentatives` proves that
+metric density of a predicate suffices for a representative in every
+real-homotopy class.
+
+The exact next target is `DenseSphereRepresentatives.JointDensity` in
+[DenseRepresentatives.agda](../../Spheres/DenseRepresentatives.agda):
+approximate each existing nested loop by one whose raw real-cube
+evaluation is jointly UC. [JointLoops.agda](JointLoops.agda) defines
+this predicate independently and turns its witnesses into based cubes.
+It does not assume arbitrary nested loops can be uncurried.
+
+The finite gluing and open-interval coverage inductions are now checked.
+Next construct rational samples and separated interpolation plateaus,
+then prove the finite approximation successor using sampled lower joint
+loops, strict error slack, and finite choice. `JointInterpolation`
+proves jointness of the interpolation branches; `FiniteEvaluation`
+proves jointness of the evaluated paste from those branch witnesses.
+Their geometric instantiation remains. Relative approximation with
+prescribed endpoint cubes remains a separate step.
+
+The audit now finds convergence toward this analytic deliverable, with
+actual consequences for the intended groups. The synthetic interpreter
+and relative synthetic finite representability remain unresolved.
+Do not resume the carrier branch by adding independent higher
+coherence fields. The James finite-stage alternative is documented,
+but does not supply finite cubical labels.
+
+All eleven new modules checked with exit 0 after their final edits.
+No compiler process or agent investigation remains pending at this
+checkpoint. Current changes are saved in the working tree.
+
+## Archived carrier checkpoint, 2026-09-07
+
+The following records the earlier pause. Its carrier feasibility gate
+still applies to that branch; the current analytic task is above.
 
 ## Goal and constraints
 

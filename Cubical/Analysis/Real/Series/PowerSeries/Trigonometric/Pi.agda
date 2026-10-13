@@ -20,3 +20,15 @@ open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Bishop public
 open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Damped public
+open import
+  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Value public
+open import
+  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Reflection public
+open import
+  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.IntegerPeriod public
+open import
+  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.InverseExistence public
+open import
+  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.InverseValue public
+open import
+  Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.InverseValue.Properties public

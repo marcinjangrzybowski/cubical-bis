@@ -1,5 +1,68 @@
 # Real/synthetic sphere comparison: progress
 
+## Finite interpolation, quantitative approximation, and mesh, 2026-09-11
+
+[FINITE_APPROXIMATION.md](FINITE_APPROXIMATION.md) records five new
+checked modules. `InterpolationClocks` supplies separated interpolation
+plateaus and the affine real-interval clock. `FiniteInterpolation`
+constructs the whole finite path from adjacent admissible samples,
+generates the overlap and endpoint equations, and proves joint cube
+evaluation of the resulting actual real loop.
+
+`FiniteInterpolationControl` proves the local error estimate and lifts
+it through the complete finite paste into the rounded loop premetric.
+Its `Against.approximant` produces exactly a jointly UC loop within the
+requested tolerance, conditional on finite sample accuracy and the two
+endpoint laws. `RationalMesh.fineMesh` constructively chooses arbitrarily
+fine spacing. `MeshInterval` supplies inverse-clock recovery, endpoint
+samples, and a generic quantitative clipped-affine estimate.
+
+The remaining absolute proof must construct the finitely many sample
+approximants and their window bounds from lower-depth density. The
+generic estimate checks, but its direct inverse-clock specialization
+was expensive to typecheck and is not retained. The full `JointDensity`
+induction, relative approximation, and synthetic bridge remain open.
+
+All five new modules and the small `JointLoops.joint-successor` addition
+check with exit 0 after their final edits, with no holes, metas,
+constraints, warnings, postulates, or weakened options. Compiler
+resource findings and the next induction are documented in detail.
+No subagents were started in this continuation.
+
+## Analytic restart and actual real group classes, 2026-09-09
+
+[ANALYTIC_REGULARIZATION.md](ANALYTIC_REGULARIZATION.md) records the
+alternative review and eleven new checked modules. The selected direction
+is finite real regularization. Actual pairs of nested sphere loops now
+admit jointly UC interpolation, with endpoint/diagonal laws and complete
+quantitative control in every depth. A sufficient sphere radius works
+at all depths. Nearby representatives have an actual jointly UC
+`PathHomotopy`, hence the same class in `realπGr`.
+
+`DenseRepresentatives` proves that metric density of an independently
+defined predicate supplies a representative in every real group class.
+`JointLoops` defines the intended predicate by joint UC of raw cube
+evaluation, proves its boundary condition, and produces based cubes.
+The remaining absolute statement is named `JointDensity`; it is not
+assumed or proved yet.
+
+Finite pasting now retains approximation/boundary properties over an
+arbitrary finite chain. Its overlap intervals are separated to leave
+room for interpolation. `openChainCover` proves constructive finite
+coverage using strict positive overlaps. `JointInterpolation` proves
+joint continuity across cube coordinates and interpolation time.
+`FiniteEvaluation.jointPaste` constructs and compares the evaluated
+finite chain, retaining arbitrary extra parameters. Rational mesh
+specialization, sampled approximants, and the rounded error estimate
+remain to complete the density induction. Relative approximation and
+the synthetic bridge remain separate.
+
+All eleven new modules checked with exit 0, without holes, unsolved metas,
+constraints, or warnings. A roughly 4.6 GiB concrete check was stopped
+manually; an abstract successor helper resolved the cost. No memory
+guard stopped a check. Agents performed read-only reviews. The current
+restart instructions are in [CHECKPOINT.md](CHECKPOINT.md).
+
 ## Paused checkpoint: local normalization completed, 2026-09-07
 
 **Start with [CHECKPOINT.md](CHECKPOINT.md) when resuming.** The user

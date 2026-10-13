@@ -9,3 +9,4 @@ open import Cubical.Analysis.Real.Functions.Logarithm.Derivative public
 open import Cubical.Analysis.Real.Functions.Logarithm.Global public
 open import Cubical.Analysis.Real.Functions.Logarithm.Group public
 open import Cubical.Analysis.Real.Functions.Logarithm.Construction public
+open import Cubical.Analysis.Real.Functions.Logarithm.Uniform public

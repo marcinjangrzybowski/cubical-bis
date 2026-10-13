@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System correctness: motivating financial
+examples · Financial</title><link rel="stylesheet" href="_assets/style.css">
+<style>html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
+</head><body><main>
+<nav class="site-nav"><a href="index.html">Financial documentation</a><a href="README.html">Overview</a><a href="../../Cubical/HITs/CauchyReals/Example/Financial/SYSTEM_GUARANTEES.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#system-correctness-motivating-financial-examples"
+id="toc-system-correctness-motivating-financial-examples">System
+correctness: motivating financial examples</a>
+<ul>
+<li><a href="#broker-a-certified-control-for-a-whole-swap-book"
+id="toc-broker-a-certified-control-for-a-whole-swap-book">Broker: a
+certified control for a whole swap book</a>
+<ul>
+<li><a href="#a-complete-margin-collection-example"
+id="toc-a-complete-margin-collection-example">A complete margin
+collection example</a></li>
+<li><a
+href="#arbitrary-payment-histories-and-representation-independence"
+id="toc-arbitrary-payment-histories-and-representation-independence">Arbitrary
+payment histories and representation independence</a></li>
+<li><a href="#what-scales-and-what-is-supplied"
+id="toc-what-scales-and-what-is-supplied">What scales, and what is
+supplied</a></li>
+</ul></li>
+<li><a href="#trading-complete-feasibility-against-real-portfolios"
+id="toc-trading-complete-feasibility-against-real-portfolios">Trading:
+complete feasibility against real portfolios</a></li>
+<li><a href="#theorem-map-and-validation"
+id="toc-theorem-map-and-validation">Theorem map and validation</a></li>
+</ul></li>
+</ul></details>
+<h1 id="system-correctness-motivating-financial-examples">System
+correctness: motivating financial examples</h1>
+<p>For presenting the development to quantitative developers, use <a
+href="Broker2/README.html">Broker2: one engine evolved</a> and its <a
+href="Broker2/PRESENTATION.html">speaker guide</a>. Seven versions keep
+the same quote/receive contract visible and prove compatibility as
+clients, stress, rational execution, tolerances, receipt identities and
+revaluation are added.</p>
+<p>For the relational example, start with the read-only <a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline.Implementation.Calculation.html"><code>calculate</code></a>
+query and its <a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline.Properties.Calculation.html">separate
+certification</a>. The query reads trade, collateral and receipt tables
+and produces a margin-call table through chained enrichment, selection,
+grouped sums and scenario maxima. <code>calculate-refines-model</code>
+identifies the whole output with the model's plan;
+<code>calculate-certified</code> gives properties of each actual
+returned row. <code>fulfilling-calculation</code> connects cash covering
+those returned requests to the model's client and broker loss bounds.
+This demonstration needs no engine execution or concrete market
+scenario.</p>
+<p>The <a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline.Implementation.Margin.html">relational
+implementation</a> makes the final model concrete through typed trade,
+collateral, and receipt relations. Its separate <a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline.Properties.Refinement.html"><code>pipeline-correct</code></a>
+theorem identifies the returned state, remaining report amounts, and
+call rows with the model, and certifies the program's actual status tag.
+Fulfilled calls imply the same bounds for independent indexed source
+sums: every client's residual is at most its MTA, and aggregate residual
+and every modeled severity-weighted loss are at most total MTA. Zero MTA
+gives zero modeled loss. These results quantify over arbitrary finite
+books and supplied stresses, under the documented source contracts; see
+the <a href="Broker2/Pipeline/README.html">pipeline guide</a>.</p>
+<p>The separate <a href="Broker/README.html">generic broker
+progression</a> now develops these ideas through eight stages without
+concrete scenarios. Its <a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Broker.Stage08Controller.html">controller
+theorem</a> composes inventory-backed collateral, revaluation reserves,
+minimum transfers and identified receipt processing. Fulfilled calls
+bound all client residuals and every modeled closeout loss; zero
+tolerance gives full coverage. Replaying receipt IDs preserves the whole
+certified state. The scenario-specific results below remain independent
+applications.</p>
+<p>The motivating result is a broker control program whose successful
+output implies a statement about its entire modeled swap book. The
+development also contains a trading solver whose failure proves that no
+competing real portfolio can meet its budget. These statements connect
+executable decisions to portfolio valuation, collateral state, risk, and
+settlement obligations.</p>
+<p>The main entry points are <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/FX/BrokerGuarantees.agda">BrokerGuarantees</a>
+and <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/TradingGuarantees.agda">TradingGuarantees</a>.
+Their reusable components are <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Margin/Workflow.agda">Margin/Workflow</a>
+and <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Margin/PaymentHistory.agda">Margin/PaymentHistory</a>.</p>
+<h2 id="broker-a-certified-control-for-a-whole-swap-book">Broker: a
+certified control for a whole swap book</h2>
+<p>Two clients hold opposite portfolios of deliverable FX swaps with
+foreign notionals 60 and 40. Valuation includes spot and both discount
+factors; client B posts foreign collateral whose eligible domestic value
+moves with spot. The broker also owes the actual four far-leg currency
+exchanges at date 30.</p>
+<p>The program receives nonnegative rational cash receipts by client and
+rational available funding balances by currency. Its exact certificates
+cover <strong>every Cauchy-real quote</strong> in the box</p>
+<pre class="text"><code>spot ∈ [0.8, 1.2]
+domestic discount ∈ [0.9, 1]
+foreign discount  ∈ [0.9, 1]</code></pre>
+<p>The headline theorem <code>broker-ready≃requirements</code>
+states:</p>
+<pre class="text"><code>brokerReady(receipts, funding) = true
+  iff
+  every client&#39;s swap claim is covered at every admissible real quote
+  and every gross outgoing currency obligation has sufficient funding.</code></pre>
+<p><code>checkBroker</code> returns a decision carrying a proof of those
+requirements or a proof that they do not all hold. Its computation
+consists of finite rational comparisons; the whole-box guarantee comes
+from independently checked universal margin certificates. The underlying
+client checker identifies a deficient client when its coverage
+obligation fails. It does not select a violating arbitrary real quote by
+classical choice.</p>
+<p><code>broker-end-to-end</code> then constructs
+<code>BookGuarantee</code> for the <strong>trade-by-trade swap
+portfolios</strong>, with these three fields:</p>
+<table>
+<thead>
+<tr>
+<th>Certificate field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>swap-portfolios-covered</code></td>
+<td>Every client's actual two-swap valuation is covered at every quote
+in the box.</td>
+</tr>
+<tr>
+<td><code>every-closeout-loss-zero</code></td>
+<td>Aggregate modeled closeout loss is zero for every quote and every
+admissible scenario-dependent default/recovery severity.</td>
+</tr>
+<tr>
+<td><code>gross-settlement-funded</code></td>
+<td>The four actual far-leg instructions have enough gross funding in
+each native currency.</td>
+</tr>
+</tbody>
+</table>
+<p>Severity may depend jointly on client identity and market state. No
+independence assumption or probability-of-default estimate is needed.
+The theorem permits all clients to default with zero recovery;
+sufficient available collateral covers the modeled positive replacement
+claims even in that realization.</p>
+<img class="diagram" src="_assets/diagram-60ab3b28032b40264699.svg" alt="Financial workflow diagram">
+<h3 id="a-complete-margin-collection-example">A complete margin
+collection example</h3>
+<p>The joint box requires total additional collateral, relative to the
+initial collateral model, of 25 for A and 108/5 = 21.6 for B. Their
+older single-factor calls, 15 and 68/5 = 13.6, have already been
+received. The new requests are 10 and 8. The additional receipts below
+are processed sequentially by the existing <code>recordPayment</code>
+operation, with a theorem connecting its reports to the whole-box
+checker.</p>
+<table>
+<thead>
+<tr>
+<th>Input to the broker control</th>
+<th>Executable result</th>
+<th>Checked implication</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Receipts (15, 13.6), funding (100, 100)</td>
+<td>Refused</td>
+<td>Old single-factor payments do not cover the joint box.</td>
+</tr>
+<tr>
+<td>Receipts (25, 21.6), funding (100, 100)</td>
+<td>Ready</td>
+<td>Whole-book <code>BrokerGuarantee</code>.</td>
+</tr>
+<tr>
+<td>A receives 15 then 10; B receives 13.6 then 8; funding (100,
+100)</td>
+<td>Ready</td>
+<td><code>staged-broker-guarantee</code> for the sequentially updated
+collateral state.</td>
+</tr>
+<tr>
+<td>All 46.6 cash units credited to A and none to B</td>
+<td>Refused</td>
+<td>Equal aggregate cash does not imply client-by-client coverage.</td>
+</tr>
+<tr>
+<td>Correct client receipts, funding (200 domestic, 0 foreign)</td>
+<td>Refused</td>
+<td>Equal reference base value does not fund the required foreign
+payments.</td>
+</tr>
+</tbody>
+</table>
+<p>These labels are Agda reduction proofs (<code>refl</code>), not
+manually assigned expected outcomes. <code>same-total-cash</code> and
+<code>same-base-funding-value</code> prove the equal totals in the last
+two comparisons, so the failures isolate the client and currency
+constraints rather than a simple shortage of aggregate value.</p>
+<p><code>eighteen-is-least-further-cash</code> proves that
+<strong>every</strong> nonnegative real further payment vector covering
+all actual swap claims has total at least 18.
+<code>requests-componentwise-minimal</code> in the reusable workflow
+proves the stronger per-client lower bounds.
+<code>request-cycle-ready</code> proves that receiving the computed
+requests completes the margin gate for any previously received
+nonnegative client balances, provided the separate funding gate is met.
+The total is a sum of segregated client requirements, not a pooled
+broker risk measure or permission to transfer one client's collateral to
+another.</p>
+<h3
+id="arbitrary-payment-histories-and-representation-independence">Arbitrary
+payment histories and representation independence</h3>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Margin/PaymentHistory.agda">PaymentHistory</a>
+operates on arbitrary finite lists of nonnegative rational receipts. Its
+collateral fold works over <strong>any scenario type</strong>, including
+the entire real FX state domain. The main invariant is</p>
+<pre class="text"><code>sequentially credited collateral = original collateral + total receipts
+processed outstanding call       = max(original call - total receipts, 0).</code></pre>
+<p><code>processHistory-batch</code> identifies the complete sequential
+exact report with a single batched update after transporting it to the
+same collateral state. <code>processHistory-same-total</code> and the
+batch-swap theorem show the same result for histories with equal totals.
+Equality includes the proof-bearing report, not only its numeric amount.
+Rational report uniqueness and proposition-valued proof fields justify
+this cubical transport.</p>
+<p>In the broker application, <code>history-end-to-end</code> transports
+the entire book certificate to the actual sequential collateral
+function, for arbitrary histories of both clients.
+<code>history-reports-agree</code> links each iterative report to the
+outstanding request used by the universal-domain workflow.
+<code>history-batching-invariant</code> proves that equal
+<strong>per-client</strong> totals preserve the complete broker decision
+with the same funding balances.</p>
+<p>These results assume a fixed valuation model and eligible received
+domestic cash throughout a history. They do not cover withdrawals or
+revaluation between steps. A receipt is mathematical input representing
+money actually received; there is no event-ID deduplication or
+bank/custodian connection. Recording the same receipt twice credits it
+twice.</p>
+<h3 id="what-scales-and-what-is-supplied">What scales, and what is
+supplied</h3>
+<p><code>CertifiedClients</code> is parameterized by <strong>any finite
+number of client netting sets</strong> and an arbitrary admissible
+scenario domain. Its theorems quantify over all clients, all admissible
+states, all allowed severity functions, and all nonnegative real
+further-payment competitors. Receipt histories have no fixed length. The
+two-client FX book is a concrete instantiation of this reusable
+interface. No throughput, memory benchmark, or production deployment is
+claimed.</p>
+<p>Each client supplies an exact rational margin amount together with a
+proved <code>MarginCertificate</code> for its scenario domain. The
+finite construction and the joint FX box both supply such certificates.
+The checker does not construct exact rational certificates for every
+arbitrary real dataset.</p>
+<p>The available-collateral and funding inputs must have their stated
+meaning: client netting must be authorized, collateral must be
+realizable and available, and the independent currency balances must not
+double-count that collateral. The formalization checks the consequences
+of these inputs, not custody or legal facts. Sources motivating these
+distinctions are recorded in <a
+href="REFERENCES.html#bcbs-settlement-2013">REFERENCES.md</a>; quote
+bounds and haircuts remain synthetic model inputs.</p>
+<p>The combined check certifies <strong>margin coverage and gross
+funding</strong>. Settlement principal risk requires an additional
+delivery condition. If each actual exchange satisfies the supplied
+<code>AtomicBook</code> payment-versus-payment law,
+<code>closeout-and-principal-zero</code> proves that the sum of modeled
+closeout loss and settlement principal loss is zero. The check does not
+establish that protocol law or actual settlement completion, and the
+theorem does not assert that all market, operational, or funding costs
+vanish.</p>
+<h2 id="trading-complete-feasibility-against-real-portfolios">Trading:
+complete feasibility against real portfolios</h2>
+<p><a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/TradingGuarantees.agda">TradingGuarantees</a>
+strengthens the existing fee-aware optimizer into a certified
+feasibility solver. For every rational nonnegative fee parameter
+<code>s</code> and rational budget <code>b</code>,</p>
+<pre class="text"><code>solve(s, b) succeeds
+  iff there exists a real two-asset holding u with sum(u) = 1
+      whose actual all-in loss is accepted at budget b.</code></pre>
+<p>Competitors are arbitrary Cauchy-real holdings, including short
+positions. <code>holdings-complete</code> proves that the optimizer's
+parameterization represents every such vector.
+<code>execution-implementation</code> connects its loss formula to
+<code>TransactionCosts.allInLoss</code>, including the actual
+proportional fee definition.</p>
+<p>The <code>execute</code> branch returns <code>ApprovedTrade</code>: a
+normalized long-only allocation, nonnegative fee rates, acceptance of
+its actual all-in loss, an exact rational optimal CVaR, and a lower
+bound against every real competitor and threshold. The
+<code>reject</code> branch returns <code>AllRejected</code>, refuting
+acceptance for <strong>every</strong> normalized real competitor.
+Rejection therefore establishes global infeasibility for this problem,
+not merely failure of the chosen allocation.</p>
+<p><code>solver-pass≃feasible</code> identifies the program's Boolean
+success with the propositionally truncated existence statement.
+<code>solver-policy-path</code> uses univalence to make these
+certificate interfaces interchangeable. Given merely truncated
+feasibility, <code>reconstructTrade</code> computes the canonical
+approved order without selecting a hidden existential witness.</p>
+<table>
+<thead>
+<tr>
+<th>Fee and budget</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fee 1, budget 2</td>
+<td>Executable rejection and a proof of impossibility for all real
+normalized holdings.</td>
+</tr>
+<tr>
+<td>Fee 1, budget 9/4</td>
+<td>Executable success, allocation (3/4, 1/4), actual fee 1/4, globally
+least CVaR 9/4.</td>
+</tr>
+</tbody>
+</table>
+<p>Completeness here is for the supplied two-asset, four-scenario,
+uniform 50%-tail market and proportional-cost model. Fees enter losses;
+a self-financing execution ledger is not included. The feasibility
+predicate does not also impose a mean, worst-case stress, or funding
+constraint. The separate <a
+href="../../Cubical/HITs/CauchyReals/Example/Financial/Examples/Portfolio/StressConstrainedTrade.agda">stress-constrained
+example</a> shows why such constraints must be stated explicitly: at fee
+1 and raw stress cap 3, the least CVaR becomes 19/8, so budget 9/4 is
+infeasible. Optimizer uniqueness is not claimed.</p>
+<h2 id="theorem-map-and-validation">Theorem map and validation</h2>
+<table>
+<thead>
+<tr>
+<th>Property to cite</th>
+<th>Module and named result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Broker decision exactly matches universal margin and funding
+requirements</td>
+<td><code>BrokerGuarantees.broker-ready≃requirements</code></td>
+</tr>
+<tr>
+<td>Success protects actual swap claims against all modeled closeout
+realizations</td>
+<td><code>BrokerGuarantees.broker-end-to-end</code></td>
+</tr>
+<tr>
+<td>Arbitrary receipt histories preserve that whole-book guarantee</td>
+<td><code>BrokerGuarantees.history-end-to-end</code></td>
+</tr>
+<tr>
+<td>Minimum extra cash after the older payments</td>
+<td><code>BrokerGuarantees.eighteen-is-least-further-cash</code></td>
+</tr>
+<tr>
+<td>Client/currency accounting cannot be replaced by aggregate
+values</td>
+<td><code>misallocated-cash-refused</code>,
+<code>wrong-currency-funding-refused</code></td>
+</tr>
+<tr>
+<td>Generic client workflow is sound, complete and produces minimal
+requests</td>
+<td><code>Margin.Workflow.CertifiedClients</code></td>
+</tr>
+<tr>
+<td>Sequential and batched updates give equal proof-bearing reports</td>
+<td><code>PaymentHistory.processHistory-batch</code>,
+<code>processHistory-same-total</code></td>
+</tr>
+<tr>
+<td>Trading success exactly means real portfolio feasibility</td>
+<td><code>TradingGuarantees.solver-pass≃feasible</code></td>
+</tr>
+<tr>
+<td>Trading failure rules out every competitor</td>
+<td><code>TradingGuarantees.failure-certificate</code></td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Theory.agda</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial.agda</span></code></pre></div>
+<p>All proofs use the existing safe Cubical Agda foundations. No
+additional analysis assumptions, postulates, arbitrary-real order tests,
+or optimizer existence axioms are introduced. Final compiler outcomes
+and independent reviews are recorded in <a
+href="PROGRESS.html">PROGRESS.md</a>.</p>
+</main></body></html>

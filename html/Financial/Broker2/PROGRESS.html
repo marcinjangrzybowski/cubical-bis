@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Broker2 progress and
+validation · Financial</title><link rel="stylesheet" href="../_assets/style.css">
+<style>html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
+</head><body><main>
+<nav class="site-nav"><a href="../index.html">Financial documentation</a><a href="../README.html">Overview</a><a href="../../../Cubical/HITs/CauchyReals/Example/Financial/Broker2/PROGRESS.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#broker2-progress-and-validation"
+id="toc-broker2-progress-and-validation">Broker2 progress and
+validation</a>
+<ul>
+<li><a
+href="#8-september-2026--one-engine-evolved-for-a-quant-developer-presentation"
+id="toc-8-september-2026--one-engine-evolved-for-a-quant-developer-presentation">8
+September 2026 — one engine evolved for a quant developer
+presentation</a>
+<ul>
+<li><a href="#implementation-milestones"
+id="toc-implementation-milestones">Implementation milestones</a></li>
+<li><a href="#parallel-development-and-review"
+id="toc-parallel-development-and-review">Parallel development and
+review</a></li>
+<li><a href="#final-compiler-checks"
+id="toc-final-compiler-checks">Final compiler checks</a></li>
+<li><a href="#checked-source-hashes"
+id="toc-checked-source-hashes">Checked source hashes</a></li>
+</ul></li>
+<li><a
+href="#8-september-2026--relational-implementation-of-the-final-model"
+id="toc-8-september-2026--relational-implementation-of-the-final-model">8
+September 2026 — relational implementation of the final model</a></li>
+</ul></li>
+</ul></details>
+<h1 id="broker2-progress-and-validation">Broker2 progress and
+validation</h1>
+<h2
+id="8-september-2026--one-engine-evolved-for-a-quant-developer-presentation">8
+September 2026 — one engine evolved for a quant developer
+presentation</h2>
+<p>Implemented seven successive versions in <strong>857 Agda source
+lines</strong>. The <a href="README.html">reading guide</a> and <a
+href="PRESENTATION.html">28-minute presentation</a> follow one recurring
+<code>quoteCall</code> / <code>receive</code> /
+<code>receive-correct</code> contract. Every version after V01 imports
+its predecessor and has an explicit projection, specialization, or
+transition-refinement theorem. No concrete scenario or calibrated
+portfolio was added.</p>
+<h3 id="implementation-milestones">Implementation milestones</h3>
+<ul>
+<li><strong>V01:</strong> a self-contained account state, positive-part
+call calculation, actual receipt transition, leastness, receipt
+composition, and equivalent policy propositions identified by
+univalence.</li>
+<li><strong>V02:</strong> the same operations lifted to separate client
+netting sets; per-client projection commutes with quoting and receiving.
+Whole-book coverage eliminates modeled residual and severity-weighted
+loss.</li>
+<li><strong>V03:</strong> finite nonempty stress profiles with arbitrary
+Cauchy-real values; uniform least calls, receipt/report update identity,
+scenario projection, and an exact singleton regression to V02.</li>
+<li><strong>V04:</strong> rational upper reports on current incremental
+calls, a decidable receipt gate, report updates after partial payments,
+and optional complete economic decisions under exactness. A generic
+rational input factory computes exact initial reports without an
+external margin oracle.</li>
+<li><strong>V05:</strong> the same engine with minimum transfer amounts.
+Actual adequate receipts give client and aggregate loss bounds; zero MTA
+recovers V04's quote.</li>
+<li><strong>V06:</strong> a market and immutable identified-receipt
+ledger. A state path proves that receiving a batch equals the previous
+engine receiving only newly credited cash. <code>process</code> returns
+the next state, its transition equality, a certified next report, and
+the assessment. Replay identifies the state plus its safety
+certificate.</li>
+<li><strong>V07:</strong> a supplied bounded market update preserves the
+ledger and refreshes the incremental report with a conservative rational
+reserve. The same receipt engine then runs under the new market. An
+unchanged-market/zero-reserve specialization recovers V06. Final
+guarantees quantify over every supplied stress, client, and modeled
+severity.</li>
+</ul>
+<p>The earlier <code>Broker/</code> progression remains independent.
+Reusable finite-margin, shortfall, journal, revaluation and transfer
+lemmas are reused rather than copied into each version. <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.html">Broker2.agda</a>
+exposes version namespaces; <code>Theory.Broker2</code> provides the
+reusable entry point.</p>
+<h3 id="parallel-development-and-review">Parallel development and
+review</h3>
+<p>One agent implemented and checked V04 and its generic rational report
+factory. A second agent wrote the presentation guide. A third
+independently reviewed the version sequence and its financial/refinement
+boundaries while the root built the other versions and their
+composition.</p>
+<p>Reviews found no remaining correctness defect. They sharpened the
+following points, which are recorded in the guide and source:</p>
+<ul>
+<li>Reports bound <strong>incremental</strong> calls, already accounting
+for existing cash. Receipt updates subtract new cash only; revaluation
+adds its reserve without subtracting the old ledger balance again.</li>
+<li>Uniform stress quotes dominate individual snapshot quotes. Equality
+with V02 is the singleton specialization, not a general scenario
+projection claim.</li>
+<li>A conservative quoted plan can be unfulfilled while coverage already
+holds. Economic completeness is asserted only with an exact report.</li>
+<li>V06's projection represents catalog-derived rational cash. It is not
+a representation equivalence with every V05 arbitrary real balance.</li>
+<li>Actual partial receipts remain recorded on an unmet-quote outcome,
+and the report advances to the resulting state.</li>
+<li>Replay identifies state plus <code>Guarantee</code>. It does not
+identify arbitrary conservative reports or assert arbitrary
+revaluation-workflow idempotence.</li>
+</ul>
+<p><a href="REFERENCES.html">REFERENCES.md</a> connects the progression
+to BCBS FX guidance, robust feasibility, minimum transfers, event
+identity, duplicate suppression and margin/gap risk. The speaker guide
+explains the actual theorem statements and keeps numerical calibration
+and operational claims outside their scope.</p>
+<h3 id="final-compiler-checks">Final compiler checks</h3>
+<p>All changed Agda sources were checked with <code>agda-codex</code>
+after their edits. The final entry-point checks completed on <strong>8
+September 2026 (UTC)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Check time</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Broker2.agda</code></td>
+<td>06:21:10</td>
+<td>exit 0, checked</td>
+</tr>
+<tr>
+<td><code>Theory.agda</code></td>
+<td>06:22:17</td>
+<td>exit 0, checked</td>
+</tr>
+<tr>
+<td><code>../Financial.agda</code></td>
+<td>06:22:59</td>
+<td>exit 0, checked</td>
+</tr>
+</tbody>
+</table>
+<p>All report <strong>zero holes, unsolved metas, constraints, and
+warnings</strong>. These checks include the final version sources and
+their complete financial dependency closure. The final commands
+were:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Broker2.agda</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Theory.agda</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial.agda</span></code></pre></div>
+<p>The full development now has <strong>101 Agda files and 10,213 source
+lines</strong>. An import-graph audit found every financial module
+reachable from the full umbrella, every Broker2 successor importing its
+predecessor, no flat compatibility-module dependency from Broker2, and
+no worked-example dependency from Theory. All new version files and
+their entry point use <code>--safe --cubical</code>. No postulate,
+unsafe option, missing analysis assumption, or foundational change was
+added.</p>
+<p>Local documentation links, source names, recorded hashes, proof
+discipline and whitespace were checked. Existing numerical examples and
+unrelated RealHomotopy/Spheres work were not edited. No runtime
+throughput benchmark, extraction/deployment claim, concrete market run,
+or deliberate mutation-test result is asserted by this validation.</p>
+<h3 id="checked-source-hashes">Checked source hashes</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V01Account.agda</td>
+<td><code>70916aab7555b39c35bfecc5895dfbc9a45bc307440b49763109cab4c814f25c</code></td>
+</tr>
+<tr>
+<td>V02Clients.agda</td>
+<td><code>e29d57d48310f2311f88ce027ab60cc96ad36941d1e0e9ca68660acdda788d3c</code></td>
+</tr>
+<tr>
+<td>V03Stress.agda</td>
+<td><code>a800dccf5715a45623bff6c0ec9ea2f5a976862a5eed467b9d2a837306f976f0</code></td>
+</tr>
+<tr>
+<td>V04Rational.agda</td>
+<td><code>76737b3dd675ae6d0553589cd4cbe82883b1bf8ec74ec49f201d5636af6cae98</code></td>
+</tr>
+<tr>
+<td>V05Tolerance.agda</td>
+<td><code>58d59ccb5e0b5c2e9b58c2a0cebfb43c3b229c29efb2d93030e3d93c27893ee7</code></td>
+</tr>
+<tr>
+<td>V06Receipts.agda</td>
+<td><code>4cfc1d900d360658da5da911214a7e9dc0fec213ea2832db23f61b90663088a5</code></td>
+</tr>
+<tr>
+<td>V07Revaluation.agda</td>
+<td><code>46a52af0bd391f54ec91ef5fce27504a0ff0c8e501b479ca091bbc2f29d3d32e</code></td>
+</tr>
+<tr>
+<td>Broker2.agda</td>
+<td><code>86344c186e5df3cd79004de51bad238623f7b2c1c06d7a94431f6c3f668de054</code></td>
+</tr>
+<tr>
+<td>Theory.agda</td>
+<td><code>a5a9284a13fb305ff8113a64d5fc9bd232d69f07024ea7e686ed589a057fa392</code></td>
+</tr>
+<tr>
+<td>Financial.agda</td>
+<td><code>412afca06dcb966bf9d9e6e12e6c29f187a62a57550c079686594e5532655490</code></td>
+</tr>
+</tbody>
+</table>
+<h2
+id="8-september-2026--relational-implementation-of-the-final-model">8
+September 2026 — relational implementation of the final model</h2>
+<p>Added <a href="Pipeline/README.html">Pipeline</a>, using typed rows,
+named field access, selection, key membership, and grouped rational sums
+from the relation library. The final V07 engine remains the abstract
+specification. The data implementation is separate from its accounting,
+safety and refinement proofs.</p>
+<p><code>pipeline-correct</code> identifies the returned state, computed
+report and call rows with the model and certifies the actual status tag.
+Fulfilled calls transfer the same financial bounds to independently
+specified sums over source keys. Receipt replay/reordering preserve the
+concrete certified state at a fixed valuation.</p>
+<p>All new and changed Agda files, the pipeline/Broker2 umbrellas,
+Theory and the full financial umbrella checked with exit 0 and no holes,
+metas, constraints or warnings after the final edits. The <a
+href="Pipeline/PROGRESS.html">pipeline progress record</a> contains the
+sixteen check results, exact source hashes, independent review and
+source assumptions. The current full development has 112 Agda files and
+11,375 lines including its outer umbrella; all financial modules are
+reachable.</p>
+</main></body></html>

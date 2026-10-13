@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Constructive portfolio risk:
+progress · Financial</title><link rel="stylesheet" href="_assets/style.css">
+<style>html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
+</head><body><main>
+<nav class="site-nav"><a href="index.html">Financial documentation</a><a href="README.html">Overview</a><a href="../../Cubical/HITs/CauchyReals/Example/Financial/PROGRESS.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#constructive-portfolio-risk-progress"
+id="toc-constructive-portfolio-risk-progress">Constructive portfolio
+risk: progress</a>
+<ul>
+<li><a href="#objective-and-scope"
+id="toc-objective-and-scope">Objective and scope</a></li>
+<li><a href="#foundation-discipline"
+id="toc-foundation-discipline">Foundation discipline</a></li>
+<li><a href="#work-log" id="toc-work-log">Work log</a>
+<ul>
+<li><a href="#fx-instruments-and-broker-margin-design"
+id="toc-fx-instruments-and-broker-margin-design">FX instruments and
+broker margin: design</a></li>
+<li><a href="#fx-broker-first-checked-milestones"
+id="toc-fx-broker-first-checked-milestones">FX broker: first checked
+milestones</a></li>
+<li><a
+href="#further-development-transaction-costs-ambiguity-and-sequential-control"
+id="toc-further-development-transaction-costs-ambiguity-and-sequential-control">Further
+development: transaction costs, ambiguity, and sequential
+control</a></li>
+<li><a href="#further-development-checked-milestones"
+id="toc-further-development-checked-milestones">Further development:
+checked milestones</a></li>
+<li><a href="#2026-09-07-initial-design"
+id="toc-2026-09-07-initial-design">2026-09-07: initial design</a></li>
+<li><a href="#checked-finite-risk-foundation"
+id="toc-checked-finite-risk-foundation">Checked finite risk
+foundation</a></li>
+<li><a href="#validation-environment"
+id="toc-validation-environment">Validation environment</a></li>
+<li><a href="#checked-application-and-risk-laws"
+id="toc-checked-application-and-risk-laws">Checked application and risk
+laws</a></li>
+<li><a href="#completed-dispersion-comparison-and-review"
+id="toc-completed-dispersion-comparison-and-review">Completed dispersion
+comparison and review</a></li>
+</ul></li>
+<li><a href="#first-phase-validation"
+id="toc-first-phase-validation">First-phase validation</a></li>
+<li><a href="#first-phase-limitations-and-extension-points"
+id="toc-first-phase-limitations-and-extension-points">First-phase
+limitations and extension points</a></li>
+<li><a href="#second-phase-completion-and-validation"
+id="toc-second-phase-completion-and-validation">Second-phase completion
+and validation</a>
+<ul>
+<li><a href="#current-limits-and-useful-next-steps"
+id="toc-current-limits-and-useful-next-steps">Current limits and useful
+next steps</a></li>
+</ul></li>
+<li><a href="#third-phase-completion-fx-swaps-and-broker-margin"
+id="toc-third-phase-completion-fx-swaps-and-broker-margin">Third-phase
+completion: FX swaps and broker margin</a>
+<ul>
+<li><a href="#final-third-phase-validation"
+id="toc-final-third-phase-validation">Final third-phase
+validation</a></li>
+</ul></li>
+<li><a
+href="#fourth-phase-completion-organization-shared-theory-and-references"
+id="toc-fourth-phase-completion-organization-shared-theory-and-references">Fourth-phase
+completion: organization, shared theory, and references</a>
+<ul>
+<li><a href="#shared-definitions-and-generalizations"
+id="toc-shared-definitions-and-generalizations">Shared definitions and
+generalizations</a></li>
+<li><a href="#references-and-documentation"
+id="toc-references-and-documentation">References and
+documentation</a></li>
+<li><a href="#compatibility-audit-and-final-validation"
+id="toc-compatibility-audit-and-final-validation">Compatibility audit
+and final validation</a></li>
+</ul></li>
+<li><a
+href="#fifth-phase-completion-system-correctness-as-motivating-examples"
+id="toc-fifth-phase-completion-system-correctness-as-motivating-examples">Fifth-phase
+completion: system correctness as motivating examples</a>
+<ul>
+<li><a href="#flagship-broker-result"
+id="toc-flagship-broker-result">Flagship broker result</a></li>
+<li><a href="#reusable-scale-and-trading-completeness"
+id="toc-reusable-scale-and-trading-completeness">Reusable scale and
+trading completeness</a></li>
+<li><a href="#framing-reviews-and-validation"
+id="toc-framing-reviews-and-validation">Framing, reviews and
+validation</a></li>
+</ul></li>
+<li><a href="#8-september-2026--separate-generic-broker-progression"
+id="toc-8-september-2026--separate-generic-broker-progression">8
+September 2026 — separate generic broker progression</a></li>
+<li><a
+href="#8-september-2026--broker2-one-engine-evolved-for-presentation"
+id="toc-8-september-2026--broker2-one-engine-evolved-for-presentation">8
+September 2026 — Broker2: one engine evolved for presentation</a></li>
+<li><a href="#8-september-2026--relational-refinement-of-broker2"
+id="toc-8-september-2026--relational-refinement-of-broker2">8 September
+2026 — relational refinement of Broker2</a></li>
+</ul></li>
+</ul></details>
+<h1 id="constructive-portfolio-risk-progress">Constructive portfolio
+risk: progress</h1>
+<p>Latest completed work: <a
+href="#fifth-phase-completion-system-correctness-as-motivating-examples">fifth-phase
+system correctness</a>. Start with <a
+href="SYSTEM_GUARANTEES.html">SYSTEM_GUARANTEES.md</a> for the flagship
+broker and trading statements. The canonical layout is in <a
+href="STRUCTURE.html">STRUCTURE.md</a>; methodological sources are
+collected in <a href="REFERENCES.html">REFERENCES.md</a>.</p>
+<h2 id="objective-and-scope">Objective and scope</h2>
+<p>Develop a checked finite-scenario financial mathematics example over
+the library's higher-inductive Cauchy reals. Positive numbers represent
+losses; negative numbers represent gains. All probabilities, holdings,
+and losses may be arbitrary Cauchy reals, subject to explicit
+hypotheses.</p>
+<p>The intended application combines portfolio aggregation,
+probability-weighted expectation, worst-case stress risk, and
+expected-shortfall certificates. A worked portfolio will demonstrate
+diversification and a certified risk budget. Economic equivalence will
+use a cubical set quotient, so duplicate financial representations have
+the same risk and acceptance properties.</p>
+<h2 id="foundation-discipline">Foundation discipline</h2>
+<ul>
+<li>Work stays in
+<code>Cubical/HITs/CauchyReals/Example/Financial</code> and its entry
+module.</li>
+<li>The project enables <code>--safe --cubical</code>; no new axioms,
+postulates, holes, or weakened options are planned. Missing analysis
+would be an explicit theorem parameter, never a hidden assumption.</li>
+<li>Finite maxima use constructive lattice operations, not decidable
+real order.</li>
+<li>A real line segment is not a cubical equality path between distinct
+reals.</li>
+<li>Existing untracked RealHomotopy and Spheres work is outside this
+task.</li>
+</ul>
+<h2 id="work-log">Work log</h2>
+<h3 id="fx-instruments-and-broker-margin-design">FX instruments and
+broker margin: design</h3>
+<p>The third phase responds to the request for client FX swap portfolios
+and broker margin management. The working product assumption is a
+deliverable near/far FX swap, with both currency principals and ordered
+dates retained. An optional clarification about deliverable swaps versus
+rolling FX/CFDs was asked while generic collateral and netting theory
+proceeded independently.</p>
+<p>The design separates signed market marks, positive replacement
+claims, scenario-dependent collateral value, client netting sets, and
+currency/date funding obligations. Planned checked examples include
+matched market marks with positive separate-client exposure; foreign
+collateral losing value in the adverse exposure scenario; minimal cash
+margin calls; and zero aggregate mark with nonzero settlement principal
+requirements. This is a specified mathematical margin policy, not an
+assertion of regulatory compliance.</p>
+<p>Instrument cashflows and exact spot/discount-factor changes are being
+built locally. Parallel modules address minimal collateral top-ups,
+client-labelled netting quotients, and currency-specific
+funding/settlement certificates. Reference definitions are checked
+against BIS material; all proofs remain constructive, safe, and confined
+to this example.</p>
+<h3 id="fx-broker-first-checked-milestones">FX broker: first checked
+milestones</h3>
+<p><code>FXSwap</code>, <code>Margin</code>, <code>ClientNetting</code>,
+<code>Settlement</code>, <code>CounterpartyRisk</code>,
+<code>MarginControl</code>, and <code>BrokerMargin</code> have passed
+individual checks with exit 0 and no holes/metas/constraints/warnings.
+The instrument supports ordered near/far dates and exact
+spot/discount-factor change attribution. Margin is characterized as the
+least nonnegative cash top-up; an exact rational report supports partial
+payments and minimal further requests.</p>
+<p>The broker has two swaps (notionals 60 and 40) per client, held in
+opposite directions. Its market marks cancel, but its four-scenario
+collateral-adjusted exposure is <code>(15,68/5,5,2)</code>. Client cash
+calls are 15 and <code>68/5</code>; freezing foreign collateral
+understates the second call by <code>8/5</code>. Mean exposure
+<code>89/10</code>, worst exposure 15, and CVaR <code>143/10</code> have
+explicit proofs.</p>
+<p>Source review verified broker signs, cashflow timing conventions, and
+exact factor attribution. A comment was corrected to distinguish
+valuation-time inputs for a settlement date from valuation at maturity.
+Documentation keeps phase selection, curve calibration, collateral
+availability, and legal netting as explicit scope boundaries. Local type
+inference in the broker vector proof was resolved by specifying its
+finite-vector type.</p>
+<p>The operational example is being connected to actual per-trade
+settlement flows and executable payment checks. A further analytic
+extension will bound every real quote in a joint spot/discount-factor
+box, since separate one-factor stress tests need not cover their
+simultaneous adverse combinations.</p>
+<h3
+id="further-development-transaction-costs-ambiguity-and-sequential-control">Further
+development: transaction costs, ambiguity, and sequential control</h3>
+<p>The next phase extends the checked foundation in three directions.
+Finite probability mixtures and their extreme-model risk bounds will
+represent uncertainty about probabilities. A coherent risk interface and
+two-stage composition will express sequential risk control. Proportional
+transaction costs will be included in losses rather than ignored by
+economic netting.</p>
+<p>The practical targets are a robust allocation selected by an
+ambiguity set and a rebalancing example in which fees change the
+optimizer, including a proved no-trade regime at sufficiently high fees.
+New work continues to use safe Cauchy reals without missing-analysis
+postulates. Earlier results and their validation record below describe
+the completed first phase.</p>
+<h3 id="further-development-checked-milestones">Further development:
+checked milestones</h3>
+<p>Eight new modules have passed individual checks with exit 0:
+<code>TransactionCosts</code>, <code>Rebalancing</code>,
+<code>TradeDecision</code>, <code>Ambiguity</code>,
+<code>RobustAllocation</code>, <code>DynamicRisk</code>,
+<code>DynamicAmbiguity</code>, and <code>ExecutionEquivalence</code>.
+Their first umbrella integration checked completely; a selective
+module-export warning was then corrected using Agda's explicit
+<code>module</code> import syntax.</p>
+<p>The fee optimizer is proved over all real weights and thresholds. It
+chooses three quarters in A when <code>0 ≤ s ≤ 4</code>, and no trade
+when <code>s ≥ 4</code>. Rational inputs give a certified executable
+selector and complete exact budget decisions. The ambiguity example has
+the unique global optimum <code>w=9/20</code> with worst expected loss
+<code>7/5</code>; the strict tradeoff with stress loss <code>12/5</code>
+is also checked. A naming collision in its final uniqueness proof was
+fixed locally before its successful check.</p>
+<p>The dynamic layer constructs coherent two-stage risk, time
+consistency, node-budget certificates, and the finite expectation tower
+formula. Independent conditional mixtures have a sound root-capital
+bound. A separate example computes coupled risk 2 and rectangular risk
+4. The execution quotient has a necessary and sufficient fee-invariance
+condition for representative- preserving descent from raw economic
+classes, and a checked counterexample with net CVaR 3 versus 5.</p>
+<p>Read-only cross-reviews found no mathematical errors. They clarified
+that CVaR-only trades do not automatically satisfy stress controls; fees
+require an external reserve or a future funding model; total-loss
+classes do not retain all future trading state; and the general dynamic
+ambiguity result is soundness, not an exact supremum representation.
+These boundaries are recorded in <code>EXTENSIONS.md</code>. A further
+stress-constrained trading example is being implemented to connect two
+of the portfolio controls directly.</p>
+<h3 id="2026-09-07-initial-design">2026-09-07: initial design</h3>
+<p>Inspected the foundational real, ordered ring, and lattice APIs. They
+suffice for the initial finite model without new analysis assumptions.
+Parallel work has started on positive parts/stop loss, nonempty finite
+worst-case risk, and economic set quotients. Main work is finite sums,
+probability, portfolios, and integration into the worked example.
+Validation uses <code>agda-codex</code> exclusively.</p>
+<h3 id="checked-finite-risk-foundation">Checked finite risk
+foundation</h3>
+<p><code>Finite</code>, <code>Probability</code>,
+<code>Shortfall</code>, <code>WorstCase</code> (initial core),
+<code>EconomicEquivalence</code>, <code>ExpectedShortfall</code>, and
+<code>Portfolio</code> have each passed <code>agda-codex</code> with
+exit code 0 and no holes, metas, constraints, or warnings. The finite
+layer includes finite Fubini, allowing expected portfolio losses to be
+computed from asset means. Allocation blending preserves nonnegativity
+and total capital. Asset-specific model errors produce an explicit
+reserve.</p>
+<p>The expected-shortfall layer proves weak duality directly: if a
+probability vector Q satisfies Q_i ≤ κ P_i, then E_Q[L] ≤ t + κ
+E_P[(L-t)⁺] for every t. A matching primal/dual certificate proves a
+global minimum. <code>IsCVaR</code> records the global lower bound and
+propositionally truncated attainment; its value is unique. No general
+optimization or quantile existence theorem is assumed.</p>
+<p>Cubical results include effective economic quotient paths, an
+equivalence with the image of the loss map using truncated fibers,
+univalence between these two presentations, and proof-independent risk
+certificates. Positive parts and stop losses preserve the native
+Cauchy-real closeness relation.</p>
+<h3 id="validation-environment">Validation environment</h3>
+<p>The sandbox initially prevented the wrapper from measuring system
+memory. It returned 75 before starting Agda, with no RAM or peak-RSS
+measurement. The user enabled full access, after which root checks
+worked with the memory guard intact. Child agents retained the old
+sandbox, so checks are centralized through the root agent. This was an
+environment refusal, not proof memory exhaustion.</p>
+<h3 id="checked-application-and-risk-laws">Checked application and risk
+laws</h3>
+<p><code>RiskControl</code>, <code>Policy</code>, and
+<code>Application</code> passed with exit 0. The checker reduces to pass
+for the balanced portfolio at budget 2, fail at budget 1, fail for
+concentrated asset A at budget 2, and unknown for a coarse
+<code>[1,3]</code> report at budget 2. <code>check-sound</code> attaches
+mathematical evidence to the labels.</p>
+<p>The policy combines expected loss ≤ 1, stress loss ≤ 2, and tail risk
+≤ 2 in the example. General convex rebalancing preserves all three
+limits. The application constructs direct and wrapped-basket allocations
+and proves their certified economic classes equal. A model-error reserve
+transports acceptance with coefficient one on uniform loss errors.</p>
+<p><code>Diversification</code> passed with exact means 1, CVaRs 3/3/2,
+and worst losses 6/6/2 for A/B/balanced. The dual measure
+<code>(1/2,1/2,0,0)</code> proves a global lower bound 2 for every real
+allocation weight and threshold. The stress budget uniquely forces equal
+weights. A distinct quarter allocation also has optimal CVaR 2 but worst
+loss 4, demonstrating why the stress control adds information and why
+optimizer uniqueness should not be assumed.</p>
+<p>The extended <code>WorstCase</code> and <code>RiskLaws</code> passed
+with exit 0. Worst-case risk has nonnegative real homogeneity and
+weighted bounds. CVaR values, whenever supplied with <code>IsCVaR</code>
+evidence, satisfy monotonicity, cash translation, subadditivity,
+weighted convex bounds, and perturbation estimates. Acceptance is
+equivalent to the CVaR value being within budget; univalence also
+exposes this as a path between policy types. These proofs eliminate
+truncated attainment only into propositions.</p>
+<h3 id="completed-dispersion-comparison-and-review">Completed dispersion
+comparison and review</h3>
+<p><code>Variance</code> and <code>VarianceExample</code> passed with
+exit 0. General results include centered mean zero, nonnegative
+variance, cash invariance, square scaling, covariance symmetry, and the
+two-asset variance formula. The example gives variance 9 for both
+assets, covariance -7, balanced variance 1, and quarter variance 3. The
+identity <code>Var(L(w)) = 1 + 32 (w - 1/2)²</code> proves a global
+variance optimum for every real weight, including short positions.</p>
+<p>A separate read-only review of <code>Application</code>,
+<code>Policy</code>, <code>RiskControl</code>, and the README found no
+mathematical defects. It caught an overstatement in an application
+comment: a model error certificate gives an upper capital allowance, not
+necessarily an exact change in the minimum risk. The comment was
+corrected and <code>Application</code> rechecked successfully.</p>
+<p>The README explains the finite model, the discrete-tail convention,
+all example values, the executable checker, HoTT techniques, and
+limitations. The conceptual reference is Rockafellar and Uryasev,
+<em>Conditional Value-at-Risk for General Loss Distributions</em>
+(2002), available from the author's <a
+href="https://sites.math.washington.edu/~rtr/papers/rtr187-CVaR2.pdf">University
+of Washington page</a>. All local theorems are proved in Agda;
+literature is explanatory background.</p>
+<h2 id="first-phase-validation">First-phase validation</h2>
+<p>First-phase final command, run after that phase's last Agda edit:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial.agda</span></code></pre></div>
+<p>Result: <strong>exit 0</strong>, checked completely with <strong>0
+holes, 0 unsolved metas, 0 constraints, and 0 warnings</strong>. The
+umbrella imports all 14 component modules, including the three worked
+application/example modules. There are 15 Agda modules and 2,077 source
+lines including comments and the umbrella. An explicit source scan found
+no postulates, holes, unsafe termination pragmas, or weakened checking
+options.</p>
+<h2 id="first-phase-limitations-and-extension-points">First-phase
+limitations and extension points</h2>
+<ul>
+<li>No general optimizer/quantile existence theorem for every arbitrary
+real finite dataset is claimed. Every optimizer used in the examples has
+an explicit checked certificate.</li>
+<li>Numerical <code>Report</code> bounds are supplied with proofs;
+producing them from general Cauchy approximations remains an extension
+point.</li>
+<li>No general linear-program solver, floating-point extraction,
+market-data connection, transaction-cost calibration, or continuous-time
+model is included.</li>
+<li>Economic identity means equality of the modelled loss profiles.
+Extra operational costs belong in the model before this quotient is
+applied.</li>
+<li>Native constructive reals, finite computations, truncations, and
+existing continuity lemmas sufficed. <strong>No missing analysis
+assumptions were needed.</strong></li>
+</ul>
+<p>All new work is confined to the requested
+<code>Example/Financial</code> directory and
+<code>Example/Financial.agda</code>. Existing RealHomotopy and Spheres
+work was preserved.</p>
+<h2 id="second-phase-completion-and-validation">Second-phase completion
+and validation</h2>
+<p>The follow-up request is implemented with <strong>nine additional
+Agda modules</strong>. The final addition,
+<code>StressConstrainedTrade</code>, couples fee-aware CVaR optimization
+to a raw scenario stress cap. For every <code>s ≥ 0</code> and
+<code>2 ≤ c ≤ 4</code>, its fully invested long-only allocation has A
+weight <code>(c+2)/8</code>, raw stress <code>c</code>, net stress
+<code>c+s(6-c)/8</code>, and globally minimal net CVaR
+<code>2+s(6-c)/8</code> among all feasible real weights. At fee 1 and
+cap 3, it gives weight <code>5/8</code>, CVaR <code>19/8</code>, and net
+stress <code>27/8</code>. Every feasible competitor is proved to fail
+tail budget <code>9/4</code>. The no-trade position is infeasible for
+all the stated caps.</p>
+<p>The final source review found no mathematical defects. One comment
+was made precise at zero fees: net stress includes the fee and can equal
+raw stress. Documentation review clarified rational budget inputs and
+the economic image's propositionally truncated fibers. The extension
+guide records formulas, API entry points, exact examples, references,
+and scope.</p>
+<p>After the last Agda edit, both the affected
+<code>StressConstrainedTrade.agda</code> and the complete umbrella were
+checked with <code>agda-codex</code>. Final umbrella command:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial.agda</span></code></pre></div>
+<p><strong>2026-09-07 20:27:05 UTC: exit 0</strong>, status
+<code>checked</code>, with <strong>0 holes, 0 unsolved metas, 0
+constraints, and 0 warnings</strong>. Umbrella source SHA-256:
+<code>cb87d32bd7faaebc464fb165d9c70d61986ac071a1975089ac2727aad50bd25c</code>.</p>
+<p>The umbrella imports every component: <strong>24 Agda modules and
+3,999 source lines</strong>, including comments and the umbrella. A
+source scan found no postulates, explicit holes, unsafe
+termination/positivity/universe pragmas, or weakened checking flags.
+Local documentation links resolve, and no Agda source has trailing
+whitespace. Executable examples check by reduction inside the source
+modules, including fee selection and rational budget
+acceptance/rejection. No floating-point test substitutes for those
+proofs.</p>
+<h3 id="current-limits-and-useful-next-steps">Current limits and useful
+next steps</h3>
+<ul>
+<li>Funding feasibility remains outside the fee model. Costs are
+additional same-horizon losses; they do not reduce target holdings.</li>
+<li>The executable optimizer specializes to the supplied two-asset
+market. General certified rational linear programming and automatically
+produced approximation reports remain useful future work.</li>
+<li>Probability ambiguity and fees are both developed, but there is no
+joint optimizer combining model ambiguity, transaction fees, and every
+policy constraint. The stress-constrained example combines fees and two
+controls.</li>
+<li>Sequential risk uses fixed finite two-stage trees. General
+rectangular mixture results are upper bounds, not a full dual
+representation theorem; no generic multistage trading optimizer is
+claimed.</li>
+<li>Execution classes describe current total loss. They need not retain
+the holdings information required to calculate later transaction
+costs.</li>
+<li>No general arbitrary-real CVaR existence theorem is assumed, and no
+new analysis hypotheses were needed for any completed proof.</li>
+</ul>
+<p>All changes remain in the requested example directory and its
+umbrella.</p>
+<h2 id="third-phase-completion-fx-swaps-and-broker-margin">Third-phase
+completion: FX swaps and broker margin</h2>
+<p>The FX instrument and broker-margin request is implemented in
+<strong>ten new Agda modules</strong>: <code>FXSwap</code>,
+<code>FXBounds</code>, <code>Margin</code>, <code>MarginControl</code>,
+<code>ClientNetting</code>, <code>CounterpartyRisk</code>,
+<code>Settlement</code>, <code>BrokerMargin</code>,
+<code>BrokerOperations</code>, and <code>JointFXMargin</code>. The
+product assumption is a deliverable near/far FX swap. The guide is <a
+href="FX_BROKER.html">FX_BROKER.md</a>.</p>
+<p>The four-scenario broker workflow now includes exact rational call
+reports, decidable payment statuses, updated reports after partial
+receipt, and minimal further cash requests. Client B paying 12 leaves
+<code>8/5</code>; receiving that further amount clears its modeled
+residual. After both clients pay, separate-client residual exposure and
+every admissible default/recovery severity loss are zero for those
+scenarios. Total segregated client calls are <code>143/5</code>; the
+aggregate broker exposure maximum 15 and exposure CVaR
+<code>143/10</code> are separate diagnostics.</p>
+<p>The actual four far-leg payment instructions come from the 60/40
+swaps and their reversals. Their far dates are proved to be 30. Net
+cashflows vanish, but gross funding requires 100 domestic and 100
+foreign units, with base value 200 at conversion factors
+<code>(1,1)</code>. Zero gross funding is impossible. Margin collateral
+is not implicitly reassigned to these payment obligations.</p>
+<p>The analytic extension bounds <strong>every Cauchy-real
+quote</strong> with spot in <code>[4/5,6/5]</code> and both effective
+discount factors in <code>[9/10,1]</code>. The same portfolios then
+require sharp cash top-ups 25 and <code>108/5</code>. Explicit joint
+states attain both requirements. In particular, B's worst claim and
+lowest collateral value occur together, making its bound exact. Coverage
+for the whole box is equivalent to meeting those capital bounds, with a
+univalence path for policy transport. The old payments 15 and
+<code>68/5</code> are rejected by the new reports and require another 10
+and 8. Original scenario membership and portfolio/valuation links are
+proved explicitly.</p>
+<p>Read-only reviews found no mathematical or numerical defects.
+Clarifications recorded in the guide include reference-state factors in
+the exact change formula, the difference between separate margin calls
+and broker capital statistics, and the scope of finite reports versus
+whole-box certificates. One local binder was renamed because it collided
+with the payment-status constructor <code>covered</code>. All affected
+sources were rechecked successfully.</p>
+<h3 id="final-third-phase-validation">Final third-phase validation</h3>
+<p>After the last Agda edit, the affected broker module and the full
+umbrella were checked with the required wrapper. Final command:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial.agda</span></code></pre></div>
+<p><strong>2026-09-07 21:00:10 UTC: exit 0</strong>, status
+<code>checked</code>, with <strong>0 holes, 0 unsolved metas, 0
+constraints, and 0 warnings</strong>. Umbrella SHA-256:
+<code>74fae6f6a8b2a260f65a3bec081cdb9635dae29c79e08321201a9077b90bd44e</code>.</p>
+<p>The complete development now has <strong>34 Agda modules and 6,000
+source lines</strong>, including comments and the umbrella. Every
+component is imported by the umbrella. A source scan found no
+postulates, explicit holes, unsafe termination/positivity/universe
+pragmas, or weakened checking flags. Local Markdown links resolve; Agda
+sources have no trailing whitespace. Payment decisions compute by
+rational comparison and carry their checked real-valued coverage or
+insufficiency evidence.</p>
+<p>No missing analysis results or additional foundational assumptions
+were needed. The valuation model, quote bounds, collateral eligibility
+and availability, client netting sets, severity inputs, settlement
+states, and funding balances remain explicit financial model inputs. No
+market-data calibration, legal enforceability assessment, actual cash
+collection, regulatory margin compliance, or generic arbitrary-real
+pricing/optimization algorithm is claimed. Native currency funding and
+settlement-principal risk remain distinct from closeout-margin
+certificates.</p>
+<p>All work remains under the requested example directory and its
+umbrella; existing RealHomotopy and Spheres work is preserved.</p>
+<h2
+id="fourth-phase-completion-organization-shared-theory-and-references">Fourth-phase
+completion: organization, shared theory, and references</h2>
+<p>The request to organize the Financial folder is implemented. The
+existing 33 flat implementation modules moved into <code>Core</code>,
+<code>Risk</code>, <code>Portfolio</code>, <code>Dynamic</code>,
+<code>Instruments</code>, <code>Margin</code>, <code>Settlement</code>,
+and topic-specific <code>Examples</code> folders. Their old paths remain
+thin compatibility modules. Six concrete blocks formerly mixed into
+theory are separate example modules. The new <code>Theory.agda</code>
+entry point exports only reusable theory; <code>Examples.agda</code>
+provides public qualified application namespaces. The original umbrella
+preserves its public names and imports both new entry points.</p>
+<h3 id="shared-definitions-and-generalizations">Shared definitions and
+generalizations</h3>
+<ul>
+<li><code>Core/Vectors</code> provides universe-polymorphic two-,
+three-, and four-coordinate constructors.
+<code>Examples/CommonScenarioData</code> owns fair/uniform
+probabilities, tail level, and admissible dual weights. Old example
+names remain aliases. Broker modules no longer depend on the
+diversification example for this data.</li>
+<li>Nonnegative interval membership and product bounds moved from
+FX-specific code to <code>Core/Bounds</code>; finite-sum negation moved
+from settlement to <code>Core/Finite</code>.</li>
+<li><code>Risk/Shortfall</code> contains shared upper-bound,
+exact-evaluation, and zero-threshold lemmas.
+<code>Risk/FiniteShortfall</code> supplies the positive-part and
+stop-loss sum inequalities used in both client netting and
+settlement.</li>
+<li><code>worstCase-exact-at</code> packages upper bounds with an
+explicitly supplied attaining index. The stress-constrained portfolio
+uses it. No algorithm for selecting an argmax of arbitrary Cauchy-real
+data is asserted.</li>
+<li><code>Margin/Scenario</code> expresses coverage for arbitrary
+admissible state types. <code>MarginCertificate</code> records a least
+nonnegative cash requirement; <code>BindingScenario</code> supplies a
+state with the raw difference <code>X(s)-C(s)=m</code>. The binding
+witness yields leastness and coverage equivalence for all real budgets.
+Record/equivalence APIs are universe polymorphic; univalence paths are
+provided for small state and admissibility types.</li>
+<li>Finite margin instantiates that interface, while the joint FX
+example uses explicit corner witnesses. Its existing all-real-budget
+statements retain their types and strength. <code>margin-postCash</code>
+generalizes the payment update to any nonnegative real payment; the
+rational controller delegates to it.</li>
+<li>Rebalancing reuses the existing cash-translation theorem for its net
+CVaR objective. Worked numerical outcomes and rational decision
+reductions remain unchanged and check in their new locations.</li>
+</ul>
+<h3 id="references-and-documentation">References and documentation</h3>
+<p><code>REFERENCES.md</code> maps nine primary sources to the financial
+methods: Markowitz; Rockafellar–Uryasev; Boyd and coauthors;
+Ben-Tal–Nemirovski; Shapiro; Epstein–Schneider; BIS on FX swap funding;
+BCBS on FX settlement; and BCBS–IOSCO on collateral methodology. All 17
+example/data modules contain specific source notes. The guide documents
+tail-parameter and turnover conventions and clearly separates synthetic
+inputs from methodological justification. It records the physically
+settled FX exclusion from the general BCBS–IOSCO margin framework; that
+source is not used to claim regulatory validation of the toy cash
+calls.</p>
+<p><code>STRUCTURE.md</code> gives canonical imports, shared interfaces,
+sign/unit conventions, and the complete old-to-new module map. README,
+extension and FX guides now link to implementations and separate
+extracted demonstrations.</p>
+<h3 id="compatibility-audit-and-final-validation">Compatibility audit
+and final validation</h3>
+<p>An external importing module caught a namespace regression that
+umbrella compilation alone did not expose: a bare
+<code>import ... as Name</code> is not a public replacement for the
+former nested example module. The wrappers now export explicit nested
+modules with public imports. Inherited namespaces forward the original
+module, preserving their identity and avoiding ambiguous exports. The
+expanded compatibility check verifies all five extracted nested
+namespaces, two inherited namespaces, execution APIs, original
+constructor type expectations, dual admissibility, the root umbrella's
+example access, and every new example namespace. It passes exit 0; this
+targets refactor-sensitive APIs rather than claiming exhaustive
+signature equivalence for every exported declaration.</p>
+<p>Final checks after the relevant final source edits:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Theory.agda</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial.agda</span></code></pre></div>
+<ul>
+<li><strong>Theory: 2026-09-07 21:18:45 UTC, exit 0</strong>, status
+<code>checked</code>. SHA-256:
+<code>d53e01405d960767a04b8d44d6e9ae4a072006936db85071718906ddd11de402</code>.</li>
+<li><strong>Full umbrella: 2026-09-07 21:22:13 UTC, exit 0</strong>,
+status <code>checked</code>. SHA-256:
+<code>412afca06dcb966bf9d9e6e12e6c29f187a62a57550c079686594e5532655490</code>.</li>
+<li>Both report <strong>0 holes, 0 unsolved metas, 0 constraints, and 0
+warnings</strong>. The expanded external compatibility check also passes
+at 21:22:13 UTC.</li>
+</ul>
+<p>There are now <strong>44 canonical implementation modules, 33
+compatibility wrappers, and 3 entry points</strong>, totaling <strong>80
+Agda files and 6,614 source lines</strong>, including comments.
+Import-graph inspection confirms that the full umbrella reaches every
+module, reusable theory reaches no example or legacy wrapper, and no
+canonical implementation imports a flat compatibility path. Local
+Markdown links and source-reference anchors resolve. No trailing Agda
+whitespace, new postulates, holes, unsafe pragmas, or weakened checking
+options were introduced.</p>
+<p>The refactor stays within the Financial directory and its umbrella.
+Existing RealHomotopy and Spheres work remains untouched. General CVaR
+optimizer existence, empirical calibration, and operational/legal
+assumptions retain exactly the explicitly stated scope in the financial
+guides.</p>
+<h2
+id="fifth-phase-completion-system-correctness-as-motivating-examples">Fifth-phase
+completion: system correctness as motivating examples</h2>
+<p>The request for large, practically meaningful correctness statements
+is implemented in four new modules. Three separate agents developed the
+generic client workflow, receipt-history theory, and complete trading
+solver; the main agent integrated the broker book, executable funding
+gate, sequential receipts, and worked scenarios. Independent
+cross-reviews checked both financial scope and constructive proof
+discipline.</p>
+<h3 id="flagship-broker-result">Flagship broker result</h3>
+<p><code>Examples/FX/BrokerGuarantees.agda</code> composes the actual
+60/40 swap portfolios, joint real spot/discount box, currency-sensitive
+client collateral, exact margin certificates, rational payment
+decisions, and actual gross far-leg settlement instructions.
+<code>broker-ready≃requirements</code> identifies program success with
+universal client coverage and gross funding in both native currencies.
+<code>broker-end-to-end</code> constructs a <code>BookGuarantee</code>
+with coverage of trade-by-trade claims, zero modeled closeout loss for
+every scenario-dependent admissible severity, and sufficient gross
+settlement funding.</p>
+<p><code>history-end-to-end</code> transports this whole-book guarantee
+to collateral produced by arbitrary per-client receipt folds over the
+entire FX state domain. <code>history-reports-agree</code> connects
+iterative <code>recordPayment</code> reports to the universal workflow's
+outstanding requests. Equal per-client receipt totals preserve the full
+combined decision by <code>history-batching-invariant</code>.</p>
+<p>The worked receipts A:(15,10) and B:(68/5,8), with funding (100,100),
+compute a successful result. The old receipts (15,68/5) fail. New
+requests are exactly (10,8), and
+<code>eighteen-is-least-further-cash</code> proves that every
+nonnegative REAL further-payment vector covering all actual swap claims
+has total at least 18. <code>request-cycle-ready</code> proves that
+receipt of computed requests completes the margin gate for any
+nonnegative prior client balances, with sufficient funding.</p>
+<p>Two deliberate control failures are checked by reduction: the full
+cash total 233/5 credited entirely to A fails client coverage, and
+correct client payments with (200 domestic,0 foreign) funding fail the
+native-currency requirement. Separate equal-total/equal-base-value
+proofs establish why aggregate values cannot replace these
+obligations.</p>
+<p><code>closeout-and-principal-zero</code> additionally sums modeled
+closeout and settlement principal losses across the book. Its zero-loss
+conclusion requires the separate <code>AtomicBook</code> idealized
+delivery law. The broker check does not establish that law or actual
+settlement completion.</p>
+<h3 id="reusable-scale-and-trading-completeness">Reusable scale and
+trading completeness</h3>
+<p><code>Margin/Workflow.agda</code> supports any finite client count
+and an arbitrary small admissible scenario domain. The checker is sound
+and complete relative to exact supplied <code>MarginCertificate</code>s;
+failure identifies a client and refutes its universal coverage. Success
+yields zero aggregate residual and zero closeout loss under every
+scenario-dependent admissible severity. Computed requests are sufficient
+and componentwise/total minimal against arbitrary nonnegative real
+further payments. Client collateral remains separate throughout.</p>
+<p><code>Margin/PaymentHistory.agda</code> processes arbitrary finite
+lists of nonnegative rational receipts. Pure collateral operations are
+universe-polymorphic in the scenario domain. Finite exact-report
+processing maintains the total/outstanding invariant, and complete
+reports agree after transport under batching, equal totals,
+concatenation and batch swapping. Coverage and zero remaining margin are
+each equivalent to a sufficient total. Insufficient actual receipts
+cannot produce a covered verdict. Client-family lifts are also
+proved.</p>
+<p><code>Examples/Portfolio/TradingGuarantees.agda</code> gives a
+complete solver for the existing proportional-fee CVaR problem.
+<code>solver-pass≃feasible</code> identifies success with truncated
+existence of ANY signed real holding vector whose sum is one and whose
+actual <code>TransactionCosts.allInLoss</code> meets the budget. Success
+returns a normalized long-only allocation with actual fee/loss links, an
+exact rational optimal CVaR and global lower bounds. Failure rules out
+every real competitor. Fee1/budget2 is globally infeasible;
+fee1/budget9/4 returns (3/4,1/4) with actual fee1/4. Truncated
+feasibility can reconstruct the computed canonical trade; no hidden
+witness is selected from truncation.</p>
+<h3 id="framing-reviews-and-validation">Framing, reviews and
+validation</h3>
+<p><a href="SYSTEM_GUARANTEES.html">SYSTEM_GUARANTEES.md</a> is now the
+main motivating guide, with the broker theorem first, a component
+diagram, executable scenarios, quantifier/scope explanations, and a
+named theorem map. README, FX and extension guides lead readers to these
+statements. The structure/reference guides link the new modules to
+reusable theory and financial methodology. <code>Theory.agda</code>
+exports the new workflow/history APIs in public qualified namespaces;
+<code>Examples.agda</code> exports both flagship applications.</p>
+<p>Independent reviews found no remaining correctness issue. An external
+temporary edge-case module also checked zero clients over an inhabited
+infinite real scenario domain, zero margin for arbitrary client counts
+with surplus collateral and no binding state, and overpayments producing
+pass with zero requests. Its final check at <strong>2026-09-07 21:41:13
+UTC</strong> returned <strong>exit0 with no holes, metas, constraints or
+warnings</strong>. Reviews confirmed that the trading competitor domain
+includes shorts and that all truncation eliminations target
+propositions.</p>
+<p>Final relevant source checks:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Checked at (UTC)</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Margin/Workflow</code></td>
+<td>2026-09-07 21:33:47</td>
+<td>exit0, checked</td>
+</tr>
+<tr>
+<td><code>Examples/Portfolio/TradingGuarantees</code></td>
+<td>2026-09-07 21:34:26</td>
+<td>exit0, checked</td>
+</tr>
+<tr>
+<td><code>Margin/PaymentHistory</code></td>
+<td>Final generalized source checked before broker integration</td>
+<td>exit0, checked</td>
+</tr>
+<tr>
+<td><code>Examples/FX/BrokerGuarantees</code></td>
+<td>2026-09-07 21:39:43</td>
+<td>exit0, checked</td>
+</tr>
+<tr>
+<td><code>Theory.agda</code></td>
+<td>2026-09-07 21:41:29</td>
+<td>exit0, checked</td>
+</tr>
+<tr>
+<td><code>../Financial.agda</code></td>
+<td>2026-09-07 21:41:30</td>
+<td>exit0, checked</td>
+</tr>
+</tbody>
+</table>
+<p>All report <strong>0 holes, 0 unsolved metas, 0 constraints, and 0
+warnings</strong>. The last two commands, after the final entry-point
+edits, were:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Theory.agda</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial.agda</span></code></pre></div>
+<p>Theory SHA-256:
+<code>ddedfc8ebf03d58ae0814d9d41ca6aa59e6c7737fb31632dfddf5c8c2223d21e</code>.
+Full umbrella SHA-256:
+<code>412afca06dcb966bf9d9e6e12e6c29f187a62a57550c079686594e5532655490</code>.
+Broker guarantee source SHA-256:
+<code>8e62c8ac89893b43823bf09e5c7a0d8d33b5defad3f2a16defab137f74bb55f5</code>.
+The umbrella source hash is unchanged because the new modules enter
+through its existing <code>Theory</code> and <code>Examples</code>
+imports; its dependency closure was rechecked.</p>
+<p>The complete development has <strong>84 Agda files and 7,813 source
+lines</strong>: 48 canonical implementations, 33 compatibility wrappers,
+and 3 entry points. Every module is reached from the full umbrella.
+Theory still imports neither examples nor compatibility modules. Every
+concrete example has reference notes; local Markdown links resolve, and
+the proof-discipline/whitespace scan is clean.</p>
+<p>The general theorems scale in client count, scenario domain,
+real-valued competitors and receipt-history length. No production
+throughput claim is made. Exact model certificates, receipt provenance,
+custody/enforceability, available separate currency balances and the
+fixed valuation snapshot remain input conditions. No withdrawal,
+duplicate-event protection, real settlement protocol, self-financing
+trading ledger, or empirical calibration is silently inferred. No
+postulates, unsafe flags, new analysis assumptions, or foundational
+edits were needed. Existing RealHomotopy and Spheres work remains
+untouched.</p>
+<h2 id="8-september-2026--separate-generic-broker-progression">8
+September 2026 — separate generic broker progression</h2>
+<p>Added <a href="Broker/README.html">Broker/</a>, an eight-stage
+development of margin machinery without concrete scenarios: cash
+accounts, scenario reports, client netting, inventory-backed collateral,
+identified receipts, revaluation, minimum transfers, and a composed
+controller. Three agents developed and reviewed independent components.
+<a href="Broker/PROGRESS.html">The local progress record</a> includes
+the theorem map, review conclusions, final source hashes, and compiler
+outcomes.</p>
+<p>The final <code>controller-correct</code> theorem links a sufficient
+margin report and certified revaluation bounds to an executable call
+plan and actual receipt journal. New receipts meeting each client's
+request yield universal per-client residual bounds and aggregate
+closeout-loss bounds by transfer tolerances. Zero tolerance gives full
+client coverage and zero modeled loss for every severity. Additional
+theorems prove modeled resource backing and equality of the entire
+ledger/certificate pair after receipt replay.</p>
+<p>This adds identified-event duplicate suppression to the earlier
+anonymous payment-history theory. IDs and payloads are fixed by the
+catalog; distinct IDs must represent distinct actual receipts. The older
+progress entry's lack of such protection describes that earlier theory,
+not the new journal. Additional journal cash must be separate from base
+inventory. Conservative call failure means an unfulfilled plan and does
+not assert economic deficiency.</p>
+<p><a href="Broker/REFERENCES.html">Broker/REFERENCES.md</a> grounds the
+stages in BCBS FX guidance, BCBS–IOSCO margin concepts, robust
+optimization, margin/gap-risk literature, FINOS event identity, and
+application-level duplicate suppression. The new <a
+href="../Cubical.HITs.CauchyReals.Example.Financial.Broker.html">Broker.agda</a>
+entry point is exposed through <code>Theory.Broker</code>.</p>
+<p>Final checks after the last Agda edits:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>UTC time, 7 September 2026</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Broker/Stage08Controller.agda</code></td>
+<td>22:11:36</td>
+<td>exit 0</td>
+</tr>
+<tr>
+<td><code>Broker.agda</code></td>
+<td>22:14:03</td>
+<td>exit 0</td>
+</tr>
+<tr>
+<td><code>Theory.agda</code></td>
+<td>22:14:25</td>
+<td>exit 0</td>
+</tr>
+<tr>
+<td><code>../Financial.agda</code></td>
+<td>22:14:52</td>
+<td>exit 0</td>
+</tr>
+</tbody>
+</table>
+<p>All checked with <strong>0 holes, 0 unsolved metas, 0 constraints and
+0 warnings</strong>. Eight stage modules add 1,482 source lines; the
+whole development now has 93 Agda files and 9,327 lines. The full
+umbrella reaches every module. The broker progression imports neither
+worked examples nor compatibility shims, and the theory/example
+dependency boundary remains intact. No postulates, unsafe options, new
+analysis assumptions, or foundational edits were needed.</p>
+<h2 id="8-september-2026--broker2-one-engine-evolved-for-presentation">8
+September 2026 — Broker2: one engine evolved for presentation</h2>
+<p>Added <a href="Broker2/README.html">Broker2/</a>, seven successive
+versions of the same quote/receive engine, with a <a
+href="Broker2/PRESENTATION.html">28-minute quant developer speaker
+guide</a> and <a href="Broker2/PROGRESS.html">source/review record</a>.
+Each successor imports its predecessor and proves the precise
+relationship between old and new behavior. The progression adds client
+books, stress profiles, rational execution, transfer tolerances,
+identified receipts, and certified revaluation. It introduces no
+concrete scenarios or calibrated data.</p>
+<p>A generic rational input factory computes exact initial reports.
+Actual receipt processing updates a certified incremental report,
+including after partial payments. The final operation returns the next
+state, an equality proving that state is the receipt result, a report
+for that state, and an assessment. Its success guarantee covers every
+supplied stress/client and all modeled severity-weighted losses; zero
+transfer tolerance restores full coverage and zero modeled loss. Receipt
+replay preserves the state plus its safety proof.</p>
+<p>Three agents contributed rational execution, independent review, and
+the presentation narrative. Reviews confirmed the incremental-cash
+convention, conditional exactness, projection/refinement scope and
+conservative-failure semantics. The earlier broker progression and
+numerical examples remain independent.</p>
+<p>Final <code>agda-codex</code> entry-point checks on 8 September 2026
+UTC: <code>Broker2.agda</code> 06:21:10, <code>Theory.agda</code>
+06:22:17, and the full <code>Financial.agda</code> umbrella 06:22:59.
+All returned <strong>exit 0 with zero holes, metas, constraints and
+warnings</strong>. The seven new version modules have 857 lines; the
+whole development now has 101 Agda files and 10,213 lines. All modules
+are reachable, all new successors import their predecessor, and Theory
+imports no worked examples. No postulates, unsafe options, missing
+analysis assumptions or foundational edits were added.</p>
+<h2 id="8-september-2026--relational-refinement-of-broker2">8 September
+2026 — relational refinement of Broker2</h2>
+<p><a href="Broker2/Pipeline/README.html">Broker2/Pipeline</a>
+implements the final abstract margin engine with typed
+trade/client/receipt rows, functional valuation lookup, selection and
+grouped sums. Generic <code>get</code>, <code>keyMask</code>,
+aggregation and their laws were added under
+<code>Experiments/Relation</code>; its existing Base was preserved.</p>
+<p>The implementation returns ordinary state, remaining amounts, call
+rows and a status. Separate proofs certify those actual outputs and
+refine them to V07, including the broker-wide bounds over all supplied
+stresses and severities. Initial reports and conservative revaluation
+reserves are computed; partial receipts preserve valid reports, and
+replay/order preserve certified states at a fixed valuation. No concrete
+numerical scenario or postulate was introduced.</p>
+<p>Sixteen final <code>agda-codex</code> checks passed with exit 0 and
+no holes, metas, constraints or warnings, including Theory and the full
+financial umbrella. The full import closure contains 112 Agda sources
+and 11,375 lines. All are reachable. See <a
+href="Broker2/Pipeline/PROGRESS.html">Pipeline/PROGRESS.md</a> for exact
+checks, hashes, independent review and scope, and the updated Broker2
+presentation/reference guides for motivation.</p>
+</main></body></html>

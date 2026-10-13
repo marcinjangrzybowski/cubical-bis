@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One margin engine, seven
+versions · Financial</title><link rel="stylesheet" href="../_assets/style.css">
+<style>html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
+</head><body><main>
+<nav class="site-nav"><a href="../index.html">Financial documentation</a><a href="../README.html">Overview</a><a href="../../../Cubical/HITs/CauchyReals/Example/Financial/Broker2/PRESENTATION.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#one-margin-engine-seven-versions"
+id="toc-one-margin-engine-seven-versions">One margin engine, seven
+versions</a>
+<ul>
+<li><a href="#running-order" id="toc-running-order">Running
+order</a></li>
+<li><a href="#opening-a-state-change-with-a-contract"
+id="toc-opening-a-state-change-with-a-contract">Opening: a state change
+with a contract</a></li>
+<li><a href="#v01--one-account" id="toc-v01--one-account">V01 — one
+account</a></li>
+<li><a href="#v02--one-engine-across-clients"
+id="toc-v02--one-engine-across-clients">V02 — one engine across
+clients</a></li>
+<li><a href="#v03--one-call-across-stress-states"
+id="toc-v03--one-call-across-stress-states">V03 — one call across stress
+states</a></li>
+<li><a href="#v04--a-rational-policy-around-real-valuation"
+id="toc-v04--a-rational-policy-around-real-valuation">V04 — a rational
+policy around real valuation</a></li>
+<li><a href="#v05--minimum-transfer-amounts"
+id="toc-v05--minimum-transfer-amounts">V05 — minimum transfer
+amounts</a></li>
+<li><a href="#v06--identified-actual-receipts"
+id="toc-v06--identified-actual-receipts">V06 — identified actual
+receipts</a></li>
+<li><a href="#v07--revaluation-without-discarding-receipt-history"
+id="toc-v07--revaluation-without-discarding-receipt-history">V07 —
+revaluation without discarding receipt history</a></li>
+<li><a href="#final-contract-what-the-composed-engine-establishes"
+id="toc-final-contract-what-the-composed-engine-establishes">Final
+contract: what the composed engine establishes</a></li>
+<li><a href="#rehearsal-and-verification"
+id="toc-rehearsal-and-verification">Rehearsal and verification</a></li>
+<li><a href="#optional-extension--one-calculation-and-its-certificate"
+id="toc-optional-extension--one-calculation-and-its-certificate">Optional
+extension — one calculation and its certificate</a></li>
+</ul></li>
+</ul></details>
+<h1 id="one-margin-engine-seven-versions">One margin engine, seven
+versions</h1>
+<p>Speaker guide for a 28-minute session with quant developers. The
+audience knows cash, collateral, exposure, and APIs; no prior
+dependent-type experience is assumed. Present the same operations
+throughout: <strong>quote a call, receive actual cash, retain a
+guarantee about the resulting state</strong>. Each version changes one
+business requirement and proves how the earlier behavior survives.</p>
+<p>The code is generic. Use the symbolic clients, scenarios, and amounts
+below; there are no market observations, calibrated stress parameters,
+or concrete portfolio examples in this presentation.</p>
+<h2 id="running-order">Running order</h2>
+<table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Screen</th>
+<th>Question answered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0–2 min</td>
+<td>Opening contract</td>
+<td>What exactly does a successful margin operation establish?</td>
+</tr>
+<tr>
+<td>2–5 min</td>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V01Account.html">V01Account</a></td>
+<td>How much additional cash covers one claim?</td>
+</tr>
+<tr>
+<td>5–8 min</td>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V02Clients.html">V02Clients</a></td>
+<td>Can the same operation cover every separate client?</td>
+</tr>
+<tr>
+<td>8–11 min</td>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V03Stress.html">V03Stress</a></td>
+<td>Can one call survive every supplied stress?</td>
+</tr>
+<tr>
+<td>11–15 min</td>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V04Rational.html">V04Rational</a></td>
+<td>How can an executable gate work with arbitrary real valuations?</td>
+</tr>
+<tr>
+<td>15–18 min</td>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V05Tolerance.html">V05Tolerance</a></td>
+<td>What guarantee remains when small transfers are suppressed?</td>
+</tr>
+<tr>
+<td>18–22 min</td>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V06Receipts.html">V06Receipts</a></td>
+<td>What happens when receipt messages are replayed?</td>
+</tr>
+<tr>
+<td>22–25 min</td>
+<td><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V07Revaluation.html">V07Revaluation</a></td>
+<td>What survives a change in market valuation?</td>
+</tr>
+<tr>
+<td>25–28 min</td>
+<td>Final contract and boundaries</td>
+<td>Which conclusion follows, and from which inputs?</td>
+</tr>
+</tbody>
+</table>
+<p>For a 25-minute slot, shorten the opening and omit the optional
+Cubical details at V01 and V04. For 30 minutes, use the remaining time
+for questions. Keep order and addition proof bodies collapsed; the
+interesting code is the state, operation, theorem type, and connection
+to the preceding version.</p>
+<h2 id="opening-a-state-change-with-a-contract">Opening: a state change
+with a contract</h2>
+<p>Say: “We will evolve one margin engine without losing track of what a
+receipt means. Every successful result describes the state after actual
+cash arrives. Later versions add clients, stress, an executable policy,
+receipt identity, and revaluation.”</p>
+<p>Explain three terms once. A <strong>state</strong> contains the
+financial data and evidence that eligible balances are nonnegative. A
+<strong>proof argument</strong> supplies a required precondition. A
+<strong>proof result</strong> establishes the postcondition for the
+particular state produced by an operation. State indices keep these
+connections visible in the API.</p>
+<p>Amounts and valuations live in the library's Cauchy reals, written
+<code>ℝ</code>. They are mathematical reals with constructive operations
+and proofs. Finite scenario indexing does not make their numerical
+values rational or make every comparison decidable. The rational policy
+boundary will appear in V04.</p>
+<h2 id="v01--one-account">V01 — one account</h2>
+<p><strong>Business change.</strong> Start with a signed replacement
+claim and nonnegative available cash. Define the additional requirement
+as <code>quoteCall = max(claim − cash, 0)</code>. Quoting a call leaves
+the account unchanged. <code>receive</code> adds actual available
+cash.</p>
+<p><strong>Code change.</strong> Show <code>State</code>,
+<code>Safe</code>, <code>quoteCall</code>, and <code>receive</code> in
+<a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V01Account.html">V01Account</a>.
+<code>Safe b</code> means <code>claim b ≤ cash b</code>.</p>
+<p><strong>Proof change.</strong> Put this actual theorem type on
+screen:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode agda"><code class="sourceCode agda"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>receive-correct <span class="ot">:</span> <span class="ot">∀</span> b paid paid₊ <span class="ot">→</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  quoteCall b ≤ᵣ paid <span class="ot">→</span> Safe <span class="ot">(</span>receive b paid paid₊<span class="ot">)</span></span></code></pre></div>
+<p>Read it left to right: “For any account and any nonnegative receipt,
+evidence that the receipt covers the quote produces evidence that the
+resulting account is covered.” <code>paid₊</code> is the nonnegativity
+proof. The expression inside <code>Safe</code> is the actual transition
+result, so the postcondition refers to that state.</p>
+<p>Then show <code>quote-least</code>: any nonnegative receipt that
+makes the account safe must cover this quote. Together with
+<code>receive-correct</code>, this establishes the exact least
+additional requirement. <code>remaining-quote</code> gives the familiar
+remaining-gap formula after a partial receipt.</p>
+<p><strong>Compatibility anchor.</strong> This is the baseline contract.
+<code>receive-compose</code> already connects two receipts with their
+combined amount. Later versions retain this economic meaning while
+changing how a receipt is represented.</p>
+<p>Optional Cubical detail: <code>adequate≃safe</code> packages the two
+directions as an equivalence; <code>policy-path</code> uses univalence
+to identify the two proposition types. The audience can understand the
+contract before seeing its proof construction.</p>
+<h2 id="v02--one-engine-across-clients">V02 — one engine across
+clients</h2>
+<p><strong>Business change.</strong> Maintain separate client netting
+sets. Each client's call must be covered by that client's cash;
+aggregate surplus does not discharge an unrelated client's unsecured
+claim.</p>
+<p><strong>Code change.</strong> <code>State clients</code> holds claim
+and cash functions indexed by <code>Fin clients</code>.
+<code>view b client</code> exposes precisely the V01 account for that
+client. <code>quoteCall</code> and <code>receive</code> operate
+pointwise.</p>
+<p><strong>Proof change.</strong> <code>receive-correct</code> now
+concludes <code>Safe</code> for every client.
+<code>safe-residual-zero</code> proves that summed positive unsecured
+claims vanish. <code>safe-loss-zero</code> covers every supplied
+severity vector, whose entries lie in <code>[0,1]</code>. The
+severity-weighted loss is a conditional closeout-loss model; the theorem
+does not estimate a default probability.</p>
+<p><strong>Previous compatibility.</strong> Open
+<code>quote-refines-V01</code> and <code>receive-refines-V01</code> in
+<a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V02Clients.html">V02Clients</a>.
+Both state that viewing a client agrees with running the original
+operation on that account. These are proofs about all inputs, including
+the proof-bearing account state.</p>
+<p>Speaker transition: “We have lifted the same operation across
+clients. Next we require each client's one cash amount to work across
+several market states.”</p>
+<h2 id="v03--one-call-across-stress-states">V03 — one call across stress
+states</h2>
+<p><strong>Business change.</strong> Claims and eligible collateral vary
+across a nonempty finite family of supplied scenarios. Recorded cash is
+common to the scenarios. Collateral excludes that separately recorded
+cash.</p>
+<p><strong>Code change.</strong> <code>Market clients stresses</code>
+has <code>Fin (suc stresses)</code> scenarios.
+<code>view b scenario</code> exposes the V02 book at a scenario. For
+each client, the quote is the maximum positive shortfall across this
+family, including existing cash. The scenario values remain arbitrary
+Cauchy reals.</p>
+<p><strong>Proof change.</strong> <code>receive-correct</code>
+establishes simultaneous coverage in all supplied scenarios.
+<code>quote-least</code> proves the least nonnegative uniform receipt,
+per client. <code>snapshot-quote≤uniform</code> relates each scenario's
+requirement to the uniform quote. <code>safe-loss-zero</code> quantifies
+over every scenario and every admissible severity vector.</p>
+<p><strong>Previous compatibility.</strong> In <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V03Stress.html">V03Stress</a>,
+<code>receive-refines-V02</code> shows that receipt and scenario
+projection commute. <code>singleton-quote-refines-V02</code> recovers
+the preceding quote when the market has one scenario. The change to a
+uniform quote is therefore visible and bounded by an explicit regression
+theorem.</p>
+<p>Stress the scope: the theorem covers every member of the supplied
+finite family. Arbitrary real scenario values do not turn it into a
+theorem about all possible future market states. Universal scenario
+constraints follow the interpretation of robust feasibility described in
+<a href="../Broker/REFERENCES.html#robust-optimization">the robust
+optimization reference</a>.</p>
+<h2 id="v04--a-rational-policy-around-real-valuation">V04 — a rational
+policy around real valuation</h2>
+<p><strong>Business change.</strong> An operational gate needs decidable
+amount comparisons. Keep real valuation and add a supplied rational
+upper bound on its current incremental requirement.</p>
+<p><strong>Code change.</strong> Show <code>Report b</code> in <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V04Rational.html">V04Rational</a>:
+<code>amounts</code> is a nonnegative rational vector, and
+<code>dominates</code> proves
+<code>V03.quoteCall b client ≤ rat (amounts client)</code>. The state
+<code>b</code> appears in the report's type. A report for an old state
+needs a proof-backed update or transport before it can be used for a
+different state.</p>
+<p>Explain the accounting point slowly: <strong>the quoted requirement
+is incremental; existing cash has already been included in V03's
+state.</strong> Do not subtract the entire cash balance again.
+<code>advanceReport</code> subtracts only the new receipt and uses
+<code>max(oldUpper − newReceipt, 0)</code> to produce a report for the
+new state.</p>
+<p><strong>Proof change.</strong> <code>receive-correct</code> composes
+the rational report's bound with the actual receipt. <code>assess</code>
+decides whether every rational receipt meets its reported amount.
+Success carries coverage evidence. <code>unmet-quote</code> identifies
+an unmet conservative plan; it does not prove economic
+undercollateralization. The real requirement can be smaller than its
+rational upper bound.</p>
+<p><strong>Previous compatibility.</strong>
+<code>receive-refines-V03</code> states that a rational receipt,
+embedded into the reals, performs the same economic transition. When a
+separate <code>Exact</code> witness is supplied,
+<code>adequate≃safe</code> and <code>assessExact</code> recover the
+stronger equivalence between the amount gate and economic coverage.</p>
+<p>Say: “The executable boundary is deliberate. We decide rational
+policy amounts and prove their connection to real-valued risk.” For
+rational market profiles and rational existing cash, the generic
+<code>RationalInputs</code> module computes <code>initialReport</code>;
+<code>initialReport-exact</code> proves it exact. This provides an
+initial report factory without choosing concrete scenarios. Arbitrary
+real-valued inputs retain the report interface and its supplied bound
+proof.</p>
+<h2 id="v05--minimum-transfer-amounts">V05 — minimum transfer
+amounts</h2>
+<p><strong>Business change.</strong> Suppress small transfers. The
+policy requests zero when the current report amount is at most the
+client's nonnegative MTA; otherwise it requests the entire reported
+amount. The equality boundary belongs to the zero-transfer branch.</p>
+<p><strong>Code change.</strong> <code>quoteCall b report mta</code>
+applies this policy. <code>receive</code> and <code>advanceReport</code>
+are inherited from V04. In particular, suppressing a request does not
+silently credit cash.</p>
+<p><strong>Proof change.</strong> In <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V05Tolerance.html">V05Tolerance</a>,
+<code>receive-correct</code> concludes <code>Bounded</code> after an
+adequate actual receipt: each scenario/client positive unsecured amount
+is at most that client's MTA. <code>Guarantee</code> adds aggregate
+residual and every-severity loss bounds by the sum of MTAs. The
+postcondition has changed from full coverage to a quantified
+tolerance.</p>
+<p><strong>Previous compatibility.</strong>
+<code>receive-refines-V04</code> preserves the transition.
+<code>zero-mta-refines-V04</code> identifies the quote exactly with
+V04's quote when every MTA is zero; <code>zero-mta-safe</code> restores
+full coverage.</p>
+<p>The <a href="../Broker/REFERENCES.html#bcbs-iosco-2020">dated
+BCBS–IOSCO reference</a> motivates minimum transfers. The
+full-gap-or-zero rule, its boundary convention, and the proved residual
+bound are explicit choices of this engine; no regulatory threshold is
+selected here.</p>
+<h2 id="v06--identified-actual-receipts">V06 — identified actual
+receipts</h2>
+<p><strong>Business change.</strong> Receipt delivery can be repeated or
+reordered. Cash must be credited by the identity of the underlying
+receipt, not by counting messages.</p>
+<p><strong>Code change.</strong> <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V06Receipts.html">V06Receipts</a>
+carries a market and a seen-event ledger. The event catalog fixes each
+ID's owner and nonnegative rational amount. <code>view</code> derives
+the V05 book using per-client paid balances from that ledger.
+<code>newCash</code> uses the journal's <code>newlyPaid</code>, which
+excludes IDs already credited. <code>advanceReport</code> uses these
+newly credited amounts. <code>process</code> returns the actual next
+state, a path proving it is the receipt transition result, this valid
+next report, and an assessment. Even an <code>unmet-quote</code>
+assessment retains the actual partial receipt and advances the report;
+it does not undo received cash.</p>
+<p><strong>Proof change.</strong> <code>receive-correct</code> obtains
+the V05 per-client, aggregate, and every-severity bounds when the new
+unique receipts meet the current quote. <code>receive-replay</code> and
+<code>receive-commutes</code> give paths of complete market-and-ledger
+states. <code>certified-state-replay</code> includes the dependent
+<code>Guarantee</code> as well, regardless of how its proof was rebuilt.
+This theorem pairs the state with its risk guarantee; the updated report
+is produced separately by <code>advanceReport</code>.</p>
+<p><strong>Previous compatibility.</strong>
+<code>receive-refines-V05</code> identifies the ledger-backed transition
+with the V05 transition receiving exactly <code>newlyPaid</code>. This
+is the connection that makes the existing financial proof reusable.</p>
+<img class="diagram" src="../_assets/diagram-fe6cd9c4101dfdc91b41.svg" alt="Financial workflow diagram">
+<p>The two routes give equal V05 states by
+<code>receive-refines-V05</code>. Compatibility is stated for these
+projected ledger states: their recorded cash is rational, while their
+market valuations remain arbitrary Cauchy reals.</p>
+<p>Say: “Identity changes the accounting boundary. Financial correctness
+follows through a path between the two state representations.” Cubical
+equality allows dependent evidence to move along this path;
+propositional order proofs do not create an extra economic difference
+between equal states.</p>
+<p>The <a href="../Broker/REFERENCES.html#cdm-event-model">FINOS event
+model</a> motivates the separation of business event identity from
+message delivery, and <a
+href="../Broker/REFERENCES.html#saltzer-1984">Saltzer, Reed, and
+Clark</a> motivate duplicate suppression at the application boundary.
+The immutable catalog is a premise. Distinct IDs must denote distinct
+actual receipts; neither bank authentication nor network exactly-once
+delivery follows from this pure ledger model.</p>
+<h2 id="v07--revaluation-without-discarding-receipt-history">V07 —
+revaluation without discarding receipt history</h2>
+<p><strong>Business change.</strong> Claims and eligible collateral
+change after a report was prepared. Already received cash remains
+received, but the old risk certificate needs a justified update.</p>
+<p><strong>Code change.</strong> <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V07Revaluation.html">V07Revaluation</a>
+changes the market while preserving the ledger. Inside
+<code>Engine catalog</code>, show <code>Update s</code>,
+<code>revalue</code>, and <code>refreshReport</code>. The update pairs
+<code>nextMarket</code> with <code>drift</code>, a nonnegative rational
+<code>reserve</code>, and <code>reserve-bound</code>.</p>
+<p>For each client, the supplied nonnegative real bounds <code>a</code>
+and <code>d</code> satisfy, in every scenario,</p>
+<pre class="text"><code>newClaim ≤ oldClaim + a;
+oldEffectiveCollateral ≤ newEffectiveCollateral + d;
+a + d ≤ rat(reserve).</code></pre>
+<p>Effective collateral includes the same preserved recorded cash on
+both sides. <code>refreshReport</code> sets the new upper amount to
+<code>oldUpper + reserve</code>.</p>
+<p><strong>Proof change.</strong> The result type of
+<code>refreshReport</code> establishes that the new report bounds the
+revalued state's incremental real requirement.
+<code>receive-correct</code> then invokes the same V06 guarantee.
+<code>process</code> returns the assessment and next valid report for a
+further cycle. <code>zero-mta-safe</code> and
+<code>zero-mta-loss-zero</code> expose full coverage and every-severity
+zero loss at zero tolerance. Existing cash is accounted for through the
+preserved ledger, so it is not deducted twice.</p>
+<p><strong>Previous compatibility.</strong> With an unchanged market and
+zero reserve, the <code>unchanged</code> update and
+<code>quote-refines-V06</code> identify the quote with V06's quote;
+<code>receive-refines-V06</code> identifies its receipt transition. Show
+<code>revalue-preserves-ledger</code> and <code>receipt-replay</code> to
+connect revaluation with the retained history.
+<code>certified-state-replay</code> carries the complete state and risk
+guarantee across a receipt replay after the update.</p>
+<p>The <a
+href="../Broker/REFERENCES.html#brigo-pallavicini-2014">margining and
+gap-risk reference</a> motivates making adverse change explicit. This
+version proves deterministic sufficient bounds under supplied drift
+hypotheses. It does not calibrate a margin period of risk, derive a
+default model, or prove that the reserve is least.</p>
+<h2 id="final-contract-what-the-composed-engine-establishes">Final
+contract: what the composed engine establishes</h2>
+<p>Use this notation, with no particular numerical inputs. Let
+<code>j</code> range over the finite clients and <code>s</code> over the
+nonempty finite scenarios. At the current market, let
+<code>X(s,j)</code> be the signed claim, <code>C(s,j) ≥ 0</code> the
+eligible collateral excluding recorded cash, and
+<code>cash(L,j) ≥ 0</code> the cash derived from ledger <code>L</code>.
+Define</p>
+<pre class="text"><code>r(j) = max over s of max(X(s,j) − C(s,j) − cash(L,j), 0).</code></pre>
+<p>A valid current report provides rational <code>u(j) ≥ 0</code> and a
+proof <code>r(j) ≤ rat(u(j))</code>. Given rational tolerances
+<code>m(j) ≥ 0</code>, its request is</p>
+<pre class="text"><code>call(j) = 0       if u(j) ≤ m(j)
+          u(j)   otherwise.</code></pre>
+<p>For any finite batch of catalog IDs, let <code>p(j)</code> be the
+amount newly credited to client <code>j</code>, excluding previously
+seen and repeated IDs. If every <code>p(j) ≥ call(j)</code>, and
+<code>L′</code> is the resulting ledger, then</p>
+<pre class="text"><code>for every s and j:
+  0 ≤ max(X(s,j) − C(s,j) − cash(L′,j), 0) ≤ rat(m(j));
+
+for every s and every severity vector θ with 0 ≤ θ(j) ≤ 1:
+  0 ≤ Σ_j θ(j) · max(X(s,j) − C(s,j) − cash(L′,j), 0)
+    ≤ Σ_j rat(m(j)).</code></pre>
+<p>The aggregate positive unsecured exposure satisfies the same upper
+bound. When every tolerance is zero, all client claims are covered and
+every such severity-weighted closeout loss is zero. This is a universal
+statement over the supplied scenario family and severity vectors,
+without a probability-of-default model.</p>
+<p>Revaluation makes a new valid report from certified adverse-change
+bounds and then reuses this contract. Replaying a batch cannot create
+additional paid cash; the associated certified state is preserved
+through the replay path. The code anchors for this final result are
+<code>Engine.receive-correct</code>,
+<code>Engine.zero-mta-loss-zero</code>, and
+<code>Engine.certified-state-replay</code> in <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.V07Revaluation.html">V07Revaluation</a>.</p>
+<p>Close by locating the boundary precisely. This theorem depends on
+valid valuations, eligible available collateral, correctly assigned
+actual receipt identities, the supplied scenarios, and any supplied
+drift bounds. Receipt cash must be additional to collateral already
+counted in the market. It does not establish legal netting rights,
+authenticated bank receipts, settlement-principal protection,
+currency-specific funding, durable concurrent storage, or production
+throughput. The cited financial literature supplies motivation, not a
+claim of regulatory compliance.</p>
+<h2 id="rehearsal-and-verification">Rehearsal and verification</h2>
+<p>Open each file by its linked name and search for the theorem names
+above; these anchors are stable as proof bodies change. For the live
+code tour, keep one operation and its compatibility theorem visible
+together. Show compiler checking as checking the stated generic
+contracts, and avoid presenting it as a financial calibration or
+performance benchmark.</p>
+<p>From the repository root, these commands check the baseline, the
+rational boundary, and the final import chain using the configured
+wrapper:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Broker2/V01Account.agda</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Broker2/V04Rational.agda</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Broker2/V07Revaluation.agda</span></code></pre></div>
+<p>These are suggested commands, not a record of checks or mutation
+tests performed by this document. Record an actual compiler result when
+demonstrating it.</p>
+<p><a id="pipeline-extension"></a></p>
+<h2
+id="optional-extension--one-calculation-and-its-certificate">Optional
+extension — one calculation and its certificate</h2>
+<p>Allow five minutes. For a 30-minute talk, replace two minutes of the
+opening and one minute of V01 detail with this segment. The standalone
+calculation can also be presented on its own; its source is readable
+without navigating the broader engine. The <a
+href="Pipeline/README.html">pipeline guide</a> contains the assumptions
+and literal code excerpts.</p>
+<p><strong>1. Open the complete function.</strong> In <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline.Implementation.Calculation.html">Implementation/Calculation</a>,
+show <code>calculate valuation seen mta</code>. It takes a current
+valuation, the seen-receipt ledger, and MTAs; it returns a margin-call
+relation. Source catalogs are module parameters. It updates no ledger
+and receives no payment.</p>
+<p><strong>2. Read the relation chain.</strong> Walk through the four
+local quantities: trade rows derive replacement values and group by
+client; collateral rows derive eligible values and group; canonical
+receipts are selected by <code>seen</code> and grouped; scenario rows
+derive positive shortfalls and fold with <code>Maximum.sumBy</code>.
+Explain that this fold uses rational <code>max</code>. Finally, client
+rows derive <code>incrementalUpper</code>, derive
+<code>requestedCash</code>, and project the six output columns. Named
+<code>get</code> expressions make each field dependency visible.</p>
+<p><strong>3. Read a certificate for the actual rows.</strong> Open <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline.Properties.Calculation.html">Properties/Calculation</a>.
+<code>calculate-refines-model</code> identifies
+<code>Code.calculate</code> with <code>modelRows</code>, using its
+current exact initial report and V06 policy.
+<code>calculate-certified</code> returns
+<code>EveryRow (RowCertified ...)</code> for the actual output list.
+Show <code>upper-exact</code>, which relates a returned amount to the
+independent <code>referenceBook</code>, and <code>request-exact</code>,
+which identifies the current V06 request. The certificate also checks
+the retained references, snapshot, MTA, and nonnegative amounts.</p>
+<p><strong>4. Connect requests to a financial consequence.</strong>
+<code>MeetsRequests paid rows</code> checks each row's requested cash
+against payment for the client key in that row.
+<code>fulfilling-calculation</code> assumes nonnegative MTAs and
+additional actual payments meeting this predicate on
+<code>Code.calculate</code>. Its result is
+<code>Tolerance.Guarantee</code> after crediting those payments to the
+independent reference book: per-client residual at most MTA, aggregate
+and every-severity loss at most the sum of MTAs. Existing seen cash is
+already deducted. The payment theorem itself performs no deduplication;
+delivery callers should use the separate receipt
+<code>deltaBalances</code> and accounting proofs for new amounts.</p>
+<p><strong>5. State the boundary and optional context.</strong> Catalogs
+must describe distinct live trades, authorized netting sets, and
+available collateral. Rational valuation is supplied; recorded and new
+cash is available at par in the common currency. Labels remain metadata.
+The calculation recomputes the exact current requirement, so its request
+need not equal a historical conservative revaluation quote. The separate
+<a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline.Implementation.Margin.html">Margin
+engine</a> and its properties remain available for the fuller
+receipt/update lifecycle.</p>
+<p>The <a href="REFERENCES.html#relational-pipeline">pipeline
+references</a> connect data representation to Codd, event identity to
+FINOS and Saltzer, and the financial assumptions to the existing margin
+literature. Those sources motivate the design; the separate properties
+module proves this implementation's results.</p>
+<p>For rehearsal:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Broker2/Pipeline/Implementation/Calculation.agda</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">agda-codex</span> Cubical/HITs/CauchyReals/Example/Financial/Broker2/Pipeline/Properties/Calculation.agda</span></code></pre></div>
+</main></body></html>

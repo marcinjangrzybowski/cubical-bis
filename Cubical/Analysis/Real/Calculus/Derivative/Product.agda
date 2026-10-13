@@ -39,6 +39,8 @@ open import Cubical.Analysis.Real.Order.Metric.AbsoluteDifference
   using (closeness→absDifference<)
 open import Cubical.Analysis.Real.Calculus.Derivative.Base
 open import Cubical.Analysis.Real.Calculus.Derivative.Continuity
+open import Cubical.Analysis.Real.Calculus.Derivative.Uniform
+open import Cubical.Analysis.Real.Integration.UniformContinuity
 
 open PositiveRationals
 open PositiveHalvesℚ
@@ -590,3 +592,92 @@ mulHasDerivative f g f' g' =
   mulHasDerivativeAlong
     (ℝPremetricSpace .snd) (idfun ℝ) f g f' g'
     (snd (CategoryStructures.idᶜ {M = ℝPremetricSpace}))
+
+
+-- Uniform version of the product rule. The supplied bounds work on the
+-- whole source domain; only the right factor needs a separate continuity
+-- estimate. This reuses the same exact remainder identity as the local rule.
+opaque
+  mulHasUniformDerivativeAlongBounded :
+    ∀ {ℓ ℓ'} {A : Type ℓ} (source : PremetricStr ℓ' A)
+      (coordinate f g f' g' : A → ℝ) (F G D : ℚ₊) →
+    (∀ x → absℝ (f x) ≤ℝ rat (fst F)) →
+    (∀ x → absℝ (g x) ≤ℝ rat (fst G)) →
+    (∀ x → absℝ (f' x) ≤ℝ rat (fst D)) →
+    IsRadiuswiseUniformlyContinuous source g (ℝPremetricSpace .snd) →
+    IsRadiuswiseUniformDerivativeAlong source coordinate f f' →
+    IsRadiuswiseUniformDerivativeAlong source coordinate g g' →
+    IsRadiuswiseUniformDerivativeAlong source coordinate
+      (λ x → f x · g x) (λ x → f' x · g x + f x · g' x)
+  mulHasUniformDerivativeAlongBounded {A = A} source coordinate f g f' g' F G D
+    fBound gBound dBound gContinuous fDerivative gDerivative ε = do
+    (δf , first) ← fDerivative ((ε /4₊) ₊／₊ G)
+    (δg , second) ← gDerivative ((ε /4₊) ₊／₊ F)
+    (δc , near) ← gContinuous ((ε /2₊) ₊／₊ D)
+    return (min₊ δf (min₊ δg δc) , λ x y close →
+      estimate x y
+        (first x y (PremetricStr.isMonotone≈≤ source x y
+          (min₊ δf (min₊ δg δc)) δf (min₊≤L δf (min₊ δg δc)) close))
+        (second x y (PremetricStr.isMonotone≈≤ source x y (min₊ δg δc) δg
+          (min₊≤L δg δc) (PremetricStr.isMonotone≈≤ source x y
+            (min₊ δf (min₊ δg δc)) (min₊ δg δc) (min₊≤R δf (min₊ δg δc)) close)))
+        (near x y (PremetricStr.isMonotone≈≤ source x y (min₊ δg δc) δc
+          (min₊≤R δg δc) (PremetricStr.isMonotone≈≤ source x y
+            (min₊ δf (min₊ δg δc)) (min₊ δg δc) (min₊≤R δf (min₊ δg δc)) close))))
+    where
+    estimate : ∀ (x y : A) →
+      absℝ (derivativeErrorAlong coordinate f f' x y)
+        ≤ℝ rat (fst ((ε /4₊) ₊／₊ G)) · absℝ (coordinate y - coordinate x) →
+      absℝ (derivativeErrorAlong coordinate g g' x y)
+        ≤ℝ rat (fst ((ε /4₊) ₊／₊ F)) · absℝ (coordinate y - coordinate x) →
+      g x ∼[ (ε /2₊) ₊／₊ D ] g y →
+      absℝ (derivativeErrorAlong coordinate (λ z → f z · g z)
+        (λ z → f' z · g z + f z · g' z) x y)
+        ≤ℝ rat (fst ε) · absℝ (coordinate y - coordinate x)
+    estimate x y first second close =
+      subst2 _≤ℝ_
+        (cong absℝ (sym (productDerivativeErrorPath coordinate f g f' g' x y)))
+        totalPath
+        (≤ℝ-trans (absℝ ((e₁ + e₂) + e₃)) (absℝ (e₁ + e₂) + absℝ e₃)
+          ((quarter · distance + quarter · distance) + half · distance)
+          (absTriangle (e₁ + e₂) e₃)
+          (addPres≤ (absℝ (e₁ + e₂)) (quarter · distance + quarter · distance)
+            (absℝ e₃) (half · distance)
+            (≤ℝ-trans (absℝ (e₁ + e₂)) (absℝ e₁ + absℝ e₂)
+              (quarter · distance + quarter · distance) (absTriangle e₁ e₂)
+              (addPres≤ (absℝ e₁) (quarter · distance) (absℝ e₂) (quarter · distance)
+                (boundedErrorProduct (g y) (derivativeErrorAlong coordinate f f' x y)
+                  distance G (ε /4₊) (gBound y) first)
+                (boundedErrorProduct (f x) (derivativeErrorAlong coordinate g g' x y)
+                  distance F (ε /4₊) (fBound x) second)))
+            crossBound))
+      where
+      distance : ℝ
+      distance = absℝ (coordinate y - coordinate x)
+      quarter half : ℝ
+      quarter = rat (fst (ε /4₊))
+      half = rat (fst (ε /2₊))
+      e₁ e₂ e₃ : ℝ
+      e₁ = g y · derivativeErrorAlong coordinate f f' x y
+      e₂ = f x · derivativeErrorAlong coordinate g g' x y
+      e₃ = (f' x · (g y - g x)) · (coordinate y - coordinate x)
+      innerBound : absℝ (f' x · (g y - g x)) ≤ℝ half
+      innerBound = subst2 _≤ℝ_ (sym (absMul (f' x) (g y - g x)))
+        (mul-rat (fst D) (fst ((ε /2₊) ₊／₊ D)) ∙ cong rat (·／ D (ε /2₊)))
+        (mulPres≤ (absℝ (f' x)) (rat (fst D)) (absℝ (g y - g x))
+          (rat (fst ((ε /2₊) ₊／₊ D))) (positiveRationalNonnegative D)
+          (absNonnegative (g y - g x)) (dBound x)
+          (<ℝ-weaken (absℝ (g y - g x)) (rat (fst ((ε /2₊) ₊／₊ D)))
+            (subst (_<ℝ rat (fst ((ε /2₊) ₊／₊ D))) (absSubComm (g x) (g y))
+              (closeness→absDifference< (g x) (g y) ((ε /2₊) ₊／₊ D) close))))
+      crossBound : absℝ e₃ ≤ℝ half · distance
+      crossBound = subst (_≤ℝ half · distance)
+        (sym (absMul (f' x · (g y - g x)) (coordinate y - coordinate x)))
+        (mulPres≤R-0≤ (absℝ (f' x · (g y - g x))) half distance
+          (absNonnegative (coordinate y - coordinate x)) innerBound)
+      totalPath : (quarter · distance + quarter · distance) + half · distance ≡ rat (fst ε) · distance
+      totalPath = cong (_+ half · distance)
+        (sym (mulDistL quarter quarter distance)
+          ∙ cong (_· distance) (rat+rat (fst (ε /4₊)) (fst (ε /4₊)) ∙ cong rat (/4+/4≡/2 (fst ε))))
+        ∙ sym (mulDistL half half distance)
+        ∙ cong (_· distance) (rat+rat (fst (ε /2₊)) (fst (ε /2₊)) ∙ cong rat (/2+/2≡id (fst ε)))

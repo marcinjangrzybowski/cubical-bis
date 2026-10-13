@@ -1,6 +1,15 @@
 # Viability in the current constructive Cubical Agda setting
 
-Latest paused state: [CHECKPOINT.md](CHECKPOINT.md). The local endpoint
+Latest state: [CHECKPOINT.md](CHECKPOINT.md). The 2026-09-09 restart
+selected [analytic regularization](ANALYTIC_REGULARIZATION.md) and
+proved nested interpolation, nearby real class equality, and the
+density-to-representatives implication. `JointDensity` remains the
+absolute analytic target; finite pasting and coverage are checked.
+The 2026-09-11 [finite constructor](FINITE_APPROXIMATION.md) now produces
+joint real loops and their rounded approximation bounds from suitable
+finite samples. Mesh selection and endpoint recovery are checked;
+finite sample existence and window estimates remain.
+The local endpoint
 normalization, its complete family over a fixed common anchor face,
 and the comparison of the actual weakening APIs are now checked. An
 independent audit still requires a closed variable-carrier interpreter
@@ -35,7 +44,10 @@ separate coherence problem; a triangle law alone would not close it.
 | Selected-face carriers and local weakening | Checked: full pointed transition spaces at a common corner are contractible; their actions preserve ambient maps, restrictions, and supplied extensions. |
 | Changing carrier anchors across a grid | Pairwise anchor independence is checked. A normalization of complete comparison frames, retaining their boundary homotopies, remains unproved. |
 | Nearby sphere interpolation and relative boundary preservation | Checked uniformly in sphere dimension. |
-| Universal interpolation error control and based-family loop iteration | Checked in `InterpolationControl` and `MappingLifts`. The admissible-pair presentation and approximation induction remain. |
+| Universal interpolation error control and based-family loop iteration | Checked in `InterpolationControl` and `MappingLifts`. Actual pair packing and recursive control are now checked below; the full presentation isomorphism is unnecessary for this route. |
+| Binary interpolation of actual nested loops and nearby real class equality | Now checked uniformly in both dimensions; a direct pair-packing map suffices without the full presentation isomorphism. |
+| Jointly UC representatives from metric density | Checked conditional on the explicit `JointDensity` statement, using an unconditional uniform class radius. The density construction remains. |
+| Finite positive-overlap gluing and coverage | Checked, including finite sample interpolation, joint loop construction, and rounded error control. Mesh selection is checked; finite sample existence and window estimates remain. |
 | Sphere-specific finite approximation at a requested tolerance | Credible constructive proof strategy, with substantial implementation remaining. |
 | Exact uncurrying of every iterated real loop | The usual argument has an unresolved modulus-selection step; it is stronger than the comparison needs. |
 | Uniform coherent singular realization | Principal research risk. No complete internal recursion has been established. |
@@ -120,9 +132,11 @@ The lift through rounded uniform mapping spaces is now checked in
 [MappingLifts.agda](MappingLifts.agda). Pointwise estimates at `ε/2`
 provide a strict output rounding witness at `ε`. Retaining the basepoint
 law gives `iterateBasedFamily` by structural induction on loop depth.
-To apply this to pairs of nested sphere loops, the product/subspace
-comparison for the admissible-pair source and the recursive quantitative
-error invariant remain to prove.
+The new [NestedInterpolation](../../Spheres/NestedInterpolation.agda)
+uses a direct based packing map to handle pairs of actual nested sphere
+loops. [NestedInterpolationControl](../../Spheres/NestedInterpolationControl.agda)
+proves the recursive quantitative invariant. The full product/subspace
+presentation isomorphism is no longer needed by this construction.
 
 For relative homotopies, perform the construction with one additional
 coordinate and restore prescribed jointly UC endpoint cubes using

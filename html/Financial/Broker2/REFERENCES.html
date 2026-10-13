@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sources and presentation
+choices · Financial</title><link rel="stylesheet" href="../_assets/style.css">
+
+</head><body><main>
+<nav class="site-nav"><a href="../index.html">Financial documentation</a><a href="../README.html">Overview</a><a href="../../../Cubical/HITs/CauchyReals/Example/Financial/Broker2/REFERENCES.md">Markdown source</a></nav>
+<details class="toc"><summary>On this page</summary><ul>
+<li><a href="#sources-and-presentation-choices"
+id="toc-sources-and-presentation-choices">Sources and presentation
+choices</a>
+<ul>
+<li><a href="#limits-of-attribution"
+id="toc-limits-of-attribution">Limits of attribution</a></li>
+<li><a
+href="#relational-pipeline-representation-identity-and-accounting"
+id="toc-relational-pipeline-representation-identity-and-accounting">Relational
+pipeline: representation, identity, and accounting</a></li>
+<li><a href="#codd-logical-data-representation-1970"
+id="toc-codd-logical-data-representation-1970">Codd: logical data
+representation, 1970</a></li>
+</ul></li>
+</ul></details>
+<h1 id="sources-and-presentation-choices">Sources and presentation
+choices</h1>
+<p>This progression formalizes a small margin engine and its successive
+changes. The financial sources motivate the concepts; the
+version-to-version refinements, rational report updates and Cubical
+certificate paths are theorems of this implementation. No numerical
+scenario or parameter calibration is supplied.</p>
+<table>
+<thead>
+<tr>
+<th>Versions</th>
+<th>Source</th>
+<th>What it motivates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V01–V03</td>
+<td>BCBS, <em>Supervisory guidance for managing risks associated with
+the settlement of foreign exchange transactions</em> (2013),
+§§3.3.5–3.3.8. <a href="https://www.bis.org/publ/bcbs241.htm">Official
+guidance</a>.</td>
+<td>Replacement-cost exposure, separate authorized netting sets, and
+collateral availability/valuation.</td>
+</tr>
+<tr>
+<td>V03–V04</td>
+<td>A. Ben-Tal and A. Nemirovski, <em>Robust Convex Optimization</em>,
+Mathematics of Operations Research 23(4), 769–805 (1998). <a
+href="https://www2.isye.gatech.edu/~nemirovs/robmp.pdf">Author-hosted
+paper</a>.</td>
+<td>Interpreting coverage as a constraint that holds for every member of
+a supplied uncertainty set.</td>
+</tr>
+<tr>
+<td>V05</td>
+<td>BCBS–IOSCO, <em>Margin requirements for non-centrally cleared
+derivatives</em>, April 2020 revision, requirement 2.3 and Element 4. <a
+href="https://www.bis.org/publications/202004-standards-margin-requirements-non-centrally-cleared-derivatives.pdf">Dated
+standard</a>.</td>
+<td>Minimum transfer amounts and conservative collateral concepts. The
+precise full-gap-or-zero policy and equality boundary are explicit model
+choices.</td>
+</tr>
+<tr>
+<td>V06</td>
+<td>FINOS, <em>Common Domain Model: Event Model</em>, living
+documentation, accessed 8 September 2026. <a
+href="https://cdm.finos.org/docs/event-model/#event-identifier">Event
+identity</a>.</td>
+<td>Distinguishing a business event's identity from delivery/workflow
+messages.</td>
+</tr>
+<tr>
+<td>V06</td>
+<td>J. H. Saltzer, D. P. Reed, and D. D. Clark, <em>End-to-End Arguments
+in System Design</em>, ACM TOCS 2(4), 277–288 (1984). <a
+href="https://web.mit.edu/6.033/2002/wwwdocs/papers/endtoend.pdf#page=6">MIT-hosted
+text</a>.</td>
+<td>Duplicate suppression using knowledge at the application
+boundary.</td>
+</tr>
+<tr>
+<td>V07</td>
+<td>D. Brigo and A. Pallavicini, <em>Nonlinear consistent valuation of
+CCP cleared or CSA bilateral trades with initial margins under credit,
+funding and wrong-way risks</em>, Journal of Financial Engineering 1(1),
+1450001 (2014). <a
+href="https://doi.org/10.1142/S2345768614500019">Publisher DOI</a>.</td>
+<td>Explicitly accounting for collateral and adverse changes before cash
+protection is available. Our reserve is a deterministic bound, not that
+paper's stochastic valuation model.</td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="../Broker/REFERENCES.html">earlier broker
+bibliography</a> supplies fuller bibliographic details, section
+references and source-specific limitations. The <a
+href="PRESENTATION.html">presentation</a> uses these concepts to explain
+software contracts rather than to reproduce the cited methodologies in
+full.</p>
+<h2 id="limits-of-attribution">Limits of attribution</h2>
+<p>The rational report interface is our constructive bridge from real
+risk to executable amount decisions. For arbitrary real profiles it
+consumes a certified bound. For rational profiles
+<code>RationalInputs</code> computes and proves exact finite maxima.
+Neither behavior is attributed to a cited optimization algorithm.</p>
+<p>The MTA theorem bounds a residual allowance after actual receipts.
+Physically settled FX forwards/swaps are excluded from the 2020
+standard's general margin requirements; its requirement 1.1 points to
+separate variation-margin guidance and national treatment. No assertion
+of regulatory applicability or compliance is made for this generic
+code.</p>
+<p>The event catalog fixes each owner and amount. Distinct IDs must
+denote distinct actual receipts, separate from base collateral. The CDM
+and duplicate-suppression references motivate that distinction; they do
+not authenticate our inputs or establish durable, concurrent banking
+operations.</p>
+<p>The final guarantee concerns modeled positive unsecured replacement
+exposure and supplied severities in <code>[0,1]</code>. Settlement
+principal, funding liquidity, liquidation and model adequacy require
+separate contracts. The proof assistant checks consequences of the
+supplied data and evidence; it does not certify that a chosen stress
+family describes the future market.</p>
+<p><a id="relational-pipeline"></a></p>
+<h2
+id="relational-pipeline-representation-identity-and-accounting">Relational
+pipeline: representation, identity, and accounting</h2>
+<p>The <a href="Pipeline/README.html">pipeline guide</a> starts with the
+standalone <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline.Implementation.Calculation.html">Implementation/Calculation</a>
+function. Its <code>calculate</code> body chains typed source rows
+through <code>deriveᵣ</code>, <code>selectᵣ</code>, grouping, a maximum
+fold, and projection. It returns the current call table. The
+<code>Implementation/</code> modules contain ordinary calculations; the
+separate <code>Properties/</code> modules contain their accounting and
+financial proofs.</p>
+<p><a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline.Properties.Calculation.html">Properties/Calculation</a>
+proves <code>calculate-refines-model</code> for the actual output table,
+using the current exact initial report and V06 quote.
+<code>calculate-certified</code> certifies every returned row; its
+<code>upper-exact</code> field connects the amount to the independent
+indexed <code>referenceBook</code>. <code>fulfilling-calculation</code>
+then gives the tolerance guarantee when additional nonnegative actual
+payments meet that table's requests. The supplied valuation functions
+are shared by implementation and specification; accounting refinement is
+not independent pricing validation.</p>
+<p>The optional <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline.Implementation.Margin.html">Margin
+engine</a> retains the broader receipt/revaluation lifecycle and its <a
+href="../../Cubical.HITs.CauchyReals.Example.Financial.Broker2.Pipeline.Properties.Refinement.html">complete
+output refinement</a>. Its maintained conservative quotes need not equal
+the standalone calculation's recomputed exact current quote. The
+computed-report paths do not identify arbitrary conservative reports.
+These are implementation theorems, not results attributed to the sources
+below. Existing and additional receipt cash is supplied as available at
+par in the common account currency; the literature does not establish
+that premise for an input catalog.</p>
+<table>
+<thead>
+<tr>
+<th>Pipeline concept</th>
+<th>Primary source and scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Separating a logical data model from a machine representation</td>
+<td><a href="#codd-1970">Codd (1970)</a> motivates the separation; our
+exact accounting and model-refinement paths are proved in Agda.</td>
+</tr>
+<tr>
+<td>Grouping positions into an authorized netting set and valuing
+available collateral</td>
+<td><a href="../Broker/REFERENCES.html#bcbs-fx-2013">BCBS FX
+guidance</a>, especially §§3.3.5–3.3.8. A pipeline client key must
+denote a permissible netting group; the source does not certify the
+adapter's grouping.</td>
+</tr>
+<tr>
+<td>Business receipt identity independent of message delivery</td>
+<td><a href="../Broker/REFERENCES.html#cdm-event-model">FINOS CDM</a>.
+External labels are metadata in our schema; immutable internal keys
+drive actual receipt accounting.</td>
+</tr>
+<tr>
+<td>Suppressing replay at the application boundary</td>
+<td><a href="../Broker/REFERENCES.html#saltzer-1984">Saltzer, Reed, and
+Clark</a>. The implementation proves ledger and balance identities,
+without a durable-storage or authentication theorem.</td>
+</tr>
+<tr>
+<td>Uniform protection across supplied scenarios</td>
+<td><a href="../Broker/REFERENCES.html#robust-optimization">Ben-Tal and
+Nemirovski</a> motivates requiring coverage for every supplied scenario.
+The exact finite calculation and its row certificate are proved
+here.</td>
+</tr>
+<tr>
+<td>Adverse revaluation in the optional broader engine</td>
+<td><a href="../Broker/REFERENCES.html#brigo-pallavicini-2014">Brigo and
+Pallavicini</a> motivates explicit margining/gap risk. Summing positive
+scenario changes is our sufficient reserve, not a calibrated
+initial-margin method or a least-reserve claim.</td>
+</tr>
+</tbody>
+</table>
+<p>Completeness, business-key uniqueness, custody availability,
+sufficient instrument identifiers, and snapshot consistency remain
+source-adapter conditions. The formal refinements certify consequences
+of those supplied data. They do not establish that the catalog describes
+the external business correctly.</p>
+<p><a id="codd-1970"></a></p>
+<h2 id="codd-logical-data-representation-1970">Codd: logical data
+representation, 1970</h2>
+<p>E. F. Codd, <em>A relational model of data for large shared data
+banks</em>, <em>Communications of the ACM</em> <strong>13</strong>(6),
+377–387, 1 June 1970. <a
+href="https://doi.org/10.1145/362384.362685">Publisher DOI:
+10.1145/362384.362685</a>, <a
+href="https://research.ibm.com/publications/a-relational-model-of-data-for-large-shared-data-banks">IBM
+Research publication record</a>.</p>
+<p>Codd motivates protecting applications from changes in internal data
+representation and introduces a relational model. This provides context
+for separating pipeline row operations from their indexed financial
+meaning. <a href="https://doi.org/10.1145/362384.362685">Publisher
+abstract</a>.</p>
+<p>Our <code>Relation'</code> is a list with explicit order and
+multiplicity. The pipeline implements specified projection, selection,
+and aggregation functions over it; it does not claim all
+relational-algebra or SQL laws, query-optimizer correctness, database
+normalization, or transaction isolation. The refinement proofs and
+Cauchy-real risk guarantees are this implementation's results.</p>
+</main></body></html>

@@ -16,8 +16,10 @@ open import Cubical.Relation.Premetric.Mappings
 open import Cubical.Analysis.Real.Base
 
 
--- Integration only needs one input radius at a time.  Keeping that radius
--- truncated avoids adding a choice principle for a global modulus.
+-- Integral estimates only need one input radius at a time. Keeping that
+-- radius truncated avoids adding a choice principle for a global modulus.
+-- The general existence theorem in RiemannIntegral.UniformContinuity uses
+-- the standard isUniformlyContinuous predicate to construct a sequence limit.
 IsRadiuswiseUniformlyContinuous :
   ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {B : Type ℓB} →
   PremetricStr ℓA' A → (A → B) → PremetricStr ℓB' B →

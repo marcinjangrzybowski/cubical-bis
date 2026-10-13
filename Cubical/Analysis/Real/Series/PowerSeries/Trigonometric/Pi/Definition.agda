@@ -10,8 +10,8 @@ open import
   Cubical.Analysis.Real.Series.PowerSeries.Trigonometric.Pi.Characterization
 
 
--- A characterized value is kept as explicit data until the Bishop
--- convergence/positivity proof supplies an inhabitant.  The underlying real
+-- The specification is independent of the construction. Damped.Characterization
+-- supplies an inhabitant by native sequential convergence. The underlying real
 -- selected by any two such constructions is unique.
 
 CharacterizedHalfPi : Type₀
